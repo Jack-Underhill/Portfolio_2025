@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import avatarLogo from './assets/avatar.png'
-import projectWorkLogo from './assets/project_work.png'
-import projectStoreLogo from './assets/project_store.png'
-import projectSimLogo from './assets/project_sim.png'
+import projectWorkLogo from './assets/Project_Work.png'
+import projectStoreLogo from './assets/Project_Store.png'
+import projectSimLogo from './assets/Project_Sim.png'
 import './App.css'
 
 function App() {
