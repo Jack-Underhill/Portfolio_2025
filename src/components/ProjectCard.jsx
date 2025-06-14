@@ -2,9 +2,9 @@ import TechTag from './TechTag'
 
 function ProjectCard({ image, title, desc, link, tags }) {
     return (
-        <a href={link} target="_blank" title='View My Portfolio Repo' className='flex-1 px-6 py-4 bg-card border-2 border-card-border shadow-lg hover:bg-gray-600 rounded-xl flex flex-col gap-y-4'>
+        <a href={link} target="_blank" title='View My Portfolio Repo' className='px-6 py-4 bg-card border-2 border-card-border shadow-lg hover:bg-gray-600 rounded-xl flex flex-col gap-y-4'>
             <div className='w-full aspect-video rounded-xl'>
-                <img src={image} alt="Profile Avatar" className='size-full object-contain rounded-xl' />
+                <img src={image} alt="Profile Avatar" className='w-full h-auto object-contain rounded-xl' />
             </div>
             
             <div className='text-2xl font-bold text-emerald-50'>

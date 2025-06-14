@@ -7,7 +7,7 @@ import TextBlock from './TextBlock'
 
 function Projects() {
     return (
-      <div className="w-full h-[calc(100vh-6rem)] flex flex-col gap-y-12 justify-center">
+      <div className="py-12 w-full min-h-screen flex flex-col gap-y-12 justify-center">
         
         {/* About */}
         <TextBlock
@@ -16,7 +16,7 @@ function Projects() {
         />
 
         {/* Cards */}
-        <div className='h-1/2 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'>
+        <div className='grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'>
           <ProjectCard 
             image={projectWorkLogo}
             title="This Portfolio"
