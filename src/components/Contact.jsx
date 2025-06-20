@@ -1,49 +1,79 @@
 import TechTag from './TechTag'
+import SocialTag from './SocialTag'
+
+import LinkedInIcon from '../assets/linkedin.svg'
+import GitHubIcon from '../assets/github.svg'
+import FiverrIcon from '../assets/fiverr.svg'
+import UpWorkIcon from '../assets/upwork.svg'
 
 let TagClassName = 'px-5 py-1.5 text-xl sm:text-2xl md:text-3xl rounded-lg bg-card-att text-emerald-50'
 
 function Contact() {
     return (
-      <div className="w-full min-h-screen flex flex-col gap-y-12 justify-center">
-        <div className='text-4xl font-bold text-emerald-50'>
-          Proficient Languages
+      <div className="w-full min-h-screen flex flex-col gap-20 justify-center">
+        <div className='flex flex-col gap-8'>
+          <div className='text-4xl font-bold text-emerald-50'>
+            Proficient Languages
+          </div>
+          <TechTag
+              className={TagClassName}
+              tags={[
+                  "Java",
+                  "C++",
+                  "JavaScript",
+                  "C#",
+              ]}
+          />
         </div>
-        <TechTag
-            className={TagClassName}
-            tags={[
-                "Java",
-                "C++",
-                "JavaScript",
-                "C#",
-            ]}
-        />
 
-        <div className='text-4xl font-bold text-emerald-50'>
-          Experience Using
+        <div className='flex flex-col gap-8'>
+          <div className='text-4xl font-bold text-emerald-50'>
+            Experience Using
+          </div>
+          <TechTag
+              className={TagClassName}
+              tags={[
+                  "C",
+                  "Python",
+                  "TailwindCSS",
+                  "React",
+                  "MySQL",
+                  "SQLite",
+                  "HTML",
+                  "CSS",
+                  "Node.js",
+                  "Express.js",
+              ]}
+          />
         </div>
-        <TechTag
-            className={TagClassName}
-            tags={[
-                "C",
-                "Python",
-                "TailwindCSS",
-                "React",
-                "MySQL",
-                "SQLite",
-                "HTML",
-                "CSS",
-                "Node.js",
-                "Express.js",
-            ]}
-        />
-        
-        <div className='text-4xl font-bold text-emerald-50'>
-          Contact Me
+
+        <div className='flex flex-col gap-8'>
+          <div className='text-4xl font-bold text-emerald-50'>
+            Contact Me
+          </div>
+          <div className='h-20 flex flex-wrap gap-4'>
+            <SocialTag 
+              name="LinkedIn"
+              link="https://www.linkedin.com/in/underhill-jack"
+              icon={LinkedInIcon}
+            />
+            <SocialTag 
+              name="GitHub"
+              link="https://github.com/Jack-Underhill"
+              icon={GitHubIcon}
+            />
+            <SocialTag 
+              name="Fiverr"
+              link="https://www.fiverr.com/s/P2NGy4p"
+              icon={FiverrIcon}
+            />
+            <SocialTag 
+              name="UpWork"
+              link="https://www.upwork.com/freelancers/~0127c25c7f113de8cd?mp_source=share"
+              icon={UpWorkIcon}
+            />
+          </div>
         </div>
-        <a href='mailto:jackmaierunderhill@gmail.com'
-          className='text-xl font-semibold text-emerald-50 underline hover:text-sky-400 transition'>
-          jackmaierunderhill@gmail.com
-        </a>
       </div>
     )
 }
