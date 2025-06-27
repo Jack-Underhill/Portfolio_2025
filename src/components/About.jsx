@@ -17,7 +17,7 @@ function About() {
 
                 <div className='flex flex-wrap gap-4'>
                     <a 
-                        className='w-fit p-3 text-xl font-bold rounded-xl text-emerald-50 bg-button border-2 border-button-border shadow-lg hover:bg-sky-600' 
+                        className='w-fit p-3 text-xl font-bold rounded-xl text-emerald-50 bg-button border-2 border-button-border shadow-lg hover:bg-cyan-800' 
                         href="https://github.com/Jack-Underhill" 
                         target="_blank" 
                         title='View My GitHub'>
@@ -38,13 +38,13 @@ function About() {
                 <a 
                     href="https://www.linkedin.com/in/underhill-jack/" 
                     target="_blank"
-                    className="w-full max-h-[600px] aspect-auto rounded-3xl" 
+                    className="h-full w-full max-w-4/5 max-h-4/5 aspect-auto rounded-3xl" 
                     title='View My LinkedIn'
                 >
                     <img 
                         src={avatarLogo} 
                         alt="Profile Avatar" 
-                        className='w-full h-auto rounded-3xl animate-bounce hover:animate-spin transition duration-200' 
+                        className='w-full h-full rounded-3xl animate-bounce hover:animate-spin transition duration-200' 
                     />
                 </a>
             </div>

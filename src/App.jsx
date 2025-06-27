@@ -4,10 +4,21 @@ import Contact from './components/Contact'
 
 function App() {
   return (
-    <div>
-      <About />
-      <Projects />
-      <Contact />
+    <div className='relative w-full h-full'>
+      {/* Background gradient + linen noise */}
+      <div 
+        className='pointer-events-none fixed inset-0 z-0 bg-blend-soft bg-cover opacity-100'
+        style={{
+          backgroundImage: `radial-gradient(circle at 72% 50%, rgba(56,189,248,0.35) 0%, rgba(56,189,248,0.15) 40%, transparent 90%), url('/black-linen.png')`
+        }}
+      />
+
+      {/* Layout */}
+      <div className='relative z-10 py-3 px-20'>
+        <About />
+        <Projects />
+        <Contact />
+      </div>
     </div>
   )
 }

@@ -8,8 +8,8 @@
   --color-card-border: #222832;
   --color-card-att: #2F3742;
 
-  --color-button: #385BA2;
-  --color-button-border: #395FA7;
+  --color-button: #0e8ac2;
+  --color-button-border: #1b95cc;
 }
 
 html, body, #root {
@@ -17,10 +17,4 @@ html, body, #root {
   margin: 0px;
   padding: 0px;
   background-color: #0E1419;
-}
-
-#root {
-  margin: 3rem;
-  margin-left: 5rem;
-  margin-right: 5rem;
 }
