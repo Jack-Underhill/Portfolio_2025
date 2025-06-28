@@ -29,7 +29,7 @@ function Projects() {
                 "Netlify",
             ]}
           />
-          
+      
           <ProjectCard 
             image={projectStoreLogo}
             title="University Merch Store"
@@ -41,7 +41,7 @@ function Projects() {
                 "SQLite",
             ]}
           />
-          
+        
           <ProjectCard 
             image={projectSimLogo}
             title="Pathfinder Simulator & Maze Generator"

@@ -12,7 +12,7 @@ function Contact() {
     return (
       <div className="w-full min-h-screen flex flex-col gap-20 justify-center">
         <div className='flex flex-col gap-8'>
-          <div className='text-4xl font-bold text-emerald-50'>
+          <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
             Proficient Languages
           </div>
           <TechTag
@@ -27,7 +27,7 @@ function Contact() {
         </div>
 
         <div className='flex flex-col gap-8'>
-          <div className='text-4xl font-bold text-emerald-50'>
+          <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
             Experience Using
           </div>
           <TechTag
@@ -48,7 +48,7 @@ function Contact() {
         </div>
 
         <div className='flex flex-col gap-8'>
-          <div className='text-4xl font-bold text-emerald-50'>
+          <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
             Contact Me
           </div>
           <div className='h-20 flex flex-wrap gap-4'>

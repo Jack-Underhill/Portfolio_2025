@@ -18,3 +18,17 @@ html, body, #root {
   padding: 0px;
   background-color: #0E1419;
 }
+
+@keyframes moveGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.animated-gradient {
+  background-size: 200% 100%;
+  animation: moveGradient 3s reverse linear infinite;
+}
