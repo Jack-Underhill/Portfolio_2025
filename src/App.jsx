@@ -45,14 +45,14 @@ function App() {
 
       {/* View Count */}
       <div 
-        className="m-3 sm:m-5 h-10 flex gap-2 items-center" 
+        className="w-fit m-3 sm:m-5 h-10 flex gap-2 items-center group" 
         title='User Visit Count' 
         data-aos="flip-up"
       >
           <img 
               src={clicks} 
               alt={`View svg`}
-              className='h-full hover:animate-spin' 
+              className='h-full group-hover:animate-spin' 
           />
           <div className='text-md font-semibold text-emerald-50'>
             {visitCount !== null ? `${visitCount} views` : 'Loading ...'}

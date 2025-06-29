@@ -1,8 +1,17 @@
+import { useEffect, useState } from 'react';
 import avatarLogo from '../assets/avatar.png'
 
 import TextBlock from './TextBlock'
 
 function About() {
+    const [animate, setAnimate] = useState(true);
+
+    useEffect(() => {
+        setAnimate(false);
+        const timeout = setTimeout(() => setAnimate(true), 10);
+        return () => clearTimeout(timeout);
+    }, []);
+
     return (
         <div className="w-full min-h-fit lg:min-h-screen items-center flex flex-col-reverse md:flex-row">
             <div className="w-full h-full md:w-3/5 flex flex-col gap-y-7 justify-center">
@@ -41,17 +50,15 @@ function About() {
                 <a 
                     href="https://www.linkedin.com/in/underhill-jack/" 
                     target="_blank"
-                    className="h-full w-full max-w-4/5 max-h-4/5 aspect-auto rounded-3xl" 
+                    className='h-full w-full max-w-4/5 max-h-4/5 aspect-auto rounded-3xl' 
                     title='View My LinkedIn'
                     data-aos="flip-up"
                 >
-                    <div className='w-full h-full rounded-3xl animate-bounce hover:animate-spin transition duration-200 ease-in-out'>
-                        <img 
-                            src={avatarLogo} 
-                            alt="Profile Avatar" 
-                            className='w-full h-full rounded-3xl' 
-                        />
-                    </div>
+                    <img 
+                        src={avatarLogo} 
+                        alt="Profile Avatar" 
+                        className={`w-full h-full hover:animate-spin rounded-3xl ${animate ? 'animate-bounce' : ''} transition duration-200 ease-in-out`} 
+                    />
                 </a>
             </div>
         </div>
