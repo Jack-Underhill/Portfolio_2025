@@ -3,12 +3,23 @@ import Projects from './components/Projects'
 import Contact from './components/Contact'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
-import { useEffect } from 'react'
-
+import { useEffect, useState } from 'react'
 
 function App() {
+  const [visitCount, setVisitCount] = useState(null);
+
   useEffect(() => {
     AOS.init({duration: 1000});
+  }, []);
+
+  useEffect(() => {
+    fetch('/.netlify/functions/track-visit')
+    .then(res => res.json())
+    .then(data => {
+      setVisitCount(data.count);
+      console.log(data.count);
+    });
+    
   }, []);
 
   return (
