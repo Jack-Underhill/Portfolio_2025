@@ -45,11 +45,13 @@ function About() {
                     title='View My LinkedIn'
                     data-aos="flip-up"
                 >
-                    <img 
-                        src={avatarLogo} 
-                        alt="Profile Avatar" 
-                        className='w-full h-full rounded-3xl animate-bounce hover:animate-spin transition duration-200' 
-                    />
+                    <div className='w-full h-full rounded-3xl animate-bounce hover:animate-spin transition duration-200 ease-in-out'>
+                        <img 
+                            src={avatarLogo} 
+                            alt="Profile Avatar" 
+                            className='w-full h-full rounded-3xl' 
+                        />
+                    </div>
                 </a>
             </div>
         </div>

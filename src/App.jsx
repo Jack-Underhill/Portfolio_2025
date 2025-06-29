@@ -17,6 +17,14 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
     fetch('/.netlify/functions/track-visit')
     .then(res => res.json())
     .then(data => {
