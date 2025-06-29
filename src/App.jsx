@@ -22,7 +22,7 @@ function App() {
       />
 
       {/* Layout */}
-      <div className='relative z-10 py-3 px-20'>
+      <div className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-0 px-10 sm:px-20 pb-40 pt-25 sm:pt-35 md:pt-25 lg:pt-0'>
         <About />
         <Projects />
         <Contact />

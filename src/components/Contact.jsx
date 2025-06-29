@@ -10,7 +10,7 @@ let TagClassName = 'px-5 py-1.5 text-xl sm:text-2xl md:text-3xl rounded-lg bg-ca
 
 function Contact() {
     return (
-      <div className="w-full min-h-screen flex flex-col gap-20 justify-center">
+      <div className="w-full min-h-fit lg:pt-60 flex flex-col gap-20 justify-center">
         <div className='flex flex-col gap-8'>
           <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
             Proficient Languages

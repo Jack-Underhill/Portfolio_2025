@@ -4,8 +4,8 @@ import TextBlock from './TextBlock'
 
 function About() {
     return (
-        <div className="py-12 w-full min-h-screen items-center flex flex-col-reverse md:flex-row gap-x-0">
-            <div className="w-full md:w-3/5 h-full flex flex-col gap-y-7 justify-center">
+        <div className="w-full min-h-fit lg:min-h-screen items-center flex flex-col-reverse md:flex-row">
+            <div className="w-full h-full md:w-3/5 flex flex-col gap-y-7 justify-center">
                 <div className='text-6xl font-bold text-emerald-50' data-aos="fade-up">
                     Jack Underhill
                 </div>
@@ -27,7 +27,7 @@ function About() {
                     </a>
                     <a
                         className='w-fit p-3 text-xl font-bold rounded-xl text-emerald-50 bg-card border-2 border-card-border hover:animate-bounce shadow-[inset_4px_4px_8px_#0a0f14,inset_-4px_-4px_8px_#1a232c]'
-                        href="/Resume_Dev--No_Contact.pdf"
+                        href="/Jack_Underhill--Dev_Resume.pdf"
                         target="_blank"
                         rel='noopener noreferrer'
                         title='View My Resume'
@@ -37,7 +37,7 @@ function About() {
                     </a>
                 </div>
             </div>
-            <div className="w-full md:w-2/5 h-full flex">
+            <div className="w-full h-full md:w-2/5 flex justify-baseline md:justify-center-safe mb-7 md:mb-0">
                 <a 
                     href="https://www.linkedin.com/in/underhill-jack/" 
                     target="_blank"

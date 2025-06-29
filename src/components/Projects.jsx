@@ -7,7 +7,7 @@ import TextBlock from './TextBlock'
 
 function Projects() {
     return (
-      <div className="py-12 w-full min-h-screen flex flex-col gap-y-12 justify-center">
+      <div className="w-full min-h-fit flex flex-col gap-y-12 justify-center">
         
         {/* About */}
         <TextBlock
@@ -26,6 +26,7 @@ function Projects() {
                 "Vite",
                 "React",
                 "TailwindCSS",
+                "AOS",
                 "Netlify",
             ]}
           />
