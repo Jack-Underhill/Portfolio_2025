@@ -8,7 +8,7 @@ function About() {
 
     useEffect(() => {
         setAnimate(false);
-        const timeout = setTimeout(() => setAnimate(true), 10);
+        const timeout = setTimeout(() => setAnimate(true), 100);
         return () => clearTimeout(timeout);
     }, []);
 
