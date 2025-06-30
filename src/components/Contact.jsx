@@ -5,6 +5,7 @@ import LinkedInIcon from '../assets/linkedin.svg'
 import GitHubIcon from '../assets/github.svg'
 import FiverrIcon from '../assets/fiverr.svg'
 import UpWorkIcon from '../assets/upwork.svg'
+import HandshakeIcon from '../assets/handshake.svg'
 
 let TagClassName = 'px-5 py-1.5 text-xl sm:text-2xl md:text-3xl rounded-lg bg-card-att text-emerald-50'
 
@@ -71,6 +72,11 @@ function Contact() {
               name="UpWork"
               link="https://www.upwork.com/freelancers/~0127c25c7f113de8cd?mp_source=share"
               icon={UpWorkIcon}
+            />
+            <SocialTag 
+              name="Handshake"
+              link="https://wsu.joinhandshake.com/profiles/hm4hrh"
+              icon={HandshakeIcon}
             />
           </div>
         </div>

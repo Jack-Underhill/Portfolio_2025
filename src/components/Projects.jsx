@@ -24,9 +24,10 @@ function Projects() {
             link="https://github.com/Jack-Underhill/Portfolio_2025"
             tags={[
                 "Vite",
+                "AOS",
                 "React",
                 "TailwindCSS",
-                "AOS",
+                "Upstash",
                 "Netlify",
             ]}
           />
@@ -49,8 +50,8 @@ function Projects() {
             desc="Visualizer for different PS & MG algorithms."
             link="https://github.com/Jack-Underhill/PathfinderSim"
             tags={[
-                "C++",
                 "CMake",
+                "C++",
                 "Qt",
                 "SGL",
             ]}

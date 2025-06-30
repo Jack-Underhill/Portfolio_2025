@@ -1,6 +1,6 @@
 function SocialTag({ name, link, icon }) {
     return (
-        <div className="h-20" data-aos="fade-down-right">
+        <div className="h-20 w-20" data-aos="fade-down-right">
             <a 
                 className='h-full' 
                 href={link} 
