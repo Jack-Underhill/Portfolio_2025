@@ -47,7 +47,7 @@ function Contact() {
           />
         </div>
 
-        <div className='flex flex-col gap-8'>
+        <div id='Contact' className='scroll-mt-10 flex flex-col gap-8'>
           <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
             Contact Me
           </div>

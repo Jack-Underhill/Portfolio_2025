@@ -32,3 +32,9 @@ html, body, #root {
   background-size: 200% 100%;
   animation: moveGradient 3s reverse linear infinite;
 }
+
+.hover-animated-gradient:hover {
+  background-size: 200% 100%;
+  animation: moveGradient 3s reverse linear infinite;
+  @apply bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text hover:scale-125 hover:pb-2 transition duration-200 ease-in-out;
+}

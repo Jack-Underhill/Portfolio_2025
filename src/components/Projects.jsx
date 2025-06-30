@@ -7,7 +7,7 @@ import TextBlock from './TextBlock'
 
 function Projects() {
     return (
-      <div className="w-full min-h-fit flex flex-col gap-y-12 justify-center">
+      <div id='Projects' className="scroll-mt-10 w-full min-h-fit flex flex-col gap-y-12 justify-center">
         
         {/* About */}
         <TextBlock
