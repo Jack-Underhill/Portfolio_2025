@@ -1,6 +1,39 @@
+import { useEffect, useState } from 'react';
 import TechTag from './TechTag'
+import clicks from '../assets/clicks.svg'
 
 function ProjectCard({ image, title, desc, link, tags }) {
+    const [visitCount, setVisitCount] = useState(null);
+    const [uniqueCount, setUniqueCount] = useState(null);
+
+    const extractRepo = () => {
+        try {
+            return new URL(link).pathname.slice(1);
+        } catch {
+            return null;
+        }
+    }
+
+    useEffect(() => {
+        const repo = extractRepo();
+        if(!repo) return null;
+        fetch(`/.netlify/functions/github-traffic?repo=${repo}`)
+            .then(async res => {
+                if(!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text);
+                }
+                return res.json();
+            })
+            .then(data => {
+                setVisitCount(data.count);
+                console.log(`${title} views:`, data.count);
+                console.log(`${title} uniques:`, data.uniques);
+                setUniqueCount(data.uniques);
+            })
+            .catch(err => console.error("Traffic fetch error:", err));
+    }, [link]);
+
     return (
         <div className="h-full" data-aos="flip-left">
             <a
@@ -11,7 +44,22 @@ function ProjectCard({ image, title, desc, link, tags }) {
             >
                 <div className='relative w-full aspect-video rounded-xl'>
                     <div className="absolute -inset-1 rounded-xl animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 blur opacity-0 group-hover:opacity-100 transition duration-500 animate-tilt z-0"/>
-                    <img src={image} alt="Profile Avatar" className='relative z-10 w-full h-auto object-contain rounded-xl' />
+                    <img src={image} alt="Project Card" className='relative z-10 w-full h-auto object-contain rounded-xl' />
+                </div>
+
+                <div 
+                    className="relative w-fit h-fit flex gap-2 items-center group/image" 
+                    title='User Visit Count' 
+                    data-aos="flip-up"
+                >
+                    <img 
+                        src={clicks} 
+                        alt={`View svg`}
+                        className='h-10 group-hover/image:animate-spin' 
+                    />
+                    <div className='text-md font-semibold text-emerald-50'>
+                        {uniqueCount !== null ? `${uniqueCount} views` : 'Loading ...'}
+                    </div>
                 </div>
 
                 <div className='text-2xl font-bold text-emerald-50'>
