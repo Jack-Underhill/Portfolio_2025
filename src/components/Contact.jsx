@@ -36,14 +36,18 @@ function Contact() {
               tags={[
                   "C",
                   "Python",
-                  "TailwindCSS",
                   "React",
-                  "MySQL",
-                  "SQLite",
                   "HTML",
                   "CSS",
                   "Node.js",
                   "Express.js",
+                  "Vite",
+                  "TailwindCSS",
+                  "Recharts",
+                  "MySQL",
+                  "SQLite",
+                  "Upstash",
+                  "Supabase",
               ]}
           />
         </div>

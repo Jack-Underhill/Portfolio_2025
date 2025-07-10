@@ -1,6 +1,6 @@
 import projectWorkLogo from '../assets/Project_Work.png'
 import projectStoreLogo from '../assets/Project_Store.png'
-import projectSimLogo from '../assets/Project_Sim.png'
+import projectSimLogo from '../assets/Project_PF.PNG'
 
 import ProjectCard from './ProjectCard'
 import TextBlock from './TextBlock'
@@ -35,7 +35,7 @@ function Projects() {
           <ProjectCard 
             image={projectStoreLogo}
             title="University Merch Store"
-            desc="Group Project building a full-featured e-commerce platform."
+            desc="Group Project building a mockup e-commerce platform."
             link="https://github.com/Jack-Underhill/Cpts489-Sp25-GroupProject-MerchStore"
             tags={[
                 "Express.js",
@@ -46,14 +46,18 @@ function Projects() {
         
           <ProjectCard 
             image={projectSimLogo}
-            title="Pathfinder Simulator & Maze Generator"
-            desc="Visualizer for different PS & MG algorithms."
-            link="https://github.com/Jack-Underhill/PathfinderSim"
+            title="Pathfinder Visualizer & Maze Generator"
+            desc="Visualizer for different PS & MG algorithms. (In Progress)"
+            link="https://pathfind-visual.netlify.app/"
             tags={[
-                "CMake",
-                "C++",
-                "Qt",
-                "SGL",
+                "Vite",
+                "AOS",
+                "React",
+                "TailwindCSS",
+                "Recharts",
+                "Upstash",
+                "Supabase",
+                "Netlify",
             ]}
           />
         </div>

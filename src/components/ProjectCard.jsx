@@ -16,7 +16,7 @@ function ProjectCard({ image, title, desc, link, tags }) {
 
     useEffect(() => {
         const repo = extractRepo();
-        if(!repo) return null;
+        if(!repo) return undefined;
         fetch(`/.netlify/functions/github-traffic?repo=${repo}`)
             .then(async res => {
                 if(!res.ok) {
@@ -27,8 +27,6 @@ function ProjectCard({ image, title, desc, link, tags }) {
             })
             .then(data => {
                 setVisitCount(data.count);
-                console.log(`${title} views:`, data.count);
-                console.log(`${title} uniques:`, data.uniques);
                 setUniqueCount(data.uniques);
             })
             .catch(err => console.error("Traffic fetch error:", err));

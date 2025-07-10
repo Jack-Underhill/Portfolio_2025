@@ -34,7 +34,7 @@ function App() {
       />
       
       {/* Top Bar */}
-      <div className="m-5 sm:m-10 m h-12 flex justify-between">
+      <div className="m-5 sm:m-10 h-12 flex justify-between">
         <VisitCount />
         <Navbar />
       </div>

@@ -10,7 +10,6 @@ function VisitCount() {
     .then(res => res.json())
     .then(data => {
       setVisitCount(data.count);
-      console.log(data.count);
     });
   }, []);
 
