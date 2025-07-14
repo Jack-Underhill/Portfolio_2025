@@ -31,6 +31,22 @@ function Projects() {
                 "Netlify",
             ]}
           />
+        
+          <ProjectCard 
+            image={projectSimLogo}
+            title="Pathfinder Visualizer & Maze Generator"
+            desc="Desktop visualizer for different PS & MG algorithms. (In Progress)"
+            link="https://pathfind-visual.netlify.app/"
+            tags={[
+                "Vite",
+                "React",
+                "TailwindCSS",
+                "Recharts",
+                "Upstash",
+                "Supabase",
+                "Netlify",
+            ]}
+          />
       
           <ProjectCard 
             image={projectStoreLogo}
@@ -41,23 +57,6 @@ function Projects() {
                 "Express.js",
                 "React",
                 "SQLite",
-            ]}
-          />
-        
-          <ProjectCard 
-            image={projectSimLogo}
-            title="Pathfinder Visualizer & Maze Generator"
-            desc="Visualizer for different PS & MG algorithms. (In Progress)"
-            link="https://pathfind-visual.netlify.app/"
-            tags={[
-                "Vite",
-                "AOS",
-                "React",
-                "TailwindCSS",
-                "Recharts",
-                "Upstash",
-                "Supabase",
-                "Netlify",
             ]}
           />
         </div>
