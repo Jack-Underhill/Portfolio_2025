@@ -17,7 +17,7 @@ function ProjectCard({ image, title, desc, link, tags }) {
         const key = getSafeKey(link);
         if(!key) return;
 
-        fetch(`/.netlify/functions/project-click-counter?project=${key}`)
+        fetch(`/.netlify/functions/project-click-count?project=${key}`)
             .then(async res => {
                 if(!res.ok) {
                     const text = await res.text();
@@ -42,7 +42,7 @@ function ProjectCard({ image, title, desc, link, tags }) {
                     const key = getSafeKey(link);
                     if(!key) return;
 
-                    fetch(`/.netlify/functions/project-click-counter?project=${key}`)
+                    fetch(`/.netlify/functions/project-click-track?project=${key}`)
                         .then(async res => {
                             if(!res.ok) throw new Error(await res.text());
                             return res.json();

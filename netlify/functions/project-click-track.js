@@ -13,7 +13,7 @@ export default async (request, context) => {
         const ip = request.headers.get("x-nf-client-connection-ip") || "unknown";
 
         if(!project) {
-            return new Response(JSON.stringify({error: `Missing 'repo' query parameter`}), { 
+            return new Response(JSON.stringify({error: `Missing 'project' query parameter`}), { 
                 status: 400,
                 headers: { "Content-Type": "application/json" },
             });
