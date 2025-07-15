@@ -11,29 +11,19 @@ const redis = new Redis({
 export default async (request, context) => {
   try {
     const ip = request.headers.get("x-nf-client-connection-ip") || "unknown";
-    console.log("Visitor IP:", ip);
+    let counted = false;
 
-    if(shouldSkipIP(ip)) {
-      console.log(`Skipping site view IP from tracking: ${ip}`);
-      const count = await redis.get("unique_visits");
-      return new Response(JSON.stringify({ count: count ?? 0, counted: false }), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
-    }
-
-    const alreadyVisited = await redis.get(`visited:${ip}`);
-    if(!alreadyVisited) {
-      await redis.incr("unique_visits");
-      await redis.set(`visited:${ip}`, "true", { ex: 60 * 60 * 24 });
+    if(!shouldSkipIP(ip)) {
+      const alreadyVisited = await redis.get(`visited:${ip}`);
+      if(!alreadyVisited) {
+        await redis.incr("unique_visits");
+        await redis.set(`visited:${ip}`, "true", { ex: 60 * 60 * 24 });
+        counted = true;
+      }
     }
 
     const count = await redis.get("unique_visits");
-
-    return new Response(JSON.stringify({ count }), {
+    return new Response(JSON.stringify({ count: count ?? 0, counted }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
