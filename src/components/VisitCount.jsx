@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import clicks from '../assets/clicks.svg'
+import views from '../assets/views.svg'
 
 function VisitCount() {
   const [visitCount, setVisitCount] = useState(null);
@@ -20,7 +20,7 @@ function VisitCount() {
         data-aos="flip-up"
       >
         <img 
-            src={clicks} 
+            src={views} 
             alt={`View svg`}
             className='h-full group-hover:animate-spin' 
         />
