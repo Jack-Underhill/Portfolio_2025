@@ -1,6 +1,7 @@
 import projectWorkLogo from '../assets/Project_Work.png'
 import projectStoreLogo from '../assets/Project_Store.png'
 import projectSimLogo from '../assets/Project_PF.PNG'
+import projectStmtLogo from '../assets/Project_Statement.PNG'
 
 import ProjectCard from './ProjectCard'
 import TextBlock from './TextBlock'
@@ -57,6 +58,19 @@ function Projects() {
                 "Express.js",
                 "React",
                 "SQLite",
+            ]}
+          />
+      
+          <ProjectCard 
+            image={projectStmtLogo}
+            title="Statement Tracking Tool"
+            desc="Upload and parse CSV bank statements for shared expense tracking. Useful for splitting costs 50/50 or tracking who paid."
+            link="https://statement-split.netlify.app/"
+            tags={[
+                "Vite",
+                "React",
+                "TailwindCSS",
+                "Netlify",
             ]}
           />
         </div>
