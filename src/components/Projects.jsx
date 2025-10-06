@@ -2,7 +2,7 @@ import projectWorkLogo from '../assets/Project_Work.png'
 import projectStoreLogo from '../assets/Project_Store.png'
 import projectSimLogo from '../assets/Project_PF.PNG'
 import projectStmtLogo from '../assets/Project_Statement.PNG'
-import projectDASLogo from '../assets/Project_DAS.PNG'
+import projectDASLogo from '../assets/Project_DAS.png'
 
 import ProjectCard from './ProjectCard'
 import TextBlock from './TextBlock'
