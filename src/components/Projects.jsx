@@ -22,13 +22,13 @@ function Projects() {
           <ProjectCard 
             image={projectDASLogo}
             title="Decision Aid Systems (DAS) Modernization"
-            desc="Capstone project Modernizing an existing Laravel Blade frontend into a React + Inertia + Vite architecture."
+            desc="Capstone project to modernize an existing Laravel Blade frontend into a React + Inertia + Vite architecture."
             link="https://decisionaid.systems/"
             tags={[
-                "Vite",
                 "React",
-                "Bootstrap",
                 "Inertia.js",
+                "Vite",
+                "Bootstrap",
                 "Laravel",
                 "Docker",
                 "Traefik",
@@ -38,7 +38,7 @@ function Projects() {
           <ProjectCard 
             image={projectSimLogo}
             title="Pathfinder Visualizer & Maze Generator"
-            desc="Desktop visualizer for different PS & MG algorithms. (In Progress)"
+            desc="Desktop visualizer for different PF & MG algorithms with run analytics and dragable start and end nodes."
             link="https://pathfind-visual.netlify.app/"
             tags={[
                 "Vite",

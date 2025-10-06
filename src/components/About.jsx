@@ -21,7 +21,7 @@ function About() {
 
                 <TextBlock
                     title="Full-Stack Developer"
-                    desc="WSU Computer Science senior student passionate about web development, game systems, and desktop apps."
+                    desc="WSU Computer Science senior student passionate about game, web, and software development."
                 />
 
                 <div className='flex flex-wrap gap-4'>
@@ -36,13 +36,15 @@ function About() {
                     </a>
                     <a
                         className='w-fit p-3 text-xl font-bold rounded-xl text-emerald-50 bg-card border-2 border-card-border hover:animate-bounce shadow-[inset_4px_4px_8px_#0a0f14,inset_-4px_-4px_8px_#1a232c]'
-                        href="/Jack_Underhill--Dev_Resume.pdf"
+                        href="/Jack_Underhill--Dev_Resume--No_Contact.pdf"
                         target="_blank"
                         rel='noopener noreferrer'
                         title='View My Resume'
                         data-aos="fade-left"
                     >
-                        <span className='animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text'>View Resume</span>
+                        <span className='animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text'>
+                            View Resume
+                        </span>
                     </a>
                 </div>
             </div>
