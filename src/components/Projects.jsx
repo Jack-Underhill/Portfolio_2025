@@ -2,6 +2,7 @@ import projectWorkLogo from '../assets/Project_Work.png'
 import projectStoreLogo from '../assets/Project_Store.png'
 import projectSimLogo from '../assets/Project_PF.PNG'
 import projectStmtLogo from '../assets/Project_Statement.PNG'
+import projectDASLogo from '../assets/Project_DAS.PNG'
 
 import ProjectCard from './ProjectCard'
 import TextBlock from './TextBlock'
@@ -19,17 +20,18 @@ function Projects() {
         {/* Cards */}
         <div className='grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'>
           <ProjectCard 
-            image={projectWorkLogo}
-            title="This Portfolio"
-            desc="Showcase of my work and skills."
-            link="https://github.com/Jack-Underhill/Portfolio_2025"
+            image={projectDASLogo}
+            title="Decision Aid Systems (DAS) Modernization"
+            desc="Capstone project Modernizing an existing Laravel Blade frontend into a React + Inertia + Vite architecture."
+            link="https://decisionaid.systems/"
             tags={[
                 "Vite",
-                "AOS",
                 "React",
-                "TailwindCSS",
-                "Upstash",
-                "Netlify",
+                "Bootstrap",
+                "Inertia.js",
+                "Laravel",
+                "Docker",
+                "Traefik",
             ]}
           />
         
@@ -49,6 +51,21 @@ function Projects() {
             ]}
           />
       
+          <ProjectCard 
+            image={projectWorkLogo}
+            title="This Portfolio"
+            desc="Showcase of my work and skills."
+            link="https://github.com/Jack-Underhill/Portfolio_2025"
+            tags={[
+                "Vite",
+                "AOS",
+                "React",
+                "TailwindCSS",
+                "Upstash",
+                "Netlify",
+            ]}
+          />
+        
           <ProjectCard 
             image={projectStoreLogo}
             title="University Merch Store"
