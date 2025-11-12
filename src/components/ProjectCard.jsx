@@ -58,7 +58,7 @@ function ProjectCard({ image, title, desc, link, tags }) {
                     <div className="absolute -inset-1 rounded-xl animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 blur opacity-0 group-hover:opacity-100 transition duration-500 animate-tilt z-0"/>
                     
                     {/* Project Image */}
-                    <img src={image} alt="Project Card" className='relative z-10 w-full h-auto object-contain rounded-xl' />
+                    <img src={image} alt="Project Card" className='relative z-10 w-full h-auto aspect-video object-cover rounded-xl' />
 
                     {/* Click Counter Overlay */}
                     <div data-aos="flip-up" className='absolute m-2 py-0.5 px-1 bottom-0 z-20 w-fit h-fit flex items-end-safe justify-end-safe rounded-xl drop-shadow-lg bg-black/60'>
