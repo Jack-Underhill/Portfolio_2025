@@ -32,7 +32,7 @@ function ProjectCard({ image, title, desc, link, tags }) {
     }, [link]);
 
     return (
-        <div className="h-full" data-aos="flip-left">
+        <div className="flex-1 h-full min-w-sm" data-aos="flip-left">
             <a
                 href={link}
                 target="_blank"
