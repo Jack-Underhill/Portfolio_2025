@@ -1,6 +1,5 @@
-import { supabaseAdmin } from './supabaseAdminClient';
+import { supabaseAdmin, BUCKET } from './supabaseAdminClient';
 
-const BUCKET = 'portfolio-assets';
 const ABOUT_ID = 1; // treat "about" as a singleton row with id = 1
 
 function requireClient() {

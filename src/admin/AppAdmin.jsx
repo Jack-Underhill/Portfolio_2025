@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import SectionAbout from './SectionAbout';
-import SectionProjects from './SectionProjects';
-import SectionContact from './SectionContact';
-import { loadAbout, saveAbout } from './../api/supabaseAbout'
+import { useState, useEffect }        from 'react';
+import SectionAbout                   from './SectionAbout';
+import SectionProjects                from './SectionProjects';
+import SectionContact                 from './SectionContact';
+import { loadAbout, saveAbout }       from './../api/supabaseAbout'
+import { loadProjects, saveProjects } from './../api/supabaseProjects'
+import { loadContact, saveContact }   from './../api/supabaseContact'
 
 const initialAboutState = {
     profileImageFile:   null,
@@ -21,13 +23,7 @@ const initialProjectsState = {
 const initialContactState = {
     proficientTechs:    [''],
     experiencingTechs:  [''],
-    socialLinks:        [
-        { id: 'linkedin',   label: 'LinkedIn',  url: '', iconFile: null, iconUrl: '' },
-        { id: 'github',     label: 'GitHub',    url: '', iconFile: null, iconUrl: '' },
-        { id: 'fiverr',     label: 'Fiverr',    url: '', iconFile: null, iconUrl: '' },
-        { id: 'upwork',     label: 'Upwork',    url: '', iconFile: null, iconUrl: '' },
-        { id: 'handshake',  label: 'Handshake', url: '', iconFile: null, iconUrl: '' },
-    ],
+    socialLinks:        [],
 };
 
 function AppAdmin() {
@@ -39,33 +35,43 @@ function AppAdmin() {
 
     useEffect(() => {
         (async () => {
-        try {
-            const about = await loadAbout();
-            setAboutState(about);
-        } catch (err) {
-            console.error(err);
-            setError(err);
-        }
+            try {
+                const [about, projects, contact] = await Promise.all([
+                    loadAbout(),
+                    loadProjects(),
+                    loadContact(),
+                ]);
+                setAboutState(about);
+                setProjectsState(projects);
+                setContactState(contact);
+            } catch (err) {
+                console.error(err);
+                setError(err);
+            }
         })();
     }, []);
 
-  const handleSave = async () => {
-    try {
-      setIsSaving(true);
-      setError(null);
+    const handleSave = async () => {
+        try {
+        setIsSaving(true);
+        setError(null);
 
-      const nextAbout = await saveAbout(aboutState);
-      setAboutState(nextAbout);
+        const [nextAbout, nextProjects, nextContact] = await Promise.all([
+            saveAbout(aboutState),
+            saveProjects(projectsState),
+            saveContact(contactState),
+        ]);
+        setAboutState(nextAbout);
+        setProjectsState(nextProjects);
+        setContactState(nextContact);
 
-      // later: also saveProjects(projectsState) + saveContact(contactState)
-
-    } catch (err) {
-      console.error(err);
-      setError(err);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+        } catch (err) {
+            console.error(err);
+            setError(err);
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     return (
         <div className="min-h-screen px-20 py-10 bg-slate-950 text-slate-50 p-6 space-y-10">

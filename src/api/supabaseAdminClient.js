@@ -16,3 +16,5 @@ export const supabaseAdmin =
             auth: { persistSession: false },
         })
         : null;
+
+export const BUCKET = 'portfolio-assets';
