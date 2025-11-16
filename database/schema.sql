@@ -41,5 +41,5 @@ CREATE TABLE links (
     id              SERIAL PRIMARY KEY,
     label           TEXT NOT NULL,
     url             TEXT NOT NULL,
-    kind            TEXT
+    svg             TEXT
 );
