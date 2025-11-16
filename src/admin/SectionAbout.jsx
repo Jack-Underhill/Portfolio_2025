@@ -52,12 +52,28 @@ function SectionAbout({ state, onChange }) {
                         onChange={(value) => updateField('professionBio', value)}
                     />
 
-                    <InputFile
-                        id="resumePdf"
-                        label="Resume PDF"
-                        accept="application/pdf"
-                        onChange={(file) => updateField('resumeFile', file)}
-                    />
+                    <div className="space-y-1">
+                        <InputFile
+                            id="resumePdf"
+                            label="Resume PDF"
+                            accept="application/pdf"
+                            onChange={(file) => updateField('resumeFile', file)}
+                        />
+
+                        {resumeUrl && (
+                            <p className='text-xs text-slate-400'>
+                                Current resume:{' '}
+                                <a 
+                                    href={resumeUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className='underline underline-offset-2 text-sky-400'
+                                >
+                                    Open in new tab
+                                </a>
+                            </p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
