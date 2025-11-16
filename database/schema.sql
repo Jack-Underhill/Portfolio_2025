@@ -22,7 +22,8 @@ CREATE TABLE project_cards (
     image           TEXT,
     title           TEXT NOT NULL,
     description     TEXT,
-    tech            TEXT
+    tech            TEXT,
+    url             TEXT
 );
 
 -- =========================

@@ -57,7 +57,14 @@ function RowProject({ project, onChange, onRemove }) {
                         id={`project-description-${project.id}`}
                         label="Description"
                         value={project.description}
-                        onChange={(value) => updateField('description', value)}
+                        onChange={(value) => handleFieldChange('description', value)}
+                    />
+
+                    <InputText
+                        id={`project-url-${project.id}`}
+                        label="Project URL"
+                        value={project.url || ''}
+                        onChange={(value) => handleFieldChange('url', value)}
                     />
 
                     <ListTech
