@@ -10,6 +10,7 @@ function createEmptyProject() {
         title:          '',
         description:    '',
         techs:          [''],
+        url:            '',
     };
 }
 

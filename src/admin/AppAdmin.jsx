@@ -1,7 +1,10 @@
-import { useState } from 'react';
-import SectionAbout from './SectionAbout';
-import SectionProjects from './SectionProjects';
-import SectionContact from './SectionContact';
+import { useState, useEffect }        from 'react';
+import SectionAbout                   from './SectionAbout';
+import SectionProjects                from './SectionProjects';
+import SectionContact                 from './SectionContact';
+import { loadAbout, saveAbout }       from './../api/supabaseAbout'
+import { loadProjects, saveProjects } from './../api/supabaseProjects'
+import { loadContact, saveContact }   from './../api/supabaseContact'
 
 const initialAboutState = {
     profileImageFile:   null,
@@ -18,29 +21,56 @@ const initialProjectsState = {
 };
 
 const initialContactState = {
-    proficientTechs: [''],
-    experiencingTechs: [''],
-    socialLinks: [
-        { id: 'linkedin',   label: 'LinkedIn',  url: '', iconFile: null, iconUrl: '' },
-        { id: 'github',     label: 'GitHub',    url: '', iconFile: null, iconUrl: '' },
-        { id: 'fiverr',     label: 'Fiverr',    url: '', iconFile: null, iconUrl: '' },
-        { id: 'upwork',     label: 'Upwork',    url: '', iconFile: null, iconUrl: '' },
-        { id: 'handshake',  label: 'Handshake', url: '', iconFile: null, iconUrl: '' },
-    ],
+    proficientTechs:    [''],
+    experiencingTechs:  [''],
+    socialLinks:        [],
 };
 
 function AppAdmin() {
     const [aboutState, setAboutState]       = useState(initialAboutState);
     const [projectsState, setProjectsState] = useState(initialProjectsState);
     const [contactState, setContactState]   = useState(initialContactState);
+    const [isSaving, setIsSaving]           = useState(false);
+    const [error, setError]                 = useState(null);
 
-    const handleSave = () => {
-        // later: call Supabase helpers here
-        console.log({
-            about:      aboutState,
-            projects:   projectsState,
-            contact:    contactState,
-        });
+    useEffect(() => {
+        (async () => {
+            try {
+                const [about, projects, contact] = await Promise.all([
+                    loadAbout(),
+                    loadProjects(),
+                    loadContact(),
+                ]);
+                setAboutState(about);
+                setProjectsState(projects);
+                setContactState(contact);
+            } catch (err) {
+                console.error(err);
+                setError(err);
+            }
+        })();
+    }, []);
+
+    const handleSave = async () => {
+        try {
+        setIsSaving(true);
+        setError(null);
+
+        const [nextAbout, nextProjects, nextContact] = await Promise.all([
+            saveAbout(aboutState),
+            saveProjects(projectsState),
+            saveContact(contactState),
+        ]);
+        setAboutState(nextAbout);
+        setProjectsState(nextProjects);
+        setContactState(nextContact);
+
+        } catch (err) {
+            console.error(err);
+            setError(err);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -79,7 +109,7 @@ function AppAdmin() {
                 onClick={handleSave}
                 className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium hover:bg-sky-500"
             >
-                Save POST
+                {isSaving ? 'Saving...' : 'Save POST'}
             </button>
         </div>
     );
