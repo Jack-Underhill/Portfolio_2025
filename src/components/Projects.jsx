@@ -100,8 +100,7 @@ function Projects() {
       />
 
       {/* Cards */}
-      {/* <div className='grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3'> */}
-      <div className='flex flex-row flex-wrap gap-6'>
+      <div className='grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3'>
         {projects.map((p) => (
           <ProjectCard
             key   = {p.id}
