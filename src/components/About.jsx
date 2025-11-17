@@ -2,14 +2,47 @@ import { useEffect, useState } from 'react';
 import avatarLogo from '../assets/avatar.png'
 
 import TextBlock from './TextBlock'
+import { fetchAboutPublic } from '../api/publicAbout'
+
+const DEFAULT_ABOUT = {
+    professionTitle:    "Full-Stack Developer",
+    briefBio:           "WSU Computer Science senior student passionate about game, web, and software development.",
+    profileImage:       avatarLogo,
+    resumeURL:          "/Jack_Underhill--Dev_Resume--No_Contact.pdf",
+};
 
 function About() {
     const [animate, setAnimate] = useState(true);
+    const [about, setAbout]     = useState(DEFAULT_ABOUT);
 
     useEffect(() => {
         setAnimate(false);
         const timeout = setTimeout(() => setAnimate(true), 100);
         return () => clearTimeout(timeout);
+    }, []);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        (async () => {
+            try {
+                const data = await fetchAboutPublic();
+                if (!isMounted || !data) return;
+
+                setAbout((prev) => ({
+                    professionTitle:    data.professionTitle || prev.professionTitle,
+                    briefBio:           data.briefBio || prev.briefBio,
+                    profileImage:       data.profileImage || prev.profileImage,
+                    resumeUrl:          data.resumeUrl || prev.resumeUrl,
+                }));
+            } catch (err) {
+                console.error('[About] Failed to load public about data:', err);
+            }
+        })();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     return (
@@ -20,8 +53,8 @@ function About() {
                 </div>
 
                 <TextBlock
-                    title="Full-Stack Developer"
-                    desc="WSU Computer Science senior student passionate about game, web, and software development."
+                    title={about.professionTitle}
+                    desc={about.briefBio}
                 />
 
                 <div className='flex flex-wrap gap-4'>
@@ -36,7 +69,7 @@ function About() {
                     </a>
                     <a
                         className='w-fit p-3 text-xl font-bold rounded-xl text-emerald-50 bg-card border-2 border-card-border hover:animate-bounce shadow-[inset_4px_4px_8px_#0a0f14,inset_-4px_-4px_8px_#1a232c]'
-                        href="/Jack_Underhill--Dev_Resume--No_Contact.pdf"
+                        href={about.resumeUrl}
                         target="_blank"
                         rel='noopener noreferrer'
                         title='View My Resume'
@@ -57,7 +90,7 @@ function About() {
                     data-aos="flip-up"
                 >
                     <img 
-                        src={avatarLogo} 
+                        src={about.profileImage || avatarLogo} 
                         alt="Profile Avatar" 
                         className={`w-full h-full hover:animate-spin rounded-3xl ${animate ? 'animate-bounce' : ''} transition duration-200 ease-in-out`} 
                     />
