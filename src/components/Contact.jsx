@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import TechTag   from './TechTag'
 import SocialTag from './SocialTag'
+import Certifications from './Certifications'
 
 import LinkedInIcon  from '../assets/linkedin.svg'
 import GitHubIcon    from '../assets/github.svg'
@@ -127,6 +128,8 @@ function Contact() {
 
   return (
     <div className="w-full min-h-fit lg:pt-60 flex flex-col gap-20 justify-center">
+      <Certifications />
+
       <div className='flex flex-col gap-8'>
         <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
           Proficient Languages
