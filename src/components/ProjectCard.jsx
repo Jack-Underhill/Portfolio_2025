@@ -1,4 +1,4 @@
-import TechTag from './TechTag'
+import TechTagMarquee from './TechTagMarquee'
 
 function ProjectCard({ image, title, desc, link, tags }) {
 
@@ -32,13 +32,24 @@ function ProjectCard({ image, title, desc, link, tags }) {
                     </div>
                 </div>
 
-                <div className='px-8 py-6 flex flex-col gap-y-4 text-sm md:text-md lg:text-xl'>
+                {/* <div className='px-8 py-6 flex flex-col gap-y-4 text-sm md:text-md lg:text-xl'>
 
                     <div className='text-xl font-semibold text-emerald-50'>
                         {desc}
                     </div>
 
-                    <TechTag
+                    <TechTagMarquee
+                        className='px-3 py-1 font-semibold rounded-lg bg-card-att text-emerald-50'
+                        tags={tags}
+                    />
+                </div> */}
+
+                <div className='px-8 pt-6 pb-4 text-xl font-semibold text-emerald-50'>
+                    {desc}
+                </div>
+
+                <div className='pb-4 mb-0 mt-auto text-sm md:text-md lg:text-xl'>
+                    <TechTagMarquee
                         className='px-3 py-1 font-semibold rounded-lg bg-card-att text-emerald-50'
                         tags={tags}
                     />
