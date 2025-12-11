@@ -7,6 +7,8 @@ function createEmptyProject() {
         id:             crypto.randomUUID(),
         imageFile:      null,
         imageUrl:       '',
+        videoFile:      null,
+        videoUrl:       '',
         title:          '',
         description:    '',
         techs:          [''],

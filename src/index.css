@@ -38,3 +38,18 @@ html, body, #root {
   animation: moveGradient 3s reverse linear infinite;
   @apply bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text hover:scale-125 hover:pb-2 transition duration-200 ease-in-out;
 }
+
+@keyframes tech-tag-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    /* move left by half the track width (we rendered 2 copies) */
+    transform: translateX(-50%);
+  }
+}
+
+.tech-tag-marquee {
+  animation: tech-tag-marquee 15s linear infinite;
+  will-change: transform;
+}

@@ -9,8 +9,12 @@ function RowProject({ project, onChange, onRemove }) {
         onChange({ ...project, [field]: value });
     };
 
-    const handleFileChange = (file) => {
+    const handleImageFileChange = (file) => {
         onChange({ ...project, imageFile: file });
+    };
+
+    const handleVideoFileChange = (file) => {
+        onChange({ ...project, videoFile: file });
     };
 
     return (
@@ -29,19 +33,43 @@ function RowProject({ project, onChange, onRemove }) {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-                {/* Image column */}
                 <div className="space-y-2">
+                    {/* Image controls */}
                     <InputFile
                         id={`project-image-${project.id}`}
                         label="Project image"
                         accept="image/*"
-                        onChange={handleFileChange}
+                        onChange={handleImageFileChange}
                     />
                     <ViewImage
                         file={project.imageFile || null}
                         url={project.imageUrl || ''}
                         alt={project.title || 'Project image'}
                     />
+
+                    {/* Video controls */}
+                    <div className="space-y-1">
+                        <InputFile
+                            id={`project-video-${project.id}`}
+                            label="Preview video"
+                            accept="video/*"
+                            onChange={handleVideoFileChange}
+                        />
+
+                        {project.videoUrl && (
+                            <p className="text-xs text-slate-400">
+                                Current video:{' '}
+                                <a
+                                    href={project.videoUrl || project.videoFile}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="underline underline-offset-2 text-sky-400"
+                                >
+                                    Open in new tab
+                                </a>
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {/* Text + techs column */}
