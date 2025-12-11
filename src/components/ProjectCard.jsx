@@ -3,12 +3,16 @@ import TechTagMarquee from './TechTagMarquee'
 
 import placeholderVideo from '../assets/placeholder.mp4';
 
-function ProjectCard({ image, previewVideo = placeholderVideo, title, desc, link, tags }) {
+function ProjectCard({ image, video, title, desc, link, tags }) {
     const [isPreviewed, setIsPreviewed] = useState(false);
-    previewVideo = previewVideo ?? placeholderVideo;
+    
+    const safeVideo =
+        video === null || video === '' || video === undefined || video === 'NULL'
+            ? placeholderVideo
+            : video;
 
     const enablePreview = () => {
-        if(previewVideo) setIsPreviewed(true);
+        if(safeVideo) setIsPreviewed(true);
     }
 
     const disablePreview = () => {
@@ -31,17 +35,17 @@ function ProjectCard({ image, previewVideo = placeholderVideo, title, desc, link
                     {/* Hover shadow animation */}
                     <div className="absolute -inset-1 rounded-xl animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 blur opacity-0 group-hover:opacity-100 transition duration-500 animate-tilt z-0"/>
                     
-                    {isPreviewed && previewVideo ? (
+                    {isPreviewed && safeVideo ? (
                         <>
                             {/* Preview Video */}
                             <video
                                 className='relative z-10 w-full h-auto aspect-video object-cover rounded-xl'
-                                src={previewVideo}
+                                src={safeVideo}
                                 autoPlay
                                 muted
                                 loop
                                 playsInline
-                                preload='none'
+                                preload='metadata'
                             />
                         </>
                     ) : (

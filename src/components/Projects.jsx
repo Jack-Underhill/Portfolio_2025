@@ -25,7 +25,7 @@ const DEFAULT_PROJECTS = [
   {
     id:     'das',
     image:  projectDASLogo,
-    previewVideo: projectDASVideo,
+    video:  projectDASVideo,
     title:  'Decision Aid Systems (DAS) Modernization',
     desc:   'Capstone project to modernize an existing Laravel Blade frontend into a React + Inertia + Vite architecture.',
     link:   'https://decisionaid.systems/',
@@ -33,7 +33,7 @@ const DEFAULT_PROJECTS = [
   }, {
     id:     'pf',
     image:  projectSimLogo,
-    previewVideo: projectSimVideo,
+    video: projectSimVideo,
     title:  'Pathfinder Visualizer & Maze Generator',
     desc:   'Desktop visualizer for different PF & MG algorithms with run analytics and dragable start and end nodes.',
     link:   'https://pathfind-visual.netlify.app/',
@@ -41,7 +41,7 @@ const DEFAULT_PROJECTS = [
   }, {
     id:     'portfolio',
     image:  projectWorkLogo,
-    previewVideo: projectWorkVideo,
+    video:  projectWorkVideo,
     title:  'This Portfolio',
     desc:   'Showcase of my work and skills.',
     link:   'https://github.com/Jack-Underhill/Portfolio_2025',
@@ -49,7 +49,7 @@ const DEFAULT_PROJECTS = [
   }, {
     id:     'store',
     image:  projectStoreLogo,
-    previewVideo: projectStoreVideo,
+    video:  projectStoreVideo,
     title:  'University Merch Store',
     desc:   'Group Project building a mockup e-commerce platform.',
     link:   'https://github.com/Jack-Underhill/Cpts489-Sp25-GroupProject-MerchStore',
@@ -57,7 +57,7 @@ const DEFAULT_PROJECTS = [
   }, {
     id:     'statement',
     image:  projectStmtLogo,
-    previewVideo: projectStmtVideo,
+    video:  projectStmtVideo,
     title:  'Statement Tracking Tool',
     desc:   'Upload and parse CSV bank statements for shared expense tracking. Useful for splitting costs 50/50 or tracking who paid.',
     link:   'https://statement-split.netlify.app/',
@@ -85,7 +85,7 @@ function Projects() {
           const mapped = data.projects.map((p, idx) => ({
             id:     p.id ?? `db-${idx}`,
             image:  p.imageUrl || DEFAULT_PROJECTS[idx]?.image || projectWorkLogo,
-            previewVideo: DEFAULT_PROJECTS[idx]?.previewVideo || null,
+            video:  p.videoUrl || null,
             title:  p.title || DEFAULT_PROJECTS[idx]?.title || 'Untitled Project',
             desc:   p.description || DEFAULT_PROJECTS[idx]?.desc || '',
             link:   p.url || DEFAULT_PROJECTS[idx]?.link || '',
@@ -120,7 +120,7 @@ function Projects() {
           <ProjectCard
             key   = {p.id}
             image = {p.image}
-            previewVideo = {p.previewVideo}
+            video = {p.video}
             title = {p.title}
             desc  = {p.desc}
             link  = {p.link}

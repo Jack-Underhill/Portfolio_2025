@@ -65,6 +65,8 @@ export async function loadProjects() {
         id:          row.id,
         imageFile:   null,
         imageUrl:    row.image || '',
+        videoFile:   null,
+        videoUrl:    row.video || '',
         title:       row.title || '',
         description: row.description || '',
         techs:       splitTechString(row.tech),
@@ -114,20 +116,25 @@ export async function saveProjects(state) {
             : [];
         const url         = (project.url || '').trim();
 
+        const hasImage = !!(project.imageFile || project.imageUrl);
+        const hasVideo = !!(project.videoFile || project.videoUrl);
+
         // Skip totally empty projects
         if (
             !title && 
             !description && 
             !techs.length && 
             !url &&
-            !project.imageFile && 
-            !project.imageUrl
+            !hasImage && 
+            !hasVideo
         ) {
             continue;
         }
 
         let imageUrl = project.imageUrl || '';
+        let videoUrl = project.videoUrl || '';
 
+        // --- upload image if changed ---
         if (project.imageFile) {
             const ext  = getFileExtension(project.imageFile) || '.png';
             const slug = slugify(title || `project-${index + 1}`, `project-${index + 1}`);
@@ -136,15 +143,34 @@ export async function saveProjects(state) {
             const { error: uploadError } = await client.storage
                 .from(BUCKET)
                 .upload(path, project.imageFile, { upsert: true });
-
             if (uploadError) throw uploadError;
 
-            const { data: publicUrlData } = client.storage.from(BUCKET).getPublicUrl(path);
+            const { data: publicUrlData } = client.storage
+                .from(BUCKET)
+                .getPublicUrl(path);
             imageUrl = publicUrlData.publicUrl;
+        }
+
+        // --- upload preview video if changed ---
+        if (project.videoFile) {
+            const ext  = getFileExtension(project.videoFile) || '.mp4';
+            const slug = slugify(title || `project-${index + 1}`, `project-${index + 1}`);
+            const path = `project-videos/${slug}${ext}`;
+
+            const { error: uploadError } = await client.storage
+                .from(BUCKET)
+                .upload(path, project.videoFile, { upsert: true });
+            if (uploadError) throw uploadError;
+
+            const { data: publicUrlData } = client.storage
+                .from(BUCKET)
+                .getPublicUrl(path);
+            videoUrl = publicUrlData.publicUrl;
         }
 
         rows.push({
             image:       imageUrl,
+            video:       videoUrl,
             title:       title || `Project ${index + 1}`,
             description,
             tech:        joinTechArray(techs),
@@ -157,6 +183,8 @@ export async function saveProjects(state) {
             description,
             imageFile:   null,
             imageUrl,
+            videoFile:   null,
+            videoUrl,
             techs:       techs.length ? techs : [''],
             url,
         });

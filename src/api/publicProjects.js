@@ -44,6 +44,7 @@ export async function fetchProjectsPublic() {
         projects: (cards || []).map((row) => ({
             id:             row.id,
             imageUrl:       row.image || '',
+            videoUrl:       (row.video && row.video !== "NULL") ? row.video : '',
             title:          row.title || '',
             description:    row.description || '',
             url:            row.url || '',
