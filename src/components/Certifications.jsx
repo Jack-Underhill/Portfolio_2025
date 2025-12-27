@@ -1,46 +1,46 @@
-import CertificationTag from './CertificationTag';
+import CertificationCard from './CertificationCard';
+import MicrosoftLogo from '../assets/logos/microsoft-logo.svg';
+import UniLogo from '../assets/logos/uni-logo.svg';
 
 const DEFAULT_CERTS = [
     {
+        title: 'Azure Fundamentals',
         org: 'Microsoft',
-        title: 'AZ-900',
-        desc: 'Azure Fundamentals',
         link: 'https://learn.microsoft.com/en-us/credentials/certifications/azure-fundamentals/',
+        desc: 'Cloud fundamentals, Azure services, networking basics, pricing, identity & security basics.',
+        chips: ['Cloud', 'Azure', 'Security', 'Networking'],
+        issued: '2025',
+        credentialType: 'Certification',
+        logoSrc: MicrosoftLogo,
     }, {
-        org: 'Edmonds College',
         title: 'C/C++ Developer',
-        desc: '',
+        org: 'Edmonds College',
         link: 'https://catalog.edmonds.edu/preview_program.php?catoid=63&poid=15850',
+        desc: 'Low-level programming, memory management, data structures, algorithms.',
+        chips: ['C/C++', 'Memory', 'Algorithms', 'Data Structures'],
+        issued: '2022',
+        credentialType: 'Certificate',
+        logoSrc: UniLogo,
     },
 ];
 
 function Certifications() {
-    const TagClassName = 'px-5 py-1.5 text-xl sm:text-2xl md:text-3xl rounded-lg bg-card-att text-emerald-50'
-
     return (
-        <div id="Certifications" className="flex flex-col gap-8">
-            <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
+        <section id="Certifications" className="flex flex-col gap-6">
+            <h2 className="text-4xl font-bold text-emerald-50" data-aos="flip-down">
                 Certifications
-            </div>
+            </h2>
 
-            <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {DEFAULT_CERTS.map((cert) => (
-                    <div
-                        key={cert}
-                        className={`${TagClassName} w-fit border-2 border-card-border shadow-[inset_2px_2px_4px_#242a33,inset_-2px_-2px_4px_#3a4350]`}
-                        data-aos="fade-down-right"
-                    >
-                        <CertificationTag 
-                            org={cert.org}
-                            title={cert.title}
-                            desc={cert.desc}
-                            link={cert.link}
-                        />
-                    </div>
+                    <CertificationCard
+                        key={cert.title}
+                        {...cert}
+                    />
                 ))}
             </div>
-        </div>
-    )
+        </section>
+    );
 }
 
 export default Certifications;
