@@ -29,6 +29,7 @@ function CertificationCard({
     return (
         <CardTag
             {...cardProps}
+            data-aos="flip-left"
             className={[
                 "group relative block h-full w-full no-underline",
                 // Match ProjectCard surface language (solid + inset)
@@ -41,7 +42,6 @@ function CertificationCard({
                 "overflow-hidden",
                 className,
             ].join(" ")}
-            data-aos="flip-left"
         >
             {/* premium sheen (tinted) */}
             <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[520px] -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl opacity-25" />

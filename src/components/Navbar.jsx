@@ -24,13 +24,13 @@ function Navbar() {
             </button>
             <div className={`pr-3 sm:pr-0 flex flex-col sm:flex-row gap-5 text-md font-semibold text-emerald-50 transition-all duration-400 ease-in-out items-center ${isOpen ? 'opacity-100 translate-y-10 sm:translate-x-0 sm:translate-y-0' : 'opacity-0 translate-y-0 sm:translate-x-10 pointer-events-none'}`}>
                 <button onClick={menuClick}>
-                    <a href="#About">
-                        <div className='hover-animated-gradient'>About</div>
+                    <a href="#Projects">
+                        <div className='hover-animated-gradient'>Projects</div>
                     </a>
                 </button>
                 <button onClick={menuClick}>
-                    <a href="#Projects">
-                        <div className='hover-animated-gradient'>Projects</div>
+                    <a href="#Certifications">
+                        <div className='hover-animated-gradient'>Certifications</div>
                     </a>
                 </button>
                 <button onClick={menuClick}>
