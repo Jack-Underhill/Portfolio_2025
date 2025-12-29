@@ -9,11 +9,14 @@ function CertificationCard({
     issued,
     credentialType, // e.g. "Certification", "Certificate"
     logoSrc,
+    logoScale = 0.7, // Percent of parent container size (e.g. 0.7 for 70%)
 
     className = "",
 }) {
     const subtitle = [org, credentialType].filter(Boolean).join(" • ");
     const hasLink = Boolean(link);
+
+    const logoScalePercent = `${logoScale * 100}%`;
 
     const CardTag = hasLink ? "a" : "div";
     const cardProps = hasLink
@@ -56,7 +59,8 @@ function CertificationCard({
                             <img
                                 src={logoSrc}
                                 alt={`${org} logo`}
-                                className="size-8 object-contain opacity-90 transition-opacity group-hover:opacity-100"
+                                style={{ width: logoScalePercent, height: logoScalePercent }}
+                                className="object-contain opacity-100 transition-opacity group-hover:opacity-100"
                             />
                         ) : (
                             <div className="size-7 rounded-md bg-card-border/70" />
@@ -102,10 +106,10 @@ function CertificationCard({
                 {/* body */}
                 <div className="flex-1">
                     <p className="text-sm font-semibold tracking-wide text-emerald-50/60">
-                        What it covers
+                        Highlights
                     </p>
 
-                    <p className="mt-2 text-sm leading-relaxed text-emerald-50/85 line-clamp-2">
+                    <p className="mt-2 text-sm leading-relaxed text-emerald-50/85">
                         {desc}
                     </p>
 

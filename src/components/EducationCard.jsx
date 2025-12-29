@@ -10,15 +10,15 @@ function EducationCard({
     credentialType, // e.g. "Bachelor’s Degree", "Associate Degree", "Minor"
     gpa, // e.g. "3.52" (optional)
 
-    // logo options (pick one)
-    logoSrc,  // string path/url
-    logoAlt,  // accessibility alt
-    logoNode, // ReactNode (icon component, svg, etc.)
+    logoSrc, 
+    logoScale = 0.7, // Percent of parent container size (e.g. 0.7 for 70%)
 
     className = "",
 }) {
     const subtitle = [org, credentialType].filter(Boolean).join(" • ");
     const hasLink = Boolean(link);
+
+    const logoScalePercent = `${logoScale * 100}%`;
 
     const CardTag = hasLink ? "a" : "div";
     const cardProps = hasLink
@@ -59,15 +59,12 @@ function EducationCard({
                 <div className="flex items-start gap-4">
                     {/* logo container */}
                     <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-card-border bg-card-att shadow-[inset_2px_2px_4px_#0a0f14,inset_-2px_-2px_4px_#1a232c]">
-                        {logoNode ? (
-                            <div className="text-emerald-50/80 transition-colors group-hover:text-emerald-50/90">
-                                {logoNode}
-                            </div>
-                        ) : logoSrc ? (
+                        {logoSrc ? (
                             <img
                                 src={logoSrc}
-                                alt={logoAlt || `${org} logo`}
-                                className="h-8 w-8 object-contain opacity-90 transition-opacity group-hover:opacity-100"
+                                alt={`${org} logo`}
+                                style={{ width: logoScalePercent, height: logoScalePercent }}
+                                className='object-contain opacity-100 transition-opacity group-hover:opacity-100'
                             />
                         ) : (
                             <div className="h-7 w-7 rounded-md bg-card-border/70" />
