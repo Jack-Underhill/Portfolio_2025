@@ -1,5 +1,6 @@
 import EducationCard from './EducationCard';
-import UniLogo from '../assets/logos/uni-logo.svg';
+import WSULogo from '../assets/logos/wsu.svg';
+import EDCCLogo from '../assets/logos/edcc.svg';
 
 const DEFAULT_EDUCATION = [
     {
@@ -12,7 +13,8 @@ const DEFAULT_EDUCATION = [
         issued: '2024–2026 • Expected',
         credentialType: "Bachelor’s Degree",
         gpa: "3.52",
-        logoSrc: UniLogo,
+        logoSrc: WSULogo,
+        logoScale: 0.72,
     },
     {
         id: 'wsu-math-minor',
@@ -24,19 +26,21 @@ const DEFAULT_EDUCATION = [
         issued: '2024–2026 • Expected',
         credentialType: 'Minor',
         gpa: "",
-        logoSrc: UniLogo,
+        logoSrc: WSULogo,
+        logoScale: 0.72,
     },
     {
         id: 'edmonds-ast',
         title: 'Associate in Science–Transfer (AS-T)',
-        org: 'Edmonds Community College',
+        org: 'Edmonds College',
         link: 'https://catalog.edmonds.edu/preview_program.php?catoid=53&poid=10672',
         desc: 'Transfer pathway for engineering and CS, building a strong math/physics foundation and practical programming skills for upper-division work.',
         chips: ['Computer Science', 'Physics', 'Calculus', 'Engineering'],
         issued: '2019–2022',
         credentialType: 'Associate Degree',
         gpa: "",
-        logoSrc: UniLogo,
+        logoSrc: EDCCLogo,
+        logoScale: 0.65,
     },
 ];
 
