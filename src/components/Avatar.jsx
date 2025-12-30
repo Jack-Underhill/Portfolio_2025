@@ -137,7 +137,7 @@ function Avatar({ avatarLogo }) {
         const tick = (now) => {
             const t = now - start
 
-            // Scale off rendered HEIGHT (your preference)
+            // Scale off rendered HEIGHT
             const base = Math.max(1, size.h)
 
             // Amplitudes (responsive + clamped)
