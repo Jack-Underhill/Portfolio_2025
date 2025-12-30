@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import avatarLogo from '../assets/avatar.png'
 
 import TextBlock from './TextBlock'
+import Avatar from './Avatar';
 import { fetchAboutPublic } from '../api/publicAbout'
 
 const DEFAULT_ABOUT = {
@@ -12,14 +13,7 @@ const DEFAULT_ABOUT = {
 };
 
 function About() {
-    const [animate, setAnimate] = useState(true);
     const [about, setAbout]     = useState(DEFAULT_ABOUT);
-
-    useEffect(() => {
-        setAnimate(false);
-        const timeout = setTimeout(() => setAnimate(true), 100);
-        return () => clearTimeout(timeout);
-    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -81,21 +75,8 @@ function About() {
                     </a>
                 </div>
             </div>
-            <div className="w-full h-full md:w-2/5 flex justify-baseline md:justify-center-safe mb-7 md:mb-0">
-                <a 
-                    href="https://www.linkedin.com/in/underhill-jack/" 
-                    target="_blank"
-                    className='h-full w-full max-w-4/5 max-h-4/5 aspect-auto rounded-3xl' 
-                    title='View My LinkedIn'
-                    data-aos="flip-up"
-                >
-                    <img 
-                        src={about.profileImage || avatarLogo} 
-                        alt="Profile Avatar" 
-                        className={`w-full h-full hover:animate-spin rounded-3xl ${animate ? 'animate-bounce' : ''} transition duration-200 ease-in-out`} 
-                    />
-                </a>
-            </div>
+
+            <Avatar avatarLogo={about.profileImage || avatarLogo} />
         </div>
     )
 }
