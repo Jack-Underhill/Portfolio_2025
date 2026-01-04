@@ -44,7 +44,7 @@ html, body, #root {
     transform: translateX(0);
   }
   100% {
-    /* move left by half the track width (we rendered 2 copies) */
+    /* move left by half the track width */
     transform: translateX(-50%);
   }
 }
@@ -52,4 +52,43 @@ html, body, #root {
 .tech-tag-marquee {
   animation: tech-tag-marquee 15s linear infinite;
   will-change: transform;
+}
+
+/**------------------ Custom Modal Scroll bar -------------------*/
+
+/* Firefox */
+.scrollbar-modal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) rgba(15, 23, 42, 0.25);
+}
+
+/* Chrome, Edge, Safari */
+.scrollbar-modal::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar-modal::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.25);
+  border-radius: 999px;
+}
+
+.scrollbar-modal::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 999px;
+  border: 2px solid rgba(15, 23, 42, 0.25); /* gives it “inset” look */
+}
+
+.scrollbar-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.70);
+}
+
+/**------------------ Modal Pauses background animations -------------------*/
+
+html[data-modal-open="true"] .tech-tag-marquee,
+html[data-modal-open="true"] .animated-gradient {
+  animation-play-state: paused;
+}
+
+html[data-modal-open="true"] #Modal .animated-gradient {
+  animation-play-state: running;
 }

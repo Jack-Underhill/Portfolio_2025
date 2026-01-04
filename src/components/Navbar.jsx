@@ -17,7 +17,7 @@ function Navbar() {
             <button className='h-full self-end hover:animate-pulse hover:scale-125' onClick={menuClick}>
                 <img
                     src={menu}
-                    alt={`View svg`}
+                    alt={`View menu svg`}
                     title='Open Menu'
                     className='h-full transition-transform duration-300 ease-in-out hover:rotate-360'
                 />
