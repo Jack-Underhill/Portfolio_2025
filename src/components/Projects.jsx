@@ -15,59 +15,64 @@ import projectGPSVideo from '../assets/GPS.mp4'
 import projectAAOVideo from '../assets/AAO.mp4'
 import projectPlugVideo from '../assets/Plugin.mp4'
 
-import ProjectCard from './ProjectCard'
 import TextBlock from './TextBlock'
+import ProjectCard from './ProjectCard'
+import ProjectModal from './ProjectModal'
+import { DEFAULT_PROJECT_MODAL } from './modal/projectModalDefaults';
 import { fetchProjectsPublic } from '../api/publicProjects'
 
 const DEFAULT_ABOUT_PROJECTS = "I'm a senior majoring in Computer Science at Washington State University. I enjoy building projects that combine functionality with thoughtful design - whether that's a full-stack web app, an algorithmic simulation, or a video game. The following projects best showcase my personal and school work."
 
 const DEFAULT_PROJECTS = [
   {
-    id:     'das',
-    image:  projectDASLogo,
-    video:  projectDASVideo,
-    title:  'Decision Aid Systems (DAS) Modernization',
-    desc:   'Capstone project to modernize an existing Laravel Blade frontend into a React + Inertia + Vite architecture.',
-    link:   'https://decisionaid.systems/',
-    tags:   ['React', 'Inertia.js', 'Vite', 'Bootstrap', 'Laravel', 'Docker', 'Traefik'],
+    id: 'das',
+    image: projectDASLogo,
+    video: projectDASVideo,
+    title: 'Decision Aid Systems (DAS) Modernization',
+    desc: 'Capstone project to modernize an existing Laravel Blade frontend into a React + Inertia + Vite architecture.',
+    link: 'https://decisionaid.systems/',
+    tags: ['React', 'Inertia.js', 'Vite', 'Bootstrap', 'Laravel', 'Docker', 'Traefik'],
   }, {
-    id:     'pf',
-    image:  projectSimLogo,
+    id: 'pf',
+    image: projectSimLogo,
     video: projectSimVideo,
-    title:  'Pathfinder Visualizer & Maze Generator',
-    desc:   'Desktop visualizer for different PF & MG algorithms with run analytics and dragable start and end nodes.',
-    link:   'https://pathfind-visual.netlify.app/',
-    tags:   ['Vite', 'React', 'TailwindCSS', 'Recharts', 'Upstash', 'Supabase', 'Netlify'],
+    title: 'Pathfinder Visualizer & Maze Generator',
+    desc: 'Desktop visualizer for different PF & MG algorithms with run analytics and dragable start and end nodes.',
+    link: 'https://pathfind-visual.netlify.app/',
+    tags: ['Vite', 'React', 'TailwindCSS', 'Recharts', 'Upstash', 'Supabase', 'Netlify'],
   }, {
-    id:     'portfolio',
-    image:  projectWorkLogo,
-    video:  projectWorkVideo,
-    title:  'This Portfolio',
-    desc:   'Showcase of my work and skills.',
-    link:   'https://github.com/Jack-Underhill/Portfolio_2025',
-    tags:   ['Vite', 'AOS', 'React', 'TailwindCSS', 'Upstash', 'Netlify'],
+    id: 'portfolio',
+    image: projectWorkLogo,
+    video: projectWorkVideo,
+    title: 'This Portfolio',
+    desc: 'Showcase of my work and skills.',
+    link: 'https://github.com/Jack-Underhill/Portfolio_2025',
+    tags: ['Vite', 'AOS', 'React', 'TailwindCSS', 'Upstash', 'Netlify'],
   }, {
-    id:     'store',
-    image:  projectStoreLogo,
-    video:  projectStoreVideo,
-    title:  'University Merch Store',
-    desc:   'Group Project building a mockup e-commerce platform.',
-    link:   'https://github.com/Jack-Underhill/Cpts489-Sp25-GroupProject-MerchStore',
-    tags:   ['Express.js', 'React', 'SQLite'],
+    id: 'store',
+    image: projectStoreLogo,
+    video: projectStoreVideo,
+    title: 'University Merch Store',
+    desc: 'Group Project building a mockup e-commerce platform.',
+    link: 'https://github.com/Jack-Underhill/Cpts489-Sp25-GroupProject-MerchStore',
+    tags: ['Express.js', 'React', 'SQLite'],
   }, {
-    id:     'statement',
-    image:  projectStmtLogo,
-    video:  projectStmtVideo,
-    title:  'Statement Tracking Tool',
-    desc:   'Upload and parse CSV bank statements for shared expense tracking. Useful for splitting costs 50/50 or tracking who paid.',
-    link:   'https://statement-split.netlify.app/',
-    tags:   ['Vite', 'React', 'TailwindCSS', 'Netlify'],
+    id: 'statement',
+    image: projectStmtLogo,
+    video: projectStmtVideo,
+    title: 'Statement Tracking Tool',
+    desc: 'Upload and parse CSV bank statements for shared expense tracking. Useful for splitting costs 50/50 or tracking who paid.',
+    link: 'https://statement-split.netlify.app/',
+    tags: ['Vite', 'React', 'TailwindCSS', 'Netlify'],
   },
 ];
 
 function Projects() {
   const [aboutProjects, setAboutProjects] = useState(DEFAULT_ABOUT_PROJECTS);
-  const [projects, setProjects]           = useState(DEFAULT_PROJECTS);
+  const [projects, setProjects] = useState(DEFAULT_PROJECTS);
+  const [activeProject, setActiveProject] = useState(null);
+
+  const isModalOpen = !!activeProject;
 
   useEffect(() => {
     let isMounted = true;
@@ -83,15 +88,15 @@ function Projects() {
 
         if (data.projects && data.projects.length) {
           const mapped = data.projects.map((p, idx) => ({
-            id:     p.id ?? `db-${idx}`,
-            image:  p.imageUrl || DEFAULT_PROJECTS[idx]?.image || projectWorkLogo,
-            video:  p.videoUrl || null,
-            title:  p.title || DEFAULT_PROJECTS[idx]?.title || 'Untitled Project',
-            desc:   p.description || DEFAULT_PROJECTS[idx]?.desc || '',
-            link:   p.url || DEFAULT_PROJECTS[idx]?.link || '',
-            tags:   p.techs && p.techs.length
-                      ? p.techs
-                      : DEFAULT_PROJECTS[idx]?.tags || [],
+            id: p.id ?? `db-${idx}`,
+            image: p.imageUrl || DEFAULT_PROJECTS[idx]?.image || projectWorkLogo,
+            video: p.videoUrl || null,
+            title: p.title || DEFAULT_PROJECTS[idx]?.title || 'Untitled Project',
+            desc: p.description || DEFAULT_PROJECTS[idx]?.desc || '',
+            link: p.url || DEFAULT_PROJECTS[idx]?.link || '',
+            tags: p.techs && p.techs.length
+              ? p.techs
+              : DEFAULT_PROJECTS[idx]?.tags || [],
           }));
           setProjects(mapped);
         }
@@ -106,28 +111,41 @@ function Projects() {
   }, []);
 
   return (
-    <div id='Projects' className="scroll-mt-10 w-full min-h-fit flex flex-col gap-y-12 justify-center">
+    <div 
+      id='Projects' 
+      className="
+        w-full min-h-fit scroll-mt-10 
+        flex flex-col gap-y-12 justify-center
+      "
+    >
 
       {/* About */}
       <TextBlock
-        title = "About Me | Projects"
-        desc  = {aboutProjects}
+        title="About Me | Projects"
+        desc={aboutProjects}
       />
 
       {/* Cards */}
       <div className='grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3'>
         {projects.map((p) => (
           <ProjectCard
-            key   = {p.id}
-            image = {p.image}
-            video = {p.video}
-            title = {p.title}
-            desc  = {p.desc}
-            link  = {p.link}
-            tags  = {p.tags}
+            key={p.id}
+            image={p.image}
+            video={p.video}
+            title={p.title}
+            desc={p.desc}
+            link={p.link}
+            tags={p.tags}
+            onOpenModal={() => setActiveProject(p)}
           />
         ))}
       </div>
+
+      <ProjectModal
+        isOpen={isModalOpen}
+        project={activeProject ?? DEFAULT_PROJECT_MODAL}
+        onClose={() => setActiveProject(null)}
+      />
     </div>
   )
 }

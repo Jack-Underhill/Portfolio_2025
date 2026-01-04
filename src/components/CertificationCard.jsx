@@ -1,5 +1,8 @@
 import ExternalLinkIcon from "../assets/external-link.svg";
 
+import CardSurface from "./CardSurface";
+import PillHighlightList from "./PillHighlightList";
+
 function CertificationCard({
     title,
     org,
@@ -18,26 +21,15 @@ function CertificationCard({
 
     const logoScalePercent = `${logoScale * 100}%`;
 
-    const CardTag = hasLink ? "a" : "div";
-    const cardProps = hasLink
-        ? {
-            href: link,
-            target: "_blank",
-            rel: "noreferrer noopener",
-            title: `View: ${title}`,
-            "aria-label": `Open credential: ${title}`,
-        }
-        : {};
-
     return (
-        <CardTag
-            {...cardProps}
+        <CardSurface
+            link={link}
+            title={`Open official page | ${title}`}
+            isPremiumSheenActive={true}
             data-aos="flip-left"
             className={[
-                "group relative block h-full w-full no-underline",
+                "block h-full w-full no-underline",
                 // Match ProjectCard surface language (solid + inset)
-                "rounded-xl border-2 border-card-border bg-card",
-                "shadow-[inset_4px_4px_8px_#0a0f14,inset_-4px_-4px_8px_#1a232c]",
                 "transition-[transform,border-color] duration-700 ease-in-out",
                 // Premium but on-theme hover: sky/button border + soft glow
                 "hover:-translate-y-1 hover:border-button-border/70",
@@ -46,10 +38,6 @@ function CertificationCard({
                 className,
             ].join(" ")}
         >
-            {/* premium sheen (tinted) */}
-            <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[520px] -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl opacity-25" />
-            <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[radial-gradient(ellipse_at_top,rgba(56,189,248,0.10),transparent_60%)]" />
-
             <div className="relative z-10 flex h-full flex-col p-5">
                 {/* header row */}
                 <div className="flex items-start gap-4">
@@ -114,22 +102,10 @@ function CertificationCard({
                     </p>
 
                     {/* chips */}
-                    {chips?.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                            {chips.map((chip) => (
-                                <span
-                                    key={chip}
-                                    className={[
-                                        "rounded-lg px-3 py-1 text-xs font-semibold",
-                                        "border border-card-border/70 bg-card-att text-emerald-50/85",
-                                        "transition-colors group-hover:border-button-border/40",
-                                    ].join(" ")}
-                                >
-                                    {chip}
-                                </span>
-                            ))}
-                        </div>
-                    )}
+                    <PillHighlightList 
+                        textArray={chips}
+                        isOnlyHighlightedOnHover={true}
+                    />
                 </div>
 
                 {/* divider */}
@@ -143,7 +119,7 @@ function CertificationCard({
                     </span>
                 </div>
             </div>
-        </CardTag>
+        </CardSurface>
     );
 }
 
