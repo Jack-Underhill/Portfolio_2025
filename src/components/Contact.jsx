@@ -127,12 +127,26 @@ function Contact() {
     };
   }, []);
 
+  function TagList({ header, tags }) {
+    return (
+      <div className='flex flex-col gap-8'>
+        <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
+          {header}
+        </div>
+        <TechTag
+            className = {TagClassName}
+            tags      = {tags}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full min-h-fit lg:pt-60 flex flex-col gap-20 justify-center">
       <Education />
       <Certifications />
 
-      <div className='flex flex-col gap-8'>
+      {/* <div className='flex flex-col gap-8'>
         <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
           Proficient Languages
         </div>
@@ -150,7 +164,63 @@ function Contact() {
             className = {TagClassName}
             tags      = {experience}
         />
-      </div>
+      </div> */}
+
+      <TagList 
+        header="Core Web Stack" 
+        tags={[
+          'JavaScript',
+          'React',
+          'TailwindCSS',
+          'Vite',
+          'Netlify',
+        ]} 
+      />
+      <TagList 
+        header="Backend" 
+        tags={[
+          'Node',
+          'Express',
+        ]} 
+      />
+      <TagList 
+        header="Data" 
+        tags={[
+          'Supabase (Postgres)',
+          'Upstash (Redis)',
+          'SQLite',
+          'MySQL',
+        ]} 
+      />
+      <TagList 
+        header="Infra & Tooling" 
+        tags={[
+          'Git',
+          'GitHub',
+          'Azure',
+          'Docker',
+          'Traefik',
+        ]} 
+        />
+      <TagList 
+        header="Languages" 
+        tags={[
+          'C++',
+          'Java',
+          'Python',
+          'C#',
+          'C',
+        ]} 
+        />
+      <TagList 
+        header="Also Built With" 
+        tags={[
+          'Bootstrap',
+          'AOS',
+          'Recharts',
+          'Unity',
+        ]} 
+      />
 
       <div id='Contact' className='scroll-mt-10 flex flex-col gap-8'>
         <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
