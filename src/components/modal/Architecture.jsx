@@ -1,5 +1,5 @@
 export default function ArchitecturePreview({ data }) {
-    const archImg = data.architectureImage || null;
+    const archImg = data.architectureImageUrl || null;
     if (!archImg) {
         return (
             <div className="w-full h-40 rounded-xl border border-card-border bg-black/20 grid place-items-center text-emerald-50/60 text-sm">

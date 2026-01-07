@@ -15,9 +15,11 @@ export default function BulletList({
     // line-to-line spacing inside each li (leading-*)
     lineSpacingClassName = "leading-normal",
 }) {
+    const items = Array.isArray(textArray) ? textArray : [];
+
     return (
         <ul className={cx("list-disc ml-2.5 pl-5", itemSpacingClassName, className)}>
-            {textArray.map((x, idx) => (
+            {items.map((x, idx) => (
                 <li 
                     key={`imp-${idx}`}
                     className={cx(textClassName, lineSpacingClassName)}

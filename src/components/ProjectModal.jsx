@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
 
-import { DEFAULT_PROJECT_MODAL } from "./modal/projectModalDefaults";
 import Section from "./modal/Section";
 import CardSurface from "./CardSurface";
 import Header from "./modal/Header";
@@ -18,8 +17,7 @@ export default function ProjectModal({
     onClose,
 }) {
     const data = useMemo(() => {
-        // Use defaults to prevent undefined crashes until wired DB later
-        return { ...DEFAULT_PROJECT_MODAL, ...(project ?? {}) };
+        return { ...(project ?? {}) };
     }, [project]);
 
     const closeBtnRef = useRef(null);
@@ -59,8 +57,8 @@ export default function ProjectModal({
 
     if (!isOpen) return null;
 
-    const heroVideo = data.video;
-    const heroImage = data.image;
+    const heroVideo = data.videoUrl;
+    const heroImage = data.imageUrl;
 
     const safeVideo =
         heroVideo === null || heroVideo === '' || heroVideo === undefined || heroVideo === 'NULL'

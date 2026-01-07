@@ -24,7 +24,7 @@ export default function Header({ data, onClose, closeBtnRef }) {
                         <ActionButton href={data.liveUrl}>Live</ActionButton>
                         <ActionButton href={data.sourceUrl}>Code</ActionButton>
                         <ActionButton href={data.writeupUrl}>Writeup</ActionButton>
-                        <ActionButton href={data.videoUrl}>Video</ActionButton>
+                        <ActionButton href={data.videoPageUrl}>Video</ActionButton>
                     </div>
                 </div>
 

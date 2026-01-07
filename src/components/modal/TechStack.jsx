@@ -1,47 +1,37 @@
 import PillHighlightList from '../PillHighlightList';
 
 export default function TechStack({ data }) {
+    const techStack = data?.techStack;
+
+    const isValidList = (list) => {
+        return list && list[0]?.length > 0;
+    }
+
+    function ListTechSection({ list, label }) {
+        return (
+            <>
+                {isValidList(list) && (
+                    <div className="space-y-2">
+                        <div className="text-emerald-50/80 text-sm font-semibold">
+                            {label}
+                        </div>
+                        <PillHighlightList 
+                            textArray={(list ?? [])}
+                            className=''
+                            isOnlyHighlightedOnHover={true}
+                        />
+                    </div>
+                )}
+            </>
+        );
+    }
+
     return (
         <div className="space-y-4">
-            {data.tech?.frontend && (
-                <div className="space-y-2">
-                    <div className="text-emerald-50/80 text-sm font-semibold">Frontend</div>
-                    <PillHighlightList 
-                        textArray={(data.tech?.frontend ?? [])}
-                        className=''
-                    />
-                </div>
-            )}
-
-            {data.tech?.backend && (
-                <div className="space-y-2">
-                    <div className="text-emerald-50/80 text-sm font-semibold">Backend</div>
-                    <PillHighlightList 
-                        textArray={(data.tech?.backend ?? [])}
-                        className=''
-                    />
-                </div>
-            )}
-
-            {data.tech?.data && (
-                <div className="space-y-2">
-                    <div className="text-emerald-50/80 text-sm font-semibold">Data</div>
-                    <PillHighlightList 
-                        textArray={(data.tech?.data ?? [])}
-                        className=''
-                    />
-                </div>
-            )}
-
-            {data.tech?.infra && (
-                <div className="space-y-2">
-                    <div className="text-emerald-50/80 text-sm font-semibold">Infrastructure</div>
-                    <PillHighlightList 
-                        textArray={(data.tech?.infra ?? [])}
-                        className=''
-                    />
-                </div>
-            )}
+            <ListTechSection list={techStack?.frontend}        label="Frontend" />
+            <ListTechSection list={techStack?.backend}         label="Backend" />
+            <ListTechSection list={techStack?.data}            label="Data" />
+            <ListTechSection list={techStack?.infrastructure}  label="Infrastructure" />
         </div>
     );
 }
