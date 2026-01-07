@@ -16,7 +16,7 @@ function getFileExtension(file) {
 }
 
 /**
- * Load About data from Supabase and map into your admin state shape.
+ * Load About data from Supabase and map into admin state shape.
  */
 export async function loadAbout() {
     const client = requireClient();

@@ -4,15 +4,47 @@ import InputTextArea from './InputTextArea';
 
 function createEmptyProject() {
     return {
-        id:             crypto.randomUUID(),
-        imageFile:      null,
-        imageUrl:       '',
-        videoFile:      null,
-        videoUrl:       '',
-        title:          '',
-        description:    '',
-        techs:          [''],
-        url:            '',
+        id: crypto.randomUUID(),
+
+        // media
+        imageFile: null,
+        imageUrl: '',
+        architectureImageFile: null,
+        architectureImageUrl: '',
+        videoFile: null,
+        videoUrl: '',
+
+        // card fields
+        title: '',
+        description: '',
+        techTags: [''],
+        url: '',
+
+        // modal fields
+        permalink: '',
+        overview: '',
+        role: '',
+        sourceUrl: '',
+        writeupUrl: '',
+        videoPageUrl: '',
+
+        // tech for modal + derived tags for card marquee
+        techStack: {
+            frontend: [''],
+            backend: [''],
+            data: [''],
+            infrastructure: [''],
+        },
+
+        // modal lists
+        features: [''],
+        metrics: [''],
+        challenges: [],
+        improvements: [''],
+
+        // control/meta
+        published: true,
+        sortOrder: 0,
     };
 }
 
@@ -33,9 +65,10 @@ function SectionProjects({ state, onChange }) {
         updateState({ projectBio: value });
     };
 
+    const normalizeSortOrder = (arr) => arr.map((p, i) => ({ ...p, sortOrder: i }));
     const setProjects = (updater) => {
-        const next =
-            typeof updater === 'function' ? updater(projects) : updater;
+        const nextRaw = typeof updater === 'function' ? updater(projects) : updater;
+        const next = normalizeSortOrder(nextRaw);
         updateState({ projects: next });
     };
 
