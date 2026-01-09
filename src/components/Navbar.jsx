@@ -39,6 +39,11 @@ function Navbar() {
                     </a>
                 </button>
                 <button onClick={menuClick}>
+                    <a href="#Skills">
+                        <div className='hover-animated-gradient'>Skills</div>
+                    </a>
+                </button>
+                <button onClick={menuClick}>
                     <a href="#Contact">
                         <div className='hover-animated-gradient'>Contact</div>
                     </a>
