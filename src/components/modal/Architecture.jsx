@@ -10,7 +10,19 @@ export default function ArchitecturePreview({ data }) {
 
     return (
         <div className="space-y-2">
-            <div className="rounded-xl border border-card-border bg-black/20 overflow-hidden">
+            <div className="relative rounded-xl border border-card-border bg-black/20 overflow-hidden">
+                {/* Clickable overlay */}
+                <a
+                    href={archImg}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Open ${data.title} architecture diagram in a new tab`}
+                    className="absolute inset-0 z-10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60"
+                >
+                    <span className="sr-only">Open full diagram</span>
+                </a>
+
+                {/* SVG Architecture Image */}
                 <div className="w-full aspect-[16/9]">
                     <object
                         data={archImg}
