@@ -97,13 +97,16 @@ export async function loadProjects() {
 
         return {
             id: row.id,
+            title: row.title || '',
+            description: row.card_description || '',
+            url: row.live_url || '',
+            
             imageFile: null,
             imageUrl: row.image_url || '',
             videoFile: null,
             videoUrl: row.video_url || '',
-            title: row.title || '',
-            description: row.card_description || '',
-            url: row.live_url || '',
+            architectureImageFile: null,
+            architectureImageUrl: row.architecture_image_url || '',
 
             permalink: row.permalink || '',
             overview: row.overview || '',
@@ -111,7 +114,6 @@ export async function loadProjects() {
             sourceUrl: row.source_url || '',
             writeupUrl: row.writeup_url || '',
             videoPageUrl: row.video_page_url || '',
-            architectureImageUrl: row.architecture_image_url || '',
 
             techStack,
             techTags: techTags.length ? techTags : [''],
@@ -235,23 +237,24 @@ export async function saveProjects(state) {
             sourceUrl: sourceUrl || null,
             writeupUrl: writeupUrl || null,
             videoPageUrl: videoPageUrl || null,
-            architectureImageUrl: architectureImageUrl || null,
-
+            
             techStack,
             techTags,
-
+            
             features,
             metrics,
             challenges,
             improvements,
-
+            
             published,
             sortOrder,
-
+            
             imageFile: project.imageFile || null,
             imageUrl: project.imageUrl || '',
             videoFile: project.videoFile || null,
             videoUrl: project.videoUrl || '',
+            architectureImageFile: project.architectureImageFile || null,
+            architectureImageUrl: architectureImageUrl || '',
         });
     }
 
@@ -282,6 +285,7 @@ export async function saveProjects(state) {
 
         let imageUrl = p.imageUrl;
         let videoUrl = p.videoUrl;
+        let architectureImageUrl = p.architectureImageUrl;
 
         // Uploads use id-based paths (stable even if title changes)
         if (p.imageFile) {
@@ -296,19 +300,26 @@ export async function saveProjects(state) {
             videoUrl = await uploadAndGetPublicUrl(path, p.videoFile);
         }
 
+        if (p.architectureImageFile) {
+            const ext = ensureDotExt(getFileExtension(p.architectureImageFile), '.svg');
+            const path = `project-architecture/${id}/preview${ext}`;
+            architectureImageUrl = await uploadAndGetPublicUrl(path, p.architectureImageFile);
+        }
+
         const updatePayload = {
-            image_url: imageUrl,
-            video_url: videoUrl,
             title: p.title,
             card_description: p.description,
             live_url: p.url,
+            
+            image_url: imageUrl,
+            video_url: videoUrl,
+            architecture_image_url: architectureImageUrl,
 
             overview: p.overview,
             role: p.role,
             source_url: p.sourceUrl,
             writeup_url: p.writeupUrl,
             video_page_url: p.videoPageUrl,
-            architecture_image_url: p.architectureImageUrl,
 
             tech_stack: p.techStack,
             tech_tags: p.techTags,
@@ -353,13 +364,14 @@ export async function saveProjects(state) {
             imageUrl,
             videoFile: null,
             videoUrl,
+            architectureImageFile: null,
+            architectureImageUrl,
 
             overview: p.overview || '',
             role: p.role || '',
             sourceUrl: p.sourceUrl || '',
             writeupUrl: p.writeupUrl || '',
             videoPageUrl: p.videoPageUrl || '',
-            architectureImageUrl: p.architectureImageUrl || '',
 
             techStack: p.techStack,
             techTags: p.techTags.length ? p.techTags : [''],
@@ -378,18 +390,19 @@ export async function saveProjects(state) {
     for (const p of normalized.filter(x => !Number.isFinite(x.id))) {
         // Insert first to get an id (permalink intentionally omitted)
         const insertPayload = {
-            image_url: p.imageUrl || '',
-            video_url: p.videoUrl || '',
             title: p.title,
             card_description: p.description,
             live_url: p.url,
+
+            image_url: p.imageUrl || '',
+            video_url: p.videoUrl || '',
+            architecture_image_url: p.architectureImageUrl || '',
 
             overview: p.overview,
             role: p.role,
             source_url: p.sourceUrl,
             writeup_url: p.writeupUrl,
             video_page_url: p.videoPageUrl,
-            architecture_image_url: p.architectureImageUrl,
 
             tech_stack: p.techStack,
             tech_tags: p.techTags,
@@ -415,6 +428,7 @@ export async function saveProjects(state) {
 
         let imageUrl = p.imageUrl || '';
         let videoUrl = p.videoUrl || '';
+        let architectureImageUrl = p.architectureImageUrl || '';
 
         // Now with id, upload media (if provided) to stable id paths
         if (p.imageFile) {
@@ -427,6 +441,12 @@ export async function saveProjects(state) {
             const ext = ensureDotExt(getFileExtension(p.videoFile), '.mp4');
             const path = `project-videos/${id}/preview${ext}`;
             videoUrl = await uploadAndGetPublicUrl(path, p.videoFile);
+        }
+
+        if (p.architectureImageFile) {
+            const ext = ensureDotExt(getFileExtension(p.architectureImageFile), '.svg');
+            const path = `project-architecture/${id}/preview${ext}`;
+            architectureImageUrl = await uploadAndGetPublicUrl(path, p.architectureImageFile);
         }
 
         const permalink = makePermalink(id, p.title);
@@ -457,13 +477,14 @@ export async function saveProjects(state) {
             imageUrl,
             videoFile: null,
             videoUrl,
+            architectureImageFile: null,
+            architectureImageUrl,
 
             overview: p.overview || '',
             role: p.role || '',
             sourceUrl: p.sourceUrl || '',
             writeupUrl: p.writeupUrl || '',
             videoPageUrl: p.videoPageUrl || '',
-            architectureImageUrl: p.architectureImageUrl || '',
 
             techStack: p.techStack,
             techTags: p.techTags.length ? p.techTags : [''],
