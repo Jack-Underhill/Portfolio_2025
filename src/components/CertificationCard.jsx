@@ -57,7 +57,7 @@ function CertificationCard({
 
                     <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-3">
-                            <h3 className="min-w-0 truncate text-lg font-semibold text-emerald-50">
+                            <h3 className="min-w-0 break-words text-lg font-semibold text-emerald-50 leading-snug">
                                 <span className="animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">
                                     {title}
                                 </span>
@@ -83,7 +83,9 @@ function CertificationCard({
                         </div>
 
                         {subtitle && (
-                            <p className="text-sm text-emerald-50/65">{subtitle}</p>
+                            <p className="min-w-0 break-words text-sm leading-snug text-emerald-50/65">
+                                {subtitle}
+                            </p>
                         )}
                     </div>
                 </div>
