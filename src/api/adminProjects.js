@@ -100,7 +100,7 @@ export async function loadProjects() {
             title: row.title || '',
             description: row.card_description || '',
             url: row.live_url || '',
-            
+
             imageFile: null,
             imageUrl: row.image_url || '',
             videoFile: null,
