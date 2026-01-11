@@ -1,22 +1,5 @@
-import { supabaseAdmin, BUCKET } from './supabaseAdminClient';
-
-function requireClient() {
-    if (!supabaseAdmin) {
-        throw new Error('Supabase admin client is not configured');
-    }
-    return supabaseAdmin;
-}
-
-function getFileExtension(file) {
-    if (!file?.name) return '';
-    const dot = file.name.lastIndexOf('.');
-    return dot === -1 ? '' : file.name.slice(dot); // includes "."
-}
-
-function slugify(label, fallback) {
-    const base = (label || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    return base || fallback;
-}
+import { requireClient, BUCKET } from './supabaseAdminClient';
+import { getFileExtension, slugify } from './utils/strings.js';
 
 /**
  * Load contact data (skills + links) into admin state shape.

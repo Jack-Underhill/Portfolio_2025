@@ -10,11 +10,18 @@ if (!supabaseUrl || !supabaseKey) {
     );
 }
 
-export const supabaseAdmin =
+const supabaseAdmin =
     supabaseUrl && supabaseKey
         ? createClient(supabaseUrl, supabaseKey, {
             auth: { persistSession: false },
         })
         : null;
+
+export function requireClient() {
+    if (!supabaseAdmin) {
+        throw new Error('Supabase admin client is not configured');
+    }
+    return supabaseAdmin;
+}
 
 export const BUCKET = 'portfolio-assets';

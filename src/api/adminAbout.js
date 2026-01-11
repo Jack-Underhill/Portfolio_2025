@@ -1,19 +1,7 @@
-import { supabaseAdmin, BUCKET } from './supabaseAdminClient';
+import { requireClient, BUCKET } from './supabaseAdminClient';
+import { getFileExtension } from './utils/strings.js';
 
 const ABOUT_ID = 1; // treat "about" as a singleton row with id = 1
-
-function requireClient() {
-    if (!supabaseAdmin) {
-        throw new Error('Supabase admin client is not configured');
-    }
-    return supabaseAdmin;
-}
-
-function getFileExtension(file) {
-    if (!file?.name) return '';
-    const dot = file.name.lastIndexOf('.');
-    return dot === -1 ? '' : file.name.slice(dot); // includes the leading "."
-}
 
 /**
  * Load About data from Supabase and map into admin state shape.

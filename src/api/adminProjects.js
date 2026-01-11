@@ -1,66 +1,9 @@
-import { supabaseAdmin, BUCKET } from './supabaseAdminClient';
+import { requireClient } from './supabaseAdminClient';
+import { normalizeStringArray, flattenTechStack } from './utils/strings.js';
+import { resolveProjectMediaUrls, makePermalink } from './utils/storage.js';
 
-const PROJECT_SECTION_ID = 1;
-
-function requireClient() {
-    if (!supabaseAdmin) {
-        throw new Error('Supabase admin client is not configured');
-    }
-    return supabaseAdmin;
-}
-
-function getFileExtension(file) {
-    if (!file?.name) return '';
-    const dot = file.name.lastIndexOf('.');
-    return dot === -1 ? '' : file.name.slice(dot); // includes "."
-}
-
-function slugify(label, fallback) {
-    const base = (label || '')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-    return base || fallback;
-}
-
+const PROJECT_SECTION_ID = 1; // treat "project section" as a singleton row with id = 1
 const TECH_STACK_ORDER = ['frontend', 'backend', 'data', 'infrastructure'];
-
-function normalizeStringArray(arr) {
-    if (!Array.isArray(arr)) return [];
-    const out = [];
-    const seen = new Set();
-
-    for (const raw of arr) {
-        const t = String(raw ?? '').trim();
-        if (!t) continue;
-        const key = t.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        out.push(t);
-    }
-    return out;
-}
-
-function flattenTechStack(techStack) {
-    if (!techStack || typeof techStack !== "object") return [];
-
-    const out = [];
-    const seen = new Set();
-
-    for (const cat of TECH_STACK_ORDER) {
-        const arr = Array.isArray(techStack?.[cat]) ? techStack[cat] : [];
-        for (const raw of arr) {
-            const t = String(raw ?? '').trim();
-            if (!t) continue;
-
-            const key = t.toLowerCase();
-            if (seen.has(key)) continue;
-            seen.add(key);
-            out.push(t);
-        }
-    }
-    return out;
-}
 
 /**
  * Load project bio + cards into admin state shape.
@@ -88,44 +31,7 @@ export async function loadProjects() {
     const projectBio = section?.about_projects || '';
 
     const projects = (cards || []).map((row) => {
-        const techStack = row.tech_stack ?? null;
-
-        // Prefer stored tech_tags; if empty, fall back to flattening tech_stack
-        const tagsFromDb = normalizeStringArray(row.tech_tags);
-        const tagsFromStack = flattenTechStack(techStack);
-        const techTags = tagsFromDb.length ? tagsFromDb : tagsFromStack;
-
-        return {
-            id: row.id,
-            title: row.title || '',
-            description: row.card_description || '',
-            url: row.live_url || '',
-
-            imageFile: null,
-            imageUrl: row.image_url || '',
-            videoFile: null,
-            videoUrl: row.video_url || '',
-            architectureImageFile: null,
-            architectureImageUrl: row.architecture_image_url || '',
-
-            permalink: row.permalink || '',
-            overview: row.overview || '',
-            role: row.role || '',
-            sourceUrl: row.source_url || '',
-            writeupUrl: row.writeup_url || '',
-            videoPageUrl: row.video_page_url || '',
-
-            techStack,
-            techTags: techTags.length ? techTags : [''],
-
-            features: Array.isArray(row.features) ? row.features : [],
-            metrics: Array.isArray(row.metrics) ? row.metrics : null,
-            challenges: row.challenges || [],
-            improvements: Array.isArray(row.improvements) ? row.improvements : [],
-
-            published: row.published !== false,
-            sortOrder: Number.isFinite(row.sort_order) ? row.sort_order : 0,
-        };
+        return dbRowToUiProject(row);
     });
 
     return { projectBio, projects };
@@ -140,363 +46,116 @@ export async function loadProjects() {
 export async function saveProjects(state) {
     const client = requireClient();
 
-    const projectBio = (state.projectBio || '').trim();
-
     // --- project_section (single row) ---
+    const projectBio = (state.projectBio || '').trim();
     const { error: sectionError } = await client
         .from('project_section')
         .upsert(
             [{ id: PROJECT_SECTION_ID, about_projects: projectBio }],
             { onConflict: 'id' }
         );
-
     if (sectionError) throw sectionError;
 
-    // ---- helpers ----
-    const ensureDotExt = (ext, fallback) => {
-        const e = (ext || '').trim();
-        if (e && e.startsWith('.')) return e;
-        if (e) return `.${e}`;
-        return fallback;
-    };
-
-    const makePermalink = (id, titleAtCreation) => {
-        const suffix = slugify(titleAtCreation, `project-${id}`);
-        return `${id}-${suffix}`;
-    };
-
-    async function uploadAndGetPublicUrl(path, file) {
-        const { error: uploadError } = await client.storage.from(BUCKET).upload(path, file, { upsert: true });
-        if (uploadError) throw uploadError;
-
-        const { data: publicUrlData } = client.storage.from(BUCKET).getPublicUrl(path);
-        return publicUrlData?.publicUrl || '';
-    }
-
-    // ---- normalize + filter empty projects ----
-    const inputProjects = Array.isArray(state.projects) ? state.projects : [];
-
-    const normalized = [];
-    for (let index = 0; index < inputProjects.length; index++) {
-        const project = inputProjects[index];
-
-        const id = Number.isFinite(project?.id) ? project.id : null;
-
-        const title = (project.title || '').trim();
-        const description = (project.description || '').trim();
-        const url = (project.url || '').trim();
-
-        const overview = (project.overview || '').trim();
-        const role = (project.role || '').trim();
-        const sourceUrl = (project.sourceUrl || '').trim();
-        const writeupUrl = (project.writeupUrl || '').trim();
-        const videoPageUrl = (project.videoPageUrl || '').trim();
-        const architectureImageUrl = (project.architectureImageUrl || '').trim();
-
-        const techStack = project.techStack ?? null;
-        const tagsFromStack = flattenTechStack(techStack);
-        const tagsManual = normalizeStringArray(project.techTags);
-        const techTags = tagsFromStack.length ? tagsFromStack : tagsManual;
-
-        const features = Array.isArray(project.features) ? project.features : null;
-        const metrics = Array.isArray(project.metrics) ? project.metrics : null;
-        const challenges = project.challenges ?? null;
-        const improvements = Array.isArray(project.improvements) ? project.improvements : null;
-
-        const published = project.published !== false;
-
-        const hasImage = !!(project.imageFile || project.imageUrl);
-        const hasVideo = !!(project.videoFile || project.videoUrl);
-
-        // Skip empty projects
-        const isEmpty =
-            !title &&
-            !description &&
-            techTags.length === 0 &&
-            !url &&
-            !hasImage &&
-            !hasVideo;
-        if (isEmpty) continue;
-
-        // Authoritative order = current array order
-        const sortOrder = index;
-
-        normalized.push({
-            original: project,
-            id,
-
-            // keep existing permalink from state (but WILL NOT overwrite DB’s permalink)
-            permalink: (project.permalink || '').trim(),
-
-            title: title || `Project ${index + 1}`,
-            description,
-            url,
-
-            overview: overview || null,
-            role: role || null,
-            sourceUrl: sourceUrl || null,
-            writeupUrl: writeupUrl || null,
-            videoPageUrl: videoPageUrl || null,
-            
-            techStack,
-            techTags,
-            
-            features,
-            metrics,
-            challenges,
-            improvements,
-            
-            published,
-            sortOrder,
-            
-            imageFile: project.imageFile || null,
-            imageUrl: project.imageUrl || '',
-            videoFile: project.videoFile || null,
-            videoUrl: project.videoUrl || '',
-            architectureImageFile: project.architectureImageFile || null,
-            architectureImageUrl: architectureImageUrl || '',
-        });
-    }
-
-    // ---- prefetch existing permalinks to NEVER overwrite ----
-    const existingIds = normalized.filter(p => Number.isFinite(p.id)).map(p => p.id);
-
-    const existingById = new Map();
-    if (existingIds.length) {
-        const { data: existingRows, error: existingError } = await client
-            .from('projects')
-            .select('id, permalink, image_url, video_url')
-            .in('id', existingIds);
-
-        if (existingError) throw existingError;
-
-        for (const row of existingRows || []) {
-            existingById.set(row.id, row);
-        }
-    }
+    const normalized = normalizeUiProjects(state);
+    const existingById = await fetchExistingProjectsById(client, normalized);
 
     const savedProjects = [];
     const keepIds = [];
 
     // ---- update existing rows ----
-    for (const p of normalized.filter(x => Number.isFinite(x.id))) {
-        const id = p.id;
-        const dbPermalink = (existingById.get(id)?.permalink || '').trim();
+    for (const p of normalized) {
+        let id = p.id;
+        let permalink;
+        let imageUrl;
+        let videoUrl;
+        let architectureImageUrl;
 
-        let imageUrl = p.imageUrl;
-        let videoUrl = p.videoUrl;
-        let architectureImageUrl = p.architectureImageUrl;
+        if (Number.isFinite(id)) {
+            const { imageBucketUrl, videoBucketUrl, architectureImageBucketUrl } = 
+                await resolveProjectMediaUrls(
+                    id,
+                    p.imageFile, p.imageUrl,
+                    p.videoFile, p.videoUrl,
+                    p.architectureImageFile, p.architectureImageUrl
+                );
 
-        // Uploads use id-based paths (stable even if title changes)
-        if (p.imageFile) {
-            const ext = ensureDotExt(getFileExtension(p.imageFile), '.png');
-            const path = `projects/${id}/cover${ext}`;
-            imageUrl = await uploadAndGetPublicUrl(path, p.imageFile);
-        }
+            imageUrl = imageBucketUrl;
+            videoUrl = videoBucketUrl;
+            architectureImageUrl = architectureImageBucketUrl;
 
-        if (p.videoFile) {
-            const ext = ensureDotExt(getFileExtension(p.videoFile), '.mp4');
-            const path = `project-videos/${id}/preview${ext}`;
-            videoUrl = await uploadAndGetPublicUrl(path, p.videoFile);
-        }
+            const updatePayload = {
+                ...toDbProjectPayload(p),
 
-        if (p.architectureImageFile) {
-            const ext = ensureDotExt(getFileExtension(p.architectureImageFile), '.svg');
-            const path = `project-architecture/${id}/preview${ext}`;
-            architectureImageUrl = await uploadAndGetPublicUrl(path, p.architectureImageFile);
-        }
-
-        const updatePayload = {
-            title: p.title,
-            card_description: p.description,
-            live_url: p.url,
-            
-            image_url: imageUrl,
-            video_url: videoUrl,
-            architecture_image_url: architectureImageUrl,
-
-            overview: p.overview,
-            role: p.role,
-            source_url: p.sourceUrl,
-            writeup_url: p.writeupUrl,
-            video_page_url: p.videoPageUrl,
-
-            tech_stack: p.techStack,
-            tech_tags: p.techTags,
-
-            features: p.features,
-            metrics: p.metrics,
-            challenges: p.challenges,
-            improvements: p.improvements,
-
-            published: p.published,
-            sort_order: p.sortOrder,
-        };
-
-        // Only set permalink if DB is missing it
-        if (!dbPermalink) {
-            updatePayload.permalink = makePermalink(id, p.title);
-        }
-
-        const { data: updatedRow, error: updateError } = await client
-            .from('projects')
-            .update(updatePayload)
-            .eq('id', id)
-            .select('id, permalink')
-            .single();
-
-        if (updateError) throw updateError;
-
-        const finalPermalink = (updatedRow?.permalink || dbPermalink || '').trim();
-
-        keepIds.push(id);
-
-        savedProjects.push({
-            ...p.original,
-            id,
-            permalink: finalPermalink,
-
-            title: p.title,
-            description: p.description,
-            url: p.url,
-
-            imageFile: null,
-            imageUrl,
-            videoFile: null,
-            videoUrl,
-            architectureImageFile: null,
-            architectureImageUrl,
-
-            overview: p.overview || '',
-            role: p.role || '',
-            sourceUrl: p.sourceUrl || '',
-            writeupUrl: p.writeupUrl || '',
-            videoPageUrl: p.videoPageUrl || '',
-
-            techStack: p.techStack,
-            techTags: p.techTags.length ? p.techTags : [''],
-
-            features: p.features || [],
-            metrics: p.metrics || null,
-            challenges: p.challenges || [],
-            improvements: p.improvements || [],
-
-            published: p.published,
-            sortOrder: p.sortOrder,
-        });
-    }
-
-    // ---- insert new rows (then generate permalink + upload using the new id) ----
-    for (const p of normalized.filter(x => !Number.isFinite(x.id))) {
-        // Insert first to get an id (permalink intentionally omitted)
-        const insertPayload = {
-            title: p.title,
-            card_description: p.description,
-            live_url: p.url,
-
-            image_url: p.imageUrl || '',
-            video_url: p.videoUrl || '',
-            architecture_image_url: p.architectureImageUrl || '',
-
-            overview: p.overview,
-            role: p.role,
-            source_url: p.sourceUrl,
-            writeup_url: p.writeupUrl,
-            video_page_url: p.videoPageUrl,
-
-            tech_stack: p.techStack,
-            tech_tags: p.techTags,
-
-            features: p.features,
-            metrics: p.metrics,
-            challenges: p.challenges,
-            improvements: p.improvements,
-
-            published: p.published,
-            sort_order: p.sortOrder,
-        };
-
-        const { data: inserted, error: insertError } = await client
-            .from('projects')
-            .insert([insertPayload])
-            .select('id')
-            .single();
-
-        if (insertError) throw insertError;
-
-        const id = inserted.id;
-
-        let imageUrl = p.imageUrl || '';
-        let videoUrl = p.videoUrl || '';
-        let architectureImageUrl = p.architectureImageUrl || '';
-
-        // Now with id, upload media (if provided) to stable id paths
-        if (p.imageFile) {
-            const ext = ensureDotExt(getFileExtension(p.imageFile), '.png');
-            const path = `projects/${id}/cover${ext}`;
-            imageUrl = await uploadAndGetPublicUrl(path, p.imageFile);
-        }
-
-        if (p.videoFile) {
-            const ext = ensureDotExt(getFileExtension(p.videoFile), '.mp4');
-            const path = `project-videos/${id}/preview${ext}`;
-            videoUrl = await uploadAndGetPublicUrl(path, p.videoFile);
-        }
-
-        if (p.architectureImageFile) {
-            const ext = ensureDotExt(getFileExtension(p.architectureImageFile), '.svg');
-            const path = `project-architecture/${id}/preview${ext}`;
-            architectureImageUrl = await uploadAndGetPublicUrl(path, p.architectureImageFile);
-        }
-
-        const permalink = makePermalink(id, p.title);
-
-        const { error: postInsertUpdateError } = await client
-            .from('projects')
-            .update({
-                permalink,
                 image_url: imageUrl,
                 video_url: videoUrl,
-            })
-            .eq('id', id);
+                architecture_image_url: architectureImageUrl,
+            };
 
-        if (postInsertUpdateError) throw postInsertUpdateError;
+            // Only set permalink if DB is missing it
+            const dbPermalink = (existingById.get(id)?.permalink || '').trim();
+            if (!dbPermalink) {
+                updatePayload.permalink = makePermalink(id, p.title);
+            }
+
+            const { data: updatedRow, error: updateError } = await client
+                .from('projects')
+                .update(updatePayload)
+                .eq('id', id)
+                .select('id, permalink')
+                .single();
+
+            if (updateError) throw updateError;
+
+            permalink = (updatedRow?.permalink || dbPermalink || '').trim();
+        } else {
+            // ---- insert new rows (then generate permalink + upload using the new id) ----
+            // Insert first to get an id (permalink intentionally omitted)
+            const insertPayload = {
+                ...toDbProjectPayload(p),
+            };
+
+            const { data: inserted, error: insertError } = await client
+                .from('projects')
+                .insert([insertPayload])
+                .select('id')
+                .single();
+            if (insertError) throw insertError;
+
+            id = inserted.id;
+            const { imageBucketUrl, videoBucketUrl, architectureImageBucketUrl } = 
+                await resolveProjectMediaUrls(
+                    id,
+                    p.imageFile, p.imageUrl,
+                    p.videoFile, p.videoUrl,
+                    p.architectureImageFile, p.architectureImageUrl
+                );
+            imageUrl = imageBucketUrl;
+            videoUrl = videoBucketUrl;
+            architectureImageUrl = architectureImageBucketUrl;
+
+            permalink = makePermalink(id, p.title);
+
+            const { error: postInsertUpdateError } = await client
+                .from('projects')
+                .update({
+                    permalink,
+                    image_url: imageUrl,
+                    video_url: videoUrl,
+                    architecture_image_url: architectureImageUrl,
+                })
+                .eq('id', id);
+            if (postInsertUpdateError) throw postInsertUpdateError;
+        }
 
         keepIds.push(id);
-
-        savedProjects.push({
-            ...p.original,
+        savedProjects.push(toUiProject(
+            p,
             id,
             permalink,
-
-            title: p.title,
-            description: p.description,
-            url: p.url,
-
-            imageFile: null,
             imageUrl,
-            videoFile: null,
             videoUrl,
-            architectureImageFile: null,
-            architectureImageUrl,
-
-            overview: p.overview || '',
-            role: p.role || '',
-            sourceUrl: p.sourceUrl || '',
-            writeupUrl: p.writeupUrl || '',
-            videoPageUrl: p.videoPageUrl || '',
-
-            techStack: p.techStack,
-            techTags: p.techTags.length ? p.techTags : [''],
-
-            features: p.features || [],
-            metrics: p.metrics || null,
-            challenges: p.challenges || [],
-            improvements: p.improvements || [],
-
-            published: p.published,
-            sortOrder: p.sortOrder,
-        });
+            architectureImageUrl
+        ));
     }
 
     // ---- delete rows removed from admin list (keeps DB in sync with state) ----
@@ -518,4 +177,230 @@ export async function saveProjects(state) {
         projectBio,
         projects: savedProjects,
     };
+}
+
+function dbRowToUiProject(p) {
+    const techStack = p.tech_stack ?? null;
+
+    // Prefer stored tech_tags; if empty, fall back to flattening tech_stack
+    const tagsFromDb = normalizeStringArray(p.tech_tags);
+    const tagsFromStack = flattenTechStack(techStack, TECH_STACK_ORDER);
+    const techTags = tagsFromDb.length ? tagsFromDb : tagsFromStack;
+
+    const renamedP = {
+        id: p.id,
+        title: p.title,
+        description: p.card_description,
+        url: p.live_url,
+
+        imageUrl: p.image_url,
+        videoUrl: p.video_url,
+        architectureImageUrl: p.architecture_image_url,
+
+        permalink: p.permalink,
+        overview: p.overview,
+        role: p.role,
+        sourceUrl: p.source_url,
+        writeupUrl: p.writeup_url,
+        videoPageUrl: p.video_page_url,
+
+        techStack,
+        techTags,
+
+        features: p.features,
+        metrics: p.metrics,
+        challenges: p.challenges,
+        improvements: p.improvements,
+
+        published: p.published,
+        sortOrder: p.sort_order,
+    };
+
+    return toUiProject(renamedP);
+}
+
+function toUiProject(
+    project,
+    id = null,
+    permalink = null,
+    imageUrl = null,
+    videoUrl = null,
+    architectureImageUrl = null
+) {
+    const p = project || {};
+    const shapedP = {
+        id:                     id ?? p.id ?? null,
+
+        permalink:              permalink ?? p.permalink ?? '',
+        imageUrl:               imageUrl ?? p.imageUrl ?? '',
+        videoUrl:               videoUrl ?? p.videoUrl ?? '',
+        architectureImageUrl:   architectureImageUrl ?? p.architectureImageUrl ?? '',
+
+        imageFile:              null,
+        videoFile:              null,
+        architectureImageFile:  null,
+
+        title:          p.title || '',
+        description:    p.description || '',
+        url:            p.url || '',
+
+        overview:       p.overview || '',
+        role:           p.role || '',
+        sourceUrl:      p.sourceUrl || '',
+        writeupUrl:     p.writeupUrl || '',
+        videoPageUrl:   p.videoPageUrl || '',
+
+        techStack:  p.techStack,
+        challenges: p.challenges || [],
+
+        techTags:       Array.isArray(p.techTags) ? p.techTags : [''],
+        features:       Array.isArray(p.features) ? p.features : [],
+        metrics:        Array.isArray(p.metrics) ? p.metrics : null,
+        improvements:   Array.isArray(p.improvements) ? p.improvements : [],
+
+        published: p.published !== false,
+        sortOrder: Number.isFinite(p.sortOrder) ? p.sortOrder : 0,
+    };
+
+    return shapedP;
+}
+
+function toDbProjectPayload(p) {
+    return {
+        title: p.title,
+        card_description: p.description,
+        live_url: p.url,
+
+        image_url: p.imageUrl,
+        video_url: p.videoUrl,
+        architecture_image_url: p.architectureImageUrl,
+
+        overview: p.overview,
+        role: p.role,
+        source_url: p.sourceUrl,
+        writeup_url: p.writeupUrl,
+        video_page_url: p.videoPageUrl,
+
+        tech_stack: p.techStack,
+        tech_tags: p.techTags,
+
+        features: p.features,
+        metrics: p.metrics,
+        challenges: p.challenges,
+        improvements: p.improvements,
+
+        published: p.published,
+        sort_order: p.sortOrder,
+    };
+}
+
+function normalizeUiProjects(state) {
+    const inputProjects = Array.isArray(state.projects) ? state.projects : [];
+
+    const trimString = (str) => {
+        return (str || '').trim() || null;
+    };
+
+    const normalized = [];
+    for (let index = 0; index < inputProjects.length; index++) {
+        const project = inputProjects[index];
+
+        const permalink             = trimString(project.permalink);
+        const title                 = trimString(project.title);
+        const description           = trimString(project.description);
+        const url                   = trimString(project.url);
+        const overview              = trimString(project.overview);
+        const role                  = trimString(project.role);
+        const sourceUrl             = trimString(project.sourceUrl);
+        const writeupUrl            = trimString(project.writeupUrl);
+        const videoPageUrl          = trimString(project.videoPageUrl);
+        const imageUrl              = trimString(project.imageUrl);
+        const videoUrl              = trimString(project.videoUrl);
+        const architectureImageUrl  = trimString(project.architectureImageUrl);
+
+        const imageFile             = project.imageFile || null;
+        const videoFile             = project.videoFile || null;
+        const architectureImageFile = project.architectureImageFile || null;
+
+        const techStack  = project.techStack ?? null;
+        const challenges = project.challenges ?? null;
+
+        const tagsFromStack = flattenTechStack(techStack, TECH_STACK_ORDER);
+        const tagsManual    = normalizeStringArray(project.techTags);
+        const techTags      = tagsFromStack.length ? tagsFromStack : tagsManual;
+
+        const hasImage = !!(imageFile || imageUrl);
+        const hasVideo = !!(videoFile || videoUrl);
+
+        // Skip empty projects
+        const isEmpty =
+            !title &&
+            !description &&
+            techTags.length === 0 &&
+            !url &&
+            !hasImage &&
+            !hasVideo;
+        if (isEmpty) continue;
+
+        const id = Number.isFinite(project?.id) ? project.id : null;
+
+        // Authoritative order = current array order
+        const sortOrder = index;
+
+        const features      = Array.isArray(project.features) ? project.features : null;
+        const metrics       = Array.isArray(project.metrics) ? project.metrics : null;
+        const improvements  = Array.isArray(project.improvements) ? project.improvements : null;
+
+        const published = project.published !== false;
+
+        normalized.push({
+            id,
+            permalink,
+            sortOrder,
+            published,
+            title: title || `Project ${index + 1}`,
+            description,
+            url,
+            overview,
+            role,
+            sourceUrl,
+            writeupUrl,
+            videoPageUrl,
+            imageFile,
+            videoFile,
+            architectureImageFile,
+            imageUrl,
+            videoUrl,
+            architectureImageUrl,
+            techStack,
+            techTags,
+            features,
+            metrics,
+            challenges,
+            improvements,
+        });
+    }
+
+    return normalized;
+}
+
+async function fetchExistingProjectsById(client, normalized) {
+    // ---- prefetch existing permalinks to NEVER overwrite ----
+    const existingIds = normalized.filter(p => Number.isFinite(p.id)).map(p => p.id);
+
+    const existingById = new Map();
+    if (existingIds.length) {
+        const { data: existingRows, error: existingError } = await client
+            .from('projects')
+            .select('id, permalink')
+            .in('id', existingIds);
+
+        if (existingError) throw existingError;
+
+        for (const row of existingRows || []) {
+            existingById.set(row.id, row);
+        }
+    }
+
+    return existingById;
 }
