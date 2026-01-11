@@ -297,11 +297,14 @@ function Projects() {
       id="Projects"
       className="
         w-full min-h-fit scroll-mt-10 
-        flex flex-col gap-y-12 justify-center
+        flex flex-col justify-center
       "
     >
-      <TextBlock title="About Me | Projects" desc={aboutProjects} />
+      <TextBlock title="About Me" desc={aboutProjects} />
 
+      <div className='text-4xl font-bold text-emerald-50 mt-20 mb-8' data-aos="flip-down">
+        <span className="animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">Project Showcase</span>
+      </div>
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {isLoadingProjects && projects.length === 0 && (
           <div className="col-span-full text-emerald-50/60 text-sm">
