@@ -2,13 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import projectWorkLogo from '../assets/Project_Work.png'; // placeholder image
 
-import TextBlock from './TextBlock';
 import ProjectCard from './ProjectCard';
 import ProjectModal from './ProjectModal';
 import { fetchProjectsPublic, fetchProjectByIdPublic } from '../api/publicProjects';
-
-const DEFAULT_ABOUT_PROJECTS =
-  "I'm a senior majoring in Computer Science at Washington State University. I enjoy building projects that combine functionality with thoughtful design - whether that's a full-stack web app, an algorithmic simulation, or a video game. The following projects best showcase my personal and school work.";
 
 // -----------------------
 // routing helpers
@@ -153,7 +149,6 @@ function mergeProjectVM(cardVM, detailsVM) {
 }
 
 function Projects() {
-  const [aboutProjects, setAboutProjects] = useState(DEFAULT_ABOUT_PROJECTS);
   const [projects, setProjects] = useState([]); 
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
 
@@ -178,8 +173,6 @@ function Projects() {
       try {
         const data = await fetchProjectsPublic();
         if (!isMounted || !data) return;
-
-        if (data.aboutProjects) setAboutProjects(data.aboutProjects);
 
         const rows = Array.isArray(data.projects) ? data.projects : [];
         const mapped = rows.map((p, idx) => toCardVM(p, idx));
@@ -300,11 +293,10 @@ function Projects() {
         flex flex-col justify-center
       "
     >
-      <TextBlock title="About Me" desc={aboutProjects} />
-
-      <div className='text-4xl font-bold text-emerald-50 mt-20 mb-8' data-aos="flip-down">
+      <div className='text-4xl font-bold text-emerald-50 mb-8' data-aos="flip-down">
         <span className="animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">Project Showcase</span>
       </div>
+
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {isLoadingProjects && projects.length === 0 && (
           <div className="col-span-full text-emerald-50/60 text-sm">

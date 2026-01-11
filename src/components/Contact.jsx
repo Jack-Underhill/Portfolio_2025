@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import TechTag   from './TechTag'
 import SocialTag from './SocialTag'
-import Education from './Education'
-import Certifications from './Certifications'
 
 import LinkedInIcon  from '../assets/linkedin.svg'
 import GitHubIcon    from '../assets/github.svg'
@@ -12,30 +9,6 @@ import UpWorkIcon    from '../assets/upwork.svg'
 import HandshakeIcon from '../assets/handshake.svg'
 
 import { fetchContactPublic } from '../api/publicContact';
-
-const DEFAULT_LANGUAGES = [
-  'Java',
-  'C++',
-  'JavaScript',
-  'C#',
-];
-
-const DEFAULT_EXPERIENCE = [
-  'C',
-  'Python',
-  'React',
-  'HTML',
-  'CSS',
-  'Node.js',
-  'Express.js',
-  'Vite',
-  'TailwindCSS',
-  'Recharts',
-  'MySQL',
-  'SQLite',
-  'Upstash',
-  'Supabase',
-];
 
 const DEFAULT_LINKS = [
   {
@@ -71,9 +44,7 @@ const DEFAULT_LINKS = [
 ];
 
 function Contact() {
-  const [languages, setLanguages]   = useState(DEFAULT_LANGUAGES);
-  const [experience, setExperience] = useState(DEFAULT_EXPERIENCE);
-  const [links, setLinks]           = useState(DEFAULT_LINKS);
+  const [links, setLinks] = useState(DEFAULT_LINKS);
 
   useEffect(() => {
     let isMounted = true;
@@ -82,14 +53,6 @@ function Contact() {
       try {
         const data = await fetchContactPublic();
         if (!isMounted || !data) return;
-
-        if (Array.isArray(data.languages) && data.languages.length) {
-          setLanguages(data.languages);
-        }
-
-        if (Array.isArray(data.experience) && data.experience.length) {
-          setExperience(data.experience);
-        }
 
         if (Array.isArray(data.links) && data.links.length) {
           const mapped = data.links
@@ -125,107 +88,22 @@ function Contact() {
     };
   }, []);
 
-  function TagList({ header, tags, isSmall = false }) {    
-    const TagClassName = isSmall
-      ? 'px-3 py-1 text-sm sm:text-base md:text-lg rounded-md bg-card-att text-emerald-50'
-      : 'px-5 py-1.5 text-xl sm:text-2xl md:text-3xl rounded-lg bg-card-att text-emerald-50';
-    const HeaderClassName = isSmall
-      ? 'text-2xl font-bold text-emerald-50'
-      : 'text-4xl font-bold text-emerald-50';
-
-    return (
-      <div className="flex flex-col gap-8">
-        <div className={HeaderClassName} data-aos="flip-down">
-          {header}
-        </div>
-        <TechTag
-            className = {TagClassName}
-            tags      = {tags}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full min-h-fit lg:pt-60 flex flex-col gap-20 justify-center">
-      <Education />
-      <Certifications />
-
-      <div 
-        id="Skills"
-        className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 md:gap-15 xl:gap-20'
-      >
-        <TagList 
-          header="Core Web Stack" 
-          tags={[
-            'JavaScript',
-            'React',
-            'TailwindCSS',
-            'Vite',
-            'Netlify',
-          ]} 
-        />
-        <TagList 
-          header="Backend" 
-          tags={[
-            'Node',
-            'Express',
-          ]} 
-        />
-        <TagList 
-          header="Data" 
-          tags={[
-            'Supabase (Postgres)',
-            'Upstash (Redis)',
-            'SQLite',
-            'MySQL',
-          ]} 
-        />
-        <TagList 
-          header="Infra & Tooling" 
-          tags={[
-            'Git',
-            'GitHub',
-            'Azure',
-            'Docker',
-            'Traefik',
-          ]} 
-          />
-        <TagList 
-          header="Languages" 
-          tags={[
-            'C++',
-            'Java',
-            'Python',
-            'C#',
-            'C',
-          ]} 
-          />
-        <TagList 
-          header="Also Built With" 
-          tags={[
-            'Bootstrap',
-            'AOS',
-            'Recharts',
-            'Unity',
-          ]} 
-        />
+    <div id='Contact' className='scroll-mt-10 flex flex-col gap-8'>
+      {/* Header */}
+      <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
+        Contact Me
       </div>
-
-      <div id='Contact' className='scroll-mt-10 flex flex-col gap-8'>
-        <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
-          Contact Me
-        </div>
-        <div className='h-20 flex flex-wrap gap-4'>
-          {links.map((link) => (
-            <SocialTag
-              key  = {link.id}
-              name = {link.name}
-              link = {link.href}
-              icon = {link.icon}
-            />
-          ))}
-        </div>
+      {/* List */}
+      <div className='h-20 flex flex-wrap gap-4'>
+        {links.map((link) => (
+          <SocialTag
+            key  = {link.id}
+            name = {link.name}
+            link = {link.href}
+            icon = {link.icon}
+          />
+        ))}
       </div>
     </div>
   )

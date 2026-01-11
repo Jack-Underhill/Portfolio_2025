@@ -5,10 +5,15 @@ import 'aos/dist/aos.css'
 
 import VisitCount from './components/VisitCount'
 import Navbar from './components/Navbar'
+import BackToTopButton from "./components/BackToTopButton";
+
+import Hero from './components/Hero'
 import About from './components/About'
 import Projects from './components/Projects'
+import Education from './components/Education'
+import Certifications from './components/Certifications'
+import Skills from './components/Skills'
 import Contact from './components/Contact'
-import BackToTopButton from "./components/BackToTopButton";
 
 
 function App() {
@@ -41,9 +46,13 @@ function App() {
       </div>
 
       {/* Layout */}
-      <div className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-0 px-10 sm:px-20 pb-40 pt-25 sm:pt-35 md:pt-25 lg:pt-0'>
+      <div className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-35 px-10 sm:px-20 pb-40 pt-25 sm:pt-35 md:pt-25 lg:pt-0'>
+        <Hero />
         <About />
         <Projects />
+        <Education />
+        <Certifications />
+        <Skills />
         <Contact />
       </div>
 
