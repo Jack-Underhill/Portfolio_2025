@@ -169,11 +169,30 @@ function Projects() {
   const openSeqRef = useRef(0);
   const projectsRef = useRef(projects);
   const activeProjectIdRef = useRef(null);
+  const lastInputRef = useRef('pointer'); // 'pointer' | 'keyboard'
 
   const isModalOpen = activeProjectId != null;
 
   useEffect(() => { projectsRef.current = projects; }, [projects]);
   useEffect(() => { activeProjectIdRef.current = activeProjectId; }, [activeProjectId]);
+
+  useEffect(() => {
+      const onPointerDown = () => { lastInputRef.current = 'pointer'; };
+      const onKeyDown = (e) => {
+          // Often only treat Tab/Arrow keys as "navigation"
+          if (e.key === 'Tab' || e.key.startsWith('Arrow')) {
+              lastInputRef.current = 'keyboard';
+          }
+      };
+
+      window.addEventListener('pointerdown', onPointerDown, true); 
+      window.addEventListener('keydown', onKeyDown, true);
+
+      return () => {
+          window.removeEventListener('pointerdown', onPointerDown, true);
+          window.removeEventListener('keydown', onKeyDown, true);
+      };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -226,7 +245,6 @@ function Projects() {
     if (seq !== openSeqRef.current) return;
     if (activeProjectIdRef.current !== id) return;
 
-    console.log('[Projects::openProjectById]: detailsVM', detailsVM);
     // Hydrate modal with details
     if (detailsVM) {
       setActiveProject((prev) => mergeProjectVM(prev, detailsVM));
@@ -334,6 +352,7 @@ function Projects() {
             isActivePreview={Number(activePreviewId) === Number(p.id)}
             requestPreview={requestPreview}
             clearPreview={clearPreview}
+            lastInputRef={lastInputRef}
             image={p.imageUrl}
             video={p.videoUrl}
             title={p.title}
@@ -341,6 +360,7 @@ function Projects() {
             link={p.directUrl}
             tags={p.techTags}
             onOpenModal={() => openFromCard(p)}
+            isModalOpen={isModalOpen}
           />
         ))}
       </div>

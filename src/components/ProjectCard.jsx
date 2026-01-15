@@ -13,49 +13,44 @@ function ProjectCard({
     isActivePreview = false,
     requestPreview,
     clearPreview,
+    lastInputRef,
     image, 
     video, 
     title, 
     desc, 
     link, 
     tags, 
-    onOpenModal 
+    onOpenModal, 
+    isModalOpen,
 }) {
-    const [isPreviewed, setIsPreviewed] = useState(false);
-    const [isLoadingVideo, setIsLoadingVideo] = useState(false);
-
-    const [showGradient, setShowGradient] = useState(true);
-    const [animateGradient, setAnimateGradient] = useState(true);
-
-    const videoRef = useRef(null);
-    const hoverTimerRef = useRef(null);
-
     const safeVideo =
         video === null || video === '' || video === undefined || video === 'NULL'
             ? placeholderVideo
             : video;
 
+    const [isPreviewed, setIsPreviewed] = useState(false);
+    const [isLoadingVideo, setIsLoadingVideo] = useState(false);
+
+    const videoRef = useRef(null);
+    const hoverTimerRef = useRef(null);
+
     useEffect(() => {
-        console.log('[ProjectCard::useEffect] isActivePreview changed:', isActivePreview);
-        window.clearTimeout(hoverTimerRef.current);
+        if (!isActivePreview) return;
 
-        if (isActivePreview) {
-            setIsPreviewed(true);
+        setIsPreviewed(true);
 
-            // hover intent: don't even attach src unless long enough hovered
-            hoverTimerRef.current = window.setTimeout(() => {
-                setIsLoadingVideo(true); // attaches src
-            }, HOVER_INTENT_MS);
+        // hover intent: don't even attach src unless long enough hovered
+        hoverTimerRef.current = window.setTimeout(() => {
+            setIsLoadingVideo(true); // attaches src
+        }, HOVER_INTENT_MS);
 
-            return () => window.clearTimeout(hoverTimerRef.current);
-        }
-
-        disablePreviewLocal();
+        return () => {
+            disablePreviewLocal();
+        };
     }, [isActivePreview]);
 
     // This runs AFTER React commits the src to the <video />
     useEffect(() => {
-        console.log('[ProjectCard::useEffect] isPreviewed, isLoadingVideo changed:', isPreviewed, isLoadingVideo);
         if(!isPreviewed || !isLoadingVideo) return;
 
         const v = videoRef.current;
@@ -88,26 +83,34 @@ function ProjectCard({
         };
     }, [isPreviewed, isLoadingVideo]);
 
-    useEffect(() => {
-        console.log('[ProjectCard::useEffect] isPreviewed changed:', isPreviewed);
-        // show gradient whenever NOT previewing
-        setShowGradient(!isPreviewed);
-    }, [isPreviewed]);
-
-    useEffect(() => {
-        console.log('[ProjectCard::useEffect] showGradient changed:', showGradient);
-        if (showGradient) {
-            // turning on: enable animation immediately
-            setAnimateGradient(true);
-        } else {
-            // turning off: wait for fade to finish, then disable animation
-            const t = setTimeout(() => setAnimateGradient(false), FADE_DURATION_MS);
-            return () => clearTimeout(t);
+    const enablePreview = (e) => {
+        if(safeVideo && !isModalOpen) {
+            requestPreview?.(id); // claim global ownership
         }
-    }, [showGradient]);
+    };
 
-    const handleCardClick = (e) => {
-        console.log('[ProjectCard::handleCardClick] type:', e?.type);
+    const disablePreviewAndRelease = (e) => {
+        disablePreviewLocal();
+        clearPreview?.(id); // release global ownership
+    };
+
+    const disablePreviewLocal = () => {
+        window.clearTimeout(hoverTimerRef.current);
+        setIsPreviewed((prev) => (prev ? false : prev));
+        setIsLoadingVideo((prev) => (prev ? false : prev)); // detaches src
+
+        const v = videoRef.current;
+        if (!v || (!v.currentSrc && !v.getAttribute('src'))) return;
+
+        v.pause();
+        v.currentTime = 0;
+
+        // show poster again
+        v.removeAttribute('src');
+        v.load();
+    };
+
+    const handleOnClick = (e) => {
         const button = e.button ?? e?.nativeEvent?.button; // 0=left, 1=middle
         const isModified = e.metaKey || e.ctrlKey || button === 1;
 
@@ -115,66 +118,46 @@ function ProjectCard({
         if (isModified) return;
 
         e.preventDefault();
-        disablePreviewAndRelease();
+        clearPreview?.(id); // release global ownership
         onOpenModal?.();
     };
 
-    const handleBlurRelease = (e) => {
-        console.log('[ProjectCard::handleBlurRelease] type:', e?.type);
+    const handleOnMouseEnter = (e) => {
+        enablePreview(e);
+    };
 
+    const handleOnMouseLeave = (e) => {
+        if(!isModalOpen) {
+            disablePreviewAndRelease(e);
+        }
+    };
+
+    const handleOnFocus = (e) => {
+        if (isModalOpen || lastInputRef.current === 'pointer') return;
+
+        enablePreview(e);
+    };
+
+    const handleOnBlur = (e) => {
         const root = e.currentTarget;
 
         // Let focus settle, then decide if the card was actually left
         requestAnimationFrame(() => {
             if (root.contains(document.activeElement)) return; // still inside card
-            disablePreviewLocal();
-            clearPreview?.(id);
+
+            disablePreviewAndRelease(e);
         });
-    };
-
-    const enablePreview = (e) => {
-        if(safeVideo) {
-            console.log('[ProjectCard::enablePreview] type:', e?.type);
-            // If focus moved from one child to another child inside the card, ignore
-            if (e?.type === 'focus' && e.currentTarget?.contains(e.relatedTarget)) return;
-            requestPreview?.(id); // claim global ownership
-        }
-    };
-
-    const disablePreviewAndRelease = (e) => {
-        console.log('[ProjectCard::disablePreviewAndRelease] type:', e?.type);
-        // If focus moved to another element still inside the card, ignore.
-        if (e?.type === 'blur' && e.currentTarget?.contains(e.relatedTarget)) return;
-        disablePreviewLocal();
-        clearPreview?.(id); // release global ownership
-    };
-
-    const disablePreviewLocal = () => {
-        console.log('[ProjectCard::disablePreviewLocal]');
-        window.clearTimeout(hoverTimerRef.current);
-        setIsPreviewed((prev) => (prev ? false : prev));
-        setIsLoadingVideo((prev) => (prev ? false : prev)); // detaches src
-
-        const v = videoRef.current;
-        if (v) {
-            v.pause();
-            v.currentTime = 0;
-
-            // show poster again
-            v.removeAttribute('src');
-            v.load();
-        }
     };
 
     return (
         <CardSurface
             link={link}
             title={`Open case study | ${title}`}
-            onClick={handleCardClick}
-            onMouseEnter={enablePreview}
-            onMouseLeave={disablePreviewAndRelease}
-            onFocus={enablePreview}
-            onBlur={handleBlurRelease}
+            onClick={handleOnClick}
+            onMouseEnter={handleOnMouseEnter}
+            onMouseLeave={handleOnMouseLeave}
+            onFocus={handleOnFocus}
+            onBlur={handleOnBlur}
             data-aos="flip-left"
             className='h-full p-2 flex flex-col'
         >
@@ -200,7 +183,7 @@ function ProjectCard({
                         >
                             <span 
                                 className={[
-                                    animateGradient ? "animated-gradient" : "",
+                                    (isPreviewed || isModalOpen) ? "" : "animated-gradient",
                                     "py-3 font-extrabold ",
                                     "bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400",
                                     "text-transparent text-balance bg-clip-text",

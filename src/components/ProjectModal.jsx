@@ -74,7 +74,6 @@ export default function ProjectModal({
         if (e.target === e.currentTarget) onClose?.();
     };
 
-
     return (
         <div
             id="Modal"
