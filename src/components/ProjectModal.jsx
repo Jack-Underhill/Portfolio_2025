@@ -102,6 +102,8 @@ export default function ProjectModal({
                                         {safeVideo ? (
                                             <VideoGlowFrame
                                                 src={safeVideo}
+                                                thumbnail={heroImage}
+                                                isPlaying={true}
                                                 autoPlay
                                                 muted
                                                 loop

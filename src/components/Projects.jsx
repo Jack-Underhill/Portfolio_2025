@@ -148,12 +148,21 @@ function mergeProjectVM(cardVM, detailsVM) {
   return merged;
 }
 
+
+
+/**
+ * Projects component.
+ */
 function Projects() {
   const [projects, setProjects] = useState([]); 
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
 
+  // Modals
   const [activeProject, setActiveProject] = useState(null);
   const [activeProjectId, setActiveProjectId] = useState(null);
+
+  // Hover Previews
+  const [activePreviewId, setActivePreviewId] = useState(null);
 
   const openedViaPushRef = useRef(false);
   const detailsCacheRef = useRef(new Map());
@@ -187,6 +196,14 @@ function Projects() {
     return () => { isMounted = false; };
   }, []);
 
+  const requestPreview = useCallback((id) => {
+    setActivePreviewId((prev) => (prev === id ? prev : id));
+  }, []);
+
+  const clearPreview = useCallback((id) => {
+    setActivePreviewId((prev) => (prev === id ? null : prev));
+  }, []);
+
   const openProjectById = useCallback(async (id, cardFallback = null) => {
     const seq = ++openSeqRef.current;
 
@@ -200,7 +217,6 @@ function Projects() {
     // Try cache for details before refetching
     let detailsVM = detailsCacheRef.current.get(id);
     if (!detailsVM) {
-      
       const raw = await fetchProjectByIdPublic(id);
       detailsVM = raw ? toDetailsVM(raw) : null;
       if (detailsVM) detailsCacheRef.current.set(id, detailsVM);
@@ -210,6 +226,7 @@ function Projects() {
     if (seq !== openSeqRef.current) return;
     if (activeProjectIdRef.current !== id) return;
 
+    console.log('[Projects::openProjectById]: detailsVM', detailsVM);
     // Hydrate modal with details
     if (detailsVM) {
       setActiveProject((prev) => mergeProjectVM(prev, detailsVM));
@@ -262,7 +279,7 @@ function Projects() {
 
   function openFromCard(card) {
     const id = Number(card.id);
-    if (!Number.isFinite(id)) return; 
+    if (!Number.isFinite(id)) return;
 
     openedViaPushRef.current = true;
     const path = buildProjectPath(card.permalink || id);
@@ -313,6 +330,10 @@ function Projects() {
         {projects.map((p) => (
           <ProjectCard
             key={p.id}
+            id={p.id}
+            isActivePreview={Number(activePreviewId) === Number(p.id)}
+            requestPreview={requestPreview}
+            clearPreview={clearPreview}
             image={p.imageUrl}
             video={p.videoUrl}
             title={p.title}
