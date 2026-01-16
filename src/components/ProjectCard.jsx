@@ -5,6 +5,8 @@ import VideoGlowFrame from './VideoGlowFrame';
 
 import placeholderVideo from '../assets/placeholder.mp4';
 
+const isDev = import.meta.env.DEV;
+
 const HOVER_INTENT_MS = 250;
 const FADE_DURATION_MS = HOVER_INTENT_MS * 3;
 
@@ -24,7 +26,7 @@ function ProjectCard({
     isModalOpen,
 }) {
     const safeVideo =
-        video === null || video === '' || video === undefined || video === 'NULL'
+        video === null || video === '' || video === undefined || video === 'NULL' || isDev
             ? placeholderVideo
             : video;
 
