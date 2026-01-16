@@ -74,7 +74,6 @@ export default function ProjectModal({
         if (e.target === e.currentTarget) onClose?.();
     };
 
-
     return (
         <div
             id="Modal"
@@ -102,6 +101,8 @@ export default function ProjectModal({
                                         {safeVideo ? (
                                             <VideoGlowFrame
                                                 src={safeVideo}
+                                                thumbnail={heroImage}
+                                                isPlaying={true}
                                                 autoPlay
                                                 muted
                                                 loop

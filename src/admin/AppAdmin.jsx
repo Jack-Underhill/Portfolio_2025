@@ -2,9 +2,9 @@ import { useState, useEffect }        from 'react';
 import SectionAbout                   from './SectionAbout';
 import SectionProjects                from './SectionProjects';
 import SectionContact                 from './SectionContact';
-import { loadAbout, saveAbout }       from './../api/supabaseAbout'
-import { loadProjects, saveProjects } from './../api/supabaseProjects'
-import { loadContact, saveContact }   from './../api/supabaseContact'
+import { loadAbout, saveAbout }       from '../api/adminAbout'
+import { loadProjects, saveProjects } from '../api/adminProjects'
+import { loadContact, saveContact }   from '../api/adminContact'
 
 const initialAboutState = {
     profileImageFile:   null,

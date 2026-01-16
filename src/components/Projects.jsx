@@ -2,13 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import projectWorkLogo from '../assets/Project_Work.png'; // placeholder image
 
-import TextBlock from './TextBlock';
 import ProjectCard from './ProjectCard';
 import ProjectModal from './ProjectModal';
 import { fetchProjectsPublic, fetchProjectByIdPublic } from '../api/publicProjects';
-
-const DEFAULT_ABOUT_PROJECTS =
-  "I'm a senior majoring in Computer Science at Washington State University. I enjoy building projects that combine functionality with thoughtful design - whether that's a full-stack web app, an algorithmic simulation, or a video game. The following projects best showcase my personal and school work.";
 
 // -----------------------
 // routing helpers
@@ -152,24 +148,51 @@ function mergeProjectVM(cardVM, detailsVM) {
   return merged;
 }
 
+
+
+/**
+ * Projects component.
+ */
 function Projects() {
-  const [aboutProjects, setAboutProjects] = useState(DEFAULT_ABOUT_PROJECTS);
   const [projects, setProjects] = useState([]); 
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
 
+  // Modals
   const [activeProject, setActiveProject] = useState(null);
   const [activeProjectId, setActiveProjectId] = useState(null);
+
+  // Hover Previews
+  const [activePreviewId, setActivePreviewId] = useState(null);
 
   const openedViaPushRef = useRef(false);
   const detailsCacheRef = useRef(new Map());
   const openSeqRef = useRef(0);
   const projectsRef = useRef(projects);
   const activeProjectIdRef = useRef(null);
+  const lastInputRef = useRef('pointer'); // 'pointer' | 'keyboard'
 
   const isModalOpen = activeProjectId != null;
 
   useEffect(() => { projectsRef.current = projects; }, [projects]);
   useEffect(() => { activeProjectIdRef.current = activeProjectId; }, [activeProjectId]);
+
+  useEffect(() => {
+      const onPointerDown = () => { lastInputRef.current = 'pointer'; };
+      const onKeyDown = (e) => {
+          // Often only treat Tab/Arrow keys as "navigation"
+          if (e.key === 'Tab' || e.key.startsWith('Arrow')) {
+              lastInputRef.current = 'keyboard';
+          }
+      };
+
+      window.addEventListener('pointerdown', onPointerDown, true); 
+      window.addEventListener('keydown', onKeyDown, true);
+
+      return () => {
+          window.removeEventListener('pointerdown', onPointerDown, true);
+          window.removeEventListener('keydown', onKeyDown, true);
+      };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -178,8 +201,6 @@ function Projects() {
       try {
         const data = await fetchProjectsPublic();
         if (!isMounted || !data) return;
-
-        if (data.aboutProjects) setAboutProjects(data.aboutProjects);
 
         const rows = Array.isArray(data.projects) ? data.projects : [];
         const mapped = rows.map((p, idx) => toCardVM(p, idx));
@@ -192,6 +213,14 @@ function Projects() {
     })();
 
     return () => { isMounted = false; };
+  }, []);
+
+  const requestPreview = useCallback((id) => {
+    setActivePreviewId((prev) => (prev === id ? prev : id));
+  }, []);
+
+  const clearPreview = useCallback((id) => {
+    setActivePreviewId((prev) => (prev === id ? null : prev));
   }, []);
 
   const openProjectById = useCallback(async (id, cardFallback = null) => {
@@ -207,7 +236,6 @@ function Projects() {
     // Try cache for details before refetching
     let detailsVM = detailsCacheRef.current.get(id);
     if (!detailsVM) {
-      
       const raw = await fetchProjectByIdPublic(id);
       detailsVM = raw ? toDetailsVM(raw) : null;
       if (detailsVM) detailsCacheRef.current.set(id, detailsVM);
@@ -269,7 +297,7 @@ function Projects() {
 
   function openFromCard(card) {
     const id = Number(card.id);
-    if (!Number.isFinite(id)) return; 
+    if (!Number.isFinite(id)) return;
 
     openedViaPushRef.current = true;
     const path = buildProjectPath(card.permalink || id);
@@ -297,10 +325,12 @@ function Projects() {
       id="Projects"
       className="
         w-full min-h-fit scroll-mt-10 
-        flex flex-col gap-y-12 justify-center
+        flex flex-col justify-center
       "
     >
-      <TextBlock title="About Me | Projects" desc={aboutProjects} />
+      <div className='text-4xl font-bold text-emerald-50 mb-8' data-aos="flip-down">
+        <span className="animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">Project Showcase</span>
+      </div>
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {isLoadingProjects && projects.length === 0 && (
@@ -318,6 +348,11 @@ function Projects() {
         {projects.map((p) => (
           <ProjectCard
             key={p.id}
+            id={p.id}
+            isActivePreview={Number(activePreviewId) === Number(p.id)}
+            requestPreview={requestPreview}
+            clearPreview={clearPreview}
+            lastInputRef={lastInputRef}
             image={p.imageUrl}
             video={p.videoUrl}
             title={p.title}
@@ -325,6 +360,7 @@ function Projects() {
             link={p.directUrl}
             tags={p.techTags}
             onOpenModal={() => openFromCard(p)}
+            isModalOpen={isModalOpen}
           />
         ))}
       </div>
