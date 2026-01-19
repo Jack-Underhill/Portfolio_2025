@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
 import RowProject from './RowProject';
 import InputTextArea from './InputTextArea';
+import NavProjects from './NavProjects.jsx';
+
 
 function createEmptyProject() {
     return {
@@ -50,13 +53,26 @@ function createEmptyProject() {
 
 function SectionProjects({ state, onChange }) {
     const { projectBio, projects } = state;
+    const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
 
-    const [dragIndex, setDragIndex] = useState(null);
-    const [dragOverIndex, setDragOverIndex] = useState(null);
+    // auto-set activeId to first project if none selected
+    useEffect(() => {
+        if (!projects.length) {
+            if (activeId !== null) setActiveId(null);
+            return;
+        }
 
-    const SCROLL_MARGIN = 80;
-    const SCROLL_SPEED = 12;
+        const exists = projects.some((p) => p.id === activeId);
+        if (!exists) setActiveId(projects[0].id);
+    }, [projects, activeId]);
 
+    const resolvedActiveId = projects.some((p) => p.id === activeId)
+        ? activeId
+        : (projects[0]?.id ?? null);
+
+    const activeProject = projects.find((p) => p.id === resolvedActiveId) ?? null;
+
+    // state handlers
     const updateState = (patch) => {
         onChange({ ...state, ...patch });
     };
@@ -66,6 +82,7 @@ function SectionProjects({ state, onChange }) {
     };
 
     const normalizeSortOrder = (arr) => arr.map((p, i) => ({ ...p, sortOrder: i }));
+
     const setProjects = (updater) => {
         const nextRaw = typeof updater === 'function' ? updater(projects) : updater;
         const next = normalizeSortOrder(nextRaw);
@@ -75,6 +92,15 @@ function SectionProjects({ state, onChange }) {
     // --- add / update / remove ---
     const handleAddProject = () => {
         setProjects((prev) => [...prev, createEmptyProject()]);
+    };
+
+    const handleReorderProjects = (fromIndex, toIndex) => {
+        setProjects((prev) => {
+            const next = [...prev];
+            const [moved] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, moved);
+            return next;
+        });
     };
 
     const handleChangeProject = (id, updatedProject) => {
@@ -87,56 +113,6 @@ function SectionProjects({ state, onChange }) {
         setProjects((prev) => prev.filter((p) => p.id !== id));
     };
 
-    // --- drag logic ---
-    const handleDragStart = (index) => (e) => {
-        setDragIndex(index);
-        e.dataTransfer.effectAllowed = 'move';
-    };
-
-    const handleDragEnter = (index) => (e) => {
-        e.preventDefault();
-        if (index !== dragIndex) {
-            setDragOverIndex(index);
-        }
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-
-        const { clientY } = e;
-        const { innerHeight } = window;
-
-        if (clientY < SCROLL_MARGIN) {
-            window.scrollBy(0, -SCROLL_SPEED);
-        } else if (clientY > innerHeight - SCROLL_MARGIN) {
-            window.scrollBy(0, SCROLL_SPEED);
-        }
-    };
-
-    const handleDrop = (index) => (e) => {
-        e.preventDefault();
-        if (dragIndex === null || dragIndex === index) {
-            setDragIndex(null);
-            setDragOverIndex(null);
-            return;
-        }
-
-        setProjects((prev) => {
-            const next = [...prev];
-            const [moved] = next.splice(dragIndex, 1);
-            next.splice(index, 0, moved);
-            return next;
-        });
-
-        setDragIndex(null);
-        setDragOverIndex(null);
-    };
-
-    const handleDragEnd = () => {
-        setDragIndex(null);
-        setDragOverIndex(null);
-    };
-
     return (
         <div className="space-y-6">
             <h2 className="text-xl font-semibold">Projects Section</h2>
@@ -146,42 +122,15 @@ function SectionProjects({ state, onChange }) {
                 label="Projects intro / bio"
                 value={projectBio}
                 onChange={setProjectBio}
+                minRows={8}
             />
 
-            <div className="space-y-4">
-                {projects.map((project, index) => {
-                    const isDragging = dragIndex === index;
-                    const isDragOver = dragOverIndex === index;
-
-                    return (
-                        <div
-                            key={project.id}
-                            className={[
-                                'rounded-lg',
-                                isDragOver ? 'ring-1 ring-sky-500 bg-slate-900/70' : '',
-                                isDragging ? 'opacity-70' : '',
-                            ].join(' ')}
-                            draggable
-                            onDragStart={handleDragStart(index)}
-                            onDragEnter={handleDragEnter(index)}
-                            onDragOver={handleDragOver}
-                            onDrop={handleDrop(index)}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <div className="flex items-center justify-between px-2 pt-2 text-xs text-slate-400">
-                                <span className="cursor-grab select-none">☰ Drag to reorder</span>
-                                <span>#{index + 1}</span>
-                            </div>
-
-                            <RowProject
-                                project={project}
-                                onChange={(updated) => handleChangeProject(project.id, updated)}
-                                onRemove={() => handleRemoveProject(project.id)}
-                            />
-                        </div>
-                    );
-                })}
-            </div>
+            <NavProjects 
+                projects={projects} 
+                activeId={activeId} 
+                onSelect={setActiveId} 
+                onReorder={handleReorderProjects}
+            />
 
             <div className="flex gap-3">
                 <button
@@ -192,6 +141,14 @@ function SectionProjects({ state, onChange }) {
                     + Add Project
                 </button>
             </div>
+
+            {activeProject && (
+                <RowProject
+                    project={activeProject}
+                    onChange={(updated) => handleChangeProject(activeProject.id, updated)}
+                    onRemove={() => handleRemoveProject(activeProject.id)}
+                />
+            )}
         </div>
     );
 }
