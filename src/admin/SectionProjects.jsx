@@ -122,7 +122,6 @@ function SectionProjects({ state, onChange }) {
                 label="Projects intro / bio"
                 value={projectBio}
                 onChange={setProjectBio}
-                minRows={8}
             />
 
             <CardNav
