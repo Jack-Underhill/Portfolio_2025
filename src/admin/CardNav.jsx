@@ -33,7 +33,13 @@ function NavItem({
     );
 };
 
-function NavProjects({ projects = [], activeId, onSelect, onReorder }) {
+function CardNav({
+    cardTypeId, // e.g., "project", "education"
+    cards = [],
+    activeId,
+    onSelect,
+    onReorder
+}) {
     const [dragIndex, setDragIndex] = useState(null);
     const [dragOverIndex, setDragOverIndex] = useState(null);
     const didDragRef = useRef(false);
@@ -75,17 +81,21 @@ function NavProjects({ projects = [], activeId, onSelect, onReorder }) {
         resetDrag();
     };
 
+    const getHTMLId = () => {
+        return `card-nav-${cardTypeId.toLowerCase()}`;
+    };
+
     return (
         <>
-            <InputLabel htmlFor="project-nav">Select Project to Edit</InputLabel>
+            <InputLabel htmlFor={getHTMLId()}>Select {cardTypeId} to Edit</InputLabel>
 
-            <div id="project-nav" className="flex gap-3 flex-wrap">
-                {projects.map((p, index) => (
+            <div id={getHTMLId()} className="flex gap-3 flex-wrap">
+                {cards.map((card, index) => (
                     <NavItem
-                        key={p.id}
-                        id={p.id}
-                        title={p.title}
-                        isActive={p.id === activeId}
+                        key={card.id}
+                        id={card.id}
+                        title={card.title}
+                        isActive={card.id === activeId}
                         isDragging={dragIndex === index}
                         isDragOver={dragOverIndex === index}
                         onSelect={(id) => {
@@ -105,4 +115,4 @@ function NavProjects({ projects = [], activeId, onSelect, onReorder }) {
     );
 };
 
-export default NavProjects;
+export default CardNav;

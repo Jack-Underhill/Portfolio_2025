@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import RowProject from './RowProject';
 import InputTextArea from './InputTextArea';
-import NavProjects from './NavProjects.jsx';
+import CardNav from './CardNav';
 
 
 function createEmptyProject() {
@@ -125,10 +125,11 @@ function SectionProjects({ state, onChange }) {
                 minRows={8}
             />
 
-            <NavProjects 
-                projects={projects} 
-                activeId={activeId} 
-                onSelect={setActiveId} 
+            <CardNav
+                cardTypeId="Project"
+                cards={projects}
+                activeId={activeId}
+                onSelect={setActiveId}
                 onReorder={handleReorderProjects}
             />
 
