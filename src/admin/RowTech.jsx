@@ -1,4 +1,4 @@
-import InputText from './InputText';
+import InputTextArea from './InputTextArea';
 
 function RowTech({
     id,
@@ -23,7 +23,7 @@ function RowTech({
             </span>
 
             <div className="flex-1">
-                <InputText
+                <InputTextArea
                     id={id}
                     label={null}
                     value={value}
