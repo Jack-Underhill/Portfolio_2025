@@ -74,7 +74,7 @@ function AppAdmin() {
     };
 
     return (
-        <div className="min-h-screen px-20 py-10 bg-slate-950 text-slate-50 p-6 space-y-10">
+        <div className="min-h-screen px-5 sm:px-10 md:px-15 lg:px-25 xl:px-35 py-10 bg-slate-950 text-slate-50 space-y-10">
             <header className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold">Portfolio Admin</h1>
                 <nav className="flex gap-4 text-sm">

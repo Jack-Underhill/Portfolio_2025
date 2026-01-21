@@ -5,10 +5,6 @@ function Header({ title, permalink, sortOrder, published, handleFieldChange, onR
     return (
         <div className="flex justify-between items-center gap-4">
             <div className="min-w-0">
-                <h3 className="text-sm font-semibold truncate">
-                    {title || 'New Project'}
-                </h3>
-
                 <p className="text-xs text-slate-400">
                     sortOrder: {Number.isFinite(sortOrder) ? sortOrder : 0}
                 </p>

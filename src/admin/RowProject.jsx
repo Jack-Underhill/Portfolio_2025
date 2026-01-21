@@ -4,8 +4,7 @@ import Links        from './project/Links';
 import Header       from './project/Header';
 import TechStack    from './project/TechStack';
 import Media        from './project/Media'
-import TitleDesc    from './project/TitleDesc';
-import OverviewRole from './project/OverviewRole';
+import Intro        from './project/Intro';
 
 
 function RowProject({ project, onChange, onRemove }) {
@@ -28,55 +27,42 @@ function RowProject({ project, onChange, onRemove }) {
         onRemove={onRemove}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* LEFT */}
-        <div className="space-y-3">
-          <Media
-            project={project}
-            onChange={onChange}
-          />
+      <Intro
+        projectId={project.id}
+        title={project.title}
+        description={project.description}
+        overview={project.overview}
+        role={project.role}
+        handleFieldChange={handleFieldChange}
+      />
 
-          <TechStack
-            projectId={project.id}
-            stack={project.techStack}
-            handleFieldChange={handleFieldChange}
-          />
-        </div>
+      <Media
+        project={project}
+        onChange={onChange}
+      />
 
-        {/* RIGHT */}
-        <div className="space-y-4">
-          <TitleDesc
-            projectId={project.id}
-            title={project.title}
-            description={project.description}
-            handleFieldChange={handleFieldChange}
-          />
+      <Links
+        projectId={project.id}
+        live={project.url}
+        source={project.sourceUrl}
+        writeup={project.writeupUrl}
+        video={project.videoPageUrl}
+        handleFieldChange={handleFieldChange}
+      />
+      
+      <TechStack
+        projectId={project.id}
+        stack={project.techStack}
+        handleFieldChange={handleFieldChange}
+      />
 
-          <OverviewRole
-            projectId={project.id}
-            overview={project.overview}
-            role={project.role}
-            handleFieldChange={handleFieldChange}
-          />
-
-          <Links
-            projectId={project.id}
-            live={project.url}
-            source={project.sourceUrl}
-            writeup={project.writeupUrl}
-            video={project.videoPageUrl}
-            handleFieldChange={handleFieldChange}
-          />
-
-          <BulletLists 
-            projectId={project.id}
-            features={project.features}
-            metrics={project.metrics}
-            improvements={project.improvements}
-            handleFieldChange={handleFieldChange}
-          />
-        </div>
-      </div>
+      <BulletLists 
+        projectId={project.id}
+        features={project.features}
+        metrics={project.metrics}
+        improvements={project.improvements}
+        handleFieldChange={handleFieldChange}
+      />
 
       <Challenges 
         projectId={project.id}
