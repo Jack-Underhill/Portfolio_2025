@@ -6,6 +6,9 @@ import { loadAbout, saveAbout }       from '../api/adminAbout'
 import { loadProjects, saveProjects } from '../api/adminProjects'
 import { loadContact, saveContact }   from '../api/adminContact'
 
+import BackToTopButton      from "./BackToTopButton";
+import BackToBottomButton   from './BackToBottomButton';
+
 const initialAboutState = {
     profileImageFile:   null,
     profileImageUrl:    '',
@@ -74,43 +77,49 @@ function AppAdmin() {
     };
 
     return (
-        <div className="min-h-screen px-5 sm:px-10 md:px-15 lg:px-25 xl:px-35 py-10 bg-slate-950 text-slate-50 space-y-10">
-            <header className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold">Portfolio Admin</h1>
-                <nav className="flex gap-4 text-sm">
-                    <a href="#about">About</a>
-                    <a href="#projects">Projects</a>
-                    <a href="#contact">Contact</a>
-                </nav>
-            </header>
+        <div className='relative w-full h-full'>
 
-            <main className="space-y-16">
-                <section id="about">
-                    <SectionAbout state={aboutState} onChange={setAboutState} />
-                </section>
+            <div className="min-h-screen px-5 sm:px-10 md:px-15 lg:px-25 xl:px-35 py-10 bg-slate-950 text-slate-50 space-y-10">
+                <header className="flex items-center justify-between">
+                    <h1 className="text-3xl font-bold">Portfolio Admin</h1>
+                    <nav className="flex gap-4 text-sm">
+                        <a href="#about">About</a>
+                        <a href="#projects">Projects</a>
+                        <a href="#contact">Contact</a>
+                    </nav>
+                </header>
 
-                <section id="projects">
-                    <SectionProjects
-                        state={projectsState}
-                        onChange={setProjectsState}
-                    />
-                </section>
+                <main className="space-y-16">
+                    <section id="about">
+                        <SectionAbout state={aboutState} onChange={setAboutState} />
+                    </section>
 
-                <section id="contact">
-                    <SectionContact
-                        state={contactState}
-                        onChange={setContactState}
-                    />
-                </section>
-            </main>
+                    <section id="projects">
+                        <SectionProjects
+                            state={projectsState}
+                            onChange={setProjectsState}
+                        />
+                    </section>
 
-            <button
-                type="button"
-                onClick={handleSave}
-                className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium hover:bg-sky-500"
-            >
-                {isSaving ? 'Saving...' : 'Save POST'}
-            </button>
+                    <section id="contact">
+                        <SectionContact
+                            state={contactState}
+                            onChange={setContactState}
+                        />
+                    </section>
+                </main>
+
+                <button
+                    type="button"
+                    onClick={handleSave}
+                    className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium hover:bg-sky-500"
+                >
+                    {isSaving ? 'Saving...' : 'Save POST'}
+                </button>
+            </div>
+
+            <BackToTopButton    showAfter={500} />
+            <BackToBottomButton showAfter={500} />
         </div>
     );
 }
