@@ -40,13 +40,13 @@ function App() {
       />
       
       {/* Top Bar */}
-      <div className="m-5 sm:m-10 h-12 flex justify-between">
+      <div className="m-5 sm:m-10 md:mx-15 lg:mx-20 h-12 flex justify-between">
         <VisitCount />
         <Navbar />
       </div>
 
       {/* Layout */}
-      <div className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-35 px-10 sm:px-20 pb-40 pt-25 sm:pt-35 md:pt-25 lg:pt-0'>
+      <div className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-35 px-10 sm:px-15 md:px-20 lg:px-30 xl:px-40 pb-40 pt-25 sm:pt-35 md:pt-25 lg:pt-0'>
         <Hero />
         <About />
         <Projects />
