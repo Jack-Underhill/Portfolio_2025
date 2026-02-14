@@ -44,9 +44,9 @@ function App() {
         <VisitCount />
         <Navbar />
       </div>
-
+{/* pt-25 sm:pt-35 md:pt-25 lg:pt-0 */}
       {/* Layout */}
-      <div className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-35 px-10 sm:px-15 md:px-20 lg:px-30 xl:px-40 pb-40 pt-25 sm:pt-35 md:pt-25 lg:pt-0'>
+      <div className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-35 px-10 sm:px-15 md:px-20 lg:px-30 xl:px-40 pb-40'>
         <Hero />
         <About />
         <Projects />
