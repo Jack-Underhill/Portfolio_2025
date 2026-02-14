@@ -10,6 +10,12 @@ const isAdminRoute = window.location.pathname.startsWith('/admin');
 
 const RootComponent = isDev && isAdminRoute ? AppAdmin : App;
 
+document.title = (isDev && isAdminRoute) 
+  ? 'Admin | Portfolio' 
+  : (isDev)
+    ? 'Dev | Jack Underhill | Portfolio'
+    : 'Jack Underhill | Portfolio';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RootComponent />
