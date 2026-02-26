@@ -87,11 +87,11 @@ export default function ProjectModal({
                 isPremiumSheenActive={true}
                 data-aos="zoom-in-up"
             >
-                <div className="w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-xl">
+                <div className="w-full max-w-[80vw] xl:max-w-6xl h-[92vh] overflow-hidden rounded-xl flex flex-col">
                     <Header data={data} onClose={onClose} closeBtnRef={closeBtnRef} />
 
                     {/* Body */}
-                    <div className="overflow-y-auto scrollbar-modal max-h-[calc(92vh-88px)] px-5 pb-6 pt-5">
+                    <div className="flex-1 min-h-0 overflow-y-auto scrollbar-modal p-8">
                         {/* top band */}
                         <div className="space-y-6">
                             <div className="flex flex-col lg:flex-row gap-10">

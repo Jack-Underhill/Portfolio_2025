@@ -20,7 +20,7 @@ export default function Header({ data, onClose, closeBtnRef }) {
                         </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <ActionButton href={data.liveUrl}>Live</ActionButton>
                         <ActionButton href={data.sourceUrl}>Code</ActionButton>
                         <ActionButton href={data.writeupUrl}>Writeup</ActionButton>
