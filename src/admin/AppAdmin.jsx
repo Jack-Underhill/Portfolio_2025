@@ -1,13 +1,13 @@
 import { useState, useEffect }        from 'react';
-import SectionAbout                   from './SectionAbout';
-import SectionProjects                from './SectionProjects';
-import SectionContact                 from './SectionContact';
+import AboutSection                   from './sections/AboutSection';
+import ProjectsSection                from './sections/ProjectsSection';
+import ContactSection                 from './sections/ContactSection';
 import { loadAbout, saveAbout }       from '../api/adminAbout'
 import { loadProjects, saveProjects } from '../api/adminProjects'
 import { loadContact, saveContact }   from '../api/adminContact'
 
-import BackToTopButton      from "./BackToTopButton";
-import BackToBottomButton   from './BackToBottomButton';
+import BackToTopButton      from "./navigation/BackToTopButton";
+import BackToBottomButton   from './navigation/BackToBottomButton';
 
 const initialAboutState = {
     profileImageFile:   null,
@@ -91,18 +91,18 @@ function AppAdmin() {
 
                 <main className="space-y-16">
                     <section id="about">
-                        <SectionAbout state={aboutState} onChange={setAboutState} />
+                        <AboutSection state={aboutState} onChange={setAboutState} />
                     </section>
 
                     <section id="projects">
-                        <SectionProjects
+                        <ProjectsSection
                             state={projectsState}
                             onChange={setProjectsState}
                         />
                     </section>
 
                     <section id="contact">
-                        <SectionContact
+                        <ContactSection
                             state={contactState}
                             onChange={setContactState}
                         />

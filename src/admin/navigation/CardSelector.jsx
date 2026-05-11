@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 
-import InputLabel from './InputLabel';
+import FieldLabel from '../forms/FieldLabel';
 
 
 function NavItem({
@@ -33,7 +33,7 @@ function NavItem({
     );
 };
 
-function CardNav({
+function CardSelector({
     cardTypeId, // e.g., "project", "education"
     cards = [],
     activeId,
@@ -87,7 +87,7 @@ function CardNav({
 
     return (
         <>
-            <InputLabel htmlFor={getHTMLId()}>Select {cardTypeId} to Edit</InputLabel>
+            <FieldLabel htmlFor={getHTMLId()}>Select {cardTypeId} to Edit</FieldLabel>
 
             <div id={getHTMLId()} className="flex gap-3 flex-wrap">
                 {cards.map((card, index) => (
@@ -115,4 +115,4 @@ function CardNav({
     );
 };
 
-export default CardNav;
+export default CardSelector;

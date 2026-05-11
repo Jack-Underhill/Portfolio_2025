@@ -1,12 +1,12 @@
-import InputLabel from './InputLabel';
+import FieldLabel from './FieldLabel';
 
-function InputFile({ id, label, onChange, accept }) {
+function FileInput({ id, label, onChange, accept }) {
     return (
         <div className="space-y-1">
             {label &&
-                <InputLabel htmlFor={id}>
+                <FieldLabel htmlFor={id}>
                     {label}
-                </InputLabel>
+                </FieldLabel>
             }
             
             <div
@@ -34,4 +34,4 @@ function InputFile({ id, label, onChange, accept }) {
     );
 }
 
-export default InputFile;
+export default FileInput;

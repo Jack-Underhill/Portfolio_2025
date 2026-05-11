@@ -1,7 +1,7 @@
 
 
 
-function Header({ title, permalink, sortOrder, published, handleFieldChange, onRemove }) {
+function ProjectEditorHeader({ title, permalink, sortOrder, published, handleFieldChange, onRemove }) {
     return (
         <div className="flex justify-between items-center gap-4">
             <div className="min-w-0">
@@ -46,4 +46,4 @@ function Header({ title, permalink, sortOrder, published, handleFieldChange, onR
     );
 };
 
-export default Header;
+export default ProjectEditorHeader;

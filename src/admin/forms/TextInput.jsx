@@ -1,12 +1,12 @@
-import InputLabel from './InputLabel';
+import FieldLabel from './FieldLabel';
 
-function InputText({ id, label, value, onChange, ...props }) {
+function TextInput({ id, label, value, onChange, ...props }) {
     return (
         <div className="space-y-1">
             {label && 
-                <InputLabel htmlFor={id}>
+                <FieldLabel htmlFor={id}>
                     {label}
-                </InputLabel>
+                </FieldLabel>
             }
             <input
                 id={id}
@@ -20,4 +20,4 @@ function InputText({ id, label, value, onChange, ...props }) {
     );
 }
 
-export default InputText;
+export default TextInput;

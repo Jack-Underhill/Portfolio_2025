@@ -1,12 +1,12 @@
-import ListTech from "../ListTech";
+import TechListEditor from "../../lists/TechListEditor";
 
 
-function BulletLists({ projectId, features, metrics, improvements, handleFieldChange }) {
+function ProjectListFields({ projectId, features, metrics, improvements, handleFieldChange }) {
     return (
         <div className="space-y-3 pt-2 border-t border-slate-800">
             <p className="text-xs uppercase tracking-wide text-slate-400">Lists</p>
             
-            <ListTech
+            <TechListEditor
                 idPrefix={`project-features-${projectId}`}
                 label="Key features"
                 values={features || ['']}
@@ -15,14 +15,14 @@ function BulletLists({ projectId, features, metrics, improvements, handleFieldCh
 
             <div className="grid gap-4 md:grid-cols-2">
 
-                <ListTech
+                <TechListEditor
                     idPrefix={`project-metrics-${projectId}`}
                     label="Metrics"
                     values={metrics || ['']}
                     onChange={(next) => handleFieldChange('metrics', next)}
                 />
 
-                <ListTech
+                <TechListEditor
                     idPrefix={`project-improvements-${projectId}`}
                     label="Improvements"
                     values={improvements || ['']}
@@ -33,4 +33,4 @@ function BulletLists({ projectId, features, metrics, improvements, handleFieldCh
     );
 };
 
-export default BulletLists;
+export default ProjectListFields;

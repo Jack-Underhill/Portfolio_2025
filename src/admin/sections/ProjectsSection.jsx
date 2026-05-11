@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 
-import RowProject from './RowProject';
-import InputTextArea from './InputTextArea';
-import CardNav from './CardNav';
+import ProjectEditor from '../projects/ProjectEditor';
+import TextAreaInput from '../forms/TextAreaInput';
+import CardSelector from '../navigation/CardSelector';
 
 
 function createEmptyProject() {
@@ -51,7 +51,7 @@ function createEmptyProject() {
     };
 }
 
-function SectionProjects({ state, onChange }) {
+function ProjectsSection({ state, onChange }) {
     const { projectBio, projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
 
@@ -117,14 +117,14 @@ function SectionProjects({ state, onChange }) {
         <div className="space-y-6">
             <h2 className="text-xl font-semibold">Projects Section</h2>
 
-            <InputTextArea
+            <TextAreaInput
                 id="project-bio"
                 label="Projects intro / bio"
                 value={projectBio}
                 onChange={setProjectBio}
             />
 
-            <CardNav
+            <CardSelector
                 cardTypeId="Project"
                 cards={projects}
                 activeId={activeId}
@@ -143,7 +143,7 @@ function SectionProjects({ state, onChange }) {
             </div>
 
             {activeProject && (
-                <RowProject
+                <ProjectEditor
                     project={activeProject}
                     onChange={(updated) => handleChangeProject(activeProject.id, updated)}
                     onRemove={() => handleRemoveProject(activeProject.id)}
@@ -153,4 +153,4 @@ function SectionProjects({ state, onChange }) {
     );
 }
 
-export default SectionProjects;
+export default ProjectsSection;

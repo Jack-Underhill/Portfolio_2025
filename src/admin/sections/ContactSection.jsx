@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import ListTech from './ListTech';
-import RowSocial from './RowSocial';
+import TechListEditor from '../lists/TechListEditor';
+import SocialLinkItem from '../social/SocialLinkItem';
 
-function SectionContact({ state, onChange }) {
+function ContactSection({ state, onChange }) {
     const { proficientTechs, experiencingTechs, socialLinks } = state;
 
     const [dragIndex, setDragIndex] = useState(null);
@@ -92,7 +92,7 @@ function SectionContact({ state, onChange }) {
             <h2 className="text-xl font-semibold">Contact / Skills Section</h2>
 
             {/* Proficient techs */}
-            <ListTech
+            <TechListEditor
                 idPrefix="proficient-tech"
                 label="Proficient technologies"
                 values={proficientTechs || []}
@@ -100,7 +100,7 @@ function SectionContact({ state, onChange }) {
             />
 
             {/* Experiencing techs */}
-            <ListTech
+            <TechListEditor
                 idPrefix="experiencing-tech"
                 label="Currently using / learning"
                 values={experiencingTechs || []}
@@ -115,7 +115,7 @@ function SectionContact({ state, onChange }) {
 
                 <div className="space-y-2">
                     {socialLinks.map((link, index) => (
-                        <RowSocial
+                        <SocialLinkItem
                             key={link.id ?? index}
                             link={link}
                             index={index}
@@ -149,4 +149,4 @@ function SectionContact({ state, onChange }) {
     );
 }
 
-export default SectionContact;
+export default ContactSection;

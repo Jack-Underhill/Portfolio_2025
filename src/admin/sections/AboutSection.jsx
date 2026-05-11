@@ -1,9 +1,9 @@
-import InputText from './InputText';
-import InputTextArea from './InputTextArea';
-import InputFile from './InputFile';
-import ViewImage from './ViewImage';
+import TextInput from '../forms/TextInput';
+import TextAreaInput from '../forms/TextAreaInput';
+import FileInput from '../forms/FileInput';
+import ImagePreview from '../media/ImagePreview';
 
-function SectionAbout({ state, onChange }) {
+function AboutSection({ state, onChange }) {
     const {
         profileImageFile,
         profileImageUrl,
@@ -23,13 +23,13 @@ function SectionAbout({ state, onChange }) {
 
             <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-4">
-                    <InputFile
+                    <FileInput
                         id="profileImage"
                         label="Profile image"
                         accept="image/*"
                         onChange={(file) => updateField('profileImageFile', file)}
                     />
-                    <ViewImage
+                    <ImagePreview
                         file={profileImageFile}
                         url={profileImageUrl}
                         alt="Profile preview"
@@ -38,14 +38,14 @@ function SectionAbout({ state, onChange }) {
                 </div>
 
                 <div className="space-y-4">
-                    <InputText
+                    <TextInput
                         id="professionTitle"
                         label="Profession title"
                         value={professionTitle}
                         onChange={(value) => updateField('professionTitle', value)}
                     />
 
-                    <InputTextArea
+                    <TextAreaInput
                         id="professionBio"
                         label="Profession bio"
                         value={professionBio}
@@ -53,7 +53,7 @@ function SectionAbout({ state, onChange }) {
                     />
 
                     <div className="space-y-1">
-                        <InputFile
+                        <FileInput
                             id="resumePdf"
                             label="Resume PDF"
                             accept="application/pdf"
@@ -80,4 +80,4 @@ function SectionAbout({ state, onChange }) {
     );
 }
 
-export default SectionAbout;
+export default AboutSection;

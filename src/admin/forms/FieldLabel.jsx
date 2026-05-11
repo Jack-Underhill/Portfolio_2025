@@ -1,4 +1,4 @@
-function InputLabel({ htmlFor, children }) {
+function FieldLabel({ htmlFor, children }) {
     return (
         <label
             htmlFor={htmlFor}
@@ -9,4 +9,4 @@ function InputLabel({ htmlFor, children }) {
     );
 }
 
-export default InputLabel;
+export default FieldLabel;

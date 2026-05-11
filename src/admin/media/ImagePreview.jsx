@@ -1,4 +1,4 @@
-function ViewImage({ file, url, alt, isFixedSize = false }) {
+function ImagePreview({ file, url, alt, isFixedSize = false }) {
     const src = file ? URL.createObjectURL(file) : url;
 
     const cn = isFixedSize ? 
@@ -16,4 +16,4 @@ function ViewImage({ file, url, alt, isFixedSize = false }) {
     );
 }
 
-export default ViewImage;
+export default ImagePreview;

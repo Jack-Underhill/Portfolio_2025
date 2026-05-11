@@ -1,7 +1,7 @@
-import InputTextArea from "../InputTextArea";
+import TextAreaInput from "../../forms/TextAreaInput";
 
 
-function Challenges({ projectId, challenges, handleFieldChange }) {
+function ProjectChallengeFields({ projectId, challenges, handleFieldChange }) {
     const addChallenge = () => {
         handleFieldChange('challenges', [
             ...challenges,
@@ -54,19 +54,19 @@ function Challenges({ projectId, challenges, handleFieldChange }) {
                                 </button>
                             </div>
 
-                            <InputTextArea
+                            <TextAreaInput
                                 id={`project-challenge-${projectId}-${idx}`}
                                 label="Challenge"
                                 value={c.challenge || ''}
                                 onChange={(value) => updateChallenge(idx, { challenge: value })}
                             />
-                            <InputTextArea
+                            <TextAreaInput
                                 id={`project-solution-${projectId}-${idx}`}
                                 label="Solution"
                                 value={c.solution || ''}
                                 onChange={(value) => updateChallenge(idx, { solution: value })}
                             />
-                            <InputTextArea
+                            <TextAreaInput
                                 id={`project-result-${projectId}-${idx}`}
                                 label="Result"
                                 value={c.result || ''}
@@ -80,4 +80,4 @@ function Challenges({ projectId, challenges, handleFieldChange }) {
     );
 };
 
-export default Challenges;
+export default ProjectChallengeFields;

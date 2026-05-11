@@ -1,7 +1,7 @@
-import ListTech from '../ListTech';
+import TechListEditor from '../../lists/TechListEditor';
 
 
-function TechStack({ projectId, stack, handleFieldChange }) {
+function ProjectTechStackFields({ projectId, stack, handleFieldChange }) {
     const setTechStackCategory = (category, nextValues) => {
         const nextStack = { ...(stack || {}) };
         nextStack[category] = nextValues;
@@ -13,28 +13,28 @@ function TechStack({ projectId, stack, handleFieldChange }) {
             <p className="text-xs uppercase tracking-wide text-slate-400">Tech (categorized)</p>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <ListTech
+                <TechListEditor
                     idPrefix={`project-tech-frontend-${projectId}`}
                     label="Frontend"
                     values={stack?.frontend || ['']}
                     onChange={(next) => setTechStackCategory('frontend', next)}
                 />
 
-                <ListTech
+                <TechListEditor
                     idPrefix={`project-tech-backend-${projectId}`}
                     label="Backend"
                     values={stack?.backend || ['']}
                     onChange={(next) => setTechStackCategory('backend', next)}
                 />
 
-                <ListTech
+                <TechListEditor
                     idPrefix={`project-tech-data-${projectId}`}
                     label="Data"
                     values={stack?.data || ['']}
                     onChange={(next) => setTechStackCategory('data', next)}
                 />
 
-                <ListTech
+                <TechListEditor
                     idPrefix={`project-tech-infra-${projectId}`}
                     label="Infrastructure"
                     values={stack?.infrastructure || ['']}
@@ -45,4 +45,4 @@ function TechStack({ projectId, stack, handleFieldChange }) {
     );
 };
 
-export default TechStack;
+export default ProjectTechStackFields;

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import InputLabel from './InputLabel';
-import RowTech from './RowTech'
+import FieldLabel from '../forms/FieldLabel';
+import TechListItem from './TechListItem'
 
-function ListTech({ idPrefix, label, values, onChange }) {
+function TechListEditor({ idPrefix, label, values, onChange }) {
     const list = Array.isArray(values) ? values : [];
 
     const [dragIndex, setDragIndex] = useState(null);
@@ -73,14 +73,14 @@ function ListTech({ idPrefix, label, values, onChange }) {
     return (
         <div className="space-y-2">
             {label && 
-                <InputLabel htmlFor={idPrefix}>
+                <FieldLabel htmlFor={idPrefix}>
                     {label}
-                </InputLabel>
+                </FieldLabel>
             }
 
             <div className="space-y-2">
                 {list.map((value, index) => (
-                    <RowTech
+                    <TechListItem
                         key={`${idPrefix}-${index}`}
                         id={`${idPrefix}-${index}`}
                         value={value}
@@ -111,4 +111,4 @@ function ListTech({ idPrefix, label, values, onChange }) {
     );
 }
 
-export default ListTech;
+export default TechListEditor;

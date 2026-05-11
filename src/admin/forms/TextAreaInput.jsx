@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef, useEffect, useCallback } from 'react';
-import InputLabel from './InputLabel';
+import FieldLabel from './FieldLabel';
 
 
-function InputTextArea({ id, label, value, onChange, minRows = 1, ...props }) {
+function TextAreaInput({ id, label, value, onChange, minRows = 1, ...props }) {
     const ref = useRef(null);
 
     const syncHeight = useCallback(() => {
@@ -52,9 +52,9 @@ function InputTextArea({ id, label, value, onChange, minRows = 1, ...props }) {
     return (
         <div className="space-y-1">
             {label && (
-                <InputLabel htmlFor={id}>
+                <FieldLabel htmlFor={id}>
                     {label}
-                </InputLabel>
+                </FieldLabel>
             )}
 
             <textarea
@@ -71,4 +71,4 @@ function InputTextArea({ id, label, value, onChange, minRows = 1, ...props }) {
     );
 }
 
-export default InputTextArea;
+export default TextAreaInput;

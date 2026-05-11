@@ -1,6 +1,6 @@
-import InputTextArea from './InputTextArea';
+import TextAreaInput from '../forms/TextAreaInput';
 
-function RowTech({
+function TechListItem({
     id,
     value,
     isDragging,
@@ -23,7 +23,7 @@ function RowTech({
             </span>
 
             <div className="flex-1">
-                <InputTextArea
+                <TextAreaInput
                     id={id}
                     label={null}
                     value={value}
@@ -42,4 +42,4 @@ function RowTech({
     );
 }
 
-export default RowTech;
+export default TechListItem;

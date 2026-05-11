@@ -1,13 +1,13 @@
-import Challenges   from './project/Challenges';
-import BulletLists  from './project/BulletLists';
-import Links        from './project/Links';
-import Header       from './project/Header';
-import TechStack    from './project/TechStack';
-import Media        from './project/Media'
-import Intro        from './project/Intro';
+import ProjectChallengeFields   from './editor/ProjectChallengeFields';
+import ProjectListFields        from './editor/ProjectListFields';
+import ProjectLinkFields        from './editor/ProjectLinkFields';
+import ProjectEditorHeader      from './editor/ProjectEditorHeader';
+import ProjectTechStackFields   from './editor/ProjectTechStackFields';
+import ProjectMediaFields       from './editor/ProjectMediaFields'
+import ProjectIntroFields       from './editor/ProjectIntroFields';
 
 
-function RowProject({ project, onChange, onRemove }) {
+function ProjectEditor({ project, onChange, onRemove }) {
   const permalink = (project.permalink || '').trim();
   const challenges = Array.isArray(project.challenges) ? project.challenges : [];
 
@@ -18,7 +18,7 @@ function RowProject({ project, onChange, onRemove }) {
 
   return (
     <div className="border border-slate-700 rounded-lg p-4 space-y-4">
-      <Header
+      <ProjectEditorHeader
         title={project.title}
         permalink={permalink}
         sortOrder={project.sortOrder}
@@ -27,7 +27,7 @@ function RowProject({ project, onChange, onRemove }) {
         onRemove={onRemove}
       />
 
-      <Intro
+      <ProjectIntroFields
         projectId={project.id}
         title={project.title}
         description={project.description}
@@ -36,12 +36,12 @@ function RowProject({ project, onChange, onRemove }) {
         handleFieldChange={handleFieldChange}
       />
 
-      <Media
+      <ProjectMediaFields
         project={project}
         onChange={onChange}
       />
 
-      <Links
+      <ProjectLinkFields
         projectId={project.id}
         live={project.url}
         source={project.sourceUrl}
@@ -50,13 +50,13 @@ function RowProject({ project, onChange, onRemove }) {
         handleFieldChange={handleFieldChange}
       />
       
-      <TechStack
+      <ProjectTechStackFields
         projectId={project.id}
         stack={project.techStack}
         handleFieldChange={handleFieldChange}
       />
 
-      <BulletLists 
+      <ProjectListFields 
         projectId={project.id}
         features={project.features}
         metrics={project.metrics}
@@ -64,7 +64,7 @@ function RowProject({ project, onChange, onRemove }) {
         handleFieldChange={handleFieldChange}
       />
 
-      <Challenges 
+      <ProjectChallengeFields 
         projectId={project.id}
         challenges={challenges}
         handleFieldChange={handleFieldChange}
@@ -73,4 +73,4 @@ function RowProject({ project, onChange, onRemove }) {
   );
 }
 
-export default RowProject;
+export default ProjectEditor;

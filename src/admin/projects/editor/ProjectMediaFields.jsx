@@ -1,8 +1,8 @@
-import InputFile from '../InputFile';
-import ViewImage from '../ViewImage';
+import FileInput from '../../forms/FileInput';
+import ImagePreview from '../../media/ImagePreview';
 
 
-function Media({ project, onChange }) {
+function ProjectMediaFields({ project, onChange }) {
     const handleImageFileChange = (file) => {
         onChange({ ...project, imageFile: file });
     };
@@ -22,13 +22,13 @@ function Media({ project, onChange }) {
             <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
                 {/* Project image */}
                 <div className="space-y-2">
-                    <InputFile
+                    <FileInput
                         id={`project-image-${project.id}`}
                         label="Project image"
                         accept="image/*"
                         onChange={handleImageFileChange}
                     />
-                    <ViewImage
+                    <ImagePreview
                         file={project.imageFile || null}
                         url={project.imageUrl || ''}
                         alt={project.title || 'Project image'}
@@ -37,13 +37,13 @@ function Media({ project, onChange }) {
 
                 {/* Architecture image */}
                 <div className="space-y-2">
-                    <InputFile
+                    <FileInput
                         id={`project-arch-${project.id}`}
                         label="Architecture image"
                         accept="image/*"
                         onChange={handleArchitectureImageFileChange}
                     />
-                    <ViewImage
+                    <ImagePreview
                         file={project.architectureImageFile || null}
                         url={project.architectureImageUrl || ''}
                         alt={project.title || 'Architecture image'}
@@ -52,7 +52,7 @@ function Media({ project, onChange }) {
 
                 {/* Preview video */}
                 <div className="space-y-1">
-                    <InputFile
+                    <FileInput
                         id={`project-video-${project.id}`}
                         label="Preview video (mp4)"
                         accept="video/*"
@@ -78,4 +78,4 @@ function Media({ project, onChange }) {
     );
 };
 
-export default Media;
+export default ProjectMediaFields;

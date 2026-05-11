@@ -1,8 +1,8 @@
-import InputText from './InputText';
-import InputFile from './InputFile';
-import ViewImage from './ViewImage';
+import TextInput from '../forms/TextInput';
+import FileInput from '../forms/FileInput';
+import ImagePreview from '../media/ImagePreview';
 
-function RowSocial({
+function SocialLinkItem({
     link,
     index,
     isDragging,
@@ -27,13 +27,13 @@ function RowSocial({
 
             {/* icon upload + preview */}
             <div className="space-y-1">
-                <InputFile
+                <FileInput
                     id={`social-icon-${index}`}
                     label="Icon"
                     accept="image/*"
                     onChange={(file) => onChange('iconFile', file)}
                 />
-                <ViewImage
+                <ImagePreview
                     file={link.iconFile || null}
                     url={link.iconUrl || ''}
                     alt={`${link.label || 'Social'} icon`}
@@ -42,7 +42,7 @@ function RowSocial({
             </div>
 
             {/* label */}
-            <InputText
+            <TextInput
                 id={`social-label-${index}`}
                 label="Label"
                 value={link.label}
@@ -51,7 +51,7 @@ function RowSocial({
             />
 
             {/* URL */}
-            <InputText
+            <TextInput
                 id={`social-url-${index}`}
                 label="URL"
                 value={link.url}
@@ -71,4 +71,4 @@ function RowSocial({
     );
 }
 
-export default RowSocial;
+export default SocialLinkItem;
