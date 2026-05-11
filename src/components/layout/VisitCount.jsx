@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import views from '../assets/views.svg'
+import views from '../../assets/views.svg'
 
 function VisitCount() {
   const [visitCount, setVisitCount] = useState(null);

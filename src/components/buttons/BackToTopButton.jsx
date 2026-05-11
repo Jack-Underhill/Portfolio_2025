@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ArrowUp from "../assets/arrow-up.svg";
+import ArrowUp from "../../assets/arrow-up.svg";
 
 
 function BackToTopButton({

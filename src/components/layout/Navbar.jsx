@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import menu from '../assets/menu.svg';
+import menu from '../../assets/menu.svg';
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);

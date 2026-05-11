@@ -1,6 +1,6 @@
 import ActionButton from "./ActionButton";
 
-import closeIcon from '../../assets/close.svg';
+import closeIcon from '../../../assets/close.svg';
 
 export default function Header({ data, onClose, closeBtnRef }) {
     return (

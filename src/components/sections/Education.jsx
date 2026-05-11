@@ -1,6 +1,6 @@
-import EducationCard from './EducationCard';
-import WSULogo from '../assets/logos/wsu.svg';
-import EDCCLogo from '../assets/logos/edcc.svg';
+import EducationCard from '../credentials/EducationCard';
+import WSULogo from '../../assets/logos/wsu.svg';
+import EDCCLogo from '../../assets/logos/edcc.svg';
 
 const DEFAULT_EDUCATION = [
     {

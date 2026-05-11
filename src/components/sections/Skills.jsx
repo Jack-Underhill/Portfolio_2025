@@ -1,4 +1,4 @@
-import TechTag   from './TechTag'
+import TechTag   from '../tags/TechTag'
 
 const DEFAULT_LANGUAGES = [
   'Java',

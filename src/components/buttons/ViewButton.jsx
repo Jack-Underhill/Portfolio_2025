@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-function AboutButton({ 
+function ViewButton({ 
     name, 
     url,
     isTextGradient = false, 
@@ -49,4 +49,4 @@ function AboutButton({
     )
 }
 
-export default AboutButton;
+export default ViewButton;

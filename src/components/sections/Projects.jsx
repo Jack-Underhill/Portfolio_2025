@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import projectWorkLogo from '../assets/Project_Work.png'; // placeholder image
+import projectWorkLogo from '../../assets/Project_Work.png'; // placeholder image
 
-import ProjectCard from './ProjectCard';
-import ProjectModal from './ProjectModal';
-import { fetchProjectsPublic, fetchProjectByIdPublic } from '../api/publicProjects';
+import ProjectCard from '../projects/ProjectCard';
+import ProjectModal from '../projects/modal/ProjectModal';
+import { fetchProjectsPublic, fetchProjectByIdPublic } from '../../api/publicProjects';
 
 // -----------------------
 // routing helpers

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import TextBlock from './TextBlock'
-import { fetchProjectSectionPublic } from '../api/publicProjects';
+import TextBlock from '../ui/TextBlock'
+import { fetchProjectSectionPublic } from '../../api/publicProjects';
 
 const DEFAULT_ABOUT_PROJECTS =
     "I'm a senior majoring in Computer Science at Washington State University. I enjoy building projects that combine functionality with thoughtful design - whether that's a full-stack web app, an algorithmic simulation, or a video game. The following projects best showcase my personal and school work.";

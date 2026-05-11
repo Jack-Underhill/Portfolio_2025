@@ -1,6 +1,6 @@
-import CertificationCard from './CertificationCard';
-import MicrosoftLogo from '../assets/logos/microsoft-logo.svg';
-import EDCCLogo from '../assets/logos/edcc.svg';
+import CertificationCard from '../credentials/CertificationCard';
+import MicrosoftLogo from '../../assets/logos/microsoft-logo.svg';
+import EDCCLogo from '../../assets/logos/edcc.svg';
 
 const DEFAULT_CERTS = [
     {

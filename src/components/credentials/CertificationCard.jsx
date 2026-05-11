@@ -1,19 +1,17 @@
-import ExternalLinkIcon from "../assets/external-link.svg";
+import ExternalLinkIcon from "../../assets/external-link.svg";
 
-import CardSurface from "./CardSurface";
-import PillHighlightList from "./PillHighlightList";
+import CardSurface from "../ui/CardSurface";
+import PillHighlightList from "../tags/PillHighlightList";
 
-function EducationCard({
+function CertificationCard({
     title,
     org,
     desc,
     link,
     chips = [],
-    issued, // e.g. "2019–2022" or "2024–2026 (Expected)"
-    credentialType, // e.g. "Bachelor’s Degree", "Associate Degree", "Minor"
-    gpa, // e.g. "3.52" (optional)
-
-    logoSrc, 
+    issued,
+    credentialType, // e.g. "Certification", "Certificate"
+    logoSrc,
     logoScale = 0.7, // Percent of parent container size (e.g. 0.7 for 70%)
 
     className = "",
@@ -31,11 +29,10 @@ function EducationCard({
             data-aos="flip-left"
             className={[
                 "block h-full w-full no-underline",
-                // Keep transitions limited to what's animating
-                "transition-[transform,border-color,box-shadow] duration-700 ease-in-out",
-                // On-theme hover: sky/button border + soft glow
+                // Match ProjectCard surface language (solid + inset)
+                "transition-[transform,border-color] duration-700 ease-in-out",
+                // Premium but on-theme hover: sky/button border + soft glow
                 "hover:-translate-y-1 hover:border-button-border/70",
-                "hover:shadow-[inset_4px_4px_8px_#0a0f14,inset_-4px_-4px_8px_#1a232c,0_0_0_1px_rgba(27,149,204,0.30),0_0_26px_rgba(14,138,194,0.16)]",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/50",
                 "overflow-hidden",
                 className,
@@ -51,16 +48,16 @@ function EducationCard({
                                 src={logoSrc}
                                 alt={`${org} logo`}
                                 style={{ width: logoScalePercent, height: logoScalePercent }}
-                                className='object-contain opacity-100 transition-opacity group-hover:opacity-100'
+                                className="object-contain opacity-100 transition-opacity group-hover:opacity-100"
                             />
                         ) : (
-                            <div className="h-7 w-7 rounded-md bg-card-border/70" />
+                            <div className="size-7 rounded-md bg-card-border/70" />
                         )}
                     </div>
 
                     <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-3">
-                            <h3 className="min-w-0 flex-1 break-words text-lg font-semibold text-emerald-50 leading-snug">
+                            <h3 className="min-w-0 break-words text-lg font-semibold text-emerald-50 leading-snug">
                                 <span className="animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">
                                     {title}
                                 </span>
@@ -70,36 +67,25 @@ function EducationCard({
                             {hasLink && (
                                 <div
                                     className={[
-                                        "shrink-0",
                                         "flex size-8 items-center justify-center rounded-lg",
                                         "border border-card-border bg-card-att",
-                                        "transition-[border-color,transform] duration-700 ease-in-out",
+                                        "transition-[transform,border-color] duration-700 ease-in-out",
                                         "group-hover:border-button-border/60",
                                     ].join(" ")}
                                 >
                                     <img
                                         src={ExternalLinkIcon}
                                         alt="external link icon"
-                                        className="h-5 w-5 object-contain opacity-80 transition-opacity group-hover:opacity-95"
+                                        className="size-8/10 object-contain opacity-80 transition-opacity group-hover:opacity-95"
                                     />
                                 </div>
                             )}
                         </div>
 
-                        {(subtitle || gpa) && (
-                            <div className="mt-1.5 flex items-end justify-between gap-4">
-                                {subtitle && (
-                                    <p className="min-w-0 flex-1 break-words text-sm leading-snug text-emerald-50/65">
-                                        {subtitle}
-                                    </p>
-                                )}
-
-                                {gpa && (
-                                    <p className="shrink-0 whitespace-nowrap text-sm font-semibold text-emerald-50/65">
-                                        GPA {gpa}
-                                    </p>
-                                )}
-                            </div>
+                        {subtitle && (
+                            <p className="min-w-0 break-words text-sm leading-snug text-emerald-50/65">
+                                {subtitle}
+                            </p>
                         )}
                     </div>
                 </div>
@@ -113,7 +99,7 @@ function EducationCard({
                         Highlights
                     </p>
 
-                    <p className="mt-2 text-sm leading-relaxed text-emerald-50/85 break-words">
+                    <p className="mt-2 text-sm leading-relaxed text-emerald-50/85">
                         {desc}
                     </p>
 
@@ -129,9 +115,9 @@ function EducationCard({
 
                 {/* footer */}
                 <div className="flex items-center justify-between text-sm text-emerald-50/60">
-                    <span>{issued || ""}</span>
+                    <span>{issued ? `Issued ${issued}` : ""}</span>
                     <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100">
-                        {hasLink ? "View details" : ""}
+                        {hasLink ? "View credential" : ""}
                     </span>
                 </div>
             </div>
@@ -139,4 +125,4 @@ function EducationCard({
     );
 }
 
-export default EducationCard;
+export default CertificationCard;

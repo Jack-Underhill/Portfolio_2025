@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 
-import SocialTag from './SocialTag'
+import SocialTag from '../tags/SocialTag'
 
-import LinkedInIcon  from '../assets/linkedin.svg'
-import GitHubIcon    from '../assets/github.svg'
-import FiverrIcon    from '../assets/fiverr.svg'
-import UpWorkIcon    from '../assets/upwork.svg'
-import HandshakeIcon from '../assets/handshake.svg'
+import LinkedInIcon  from '../../assets/linkedin.svg'
+import GitHubIcon    from '../../assets/github.svg'
+import FiverrIcon    from '../../assets/fiverr.svg'
+import UpWorkIcon    from '../../assets/upwork.svg'
+import HandshakeIcon from '../../assets/handshake.svg'
 
-import { fetchContactPublic } from '../api/publicContact';
+import { fetchContactPublic } from '../../api/publicContact';
 
 const DEFAULT_LINKS = [
   {

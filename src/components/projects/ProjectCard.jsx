@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import CardSurface from './CardSurface';
+import CardSurface from '../ui/CardSurface';
 import TechTagMarquee from './TechTagMarquee';
-import VideoGlowFrame from './VideoGlowFrame';
+import VideoGlowFrame from '../media/VideoGlowFrame';
 
-import placeholderVideo from '../assets/placeholder.mp4';
+import placeholderVideo from '../../assets/placeholder.mp4';
 
 const isDev = import.meta.env.DEV;
 
@@ -85,13 +85,13 @@ function ProjectCard({
         };
     }, [isPreviewed, isLoadingVideo]);
 
-    const enablePreview = (e) => {
+    const enablePreview = () => {
         if(safeVideo && !isModalOpen) {
             requestPreview?.(id); // claim global ownership
         }
     };
 
-    const disablePreviewAndRelease = (e) => {
+    const disablePreviewAndRelease = () => {
         disablePreviewLocal();
         clearPreview?.(id); // release global ownership
     };

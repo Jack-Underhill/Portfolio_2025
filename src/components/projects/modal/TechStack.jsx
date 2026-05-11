@@ -1,4 +1,4 @@
-import PillHighlightList from '../PillHighlightList';
+import PillHighlightList from '../../tags/PillHighlightList';
 
 export default function TechStack({ data }) {
     const techStack = data?.techStack;

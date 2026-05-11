@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import avatarLogo from '../assets/avatar.png'
+import avatarLogo from '../../assets/avatar.png'
 
-import TextBlock from './TextBlock'
-import AboutButton from './AboutButton';
-import Avatar from './Avatar';
-import { fetchAboutPublic } from '../api/publicAbout'
+import TextBlock from '../ui/TextBlock'
+import ViewButton from '../buttons/ViewButton';
+import Avatar from '../profile/Avatar';
+import { fetchAboutPublic } from '../../api/publicAbout'
 
 const DEFAULT_ABOUT = {
     professionTitle:    "Full-Stack Developer",
@@ -54,7 +54,7 @@ function Hero() {
 
                 <div className="flex flex-wrap gap-4">
                     {/* GitHub */}
-                    <AboutButton 
+                    <ViewButton 
                         name="GitHub" 
                         url="https://github.com/Jack-Underhill" 
                         bgColor="bg-button" 
@@ -65,7 +65,7 @@ function Hero() {
                     />
 
                     {/* Resume */}
-                    <AboutButton 
+                    <ViewButton 
                         name="Resume" 
                         url={about.resumeUrl} 
                         isTextGradient={true}

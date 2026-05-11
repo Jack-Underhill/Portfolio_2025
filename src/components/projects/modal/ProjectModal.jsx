@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef } from "react";
 
-import Section from "./modal/Section";
-import CardSurface from "./CardSurface";
-import Header from "./modal/Header";
-import Challenges from "./modal/Challenges";
-import Architecture from "./modal/Architecture";
-import TechStack from "./modal/TechStack";
-import VideoGlowFrame from "./VideoGlowFrame";
-import BulletList from "./modal/BulletList";
+import Section from "./Section";
+import CardSurface from "../../ui/CardSurface";
+import Header from "./Header";
+import Challenges from "./Challenges";
+import Architecture from "./Architecture";
+import TechStack from "./TechStack";
+import VideoGlowFrame from "../../media/VideoGlowFrame";
+import BulletList from "./BulletList";
 
 function isNonEmptyArray(arr) { return Array.isArray(arr) && arr.length > 0; }
 
