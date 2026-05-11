@@ -4,7 +4,7 @@ import Section from "./Section";
 import CardSurface from "../../ui/CardSurface";
 import Header from "./Header";
 import Challenges from "./Challenges";
-import Architecture from "./Architecture";
+import ArchitecturePreview from "./ArchitecturePreview";
 import TechStack from "./TechStack";
 import VideoGlowFrame from "../../media/VideoGlowFrame";
 import BulletList from "./BulletList";
@@ -142,9 +142,9 @@ export default function ProjectModal({
                                     <TechStack data={data} />
                                 </Section>
 
-                                {/* Architecture */}
-                                <Section title="Architecture">
-                                    <Architecture data={data} />
+                                {/* ArchitecturePreview */}
+                                <Section title="ArchitecturePreview">
+                                    <ArchitecturePreview data={data} />
                                 </Section>
 
                                 {/* Features */}
