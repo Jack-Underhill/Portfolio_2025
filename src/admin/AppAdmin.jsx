@@ -2,9 +2,9 @@ import { useState, useEffect }        from 'react';
 import AboutSection                   from './sections/AboutSection';
 import ProjectsSection                from './sections/ProjectsSection';
 import ContactSection                 from './sections/ContactSection';
-import { loadAbout, saveAbout }       from '../api/adminAbout'
-import { loadProjects, saveProjects } from '../api/adminProjects'
-import { loadContact, saveContact }   from '../api/adminContact'
+import { loadAbout, saveAbout }       from '../api/admin/about'
+import { loadProjects, saveProjects } from '../api/admin/projects'
+import { loadContact, saveContact }   from '../api/admin/contact'
 
 import BackToTopButton      from "./navigation/BackToTopButton";
 import BackToBottomButton   from './navigation/BackToBottomButton';

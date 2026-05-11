@@ -1,5 +1,5 @@
-import { BUCKET, requireClient } from "../supabaseAdminClient.js";
-import { slugify, getFileExtension } from "./strings";
+import { BUCKET, requireClient } from "../clients/supabaseAdmin.js";
+import { slugify, getFileExtension } from "./strings.js";
 
 export function ensureDotExt(ext, fallback) {
     const e = (ext || '').trim();

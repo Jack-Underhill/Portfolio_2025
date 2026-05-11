@@ -8,7 +8,7 @@ import FiverrIcon    from '../../assets/fiverr.svg'
 import UpWorkIcon    from '../../assets/upwork.svg'
 import HandshakeIcon from '../../assets/handshake.svg'
 
-import { fetchContactPublic } from '../../api/publicContact';
+import { fetchContactPublic } from '../../api/public/contact';
 
 const DEFAULT_LINKS = [
   {

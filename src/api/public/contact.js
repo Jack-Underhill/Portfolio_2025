@@ -1,4 +1,4 @@
-import { supabasePublic } from './supabasePublicClient';
+import { supabasePublic } from '../clients/supabasePublic.js';
 
 /**
  * Fetch public Contact data: languages, experience, and social links.

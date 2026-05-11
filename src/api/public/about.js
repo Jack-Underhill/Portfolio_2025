@@ -1,4 +1,4 @@
-import { supabasePublic } from './supabasePublicClient';
+import { supabasePublic } from '../clients/supabasePublic.js';
 
 /**
  * Fetch the public About data from Supabase.

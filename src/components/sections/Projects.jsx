@@ -4,7 +4,7 @@ import projectWorkLogo from '../../assets/Project_Work.png'; // placeholder imag
 
 import ProjectCard from '../projects/ProjectCard';
 import ProjectModal from '../projects/modal/ProjectModal';
-import { fetchProjectsPublic, fetchProjectByIdPublic } from '../../api/publicProjects';
+import { fetchProjectsPublic, fetchProjectByIdPublic } from '../../api/public/projects';
 
 // -----------------------
 // routing helpers

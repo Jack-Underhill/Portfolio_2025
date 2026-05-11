@@ -1,6 +1,6 @@
-import { requireClient } from './supabaseAdminClient';
-import { normalizeStringArray, flattenTechStack } from './utils/strings.js';
-import { resolveProjectMediaUrls, makePermalink } from './utils/storage.js';
+import { requireClient } from '../clients/supabaseAdmin.js';
+import { normalizeStringArray, flattenTechStack } from '../utils/strings.js';
+import { resolveProjectMediaUrls, makePermalink } from '../utils/storage.js';
 
 const PROJECT_SECTION_ID = 1; // treat "project section" as a singleton row with id = 1
 const TECH_STACK_ORDER = ['frontend', 'backend', 'data', 'infrastructure'];

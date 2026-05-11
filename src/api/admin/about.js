@@ -1,5 +1,5 @@
-import { requireClient, BUCKET } from './supabaseAdminClient';
-import { getFileExtension } from './utils/strings.js';
+import { requireClient, BUCKET } from '../clients/supabaseAdmin.js';
+import { getFileExtension } from '../utils/strings.js';
 
 const ABOUT_ID = 1; // treat "about" as a singleton row with id = 1
 

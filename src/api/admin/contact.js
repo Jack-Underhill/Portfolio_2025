@@ -1,5 +1,5 @@
-import { requireClient, BUCKET } from './supabaseAdminClient';
-import { getFileExtension, slugify } from './utils/strings.js';
+import { requireClient, BUCKET } from '../clients/supabaseAdmin.js';
+import { getFileExtension, slugify } from '../utils/strings.js';
 
 /**
  * Load contact data (skills + links) into admin state shape.

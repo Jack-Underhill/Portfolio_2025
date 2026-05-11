@@ -4,7 +4,7 @@ import avatarLogo from '../../assets/avatar.png'
 import TextBlock from '../ui/TextBlock'
 import ViewButton from '../buttons/ViewButton';
 import Avatar from '../profile/Avatar';
-import { fetchAboutPublic } from '../../api/publicAbout'
+import { fetchAboutPublic } from '../../api/public/about'
 
 const DEFAULT_ABOUT = {
     professionTitle:    "Full-Stack Developer",

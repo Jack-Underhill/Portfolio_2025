@@ -1,4 +1,4 @@
-import { supabasePublic } from './supabasePublicClient';
+import { supabasePublic } from '../clients/supabasePublic.js';
 
 const PROJECT_SECTION_ID = 1;
 
