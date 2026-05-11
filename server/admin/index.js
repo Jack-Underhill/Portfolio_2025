@@ -1,5 +1,11 @@
 import { createServer } from 'node:http';
+
+import { handleAboutRead } from './routes/about.js';
+import { handleBootstrapRead } from './routes/bootstrap.js';
+import { handleContactRead } from './routes/contact.js';
 import { handleHealth } from './routes/health.js';
+import { handleProjectsRead } from './routes/projects.js';
+import { sendJson } from './routes/responses.js';
 
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 8787;
@@ -14,8 +20,7 @@ function applyCorsHeaders(res) {
 }
 
 function handleNotFound(res) {
-  res.writeHead(404, { 'content-type': 'application/json' });
-  res.end(JSON.stringify({ error: 'Not found' }));
+  sendJson(res, 404, { error: 'Not found' });
 }
 
 function handleRequest(req, res) {
@@ -31,6 +36,26 @@ function handleRequest(req, res) {
 
   if (req.method === 'GET' && requestUrl.pathname === '/admin-api/health') {
     handleHealth(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && requestUrl.pathname === '/admin-api/about') {
+    handleAboutRead(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && requestUrl.pathname === '/admin-api/projects') {
+    handleProjectsRead(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && requestUrl.pathname === '/admin-api/contact') {
+    handleContactRead(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && requestUrl.pathname === '/admin-api/bootstrap') {
+    handleBootstrapRead(req, res);
     return;
   }
 
