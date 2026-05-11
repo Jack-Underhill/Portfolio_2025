@@ -5,5 +5,6 @@ export function sendJson(res, statusCode, payload) {
 
 export function sendRouteError(res, error) {
   const message = error?.message || 'Admin backend request failed';
-  sendJson(res, 500, { error: message });
+  const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
+  sendJson(res, statusCode, { error: message });
 }

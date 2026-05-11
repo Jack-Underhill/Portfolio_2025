@@ -1,4 +1,11 @@
 import { requireServiceClient } from '../clients/supabaseService.js';
+import { getFileExtension } from '../utils/strings.js';
+import { uploadAndGetPublicUrl } from '../utils/storage.js';
+import {
+  applyMultipartFiles,
+  getStatePayload,
+  parseAdminRequest,
+} from './requestBody.js';
 import { sendJson, sendRouteError } from './responses.js';
 
 const ABOUT_ID = 1;
@@ -41,4 +48,77 @@ export async function handleAboutRead(_req, res) {
   } catch (error) {
     sendRouteError(res, error);
   }
+}
+
+export async function saveAboutData(state) {
+  const client = requireServiceClient();
+
+  let profileImageUrl = stringOrEmpty(state.profileImageUrl);
+  let resumeUrl = stringOrEmpty(state.resumeUrl);
+
+  if (state.profileImageFile) {
+    const ext = getFileExtension(state.profileImageFile) || '.png';
+    profileImageUrl = await uploadAndGetPublicUrl(
+      `about/profile${ext}`,
+      state.profileImageFile,
+    );
+  }
+
+  if (state.resumeFile) {
+    const ext = getFileExtension(state.resumeFile) || '.pdf';
+    resumeUrl = await uploadAndGetPublicUrl(`docs/resume${ext}`, state.resumeFile);
+  }
+
+  const payload = {
+    id: ABOUT_ID,
+    profile_image: profileImageUrl,
+    profession_title: stringOrEmpty(state.professionTitle),
+    brief_bio: stringOrEmpty(state.professionBio),
+    resume_pdf: resumeUrl,
+  };
+
+  const { error } = await client
+    .from('about')
+    .upsert(payload, { onConflict: 'id' });
+  if (error) throw error;
+
+  return {
+    ...state,
+    profileImageFile: null,
+    profileImageUrl,
+    professionTitle: payload.profession_title,
+    professionBio: payload.brief_bio,
+    resumeFile: null,
+    resumeUrl,
+  };
+}
+
+export async function handleAboutWrite(req, res) {
+  try {
+    const { body, form } = await parseAdminRequest(req);
+    const state = getStatePayload(body, 'about');
+
+    applyMultipartFiles(state, form, [
+      {
+        names: ['profileImageFile', 'about.profileImageFile'],
+        set: (about, file) => {
+          about.profileImageFile = file;
+        },
+      },
+      {
+        names: ['resumeFile', 'about.resumeFile'],
+        set: (about, file) => {
+          about.resumeFile = file;
+        },
+      },
+    ]);
+
+    sendJson(res, 200, await saveAboutData(state));
+  } catch (error) {
+    sendRouteError(res, error);
+  }
+}
+
+function stringOrEmpty(value) {
+  return typeof value === 'string' ? value.trim() : '';
 }

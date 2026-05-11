@@ -1,5 +1,12 @@
 import { requireServiceClient } from '../clients/supabaseService.js';
+import { makePermalink, resolveProjectMediaUrls } from '../utils/storage.js';
 import { flattenTechStack, normalizeStringArray } from '../utils/strings.js';
+import {
+  applyMultipartFiles,
+  BadRequestError,
+  getStatePayload,
+  parseAdminRequest,
+} from './requestBody.js';
 import { sendJson, sendRouteError } from './responses.js';
 
 const PROJECT_SECTION_ID = 1;
@@ -41,6 +48,50 @@ export async function handleProjectsRead(_req, res) {
   }
 }
 
+export async function saveProjectsData(state) {
+  const client = requireServiceClient();
+  assertProjectsState(state);
+
+  const projectBio = stringOrEmpty(state.projectBio);
+  const { error: sectionError } = await client
+    .from('project_section')
+    .upsert(
+      [{ id: PROJECT_SECTION_ID, about_projects: projectBio }],
+      { onConflict: 'id' },
+    );
+  if (sectionError) throw sectionError;
+
+  const normalized = normalizeUiProjects(state);
+  const existingById = await fetchExistingProjectsById(client, normalized);
+
+  const savedProjects = [];
+  const keepIds = [];
+
+  for (const project of normalized) {
+    const savedProject = await saveOneProject(client, project, existingById);
+    keepIds.push(savedProject.id);
+    savedProjects.push(savedProject);
+  }
+
+  await deleteRemovedProjects(client, keepIds);
+
+  return {
+    projectBio,
+    projects: savedProjects,
+  };
+}
+
+export async function handleProjectsWrite(req, res) {
+  try {
+    const { body, form } = await parseAdminRequest(req);
+    const state = getStatePayload(body, 'projects');
+    attachProjectFiles(state, form);
+    sendJson(res, 200, await saveProjectsData(state));
+  } catch (error) {
+    sendRouteError(res, error);
+  }
+}
+
 function dbRowToUiProject(project) {
   const techStack = project.tech_stack ?? null;
   const tagsFromDb = normalizeStringArray(project.tech_tags);
@@ -77,16 +128,117 @@ function dbRowToUiProject(project) {
   });
 }
 
-function toUiProject(project) {
+async function saveOneProject(client, project, existingById) {
+  let id = project.id;
+  let permalink;
+  let imageUrl;
+  let videoUrl;
+  let architectureImageUrl;
+
+  if (Number.isFinite(id)) {
+    const mediaUrls = await resolveProjectMediaUrls(
+      id,
+      project.imageFile,
+      project.imageUrl,
+      project.videoFile,
+      project.videoUrl,
+      project.architectureImageFile,
+      project.architectureImageUrl,
+    );
+    imageUrl = mediaUrls.imageBucketUrl;
+    videoUrl = mediaUrls.videoBucketUrl;
+    architectureImageUrl = mediaUrls.architectureImageBucketUrl;
+
+    const updatePayload = {
+      ...toDbProjectPayload(project),
+      image_url: imageUrl,
+      video_url: videoUrl,
+      architecture_image_url: architectureImageUrl,
+    };
+
+    const dbPermalink = (existingById.get(id)?.permalink || '').trim();
+    if (!dbPermalink) {
+      updatePayload.permalink = makePermalink(id, project.title);
+    }
+
+    const { data, error } = await client
+      .from('projects')
+      .update(updatePayload)
+      .eq('id', id)
+      .select('id, permalink')
+      .single();
+    if (error) throw error;
+
+    permalink = (data?.permalink || dbPermalink || '').trim();
+  } else {
+    const { data, error } = await client
+      .from('projects')
+      .insert([{ ...toDbProjectPayload(project) }])
+      .select('id')
+      .single();
+    if (error) throw error;
+
+    id = data.id;
+    const mediaUrls = await resolveProjectMediaUrls(
+      id,
+      project.imageFile,
+      project.imageUrl,
+      project.videoFile,
+      project.videoUrl,
+      project.architectureImageFile,
+      project.architectureImageUrl,
+    );
+    imageUrl = mediaUrls.imageBucketUrl;
+    videoUrl = mediaUrls.videoBucketUrl;
+    architectureImageUrl = mediaUrls.architectureImageBucketUrl;
+    permalink = makePermalink(id, project.title);
+
+    const { error: updateError } = await client
+      .from('projects')
+      .update({
+        permalink,
+        image_url: imageUrl,
+        video_url: videoUrl,
+        architecture_image_url: architectureImageUrl,
+      })
+      .eq('id', id);
+    if (updateError) throw updateError;
+  }
+
+  return toUiProject(project, id, permalink, imageUrl, videoUrl, architectureImageUrl);
+}
+
+async function deleteRemovedProjects(client, keepIds) {
+  if (keepIds.length) {
+    const { error } = await client
+      .from('projects')
+      .delete()
+      .not('id', 'in', `(${keepIds.join(',')})`);
+    if (error) throw error;
+    return;
+  }
+
+  const { error } = await client.from('projects').delete().neq('id', 0);
+  if (error) throw error;
+}
+
+function toUiProject(
+  project,
+  id = null,
+  permalink = null,
+  imageUrl = null,
+  videoUrl = null,
+  architectureImageUrl = null,
+) {
   const p = project || {};
 
   return {
-    id: p.id ?? null,
+    id: id ?? p.id ?? null,
 
-    permalink: p.permalink ?? '',
-    imageUrl: p.imageUrl ?? '',
-    videoUrl: p.videoUrl ?? '',
-    architectureImageUrl: p.architectureImageUrl ?? '',
+    permalink: permalink ?? p.permalink ?? '',
+    imageUrl: imageUrl ?? p.imageUrl ?? '',
+    videoUrl: videoUrl ?? p.videoUrl ?? '',
+    architectureImageUrl: architectureImageUrl ?? p.architectureImageUrl ?? '',
 
     imageFile: null,
     videoFile: null,
@@ -113,4 +265,198 @@ function toUiProject(project) {
     published: p.published !== false,
     sortOrder: Number.isFinite(p.sortOrder) ? p.sortOrder : 0,
   };
+}
+
+function toDbProjectPayload(project) {
+  return {
+    title: project.title,
+    card_description: project.description,
+    live_url: project.url,
+
+    image_url: project.imageUrl,
+    video_url: project.videoUrl,
+    architecture_image_url: project.architectureImageUrl,
+
+    overview: project.overview,
+    role: project.role,
+    source_url: project.sourceUrl,
+    writeup_url: project.writeupUrl,
+    video_page_url: project.videoPageUrl,
+
+    tech_stack: project.techStack,
+    tech_tags: project.techTags,
+
+    features: project.features,
+    metrics: project.metrics,
+    challenges: project.challenges,
+    improvements: project.improvements,
+
+    published: project.published,
+    sort_order: project.sortOrder,
+  };
+}
+
+function normalizeUiProjects(state) {
+  const inputProjects = Array.isArray(state.projects) ? state.projects : [];
+  const normalized = [];
+
+  for (let index = 0; index < inputProjects.length; index += 1) {
+    const project = inputProjects[index] || {};
+
+    const permalink = nullableString(project.permalink);
+    const title = nullableString(project.title);
+    const description = nullableString(project.description);
+    const url = nullableString(project.url);
+    const overview = nullableString(project.overview);
+    const role = nullableString(project.role);
+    const sourceUrl = nullableString(project.sourceUrl);
+    const writeupUrl = nullableString(project.writeupUrl);
+    const videoPageUrl = nullableString(project.videoPageUrl);
+    const imageUrl = nullableString(project.imageUrl);
+    const videoUrl = nullableString(project.videoUrl);
+    const architectureImageUrl = nullableString(project.architectureImageUrl);
+
+    const imageFile = project.imageFile || null;
+    const videoFile = project.videoFile || null;
+    const architectureImageFile = project.architectureImageFile || null;
+
+    const techStack = normalizeTechStack(project.techStack);
+    const challenges = Array.isArray(project.challenges) ? project.challenges : null;
+
+    const tagsFromStack = flattenTechStack(techStack, TECH_STACK_ORDER);
+    const tagsManual = normalizeStringArray(project.techTags);
+    const techTags = tagsFromStack.length ? tagsFromStack : tagsManual;
+
+    const hasImage = Boolean(imageFile || imageUrl);
+    const hasVideo = Boolean(videoFile || videoUrl);
+    const isEmpty =
+      !title &&
+      !description &&
+      techTags.length === 0 &&
+      !url &&
+      !hasImage &&
+      !hasVideo;
+    if (isEmpty) continue;
+
+    const rawId = Number(project.id);
+    const id = Number.isFinite(rawId) && rawId > 0 ? rawId : null;
+
+    normalized.push({
+      id,
+      permalink,
+      sortOrder: index,
+      published: project.published !== false,
+      title: title || `Project ${index + 1}`,
+      description,
+      url,
+      overview,
+      role,
+      sourceUrl,
+      writeupUrl,
+      videoPageUrl,
+      imageFile,
+      videoFile,
+      architectureImageFile,
+      imageUrl,
+      videoUrl,
+      architectureImageUrl,
+      techStack,
+      techTags,
+      features: Array.isArray(project.features) ? project.features : null,
+      metrics: Array.isArray(project.metrics) ? project.metrics : null,
+      challenges,
+      improvements: Array.isArray(project.improvements) ? project.improvements : null,
+    });
+  }
+
+  return normalized;
+}
+
+async function fetchExistingProjectsById(client, normalized) {
+  const existingIds = normalized
+    .filter((project) => Number.isFinite(project.id))
+    .map((project) => project.id);
+
+  const existingById = new Map();
+  if (!existingIds.length) return existingById;
+
+  const { data, error } = await client
+    .from('projects')
+    .select('id, permalink')
+    .in('id', existingIds);
+  if (error) throw error;
+
+  for (const row of data || []) {
+    existingById.set(row.id, row);
+  }
+
+  return existingById;
+}
+
+export function attachProjectFiles(state, form) {
+  if (!form || !Array.isArray(state.projects)) return;
+
+  state.projects.forEach((project, index) => {
+    applyMultipartFiles(project, form, [
+      {
+        names: [
+          `projects.${index}.imageFile`,
+          `projects.projects.${index}.imageFile`,
+          `projects[${index}][imageFile]`,
+          `projects[${index}].imageFile`,
+          `projects[projects][${index}][imageFile]`,
+        ],
+        set: (target, file) => {
+          target.imageFile = file;
+        },
+      },
+      {
+        names: [
+          `projects.${index}.videoFile`,
+          `projects.projects.${index}.videoFile`,
+          `projects[${index}][videoFile]`,
+          `projects[${index}].videoFile`,
+          `projects[projects][${index}][videoFile]`,
+        ],
+        set: (target, file) => {
+          target.videoFile = file;
+        },
+      },
+      {
+        names: [
+          `projects.${index}.architectureImageFile`,
+          `projects.projects.${index}.architectureImageFile`,
+          `projects[${index}][architectureImageFile]`,
+          `projects[${index}].architectureImageFile`,
+          `projects[projects][${index}][architectureImageFile]`,
+        ],
+        set: (target, file) => {
+          target.architectureImageFile = file;
+        },
+      },
+    ]);
+  });
+}
+
+function assertProjectsState(state) {
+  if (!Array.isArray(state.projects)) {
+    throw new BadRequestError('projects payload must include a projects array');
+  }
+}
+
+function normalizeTechStack(techStack) {
+  if (!techStack || typeof techStack !== 'object' || Array.isArray(techStack)) {
+    return techStack ?? null;
+  }
+
+  return techStack;
+}
+
+function nullableString(value) {
+  const trimmed = stringOrEmpty(value);
+  return trimmed || null;
+}
+
+function stringOrEmpty(value) {
+  return typeof value === 'string' ? value.trim() : '';
 }

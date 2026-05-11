@@ -1,10 +1,10 @@
 import { createServer } from 'node:http';
 
-import { handleAboutRead } from './routes/about.js';
-import { handleBootstrapRead } from './routes/bootstrap.js';
-import { handleContactRead } from './routes/contact.js';
+import { handleAboutRead, handleAboutWrite } from './routes/about.js';
+import { handleBootstrapRead, handleSaveAllWrite } from './routes/bootstrap.js';
+import { handleContactRead, handleContactWrite } from './routes/contact.js';
 import { handleHealth } from './routes/health.js';
-import { handleProjectsRead } from './routes/projects.js';
+import { handleProjectsRead, handleProjectsWrite } from './routes/projects.js';
 import { sendJson } from './routes/responses.js';
 
 const DEFAULT_HOST = '127.0.0.1';
@@ -15,7 +15,7 @@ const port = Number.parseInt(process.env.ADMIN_SERVER_PORT || `${DEFAULT_PORT}`,
 
 function applyCorsHeaders(res) {
   res.setHeader('access-control-allow-origin', 'http://localhost:5173');
-  res.setHeader('access-control-allow-methods', 'GET,OPTIONS');
+  res.setHeader('access-control-allow-methods', 'GET,POST,OPTIONS');
   res.setHeader('access-control-allow-headers', 'content-type');
 }
 
@@ -44,8 +44,18 @@ function handleRequest(req, res) {
     return;
   }
 
+  if (req.method === 'POST' && requestUrl.pathname === '/admin-api/about') {
+    handleAboutWrite(req, res);
+    return;
+  }
+
   if (req.method === 'GET' && requestUrl.pathname === '/admin-api/projects') {
     handleProjectsRead(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && requestUrl.pathname === '/admin-api/projects') {
+    handleProjectsWrite(req, res);
     return;
   }
 
@@ -54,8 +64,18 @@ function handleRequest(req, res) {
     return;
   }
 
+  if (req.method === 'POST' && requestUrl.pathname === '/admin-api/contact') {
+    handleContactWrite(req, res);
+    return;
+  }
+
   if (req.method === 'GET' && requestUrl.pathname === '/admin-api/bootstrap') {
     handleBootstrapRead(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && requestUrl.pathname === '/admin-api/save-all') {
+    handleSaveAllWrite(req, res);
     return;
   }
 
