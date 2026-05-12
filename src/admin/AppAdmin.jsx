@@ -2,9 +2,7 @@ import { useState, useEffect }        from 'react';
 import AboutSection                   from './sections/AboutSection';
 import ProjectsSection                from './sections/ProjectsSection';
 import ContactSection                 from './sections/ContactSection';
-import { loadAbout, saveAbout }       from '../api/admin/about'
-import { loadProjects, saveProjects } from '../api/admin/projects'
-import { loadContact, saveContact }   from '../api/admin/contact'
+import { loadAdminData, saveAdminData } from './api/adminClient';
 
 import BackToTopButton      from "./navigation/BackToTopButton";
 import BackToBottomButton   from './navigation/BackToBottomButton';
@@ -39,11 +37,7 @@ function AppAdmin() {
     useEffect(() => {
         (async () => {
             try {
-                const [about, projects, contact] = await Promise.all([
-                    loadAbout(),
-                    loadProjects(),
-                    loadContact(),
-                ]);
+                const { about, projects, contact } = await loadAdminData();
                 setAboutState(about);
                 setProjectsState(projects);
                 setContactState(contact);
@@ -59,14 +53,14 @@ function AppAdmin() {
         setIsSaving(true);
         setError(null);
 
-        const [nextAbout, nextProjects, nextContact] = await Promise.all([
-            saveAbout(aboutState),
-            saveProjects(projectsState),
-            saveContact(contactState),
-        ]);
-        setAboutState(nextAbout);
-        setProjectsState(nextProjects);
-        setContactState(nextContact);
+        const { about, projects, contact } = await saveAdminData({
+            aboutState,
+            projectsState,
+            contactState,
+        });
+        setAboutState(about);
+        setProjectsState(projects);
+        setContactState(contact);
 
         } catch (err) {
             console.error(err);
@@ -112,10 +106,16 @@ function AppAdmin() {
                 <button
                     type="button"
                     onClick={handleSave}
+                    disabled={isSaving}
                     className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium hover:bg-sky-500"
                 >
-                    {isSaving ? 'Saving...' : 'Save POST'}
+                    {isSaving ? 'Saving...' : 'Save'}
                 </button>
+                {error && (
+                    <p className="text-sm text-red-300">
+                        {error.message || 'Admin request failed'}
+                    </p>
+                )}
             </div>
 
             <BackToTopButton    showAfter={500} />
