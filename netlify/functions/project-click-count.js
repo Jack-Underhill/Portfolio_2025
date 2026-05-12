@@ -5,7 +5,7 @@ const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-export default async (request, context) => {
+export default async (request) => {
     try {
         const url = new URL(request.url);
         const projectEncoded = url.searchParams.get("project"); 

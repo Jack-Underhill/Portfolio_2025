@@ -19,7 +19,6 @@ function ProjectEditor({ project, onChange, onRemove }) {
   return (
     <div className="border border-slate-700 rounded-lg p-4 space-y-4">
       <ProjectEditorHeader
-        title={project.title}
         permalink={permalink}
         sortOrder={project.sortOrder}
         published={project.published}

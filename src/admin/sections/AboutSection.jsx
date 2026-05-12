@@ -9,7 +9,6 @@ function AboutSection({ state, onChange }) {
         profileImageUrl,
         professionTitle,
         professionBio,
-        resumeFile,
         resumeUrl,
     } = state;
 
