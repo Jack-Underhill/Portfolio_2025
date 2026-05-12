@@ -1,4 +1,5 @@
-const DEFAULT_BODY_LIMIT_BYTES = 50 * 1024 * 1024;
+const JSON_BODY_LIMIT_BYTES = 512 * 1024;
+const MULTIPART_BODY_LIMIT_BYTES = 40 * 1024 * 1024;
 
 export class BadRequestError extends Error {
   constructor(message) {
@@ -53,7 +54,8 @@ export function applyMultipartFiles(state, form, mappings) {
 }
 
 async function parseJsonRequest(req) {
-  const text = await readRequestText(req);
+  assertContentLength(req, JSON_BODY_LIMIT_BYTES, 'Admin JSON request body');
+  const text = await readRequestText(req, JSON_BODY_LIMIT_BYTES);
   if (!text.trim()) return { body: {}, form: null };
 
   try {
@@ -64,6 +66,8 @@ async function parseJsonRequest(req) {
 }
 
 async function parseMultipartRequest(req) {
+  assertContentLength(req, MULTIPART_BODY_LIMIT_BYTES, 'Admin multipart request body');
+
   const headers = new globalThis.Headers();
   for (const [key, value] of Object.entries(req.headers)) {
     if (Array.isArray(value)) {
@@ -122,7 +126,17 @@ function isUploadedFile(value) {
   );
 }
 
-function readRequestText(req, limitBytes = DEFAULT_BODY_LIMIT_BYTES) {
+function assertContentLength(req, limitBytes, label) {
+  const value = req.headers['content-length'];
+  if (!value) return;
+
+  const size = Number.parseInt(Array.isArray(value) ? value[0] : value, 10);
+  if (Number.isFinite(size) && size > limitBytes) {
+    throw new BadRequestError(`${label} is too large`);
+  }
+}
+
+function readRequestText(req, limitBytes) {
   return new Promise((resolve, reject) => {
     const chunks = [];
     let total = 0;

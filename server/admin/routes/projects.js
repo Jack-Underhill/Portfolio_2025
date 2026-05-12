@@ -8,6 +8,7 @@ import {
   parseAdminRequest,
 } from './requestBody.js';
 import { sendJson, sendRouteError } from './responses.js';
+import { validateProjectsState } from './validation.js';
 
 const PROJECT_SECTION_ID = 1;
 const TECH_STACK_ORDER = ['frontend', 'backend', 'data', 'infrastructure'];
@@ -49,10 +50,14 @@ export async function handleProjectsRead(_req, res) {
 }
 
 export async function saveProjectsData(state) {
+  const validState = validateProjectsState(state);
   const client = requireServiceClient();
-  assertProjectsState(state);
 
-  const projectBio = stringOrEmpty(state.projectBio);
+  const projectBio = validState.projectBio;
+  const normalized = normalizeUiProjects(validState);
+  const existingById = await fetchExistingProjectsById(client, normalized);
+  assertExistingProjectIds(normalized, existingById);
+
   const { error: sectionError } = await client
     .from('project_section')
     .upsert(
@@ -60,9 +65,6 @@ export async function saveProjectsData(state) {
       { onConflict: 'id' },
     );
   if (sectionError) throw sectionError;
-
-  const normalized = normalizeUiProjects(state);
-  const existingById = await fetchExistingProjectsById(client, normalized);
 
   const savedProjects = [];
   const keepIds = [];
@@ -393,6 +395,14 @@ async function fetchExistingProjectsById(client, normalized) {
   return existingById;
 }
 
+function assertExistingProjectIds(normalized, existingById) {
+  for (const project of normalized) {
+    if (Number.isFinite(project.id) && !existingById.has(project.id)) {
+      throw new BadRequestError(`project id ${project.id} does not exist`);
+    }
+  }
+}
+
 export function attachProjectFiles(state, form) {
   if (!form || !Array.isArray(state.projects)) return;
 
@@ -436,12 +446,6 @@ export function attachProjectFiles(state, form) {
       },
     ]);
   });
-}
-
-function assertProjectsState(state) {
-  if (!Array.isArray(state.projects)) {
-    throw new BadRequestError('projects payload must include a projects array');
-  }
 }
 
 function normalizeTechStack(techStack) {

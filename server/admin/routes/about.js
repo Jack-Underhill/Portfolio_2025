@@ -7,6 +7,7 @@ import {
   parseAdminRequest,
 } from './requestBody.js';
 import { sendJson, sendRouteError } from './responses.js';
+import { validateAboutState } from './validation.js';
 
 const ABOUT_ID = 1;
 
@@ -51,29 +52,30 @@ export async function handleAboutRead(_req, res) {
 }
 
 export async function saveAboutData(state) {
+  const validState = validateAboutState(state);
   const client = requireServiceClient();
 
-  let profileImageUrl = stringOrEmpty(state.profileImageUrl);
-  let resumeUrl = stringOrEmpty(state.resumeUrl);
+  let profileImageUrl = validState.profileImageUrl;
+  let resumeUrl = validState.resumeUrl;
 
-  if (state.profileImageFile) {
-    const ext = getFileExtension(state.profileImageFile) || '.png';
+  if (validState.profileImageFile) {
+    const ext = getFileExtension(validState.profileImageFile) || '.png';
     profileImageUrl = await uploadAndGetPublicUrl(
       `about/profile${ext}`,
-      state.profileImageFile,
+      validState.profileImageFile,
     );
   }
 
-  if (state.resumeFile) {
-    const ext = getFileExtension(state.resumeFile) || '.pdf';
-    resumeUrl = await uploadAndGetPublicUrl(`docs/resume${ext}`, state.resumeFile);
+  if (validState.resumeFile) {
+    const ext = getFileExtension(validState.resumeFile) || '.pdf';
+    resumeUrl = await uploadAndGetPublicUrl(`docs/resume${ext}`, validState.resumeFile);
   }
 
   const payload = {
     id: ABOUT_ID,
     profile_image: profileImageUrl,
-    profession_title: stringOrEmpty(state.professionTitle),
-    brief_bio: stringOrEmpty(state.professionBio),
+    profession_title: validState.professionTitle,
+    brief_bio: validState.professionBio,
     resume_pdf: resumeUrl,
   };
 
@@ -83,7 +85,7 @@ export async function saveAboutData(state) {
   if (error) throw error;
 
   return {
-    ...state,
+    ...validState,
     profileImageFile: null,
     profileImageUrl,
     professionTitle: payload.profession_title,
@@ -117,8 +119,4 @@ export async function handleAboutWrite(req, res) {
   } catch (error) {
     sendRouteError(res, error);
   }
-}
-
-function stringOrEmpty(value) {
-  return typeof value === 'string' ? value.trim() : '';
 }

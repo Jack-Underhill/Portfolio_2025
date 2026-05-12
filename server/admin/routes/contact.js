@@ -3,11 +3,11 @@ import { getFileExtension, slugify } from '../utils/strings.js';
 import { uploadAndGetPublicUrl } from '../utils/storage.js';
 import {
   applyMultipartFiles,
-  BadRequestError,
   getStatePayload,
   parseAdminRequest,
 } from './requestBody.js';
 import { sendJson, sendRouteError } from './responses.js';
+import { validateContactState } from './validation.js';
 
 export async function loadContactData() {
   const client = requireServiceClient();
@@ -54,11 +54,11 @@ export async function handleContactRead(_req, res) {
 }
 
 export async function saveContactData(state) {
+  const validState = validateContactState(state);
   const client = requireServiceClient();
-  assertContactState(state);
 
-  const proficient = cleanList(state.proficientTechs);
-  const experiencing = cleanList(state.experiencingTechs);
+  const proficient = validState.proficientTechs;
+  const experiencing = validState.experiencingTechs;
 
   const { error: deleteSkillsError } = await client
     .from('skills')
@@ -87,14 +87,14 @@ export async function saveContactData(state) {
   const linkRows = [];
   const savedSocialLinks = [];
 
-  for (let index = 0; index < state.socialLinks.length; index += 1) {
-    const link = state.socialLinks[index] || {};
-    const label = stringOrEmpty(link.label);
-    const url = stringOrEmpty(link.url);
+  for (let index = 0; index < validState.socialLinks.length; index += 1) {
+    const link = validState.socialLinks[index] || {};
+    const label = link.label;
+    const url = link.url;
 
     if (!label && !url) continue;
 
-    let iconUrl = stringOrEmpty(link.iconUrl);
+    let iconUrl = link.iconUrl;
     if (link.iconFile) {
       const ext = getFileExtension(link.iconFile) || '.png';
       const slug = slugify(label || `link-${index + 1}`, `link-${index + 1}`);
@@ -132,7 +132,7 @@ export async function saveContactData(state) {
   }
 
   return {
-    ...state,
+    ...validState,
     proficientTechs: proficient.length ? proficient : [''],
     experiencingTechs: experiencing.length ? experiencing : [''],
     socialLinks: savedSocialLinks,
@@ -169,28 +169,4 @@ export function attachContactFiles(state, form) {
       },
     ]);
   });
-}
-
-function assertContactState(state) {
-  if (!Array.isArray(state.proficientTechs)) {
-    throw new BadRequestError('contact payload must include a proficientTechs array');
-  }
-
-  if (!Array.isArray(state.experiencingTechs)) {
-    throw new BadRequestError('contact payload must include an experiencingTechs array');
-  }
-
-  if (!Array.isArray(state.socialLinks)) {
-    throw new BadRequestError('contact payload must include a socialLinks array');
-  }
-}
-
-function cleanList(list) {
-  return (Array.isArray(list) ? list : [])
-    .map((value) => stringOrEmpty(value))
-    .filter(Boolean);
-}
-
-function stringOrEmpty(value) {
-  return typeof value === 'string' ? value.trim() : '';
 }
