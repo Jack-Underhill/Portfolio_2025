@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
-import VisitCount from './components/VisitCount'
-import Navbar from './components/Navbar'
-import BackToTopButton from "./components/BackToTopButton";
+import VisitCount from './components/layout/VisitCount'
+import Navbar from './components/layout/Navbar'
+import BackToTopButton from "./components/buttons/BackToTopButton";
 
-import Hero from './components/Hero'
-import About from './components/About'
-import Projects from './components/Projects'
-import Education from './components/Education'
-import Certifications from './components/Certifications'
-import Skills from './components/Skills'
-import Contact from './components/Contact'
+import Hero from './components/sections/Hero'
+import About from './components/sections/About'
+import Projects from './components/sections/Projects'
+import Education from './components/sections/Education'
+import Certifications from './components/sections/Certifications'
+import Skills from './components/sections/Skills'
+import Contact from './components/sections/Contact'
 
 
 function App() {
@@ -38,13 +38,13 @@ function App() {
           backgroundImage: `radial-gradient(circle at 72% 50%, rgba(56,189,248,0.35) 0%, rgba(56,189,248,0.15) 40%, transparent 90%), url('/black-linen.png')`
         }}
       />
-      
+
       {/* Top Bar */}
       <div className="m-5 sm:m-10 md:mx-15 lg:mx-20 h-12 flex justify-between">
         <VisitCount />
         <Navbar />
       </div>
-{/* pt-25 sm:pt-35 md:pt-25 lg:pt-0 */}
+
       {/* Layout */}
       <div className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-35 px-10 sm:px-15 md:px-20 lg:px-30 xl:px-40 pb-40'>
         <Hero />

@@ -1,0 +1,36 @@
+import TechListEditor from "../../lists/TechListEditor";
+
+
+function ProjectListFields({ projectId, features, metrics, improvements, handleFieldChange }) {
+    return (
+        <div className="space-y-3 pt-2 border-t border-slate-800">
+            <p className="text-xs uppercase tracking-wide text-slate-400">Lists</p>
+            
+            <TechListEditor
+                idPrefix={`project-features-${projectId}`}
+                label="Key features"
+                values={features || ['']}
+                onChange={(next) => handleFieldChange('features', next)}
+            />
+
+            <div className="grid gap-4 md:grid-cols-2">
+
+                <TechListEditor
+                    idPrefix={`project-metrics-${projectId}`}
+                    label="Metrics"
+                    values={metrics || ['']}
+                    onChange={(next) => handleFieldChange('metrics', next)}
+                />
+
+                <TechListEditor
+                    idPrefix={`project-improvements-${projectId}`}
+                    label="Improvements"
+                    values={improvements || ['']}
+                    onChange={(next) => handleFieldChange('improvements', next)}
+                />
+            </div>
+        </div>
+    );
+};
+
+export default ProjectListFields;
