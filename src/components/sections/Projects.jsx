@@ -5,125 +5,12 @@ import projectWorkLogo from '../../assets/Project_Work.png'; // placeholder imag
 import ProjectCard from '../projects/ProjectCard';
 import ProjectModal from '../projects/modal/ProjectModal';
 import { fetchProjectsPublic, fetchProjectByIdPublic } from '../../api/public/projects';
+import {
+  mergeProjectViewModels,
+  toProjectCardViewModel,
+  toProjectDetailsViewModel,
+} from '../../domain/projects/mappers';
 import { buildProjectPath, parseProjectPath } from '../../domain/projects/routing';
-
-// -----------------------
-// VM (View Model) normalization
-// -----------------------
-function normalizeUrl(raw) {
-  if (raw === null || raw === undefined) return undefined;
-  const s = String(raw).trim();
-  if (!s || s.toUpperCase() === 'NULL') return undefined;
-  return s;
-}
-
-function normalizeStringArray(raw, fallback = []) {
-  if (!Array.isArray(raw)) return fallback;
-  return raw
-    .map((x) => (x ?? '').toString().trim())
-    .filter(Boolean);
-}
-
-function normalizeArray(raw, fallback = []) {
-  return Array.isArray(raw) ? raw : fallback;
-}
-
-/**
- * Card View Model: apiRow (project), data for ProjectCard.
- */
-function toCardVM(apiRow, idx) {
-  const id = apiRow?.id ?? idx;
-
-  const permalink = (apiRow.permalink ?? '').toString().trim();
-
-  const imageUrl = normalizeUrl(apiRow.imageUrl) || projectWorkLogo;
-  const videoUrl = normalizeUrl(apiRow.videoUrl) ?? null;
-  const title = apiRow.title || null;
-  const description = apiRow.description || null;
-  const directUrl = normalizeUrl(apiRow.directUrl) || null;
-  const techTags = normalizeStringArray(apiRow.techTags, []);
-
-  // Modal-safe defaults
-  return {
-    id,
-    permalink,
-
-    imageUrl,
-    videoUrl,
-
-    title,
-    description,
-
-    directUrl,
-    techTags,
-
-    // details-only fields (safe defaults while loading)
-    overview: null,
-    role: null,
-    techStack: null,
-
-    architectureImageUrl: null,
-
-    features: [],
-    metrics: null,
-    challenges: [],
-    improvements: [],
-  };
-}
-
-/**
- * Details View Model: raw (project), data for ProjectModal.
- */
-function toDetailsVM(raw) {
-  if (!raw) return null;
-
-  const out = {};
-
-  if (raw.id !== undefined) out.id = raw.id;
-  if (raw.permalink !== undefined) out.permalink = String(raw.permalink || '').trim();
-  if (raw.title !== undefined) out.title = raw.title;
-
-  const image = normalizeUrl(raw.imageUrl);
-  if (image !== undefined) out.imageUrl = image;
-
-  const video = normalizeUrl(raw.videoUrl);
-  if (video !== undefined) out.videoUrl = video;
-
-  if (raw.liveUrl !== undefined) out.liveUrl = raw.liveUrl;
-  if (raw.sourceUrl !== undefined) out.sourceUrl = raw.sourceUrl;
-  if (raw.writeupUrl !== undefined) out.writeupUrl = raw.writeupUrl;
-  if (raw.videoPageUrl !== undefined) out.videoPageUrl = raw.videoPageUrl;
-
-  if (raw.overview !== undefined) out.overview = raw.overview ?? '';
-  if (raw.role !== undefined) out.role = raw.role ?? '';
-
-  if (raw.techStack !== undefined) out.techStack = raw.techStack;
-
-  const arch = normalizeUrl(raw.architectureImageUrl);
-  if (arch !== undefined) out.architectureImageUrl = arch ?? '';
-
-  if (raw.features !== undefined) out.features = normalizeArray(raw.features, []);
-  if (raw.metrics !== undefined) out.metrics = normalizeArray(raw.metrics, null);
-  if (raw.challenges !== undefined) out.challenges = normalizeArray(raw.challenges, []);
-  if (raw.improvements !== undefined) out.improvements = normalizeArray(raw.improvements, []);
-
-  return out;
-}
-
-function mergeProjectVM(cardVM, detailsVM) {
-  const c = cardVM || {};
-  const d = detailsVM || {};
-
-  const merged = { ...d };
-
-  if (d.permalink == null || d.permalink === '') merged.permalink = c.permalink;
-  if (d.title == null || d.title === '') merged.title = c.title;
-
-  if (d.imageUrl == null || d.imageUrl === '') merged.imageUrl = c.imageUrl;
-  if (d.videoUrl == null || d.videoUrl === '') merged.videoUrl = c.videoUrl;
-
-  return merged;
-}
 
 
 
@@ -180,7 +67,10 @@ function Projects() {
         if (!isMounted || !data) return;
 
         const rows = Array.isArray(data.projects) ? data.projects : [];
-        const mapped = rows.map((p, idx) => toCardVM(p, idx));
+        const mapped = rows.map((p, idx) => toProjectCardViewModel(p, {
+          fallbackId: idx,
+          fallbackImageUrl: projectWorkLogo,
+        }));
         setProjects(mapped);
       } catch (err) {
         console.error('[Projects] Failed to load public projects:', err);
@@ -214,7 +104,7 @@ function Projects() {
     let detailsVM = detailsCacheRef.current.get(id);
     if (!detailsVM) {
       const raw = await fetchProjectByIdPublic(id);
-      detailsVM = raw ? toDetailsVM(raw) : null;
+      detailsVM = raw ? toProjectDetailsViewModel(raw) : null;
       if (detailsVM) detailsCacheRef.current.set(id, detailsVM);
     }
 
@@ -224,7 +114,7 @@ function Projects() {
 
     // Hydrate modal with details
     if (detailsVM) {
-      setActiveProject((prev) => mergeProjectVM(prev, detailsVM));
+      setActiveProject((prev) => mergeProjectViewModels(prev, detailsVM));
 
       // Canonicalize the URL
       if (detailsVM.permalink) {
@@ -269,7 +159,7 @@ function Projects() {
     const card = projects.find((p) => Number(p.id) === id) || null;
     if (!card) return;
 
-    setActiveProject((prev) => (prev ? mergeProjectVM(card, prev) : card));
+    setActiveProject((prev) => (prev ? mergeProjectViewModels(card, prev) : card));
   }, [projects]);
 
   function openFromCard(card) {
