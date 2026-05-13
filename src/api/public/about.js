@@ -1,4 +1,5 @@
 import { supabasePublic } from '../clients/supabasePublic.js';
+import { mapAboutRowToPublic } from '../../domain/about/mappers.js';
 
 /**
  * Fetch the public About data from Supabase.
@@ -22,10 +23,5 @@ export async function fetchAboutPublic() {
 
     if (!data) return null;
 
-    return {
-        profileImage:       data.profile_image || '',
-        professionTitle:    data.profession_title || '',
-        briefBio:           data.brief_bio || '',
-        resumeUrl:          data.resume_pdf || '',
-    };
+    return mapAboutRowToPublic(data);
 }
