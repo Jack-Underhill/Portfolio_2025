@@ -5,30 +5,7 @@ import projectWorkLogo from '../../assets/Project_Work.png'; // placeholder imag
 import ProjectCard from '../projects/ProjectCard';
 import ProjectModal from '../projects/modal/ProjectModal';
 import { fetchProjectsPublic, fetchProjectByIdPublic } from '../../api/public/projects';
-
-// -----------------------
-// routing helpers
-// -----------------------
-const PROJECT_PATH_RE = /^\/p\/([^/]+)\/?$/i;
-
-function parseProjectPath(pathname) {
-  const m = pathname.match(PROJECT_PATH_RE);
-  if (!m) return null;
-
-  const permalink = decodeURIComponent(m[1] || '').trim();
-  if (!permalink) return null;
-
-  const idStr = permalink.split('-')[0];
-  const id = Number(idStr);
-  if (!Number.isFinite(id)) return null;
-
-  return { id, permalink };
-}
-
-function buildProjectPath(permalinkOrId) {
-  const seg = String(permalinkOrId ?? '').trim();
-  return `/p/${encodeURIComponent(seg)}`;
-}
+import { buildProjectPath, parseProjectPath } from '../../domain/projects/routing';
 
 // -----------------------
 // VM (View Model) normalization
