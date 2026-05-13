@@ -1,4 +1,4 @@
-import { buildArchitectureViewerUrl, canUseNetlifyFunctions, getInlineSvgUrl, isSvgUrl } from "../viewer/viewerUrl";
+import { buildArchitectureViewerUrl, getInlineSvgUrl, isSvgUrl } from "../viewer/viewerUrl";
 
 function getProjectReturnTo(data) {
     const currentPath = window.location.pathname;

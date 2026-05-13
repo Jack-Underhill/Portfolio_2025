@@ -1,9 +1,7 @@
+import { canUseNetlifyFunctions } from "../../../runtime/netlify";
+
 const INLINE_SVG_PROXY_PATH = "/.netlify/functions/inline-svg";
 const ALLOWED_ARCHITECTURE_PATH_PREFIX = "/storage/v1/object/public/portfolio-assets/project-architecture/";
-
-export function canUseNetlifyFunctions() {
-    return import.meta.env.VITE_ENABLE_NETLIFY_FUNCTIONS !== "false";
-}
 
 export function isSvgUrl(url) {
     try {

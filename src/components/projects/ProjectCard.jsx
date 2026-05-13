@@ -2,10 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import CardSurface from '../ui/CardSurface';
 import TechTagMarquee from './TechTagMarquee';
 import VideoGlowFrame from '../media/VideoGlowFrame';
+import { canUseNetlifyFunctions } from '../../runtime/netlify';
 
 import placeholderVideo from '../../assets/placeholder.mp4';
-
-const isDev = import.meta.env.DEV;
 
 const HOVER_INTENT_MS = 250;
 const FADE_DURATION_MS = HOVER_INTENT_MS * 3;
@@ -26,7 +25,7 @@ function ProjectCard({
     isModalOpen,
 }) {
     const safeVideo =
-        video === null || video === '' || video === undefined || video === 'NULL' || isDev
+        video === null || video === '' || video === undefined || video === 'NULL' || !canUseNetlifyFunctions()
             ? placeholderVideo
             : video;
 

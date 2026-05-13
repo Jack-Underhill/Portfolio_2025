@@ -8,6 +8,9 @@ import ArchitecturePreview from "./ArchitecturePreview";
 import TechStack from "./TechStack";
 import VideoGlowFrame from "../../media/VideoGlowFrame";
 import BulletList from "./BulletList";
+import { canUseNetlifyFunctions } from "../../../runtime/netlify";
+
+import placeholderVideo from "../../../assets/placeholder.mp4";
 
 function isNonEmptyArray(arr) { return Array.isArray(arr) && arr.length > 0; }
 
@@ -61,9 +64,11 @@ export default function ProjectModal({
     const heroImage = data.imageUrl;
 
     const safeVideo =
-        heroVideo === null || heroVideo === '' || heroVideo === undefined || heroVideo === 'NULL'
-            ? null
-            : heroVideo;
+        !canUseNetlifyFunctions()
+            ? placeholderVideo
+            : heroVideo === null || heroVideo === '' || heroVideo === undefined || heroVideo === 'NULL'
+                ? null
+                : heroVideo;
 
     const hasMetrics = isNonEmptyArray(data.metrics);
     const hasChallenges = isNonEmptyArray(data.challenges);
