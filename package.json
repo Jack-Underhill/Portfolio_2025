@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "admin:server": "node --env-file=.env.local server/admin/index.js",
+    "diagnose:runtime": "node scripts/diagnose-runtime.mjs",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -28,6 +29,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "playwright": "^1.60.0",
     "vite": "^6.3.5"
   }
 }

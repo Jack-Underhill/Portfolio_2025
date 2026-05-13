@@ -2,6 +2,11 @@
     directory = "netlify/functions"
 
 [[redirects]]
+  from = "/architecture-viewer"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
   from = "/p/*"
   to = "/index.html"
   status = 200
