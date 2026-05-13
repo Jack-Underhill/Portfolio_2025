@@ -169,3 +169,12 @@ export function mergeProjectViewModels(cardProject, detailProject) {
 
   return merged;
 }
+
+export function normalizeProjectSortOrder(projects) {
+  if (!Array.isArray(projects)) return [];
+
+  return projects.map((project, index) => ({
+    ...project,
+    sortOrder: index,
+  }));
+}

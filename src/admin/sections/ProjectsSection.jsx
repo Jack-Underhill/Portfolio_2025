@@ -3,53 +3,9 @@ import { useState, useEffect } from 'react';
 import ProjectEditor from '../projects/ProjectEditor';
 import TextAreaInput from '../forms/TextAreaInput';
 import CardSelector from '../navigation/CardSelector';
+import { createEmptyProjectDraft } from '../../domain/projects/defaults';
+import { normalizeProjectSortOrder } from '../../domain/projects/mappers';
 
-
-function createEmptyProject() {
-    return {
-        id: crypto.randomUUID(),
-
-        // media
-        imageFile: null,
-        imageUrl: '',
-        architectureImageFile: null,
-        architectureImageUrl: '',
-        videoFile: null,
-        videoUrl: '',
-
-        // card fields
-        title: '',
-        description: '',
-        techTags: [''],
-        url: '',
-
-        // modal fields
-        permalink: '',
-        overview: '',
-        role: '',
-        sourceUrl: '',
-        writeupUrl: '',
-        videoPageUrl: '',
-
-        // tech for modal + derived tags for card marquee
-        techStack: {
-            frontend: [''],
-            backend: [''],
-            data: [''],
-            infrastructure: [''],
-        },
-
-        // modal lists
-        features: [''],
-        metrics: [''],
-        challenges: [],
-        improvements: [''],
-
-        // control/meta
-        published: true,
-        sortOrder: 0,
-    };
-}
 
 function ProjectsSection({ state, onChange }) {
     const { projectBio, projects } = state;
@@ -81,17 +37,18 @@ function ProjectsSection({ state, onChange }) {
         updateState({ projectBio: value });
     };
 
-    const normalizeSortOrder = (arr) => arr.map((p, i) => ({ ...p, sortOrder: i }));
-
     const setProjects = (updater) => {
         const nextRaw = typeof updater === 'function' ? updater(projects) : updater;
-        const next = normalizeSortOrder(nextRaw);
+        const next = normalizeProjectSortOrder(nextRaw);
         updateState({ projects: next });
     };
 
     // --- add / update / remove ---
     const handleAddProject = () => {
-        setProjects((prev) => [...prev, createEmptyProject()]);
+        setProjects((prev) => [
+            ...prev,
+            createEmptyProjectDraft({ id: crypto.randomUUID(), sortOrder: prev.length }),
+        ]);
     };
 
     const handleReorderProjects = (fromIndex, toIndex) => {
