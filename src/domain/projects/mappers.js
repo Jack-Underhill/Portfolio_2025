@@ -1,6 +1,7 @@
 import {
   normalizeArray,
   normalizeOptionalString,
+  normalizeString,
   normalizeStringArray,
 } from '../shared/normalize.js';
 import { createEmptyProjectDetails } from './defaults.js';
@@ -75,6 +76,55 @@ function copyArrayFields(source, target, fieldConfigs) {
 
 function normalizePermalink(value) {
   return String(value ?? '').trim();
+}
+
+function normalizeProjectChallenges(value) {
+  if (Array.isArray(value)) return value;
+  return value || [];
+}
+
+export function mapProjectRowToPublicCard(row) {
+  return {
+    id: row?.id,
+    permalink: normalizePermalink(row?.permalink),
+    imageUrl: normalizeString(row?.image_url),
+    videoUrl: normalizeString(row?.video_url),
+    title: normalizeString(row?.title),
+    description: normalizeString(row?.card_description),
+    directUrl: normalizeString(row?.live_url || row?.source_url),
+    techTags: normalizeStringArray(row?.tech_tags, []),
+  };
+}
+
+export function mapProjectRowToPublicDetails(row) {
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    permalink: normalizePermalink(row.permalink),
+    title: normalizeString(row.title),
+    imageUrl: normalizeString(row.image_url),
+    videoUrl: normalizeString(row.video_url),
+
+    liveUrl: normalizeString(row.live_url),
+    sourceUrl: normalizeString(row.source_url),
+    writeupUrl: normalizeString(row.writeup_url),
+    videoPageUrl: normalizeString(row.video_page_url),
+
+    overview: normalizeString(row.overview),
+    role: normalizeString(row.role),
+
+    architectureImageUrl: normalizeString(row.architecture_image_url),
+    techStack: row.tech_stack || null,
+
+    features: normalizeStringArray(row.features, []),
+    metrics: normalizeStringArray(row.metrics, []),
+    challenges: normalizeProjectChallenges(row.challenges),
+    improvements: normalizeStringArray(row.improvements, []),
+
+    published: !!row.published,
+    sortOrder: row.sort_order ?? 0,
+  };
 }
 
 export function toProjectCardViewModel(project, { fallbackImageUrl = null, fallbackId = null } = {}) {
