@@ -26,7 +26,7 @@ export async function fetchProjectSectionPublic() {
 }
 
 /**
- * Fetch public project (about) section + projects.
+ * Fetch public project cards.
  * Returns null on error / misconfig so UI can fall back to defaults.
  */
 export async function fetchProjectsPublic() {
@@ -50,7 +50,7 @@ export async function fetchProjectsPublic() {
 }
 
 /**
- * Fetch Project Modal Specific Attributes.
+ * Fetch public project details for the modal.
  */
 export async function fetchProjectByIdPublic(id) {
     if (!supabasePublic) return null;

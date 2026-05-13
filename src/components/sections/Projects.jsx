@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import projectWorkLogo from '../../assets/Project_Work.png'; // placeholder image
+import projectWorkLogo from '../../assets/Project_Work.png'; // card fallback image
 
 import ProjectCard from '../projects/ProjectCard';
 import ProjectModal from '../projects/modal/ProjectModal';
@@ -96,7 +96,7 @@ function Projects() {
     activeProjectIdRef.current = id
     setActiveProjectId(id);
 
-    // instant load modal with card (from card click) or loading (deep link)
+    // Seed the modal with card data for clicks, or a loading title for deep links.
     const seed = cardFallback ?? { id, title: 'Loading…' };
     setActiveProject(seed);
 
@@ -108,7 +108,7 @@ function Projects() {
       if (detailsVM) detailsCacheRef.current.set(id, detailsVM);
     }
 
-    // Race Gaurds (eg. 2 modals opened back to back)
+    // Race guards for quick back-to-back modal opens.
     if (seq !== openSeqRef.current) return;
     if (activeProjectIdRef.current !== id) return;
 
