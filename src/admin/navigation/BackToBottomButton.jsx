@@ -54,10 +54,10 @@ function BackToBottomButton({
                 className={[
                     "group flex h-12 w-12 items-center justify-center rounded-full border-2",
                     "border-button-border bg-button",
-                    "shadow-[inset_2px_2px_4px_#0b6e9e,inset_-2px_-2px_4px_#26a6d9]",
+                    "shadow-button-inset",
                     `transition-[transform,box-shadow] duration-[200ms] ease-out`,
                     "hover:scale-105",
-                    "hover:shadow-[inset_2px_2px_4px_#0b6e9e,inset_-2px_-2px_4px_#26a6d9,0_0_0_1px_rgba(27,149,204,0.35),0_0_24px_rgba(14,138,194,0.25)]",
+                    "hover-shadow-button-accent",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/60",
                 ].join(" ")}
             >

@@ -57,10 +57,7 @@ function Hero() {
                     <ViewButton 
                         name="GitHub" 
                         url="https://github.com/Jack-Underhill" 
-                        bgColor="bg-button" 
-                        borderColor="border-button-border" 
-                        insetShadowDark="inset_2px_2px_4px_#0b6e9e" 
-                        insetShadowLight="inset_-2px_-2px_4px_#26a6d9" 
+                        variant="primary"
                         aos={'fade-right'}
                     />
 
@@ -69,10 +66,7 @@ function Hero() {
                         name="Resume" 
                         url={about.resumeUrl} 
                         isTextGradient={true}
-                        bgColor="bg-card" 
-                        borderColor="border-card-border" 
-                        insetShadowDark="inset_4px_4px_8px_#0a0f14" 
-                        insetShadowLight="inset_-4px_-4px_8px_#1a232c" 
+                        variant="secondary"
                         aos={'fade-left'}
                     />
                 </div>

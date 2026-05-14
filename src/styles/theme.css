@@ -29,6 +29,46 @@
   --color-button-border: #1B95CC;
 }
 
+:root {
+  --shadow-card-inset: inset 4px 4px 8px #0a0f14, inset -4px -4px 8px #1a232c;
+  --shadow-chip-inset: inset 2px 2px 4px #0a0f14, inset -2px -2px 4px #1a232c;
+  --shadow-tag-inset: inset 2px 2px 4px #242a33, inset -2px -2px 4px #3a4350;
+  --shadow-button-inset: inset 2px 2px 4px #0b6e9e, inset -2px -2px 4px #26a6d9;
+  --shadow-accent-ring: 0 0 0 1px rgba(27, 149, 204, 0.35);
+  --shadow-accent-ring-soft: 0 0 0 1px rgba(27, 149, 204, 0.30);
+  --shadow-accent-glow: 0 0 24px rgba(14, 138, 194, 0.25);
+  --shadow-accent-glow-soft: 0 0 26px rgba(14, 138, 194, 0.16);
+  --shadow-subtle-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.shadow-card-inset {
+  box-shadow: var(--shadow-card-inset);
+}
+
+.shadow-chip-inset {
+  box-shadow: var(--shadow-chip-inset);
+}
+
+.shadow-tag-inset {
+  box-shadow: var(--shadow-tag-inset);
+}
+
+.shadow-button-inset {
+  box-shadow: var(--shadow-button-inset);
+}
+
+.shadow-subtle-highlight {
+  box-shadow: var(--shadow-subtle-highlight);
+}
+
+.hover-shadow-card-accent:hover {
+  box-shadow: var(--shadow-card-inset), var(--shadow-accent-ring-soft), var(--shadow-accent-glow-soft);
+}
+
+.hover-shadow-button-accent:hover {
+  box-shadow: var(--shadow-button-inset), var(--shadow-accent-ring), var(--shadow-accent-glow);
+}
+
 @keyframes moveGradient {
   0% {
     background-position: 0% 50%;

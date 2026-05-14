@@ -44,7 +44,7 @@ function CertificationCard({
                 {/* header row */}
                 <div className="flex items-start gap-4">
                     {/* logo container */}
-                    <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-card-border bg-card-att shadow-[inset_2px_2px_4px_#0a0f14,inset_-2px_-2px_4px_#1a232c]">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-card-border bg-card-att shadow-chip-inset">
                         {logoSrc ? (
                             <img
                                 src={logoSrc}

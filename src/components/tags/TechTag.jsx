@@ -6,7 +6,7 @@ function TechTag({ tags, className }) {
             {tags.map((tag) => (
                 <div 
                     key={tag} 
-                    className={`${className} border-2 border-card-border shadow-[inset_2px_2px_4px_#242a33,inset_-2px_-2px_4px_#3a4350]`}
+                    className={`${className} border-2 border-card-border shadow-tag-inset`}
                     data-aos="fade-down-right"
                 >
                     <GradientText>{tag}</GradientText>

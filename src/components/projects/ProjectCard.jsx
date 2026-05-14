@@ -207,7 +207,7 @@ function ProjectCard({
 
             <div className='pb-4 mb-0 mt-auto text-sm md:text-md lg:text-xl'>
                 <TechTagMarquee
-                    className='px-3 py-1 font-semibold rounded-lg bg-card-att text-emerald-50'
+                    className='px-3 py-1 font-semibold rounded-lg bg-card-att text-text'
                     tags={tags}
                 />
             </div>

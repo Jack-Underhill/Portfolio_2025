@@ -25,7 +25,7 @@ export default function PillHighlightList({
                             key={pill}
                             className={[
                                 "rounded-lg border",
-                                "bg-card-att text-emerald-50/85",
+                                "bg-card-att text-text/85",
                                 highlightClassName,
                                 textClassName,
                             ].join(" ")}

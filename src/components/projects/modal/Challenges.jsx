@@ -8,7 +8,7 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
             className="
                 group/challenge rounded-2xl 
                 border border-button-border/40 open:border-button-border/80 open:bg-black/10
-                bg-black/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
+                bg-black/20 shadow-subtle-highlight
             "
         >
             <summary
@@ -23,7 +23,7 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
                     className="
                         mt-0.5 shrink-0 w-8 h-8 rounded-xl
                         grid place-items-center text-sm font-extrabold
-                        bg-card-att text-emerald-50 border 
+                        bg-card-att text-text border 
                         border-card-border/70 group-hover/summary:border-button-border/40
                         
                     "

@@ -37,7 +37,7 @@ function EducationCard({
                 "transition-[transform,border-color,box-shadow] duration-700 ease-in-out",
                 // On-theme hover: sky/button border + soft glow
                 "hover:-translate-y-1 hover:border-button-border/70",
-                "hover:shadow-[inset_4px_4px_8px_#0a0f14,inset_-4px_-4px_8px_#1a232c,0_0_0_1px_rgba(27,149,204,0.30),0_0_26px_rgba(14,138,194,0.16)]",
+                "hover-shadow-card-accent",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/50",
                 "overflow-hidden",
                 className,
@@ -47,7 +47,7 @@ function EducationCard({
                 {/* header row */}
                 <div className="flex items-start gap-4">
                     {/* logo container */}
-                    <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-card-border bg-card-att shadow-[inset_2px_2px_4px_#0a0f14,inset_-2px_-2px_4px_#1a232c]">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-card-border bg-card-att shadow-chip-inset">
                         {logoSrc ? (
                             <img
                                 src={logoSrc}

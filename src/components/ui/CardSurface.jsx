@@ -27,7 +27,7 @@ export default function CardSurface({
             {...props}
             className={cx(
                 "group relative rounded-xl border-2 border-card-border bg-card",
-                "shadow-[inset_4px_4px_8px_#0a0f14,inset_-4px_-4px_8px_#1a232c]",
+                "shadow-card-inset",
                 className
             )}
         >
