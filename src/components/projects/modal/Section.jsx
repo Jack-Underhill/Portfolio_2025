@@ -1,3 +1,6 @@
+import GradientText from "../../ui/GradientText";
+import Text from "../../ui/Text";
+
 const cx = (...xs) => xs.filter(Boolean).join(" ");
 
 export default function Section({ title, children, isSingleColumn = false }) {
@@ -5,13 +8,15 @@ export default function Section({ title, children, isSingleColumn = false }) {
 
     return (
         <section className={cx(singleColumnClass, "space-y-2")}>
-            <h3 className="text-lg font-bold animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">
-                {title}
-            </h3>
+            <Text as="h3" variant="cardTitle" className="font-bold">
+                <GradientText>
+                    {title}
+                </GradientText>
+            </Text>
             
-            <div className="text-emerald-50/90 leading-relaxed">
+            <Text as="div" variant="modalBody">
                 {children}
-            </div>
+            </Text>
         </section>
     );
 }

@@ -1,4 +1,5 @@
 import CertificationCard from '../credentials/CertificationCard';
+import SectionTitle from '../ui/SectionTitle';
 import MicrosoftLogo from '../../assets/logos/microsoft-logo.svg';
 import EDCCLogo from '../../assets/logos/edcc.svg';
 
@@ -29,9 +30,9 @@ const DEFAULT_CERTS = [
 function Certifications() {
     return (
         <section id="Certifications" className="flex flex-col gap-6">
-            <h2 className="text-4xl font-bold text-emerald-50" data-aos="flip-down">
+            <SectionTitle data-aos="flip-down">
                 Certifications
-            </h2>
+            </SectionTitle>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {DEFAULT_CERTS.map((cert) => (

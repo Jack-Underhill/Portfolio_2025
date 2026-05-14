@@ -1,6 +1,8 @@
 import ExternalLinkIcon from "../../assets/external-link.svg";
 
 import CardSurface from "../ui/CardSurface";
+import GradientText from "../ui/GradientText";
+import Text from "../ui/Text";
 import PillHighlightList from "../tags/PillHighlightList";
 
 function EducationCard({
@@ -60,11 +62,11 @@ function EducationCard({
 
                     <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-3">
-                            <h3 className="min-w-0 flex-1 break-words text-lg font-semibold text-emerald-50 leading-snug">
-                                <span className="animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">
+                            <Text as="h3" variant="cardTitle" className="min-w-0 flex-1 break-words">
+                                <GradientText>
                                     {title}
-                                </span>
-                            </h3>
+                                </GradientText>
+                            </Text>
 
                             {/* external link button */}
                             {hasLink && (
@@ -89,15 +91,15 @@ function EducationCard({
                         {(subtitle || gpa) && (
                             <div className="mt-1.5 flex items-end justify-between gap-4">
                                 {subtitle && (
-                                    <p className="min-w-0 flex-1 break-words text-sm leading-snug text-emerald-50/65">
+                                    <Text as="p" variant="muted" className="min-w-0 flex-1 break-words leading-snug">
                                         {subtitle}
-                                    </p>
+                                    </Text>
                                 )}
 
                                 {gpa && (
-                                    <p className="shrink-0 whitespace-nowrap text-sm font-semibold text-emerald-50/65">
+                                    <Text as="p" variant="muted" className="shrink-0 whitespace-nowrap font-semibold">
                                         GPA {gpa}
-                                    </p>
+                                    </Text>
                                 )}
                             </div>
                         )}
@@ -109,13 +111,13 @@ function EducationCard({
 
                 {/* body */}
                 <div className="flex-1">
-                    <p className="text-sm font-semibold tracking-wide text-emerald-50/60">
+                    <Text as="p" variant="meta">
                         Highlights
-                    </p>
+                    </Text>
 
-                    <p className="mt-2 text-sm leading-relaxed text-emerald-50/85 break-words">
+                    <Text as="p" variant="muted" className="mt-2 break-words">
                         {desc}
-                    </p>
+                    </Text>
 
                     {/* chips */}
                     <PillHighlightList 
@@ -128,12 +130,12 @@ function EducationCard({
                 <div className="my-4 h-px w-full bg-card-border/70" />
 
                 {/* footer */}
-                <div className="flex items-center justify-between text-sm text-emerald-50/60">
+                <Text as="div" variant="meta" className="flex items-center justify-between">
                     <span>{issued || ""}</span>
                     <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100">
                         {hasLink ? "View details" : ""}
                     </span>
-                </div>
+                </Text>
             </div>
         </CardSurface>
     );

@@ -1,4 +1,5 @@
 import ActionButton from "./ActionButton";
+import GradientText from "../../ui/GradientText";
 
 import closeIcon from '../../../assets/close.svg';
 
@@ -8,16 +9,15 @@ export default function Header({ data, onClose, closeBtnRef }) {
             <div className="px-5 py-4 flex flex-row gap-3">
                 <div className="flex-1 flex flex-col md:flex-row items-start gap-3">
                     <div className="min-w-0 flex-1">
-                        <span className='
+                        <GradientText className='
                             py-3 font-extrabold 
-                            animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400
-                            text-transparent text-balance bg-clip-text
+                            text-balance
                             text-4xl
                             leading-[1.05] md:leading-[1.1]
                             drop-shadow-[0_0_6px_rgba(0,0,0,0.9)]
                         '>
                             {data.title}
-                        </span>
+                        </GradientText>
                     </div>
 
                     <div className="flex flex-wrap gap-2">

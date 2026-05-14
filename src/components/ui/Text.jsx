@@ -7,6 +7,7 @@ const variantClasses = {
     meta: "text-sm font-semibold tracking-wide text-text-subtle",
     cardTitle: "text-lg font-semibold leading-snug text-text",
     modalTitle: "text-2xl font-bold text-text",
+    modalBody: "leading-relaxed text-text/90",
     adminLabel: "text-sm font-medium text-text-muted",
 };
 

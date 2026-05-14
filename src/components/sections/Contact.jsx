@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import SocialTag from '../tags/SocialTag'
+import SectionTitle from '../ui/SectionTitle'
 
 import LinkedInIcon  from '../../assets/linkedin.svg'
 import GitHubIcon    from '../../assets/github.svg'
@@ -91,9 +92,9 @@ function Contact() {
   return (
     <div id='Contact' className='scroll-mt-10 flex flex-col gap-8'>
       {/* Header */}
-      <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
+      <SectionTitle data-aos="flip-down">
         Contact Me
-      </div>
+      </SectionTitle>
       {/* List */}
       <div className='h-20 flex flex-wrap gap-4'>
         {links.map((link) => (

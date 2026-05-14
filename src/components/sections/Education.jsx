@@ -1,4 +1,5 @@
 import EducationCard from '../credentials/EducationCard';
+import SectionTitle from '../ui/SectionTitle';
 import WSULogo from '../../assets/logos/wsu.svg';
 import EDCCLogo from '../../assets/logos/edcc.svg';
 
@@ -47,9 +48,9 @@ const DEFAULT_EDUCATION = [
 function Education() {
     return (
         <div id="Education" className="flex flex-col gap-8">
-            <div className="text-4xl font-bold text-emerald-50" data-aos="flip-down">
+            <SectionTitle data-aos="flip-down">
                 Education
-            </div>
+            </SectionTitle>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {DEFAULT_EDUCATION.map((edu) => (

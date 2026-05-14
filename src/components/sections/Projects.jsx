@@ -4,6 +4,8 @@ import projectWorkLogo from '../../assets/Project_Work.png'; // card fallback im
 
 import ProjectCard from '../projects/ProjectCard';
 import ProjectModal from '../projects/modal/ProjectModal';
+import SectionTitle from '../ui/SectionTitle';
+import Text from '../ui/Text';
 import { fetchProjectsPublic, fetchProjectByIdPublic } from '../../api/public/projects';
 import {
   mergeProjectViewModels,
@@ -195,21 +197,21 @@ function Projects() {
         flex flex-col justify-center
       "
     >
-      <div className='text-4xl font-bold text-emerald-50 mb-8' data-aos="flip-down">
-        <span className="animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">Project Showcase</span>
-      </div>
+      <SectionTitle className="mb-8" data-aos="flip-down">
+        Project Showcase
+      </SectionTitle>
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {isLoadingProjects && projects.length === 0 && (
-          <div className="col-span-full text-emerald-50/60 text-sm">
+          <Text as="div" variant="meta" className="col-span-full">
             Loading projects…
-          </div>
+          </Text>
         )}
 
         {!isLoadingProjects && projects.length === 0 && (
-          <div className="col-span-full text-emerald-50/60 text-sm">
+          <Text as="div" variant="meta" className="col-span-full">
             No projects published yet.
-          </div>
+          </Text>
         )}
 
         {projects.map((p) => (

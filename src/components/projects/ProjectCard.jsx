@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import CardSurface from '../ui/CardSurface';
+import GradientText from '../ui/GradientText';
+import Text from '../ui/Text';
 import TechTagMarquee from './TechTagMarquee';
 import VideoGlowFrame from '../media/VideoGlowFrame';
 import { canUseNetlifyFunctions } from '../../runtime/netlify';
@@ -182,12 +184,10 @@ function ProjectCard({
                                 opacity: isPreviewed ? 0 : 1,
                             }}
                         >
-                            <span 
+                            <GradientText
+                                animated={!isPreviewed && !isModalOpen}
                                 className={[
-                                    (isPreviewed || isModalOpen) ? "" : "animated-gradient",
-                                    "py-3 font-extrabold ",
-                                    "bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400",
-                                    "text-transparent text-balance bg-clip-text",
+                                    "py-3 font-extrabold text-balance",
                                     "text-[clamp(1.25rem,11cqw,10rem)]",
                                     "leading-[1.05] md:leading-[1.1]",
                                     "drop-shadow-[0_0_6px_rgba(0,0,0,0.9)]",
@@ -195,15 +195,15 @@ function ProjectCard({
                                 style={{ transitionDuration: `${FADE_DURATION_MS}ms` }}
                             >
                                 {title}
-                            </span>
+                            </GradientText>
                         </div>
                     </VideoGlowFrame>
                 )}
             </div>
 
-            <div className='px-8 pt-6 pb-4 text-xl font-semibold text-emerald-50'>
+            <Text as="div" variant="body" className="px-8 pt-6 pb-4">
                 {desc}
-            </div>
+            </Text>
 
             <div className='pb-4 mb-0 mt-auto text-sm md:text-md lg:text-xl'>
                 <TechTagMarquee

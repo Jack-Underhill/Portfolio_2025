@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import GradientText from '../ui/GradientText';
 
 function ViewButton({ 
     name, 
@@ -36,14 +37,11 @@ function ViewButton({
                     `${isHovered ? 'animate-bounce scale-[1.02] will-change-transform' : ''}`,
                 ].join(" ")}
             >
-                <span 
-                    className={isTextGradient ? 
-                        "animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text" 
-                        : ""
-                    }
-                >
-                    View {name}
-                </span>
+                {isTextGradient ? (
+                    <GradientText>View {name}</GradientText>
+                ) : (
+                    <span>View {name}</span>
+                )}
             </span>
         </a>
     )
