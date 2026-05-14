@@ -1,0 +1,100 @@
+@theme {
+  --color-page: #0E1419;
+  --color-page-elevated: #161C24;
+
+  --color-surface: #181E24;
+  --color-surface-strong: #2F3742;
+
+  --color-border: #222832;
+  --color-border-strong: #2F3742;
+
+  --color-text: #ECFDF5;
+  --color-text-muted: #9DB3C7;
+  --color-text-subtle: #6F8397;
+
+  --color-accent: #0E8AC2;
+  --color-accent-strong: #1B95CC;
+  --color-accent-soft: #38BDF8;
+
+  --color-success-code: #2FBE0D;
+
+  --color-background: #161C24;
+  --color-code: #2FBE0D;
+
+  --color-card: #181E24;
+  --color-card-border: #222832;
+  --color-card-att: #2F3742;
+
+  --color-button: #0E8AC2;
+  --color-button-border: #1B95CC;
+}
+
+@keyframes moveGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.animated-gradient {
+  background-size: 200% 100%;
+  animation: moveGradient 3s reverse linear infinite;
+}
+
+.hover-animated-gradient:hover {
+  background-size: 200% 100%;
+  animation: moveGradient 3s reverse linear infinite;
+  @apply bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text hover:scale-125 hover:pb-2 transition duration-200 ease-in-out;
+}
+
+@keyframes tech-tag-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    /* move left by half the track width */
+    transform: translateX(-50%);
+  }
+}
+
+.tech-tag-marquee {
+  animation: tech-tag-marquee 15s linear infinite;
+  will-change: transform;
+}
+
+/* Firefox */
+.scrollbar-modal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) rgba(15, 23, 42, 0.25);
+}
+
+/* Chrome, Edge, Safari */
+.scrollbar-modal::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar-modal::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.25);
+  border-radius: 999px;
+}
+
+.scrollbar-modal::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 999px;
+  border: 2px solid rgba(15, 23, 42, 0.25); /* gives it an inset look */
+}
+
+.scrollbar-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.70);
+}
+
+html[data-modal-open="true"] .tech-tag-marquee,
+html[data-modal-open="true"] .animated-gradient {
+  animation-play-state: paused;
+}
+
+html[data-modal-open="true"] #Modal .animated-gradient {
+  animation-play-state: running;
+}
