@@ -10,3 +10,4 @@ wt ^
 start chrome "https://github.com/Jack-Underhill/Portfolio_2025"
 start chrome "http://localhost:5173/admin/"
 start chrome "http://localhost:5173/"
+start explorer "%ROOT%"
