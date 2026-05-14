@@ -26,6 +26,10 @@ Local admin:
 
 Domain modules under `src/domain` must stay dependency-free and browser/server safe: no React, Supabase clients, browser globals, Vite-only APIs, or UI assets. API modules own fetching, React components own rendering and browser behavior, and the local admin server owns privileged reads, writes, deletes, and uploads.
 
+## Database
+
+The current Supabase schema snapshot, ordered migration notes, public read policies, and storage bucket expectations live in [database/README.md](./database/README.md). Keep database changes aligned with the domain mappers, public select lists, admin serializers, and server validation.
+
 ## Local Development
 
 Install dependencies:
@@ -65,6 +69,7 @@ The admin backend refuses to start with `NODE_ENV=production` or a non-loopback 
 Useful checks before shipping changes:
 
 ```sh
+npm run check:schema
 npm run build
 rg "VITE_SUPABASE_SERVICE_ROLE_KEY|supabaseAdmin|requireClient" src
 rg "SUPABASE_SERVICE_ROLE_KEY" src
