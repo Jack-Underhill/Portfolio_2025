@@ -11,16 +11,20 @@ Public app:
 - Runs from `src`.
 - Uses `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 - Performs browser-safe portfolio reads through `src/api/public`.
+- Shapes project, about, and contact data through pure helpers in `src/domain`.
 - Deploys to Netlify with public-safe functions from `netlify/functions`.
 
 Local admin:
 
 - Runs the React admin UI in development.
 - Calls `http://localhost:8787/admin-api` through `src/admin/api/adminClient.js`.
+- Reuses pure domain defaults/helpers for editor state where useful.
 - Sends privileged operations to `server/admin`.
 - Uses `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` only from server-side Node code.
 
 `server/admin` is not configured as a Netlify functions directory. The public deploy does not need the service role key.
+
+Domain modules under `src/domain` must stay dependency-free and browser/server safe: no React, Supabase clients, browser globals, Vite-only APIs, or UI assets. API modules own fetching, React components own rendering and browser behavior, and the local admin server owns privileged reads, writes, deletes, and uploads.
 
 ## Local Development
 
