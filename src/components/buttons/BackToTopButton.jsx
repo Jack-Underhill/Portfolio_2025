@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
 import ArrowUp from "../../assets/arrow-up.svg";
+import useModalOpenFlag from "../../hooks/useModalOpenFlag";
+import useScrollVisibility from "../../hooks/useScrollVisibility";
 
 
 function BackToTopButton({
@@ -7,38 +8,8 @@ function BackToTopButton({
     bottom = "bottom-6",
     right = "right-6",
 }) {
-    const [visible, setVisible] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // Watch the global modal-open flag on <html>
-    useEffect(() => {
-        const root = document.documentElement;
-        const read = () => root.getAttribute("data-modal-open") === "true";
-
-        setIsModalOpen(read());
-
-        const obs = new MutationObserver(() => setIsModalOpen(read()));
-        obs.observe(root, { attributes: true, attributeFilter: ["data-modal-open"] });
-
-        return () => obs.disconnect();
-    }, []);
-
-    useEffect(() => {
-        // If a modal is open, don't even run the scroll listener (and hide button)
-        if (isModalOpen) {
-            setVisible(false);
-            return;
-        }
-
-        const onScroll = () => setVisible(window.scrollY > showAfter);
-
-        onScroll();
-        window.addEventListener("scroll", onScroll, { passive: true });
-
-        return () => {
-            window.removeEventListener("scroll", onScroll);
-        };
-    }, [showAfter, isModalOpen]);
+    const isModalOpen = useModalOpenFlag();
+    const visible = useScrollVisibility({ direction: "top", showAfter, disabled: isModalOpen });
 
     const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 

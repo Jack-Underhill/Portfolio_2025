@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import ArrowUp from "../../assets/arrow-up.svg";
+import useScrollVisibility from "../../hooks/useScrollVisibility";
 
 
 function BackToBottomButton({
@@ -7,22 +7,7 @@ function BackToBottomButton({
     bottom = "bottom-6",
     right = "right-6",
 }) {
-    const [visible, setVisible] = useState(false);
-
-    useEffect(() => {
-        const onScroll = () => {
-            const el = document.scrollingElement || document.documentElement;
-            const distanceFromBottom = el.scrollHeight - (window.scrollY + el.clientHeight);
-            setVisible(distanceFromBottom > showAfter);
-        };
-
-        onScroll();
-        window.addEventListener("scroll", onScroll, { passive: true });
-
-        return () => {
-            window.removeEventListener("scroll", onScroll);
-        };
-    }, [showAfter]);
+    const visible = useScrollVisibility({ direction: "bottom", showAfter });
 
     const scrollToBottom = () => {
         const el = document.scrollingElement || document.documentElement;

@@ -1,23 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import menu from '../../assets/menu.svg';
+import useModalOpenFlag from '../../hooks/useModalOpenFlag';
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // Watch the global modal-open flag on <html>
-    useEffect(() => {
-        const root = document.documentElement;
-        const read = () => root.getAttribute("data-modal-open") === "true";
-
-        setIsModalOpen(read());
-
-        const obs = new MutationObserver(() => setIsModalOpen(read()));
-        obs.observe(root, { attributes: true, attributeFilter: ["data-modal-open"] });
-
-        return () => obs.disconnect();
-    }, []);
+    const isModalOpen = useModalOpenFlag();
 
     const menuClick = () => {
         setIsOpen(!isOpen);
