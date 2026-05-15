@@ -60,6 +60,9 @@
   --shadow-accent-glow-soft: 0 0 26px rgba(14, 138, 194, 0.16);
   --shadow-subtle-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --shadow-modal-title: rgba(0, 0, 0, 0.90);
+  --page-radial-accent-strong: rgba(56, 189, 248, 0.35);
+  --page-radial-accent-soft: rgba(56, 189, 248, 0.15);
+  --surface-sheen-accent: rgba(56, 189, 248, 0.10);
   --viewer-radial-accent-strong: rgba(56, 189, 248, 0.28);
   --viewer-radial-accent-soft: rgba(56, 189, 248, 0.12);
   --scrollbar-modal-track: rgba(15, 23, 42, 0.25);
@@ -99,6 +102,17 @@
   filter: drop-shadow(0 0 6px var(--shadow-modal-title));
 }
 
+.page-radial-overlay {
+  background-image:
+    radial-gradient(
+      circle at 72% 50%,
+      var(--page-radial-accent-strong) 0%,
+      var(--page-radial-accent-soft) 40%,
+      transparent 90%
+    ),
+    url('/black-linen.png');
+}
+
 .viewer-radial-overlay {
   background-image:
     radial-gradient(
@@ -108,6 +122,10 @@
       transparent 90%
     ),
     url('/black-linen.png');
+}
+
+.surface-sheen-radial {
+  background-image: radial-gradient(ellipse at top, var(--surface-sheen-accent), transparent 60%);
 }
 
 @keyframes moveGradient {
@@ -127,7 +145,7 @@
 .hover-animated-gradient:hover {
   background-size: 200% 100%;
   animation: moveGradient 3s reverse linear infinite;
-  @apply bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text hover:scale-125 hover:pb-2 transition duration-200 ease-in-out;
+  @apply bg-gradient-to-r from-accent-soft via-text to-accent-soft text-transparent bg-clip-text hover:scale-125 hover:pb-2 transition duration-200 ease-in-out;
 }
 
 @keyframes tech-tag-marquee {

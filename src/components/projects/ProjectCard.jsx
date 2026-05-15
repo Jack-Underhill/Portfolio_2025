@@ -190,7 +190,7 @@ function ProjectCard({
                                     "py-3 font-extrabold text-balance",
                                     "text-[clamp(1.25rem,11cqw,10rem)]",
                                     "leading-[1.05] md:leading-[1.1]",
-                                    "drop-shadow-[0_0_6px_rgba(0,0,0,0.9)]",
+                                    "drop-shadow-modal-title",
                                 ].join(" ")}
                                 style={{ transitionDuration: `${FADE_DURATION_MS}ms` }}
                             >
