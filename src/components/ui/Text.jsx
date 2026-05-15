@@ -8,7 +8,7 @@ const variantClasses = {
     cardTitle: "text-lg font-semibold leading-snug text-text",
     modalTitle: "text-2xl font-bold text-text",
     modalBody: "leading-relaxed text-text/90",
-    adminLabel: "text-sm font-medium text-text-muted",
+    adminLabel: "text-xs font-semibold text-admin-text-muted",
 };
 
 export default function Text({

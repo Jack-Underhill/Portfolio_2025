@@ -1,6 +1,7 @@
 import TextInput from '../forms/TextInput';
 import FileInput from '../forms/FileInput';
 import ImagePreview from '../media/ImagePreview';
+import { adminUi, cx } from '../../styles/recipes';
 
 function SocialLinkItem({
     link,
@@ -14,14 +15,15 @@ function SocialLinkItem({
     return (
         <div
             {...dragProps}
-            className={[
-                'grid gap-2 md:grid-cols-[auto_minmax(0,120px)_minmax(0,140px)_minmax(0,1fr)_auto] items-start rounded-md border border-slate-700 px-3 py-2',
-                isDragOver ? 'ring-1 ring-sky-500 bg-slate-900/70' : 'bg-slate-900',
-                isDragging ? 'opacity-70' : '',
-            ].join(' ')}
+            className={cx(
+                'grid gap-2 md:grid-cols-[auto_minmax(0,120px)_minmax(0,140px)_minmax(0,1fr)_auto] items-start px-3 py-2',
+                adminUi.panel,
+                isDragOver && adminUi.panelDragOver,
+                isDragging && 'opacity-70',
+            )}
         >
             {/* drag handle */}
-            <span className="cursor-grab select-none text-xs text-slate-400 mt-6">
+            <span className="cursor-grab select-none text-xs text-admin-text-subtle mt-6">
                 ☰
             </span>
 
@@ -63,7 +65,7 @@ function SocialLinkItem({
             <button
                 type="button"
                 onClick={onRemove}
-                className="text-xs px-2 py-1 rounded-md border border-slate-700 hover:bg-slate-800 h-8 mt-6"
+                className={`${adminUi.iconButton} h-8 mt-6`}
             >
                 ✕
             </button>

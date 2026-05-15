@@ -5,6 +5,7 @@ import TextAreaInput from '../forms/TextAreaInput';
 import CardSelector from '../navigation/CardSelector';
 import { createEmptyProjectDraft } from '../../domain/projects/defaults';
 import { normalizeProjectSortOrder } from '../../domain/projects/mappers';
+import { adminUi } from '../../styles/recipes';
 
 
 function ProjectsSection({ state, onChange }) {
@@ -93,7 +94,7 @@ function ProjectsSection({ state, onChange }) {
                 <button
                     type="button"
                     onClick={handleAddProject}
-                    className="rounded-md bg-slate-800 px-4 py-2 text-sm hover:bg-slate-700"
+                    className={adminUi.secondaryButton}
                 >
                     + Add Project
                 </button>

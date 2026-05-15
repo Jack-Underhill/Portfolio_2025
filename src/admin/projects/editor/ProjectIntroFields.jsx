@@ -1,11 +1,12 @@
 import TextInput from "../../forms/TextInput";
 import TextAreaInput from "../../forms/TextAreaInput";
+import { adminUi } from '../../../styles/recipes';
 
 
 function ProjectIntroFields({ projectId, title, description, overview, role, handleFieldChange }) {
     return (
-        <div className="space-y-3 pt-2 border-t border-slate-800">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Intro</p>
+        <div className={adminUi.divider}>
+            <p className={adminUi.sectionLabel}>Intro</p>
 
             <div className="grid gap-4 md:grid-cols-2">
                 <TextInput

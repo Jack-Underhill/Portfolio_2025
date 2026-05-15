@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useEffect, useCallback } from 'react';
 import FieldLabel from './FieldLabel';
+import { adminForm } from '../../styles/recipes';
 
 
 function TextAreaInput({ id, label, value, onChange, minRows = 1, ...props }) {
@@ -64,7 +65,7 @@ function TextAreaInput({ id, label, value, onChange, minRows = 1, ...props }) {
                 onChange={e => onChange(e.target.value)}
                 onBlur={e => onChange(trimTrailingWhitespace(e.target.value))}
                 rows={minRows}
-                className="block w-full resize-none overflow-hidden rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none focus:border-sky-500"
+                className={adminForm.textarea}
                 {...props}
             />
         </div>

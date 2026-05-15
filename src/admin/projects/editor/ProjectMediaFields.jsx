@@ -1,5 +1,6 @@
 import FileInput from '../../forms/FileInput';
 import ImagePreview from '../../media/ImagePreview';
+import { adminUi } from '../../../styles/recipes';
 
 
 function ProjectMediaFields({ project, onChange }) {
@@ -16,8 +17,8 @@ function ProjectMediaFields({ project, onChange }) {
     };
 
     return (
-        <div className="space-y-3 pt-2 border-t border-slate-800">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Media</p>
+        <div className={adminUi.divider}>
+            <p className={adminUi.sectionLabel}>Media</p>
 
             <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
                 {/* Project image */}
@@ -60,13 +61,13 @@ function ProjectMediaFields({ project, onChange }) {
                     />
 
                     {project.videoUrl && (
-                        <p className="text-xs text-slate-400">
+                        <p className={adminUi.helperText}>
                             Current video:{' '}
                             <a
                                 href={project.videoUrl || project.videoFile}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="underline underline-offset-2 text-sky-400"
+                                className={adminUi.inlineLink}
                             >
                                 Open in new tab
                             </a>

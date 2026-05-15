@@ -2,6 +2,7 @@ import TextInput from '../forms/TextInput';
 import TextAreaInput from '../forms/TextAreaInput';
 import FileInput from '../forms/FileInput';
 import ImagePreview from '../media/ImagePreview';
+import { adminUi } from '../../styles/recipes';
 
 function AboutSection({ state, onChange }) {
     const {
@@ -60,13 +61,13 @@ function AboutSection({ state, onChange }) {
                         />
 
                         {resumeUrl && (
-                            <p className='text-xs text-slate-400'>
+                            <p className={adminUi.helperText}>
                                 Current resume:{' '}
                                 <a 
                                     href={resumeUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className='underline underline-offset-2 text-sky-400'
+                                    className={adminUi.inlineLink}
                                 >
                                     Open in new tab
                                 </a>

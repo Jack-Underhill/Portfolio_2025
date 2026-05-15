@@ -20,9 +20,9 @@ function NavItem({
                 [
                     'px-3 py-2 text-sm font-semibold rounded-md select-none',
                     isActive
-                        ? 'bg-sky-600 text-slate-50'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700',
-                    isDragOver ? 'ring-2 ring-sky-500' : '',
+                        ? 'bg-admin-accent text-admin-text'
+                        : 'bg-admin-panel-hover text-admin-text-muted hover:bg-admin-border',
+                    isDragOver ? 'ring-2 ring-admin-accent-hover' : '',
                     isDragging ? 'opacity-60' : '',
                 ].join(' ')
             }

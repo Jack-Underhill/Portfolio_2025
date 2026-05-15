@@ -18,6 +18,24 @@
 
   --color-success-code: #2FBE0D;
 
+  --color-admin-page: #020617;
+  --color-admin-panel: #0F172A;
+  --color-admin-panel-hover: #1E293B;
+  --color-admin-border: #334155;
+  --color-admin-border-subtle: #1E293B;
+  --color-admin-text: #F8FAFC;
+  --color-admin-text-muted: #CBD5E1;
+  --color-admin-text-subtle: #94A3B8;
+  --color-admin-text-faint: #64748B;
+  --color-admin-accent: #0284C7;
+  --color-admin-accent-hover: #0EA5E9;
+  --color-admin-accent-text: #7DD3FC;
+  --color-admin-accent-text-hover: #BAE6FD;
+  --color-admin-link: #38BDF8;
+  --color-admin-danger: #F87171;
+  --color-admin-danger-hover: #FCA5A5;
+  --color-admin-checkbox-border: #475569;
+
   --color-background: #161C24;
   --color-code: #2FBE0D;
 
