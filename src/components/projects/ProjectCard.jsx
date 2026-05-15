@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
 import CardSurface from '../ui/CardSurface';
 import GradientText from '../ui/GradientText';
 import Text from '../ui/Text';
 import TechTagMarquee from './TechTagMarquee';
 import VideoGlowFrame from '../media/VideoGlowFrame';
 import { canUseNetlifyFunctions } from '../../runtime/netlify';
+import useHoverPreviewIntent from '../../hooks/useHoverPreviewIntent';
 
 import placeholderVideo from '../../assets/placeholder.mp4';
 
@@ -31,87 +31,21 @@ function ProjectCard({
             ? placeholderVideo
             : video;
 
-    const [isPreviewed, setIsPreviewed] = useState(false);
-    const [isLoadingVideo, setIsLoadingVideo] = useState(false);
-
-    const videoRef = useRef(null);
-    const hoverTimerRef = useRef(null);
-
-    useEffect(() => {
-        if (!isActivePreview) return;
-
-        setIsPreviewed(true);
-
-        // hover intent: don't even attach src unless long enough hovered
-        hoverTimerRef.current = window.setTimeout(() => {
-            setIsLoadingVideo(true); // attaches src
-        }, HOVER_INTENT_MS);
-
-        return () => {
-            disablePreviewLocal();
-        };
-    }, [isActivePreview]);
-
-    // This runs AFTER React commits the src to the <video />
-    useEffect(() => {
-        if(!isPreviewed || !isLoadingVideo) return;
-
-        const v = videoRef.current;
-        if (!v) return;
-
-        let cancelled = false;
-
-        const tryPlay = async () => {
-            if(cancelled) return;
-            try {
-                await v.play();
-            } catch {
-                // Ignore (browser can occasionally block/queue)
-            } 
-        };
-
-        // If already buffered enough, play immediately
-        if(v.readyState >= 2) {
-            tryPlay();
-            return () => {  cancelled = true; };
-        }
-
-        // Otherwise wait for it to be ready
-        const onCanPlay = () => tryPlay();
-        v.addEventListener('canplay', onCanPlay, { once: true });
-
-        return () => {
-            cancelled = true;
-            v.removeEventListener('canplay', onCanPlay);
-        };
-    }, [isPreviewed, isLoadingVideo]);
-
-    const enablePreview = () => {
-        if(safeVideo && !isModalOpen) {
-            requestPreview?.(id); // claim global ownership
-        }
-    };
-
-    const disablePreviewAndRelease = () => {
-        disablePreviewLocal();
-        clearPreview?.(id); // release global ownership
-    };
-
-    const disablePreviewLocal = () => {
-        window.clearTimeout(hoverTimerRef.current);
-        setIsPreviewed((prev) => (prev ? false : prev));
-        setIsLoadingVideo((prev) => (prev ? false : prev)); // detaches src
-
-        const v = videoRef.current;
-        if (!v || (!v.currentSrc && !v.getAttribute('src'))) return;
-
-        v.pause();
-        v.currentTime = 0;
-
-        // show poster again
-        v.removeAttribute('src');
-        v.load();
-    };
+    const {
+        videoRef,
+        isPreviewed,
+        isLoadingVideo,
+        enablePreview,
+        disablePreviewAndRelease,
+    } = useHoverPreviewIntent({
+        id,
+        safeVideo,
+        isActivePreview,
+        isModalOpen,
+        requestPreview,
+        clearPreview,
+        hoverIntentMs: HOVER_INTENT_MS,
+    });
 
     const handleOnClick = (e) => {
         const button = e.button ?? e?.nativeEvent?.button; // 0=left, 1=middle
