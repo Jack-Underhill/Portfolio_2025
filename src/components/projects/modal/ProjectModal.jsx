@@ -82,7 +82,7 @@ export default function ProjectModal({
     return (
         <div
             id="Modal"
-            className="fixed inset-0 z-[999] flex items-center justify-center px-4 py-6 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[999] flex items-center justify-center px-4 py-6 bg-scrim/60 backdrop-blur-sm"
             onMouseDown={handleBackdropMouseDown}
             aria-modal="true"
             role="dialog"
@@ -102,7 +102,7 @@ export default function ProjectModal({
                             <div className="flex flex-col lg:flex-row gap-10">
                                 {/* Media */}
                                 <div className="lg:w-6/10 space-y-4">
-                                    <div className="relative w-full aspect-video rounded-xl border border-card-border bg-black/20">
+                                    <div className="relative w-full aspect-video rounded-xl border border-card-border bg-scrim/20">
                                         {safeVideo ? (
                                             <VideoGlowFrame
                                                 src={safeVideo}
@@ -121,7 +121,7 @@ export default function ProjectModal({
                                                 alt={`${data.title} preview`}
                                             />
                                         ) : (
-                                            <div className="w-full h-full grid place-items-center text-emerald-50/60 text-sm">
+                                            <div className="w-full h-full grid place-items-center text-text/60 text-sm">
                                                 No demo media yet
                                             </div>
                                         )}
@@ -148,7 +148,7 @@ export default function ProjectModal({
                                 </Section>
 
                                 {/* ArchitecturePreview */}
-                                <Section title="ArchitecturePreview">
+                                <Section title="Architecture Preview">
                                     <ArchitecturePreview data={data} />
                                 </Section>
 

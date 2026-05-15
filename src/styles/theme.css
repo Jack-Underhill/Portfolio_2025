@@ -15,6 +15,8 @@
   --color-accent: #0E8AC2;
   --color-accent-strong: #1B95CC;
   --color-accent-soft: #38BDF8;
+  --color-focus-ring: #BAE6FD;
+  --color-scrim: #000000;
 
   --color-success-code: #2FBE0D;
 
@@ -57,6 +59,12 @@
   --shadow-accent-glow: 0 0 24px rgba(14, 138, 194, 0.25);
   --shadow-accent-glow-soft: 0 0 26px rgba(14, 138, 194, 0.16);
   --shadow-subtle-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-modal-title: rgba(0, 0, 0, 0.90);
+  --viewer-radial-accent-strong: rgba(56, 189, 248, 0.28);
+  --viewer-radial-accent-soft: rgba(56, 189, 248, 0.12);
+  --scrollbar-modal-track: rgba(15, 23, 42, 0.25);
+  --scrollbar-modal-thumb: rgba(148, 163, 184, 0.45);
+  --scrollbar-modal-thumb-hover: rgba(148, 163, 184, 0.70);
 }
 
 .shadow-card-inset {
@@ -85,6 +93,21 @@
 
 .hover-shadow-button-accent:hover {
   box-shadow: var(--shadow-button-inset), var(--shadow-accent-ring), var(--shadow-accent-glow);
+}
+
+.drop-shadow-modal-title {
+  filter: drop-shadow(0 0 6px var(--shadow-modal-title));
+}
+
+.viewer-radial-overlay {
+  background-image:
+    radial-gradient(
+      circle at 72% 50%,
+      var(--viewer-radial-accent-strong) 0%,
+      var(--viewer-radial-accent-soft) 40%,
+      transparent 90%
+    ),
+    url('/black-linen.png');
 }
 
 @keyframes moveGradient {
@@ -125,7 +148,7 @@
 /* Firefox */
 .scrollbar-modal {
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.45) rgba(15, 23, 42, 0.25);
+  scrollbar-color: var(--scrollbar-modal-thumb) var(--scrollbar-modal-track);
 }
 
 /* Chrome, Edge, Safari */
@@ -134,18 +157,18 @@
 }
 
 .scrollbar-modal::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.25);
+  background: var(--scrollbar-modal-track);
   border-radius: 999px;
 }
 
 .scrollbar-modal::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.45);
+  background: var(--scrollbar-modal-thumb);
   border-radius: 999px;
-  border: 2px solid rgba(15, 23, 42, 0.25); /* gives it an inset look */
+  border: 2px solid var(--scrollbar-modal-track); /* gives it an inset look */
 }
 
 .scrollbar-modal::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.70);
+  background: var(--scrollbar-modal-thumb-hover);
 }
 
 html[data-modal-open="true"] .tech-tag-marquee,

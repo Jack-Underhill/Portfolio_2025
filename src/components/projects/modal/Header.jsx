@@ -14,7 +14,7 @@ export default function Header({ data, onClose, closeBtnRef }) {
                             text-balance
                             text-4xl
                             leading-[1.05] md:leading-[1.1]
-                            drop-shadow-[0_0_6px_rgba(0,0,0,0.9)]
+                            drop-shadow-modal-title
                         '>
                             {data.title}
                         </GradientText>
@@ -31,7 +31,7 @@ export default function Header({ data, onClose, closeBtnRef }) {
                 <button
                     ref={closeBtnRef}
                     onClick={onClose}
-                    className="ml-1 size-8 rounded-lg text-emerald-50 hover:brightness-130 hover:scale-110 transition duration-500 ease-out"
+                    className="ml-1 size-8 rounded-lg text-text hover:brightness-130 hover:scale-110 transition duration-500 ease-out"
                     aria-label="Close case study"
                     title="Close case study"
                 >
