@@ -9,13 +9,28 @@ import Text from '../ui/Text';
 import { fetchProjectsPublic } from '../../api/public/projects';
 import { toProjectCardViewModel } from '../../domain/projects/mappers';
 import useProjectModalRouting from '../../hooks/useProjectModalRouting';
+import usePublicResource from '../../hooks/usePublicResource';
+
+function mergeProjectCards(data, previous) {
+  const rows = Array.isArray(data.projects) ? data.projects : [];
+  if (!rows.length) return previous;
+
+  return rows.map((project, index) => toProjectCardViewModel(project, {
+    fallbackId: index,
+    fallbackImageUrl: projectWorkLogo,
+  }));
+}
 
 /**
  * Projects component.
  */
 function Projects() {
-  const [projects, setProjects] = useState([]);
-  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
+  const { data: projects, isLoading: isLoadingProjects } = usePublicResource({
+    load: fetchProjectsPublic,
+    initialData: [],
+    merge: mergeProjectCards,
+    label: 'Projects',
+  });
 
   // Hover Previews
   const [activePreviewId, setActivePreviewId] = useState(null);
@@ -43,30 +58,6 @@ function Projects() {
       window.removeEventListener('pointerdown', onPointerDown, true);
       window.removeEventListener('keydown', onKeyDown, true);
     };
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    (async () => {
-      try {
-        const data = await fetchProjectsPublic();
-        if (!isMounted || !data) return;
-
-        const rows = Array.isArray(data.projects) ? data.projects : [];
-        const mapped = rows.map((p, idx) => toProjectCardViewModel(p, {
-          fallbackId: idx,
-          fallbackImageUrl: projectWorkLogo,
-        }));
-        setProjects(mapped);
-      } catch (err) {
-        console.error('[Projects] Failed to load public projects:', err);
-      } finally {
-        if (isMounted) setIsLoadingProjects(false);
-      }
-    })();
-
-    return () => { isMounted = false; };
   }, []);
 
   const requestPreview = useCallback((id) => {
