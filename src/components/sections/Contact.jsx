@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-
 import SocialTag from '../tags/SocialTag'
+import SectionTitle from '../ui/SectionTitle'
 
 import LinkedInIcon  from '../../assets/linkedin.svg'
 import GitHubIcon    from '../../assets/github.svg'
@@ -9,6 +8,7 @@ import UpWorkIcon    from '../../assets/upwork.svg'
 import HandshakeIcon from '../../assets/handshake.svg'
 
 import { fetchContactPublic } from '../../api/public/contact';
+import usePublicResource from '../../hooks/usePublicResource';
 
 const DEFAULT_LINKS = [
   {
@@ -43,57 +43,45 @@ const DEFAULT_LINKS = [
   },
 ];
 
+function mergeContactLinks(data, previous) {
+  if (!Array.isArray(data.links) || !data.links.length) return previous;
+
+  const mapped = data.links
+    .map((row, idx) => {
+      const label = row.label || row.platform || DEFAULT_LINKS[idx]?.name || `Link ${idx + 1}`;
+      const href  = row.url   || DEFAULT_LINKS[idx]?.href  || '#';
+
+      const icon =
+        row.iconUrl ||
+        DEFAULT_LINKS[idx]?.icon ||
+        LinkedInIcon;
+
+      return {
+        id:   row.id ?? `link-${idx}`,
+        name: label,
+        href,
+        icon,
+      };
+    })
+    .filter((link) => link.href && link.href !== '#');
+
+  return mapped.length ? mapped : previous;
+}
+
 function Contact() {
-  const [links, setLinks] = useState(DEFAULT_LINKS);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    (async () => {
-      try {
-        const data = await fetchContactPublic();
-        if (!isMounted || !data) return;
-
-        if (Array.isArray(data.links) && data.links.length) {
-          const mapped = data.links
-            .map((row, idx) => {
-              const label = row.label || row.platform || DEFAULT_LINKS[idx]?.name || `Link ${idx + 1}`;
-              const href  = row.url   || DEFAULT_LINKS[idx]?.href  || '#';
-
-              const icon =
-                row.iconUrl ||
-                DEFAULT_LINKS[idx]?.icon ||
-                LinkedInIcon;
-
-              return {
-                id:   row.id ?? `link-${idx}`,
-                name: label,
-                href,
-                icon,
-              };
-            })
-            .filter((l) => l.href && l.href !== '#');
-
-          if (mapped.length) {
-            setLinks(mapped);
-          }
-        }
-      } catch (err) {
-        console.error('[Contact] Failed to load public contact data:', err);
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const { data: links } = usePublicResource({
+    load: fetchContactPublic,
+    initialData: DEFAULT_LINKS,
+    merge: mergeContactLinks,
+    label: 'Contact',
+  });
 
   return (
     <div id='Contact' className='scroll-mt-10 flex flex-col gap-8'>
       {/* Header */}
-      <div className='text-4xl font-bold text-emerald-50' data-aos="flip-down">
+      <SectionTitle data-aos="flip-down">
         Contact Me
-      </div>
+      </SectionTitle>
       {/* List */}
       <div className='h-20 flex flex-wrap gap-4'>
         {links.map((link) => (

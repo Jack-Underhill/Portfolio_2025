@@ -1,6 +1,8 @@
 import ExternalLinkIcon from "../../assets/external-link.svg";
 
 import CardSurface from "../ui/CardSurface";
+import GradientText from "../ui/GradientText";
+import Text from "../ui/Text";
 import PillHighlightList from "../tags/PillHighlightList";
 
 function EducationCard({
@@ -35,7 +37,7 @@ function EducationCard({
                 "transition-[transform,border-color,box-shadow] duration-700 ease-in-out",
                 // On-theme hover: sky/button border + soft glow
                 "hover:-translate-y-1 hover:border-button-border/70",
-                "hover:shadow-[inset_4px_4px_8px_#0a0f14,inset_-4px_-4px_8px_#1a232c,0_0_0_1px_rgba(27,149,204,0.30),0_0_26px_rgba(14,138,194,0.16)]",
+                "hover-shadow-card-accent",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/50",
                 "overflow-hidden",
                 className,
@@ -45,7 +47,7 @@ function EducationCard({
                 {/* header row */}
                 <div className="flex items-start gap-4">
                     {/* logo container */}
-                    <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-card-border bg-card-att shadow-[inset_2px_2px_4px_#0a0f14,inset_-2px_-2px_4px_#1a232c]">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-card-border bg-card-att shadow-chip-inset">
                         {logoSrc ? (
                             <img
                                 src={logoSrc}
@@ -60,11 +62,11 @@ function EducationCard({
 
                     <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-3">
-                            <h3 className="min-w-0 flex-1 break-words text-lg font-semibold text-emerald-50 leading-snug">
-                                <span className="animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">
+                            <Text as="h3" variant="cardTitle" className="min-w-0 flex-1 break-words">
+                                <GradientText>
                                     {title}
-                                </span>
-                            </h3>
+                                </GradientText>
+                            </Text>
 
                             {/* external link button */}
                             {hasLink && (
@@ -89,15 +91,15 @@ function EducationCard({
                         {(subtitle || gpa) && (
                             <div className="mt-1.5 flex items-end justify-between gap-4">
                                 {subtitle && (
-                                    <p className="min-w-0 flex-1 break-words text-sm leading-snug text-emerald-50/65">
+                                    <Text as="p" variant="muted" className="min-w-0 flex-1 break-words leading-snug">
                                         {subtitle}
-                                    </p>
+                                    </Text>
                                 )}
 
                                 {gpa && (
-                                    <p className="shrink-0 whitespace-nowrap text-sm font-semibold text-emerald-50/65">
+                                    <Text as="p" variant="muted" className="shrink-0 whitespace-nowrap font-semibold">
                                         GPA {gpa}
-                                    </p>
+                                    </Text>
                                 )}
                             </div>
                         )}
@@ -109,13 +111,13 @@ function EducationCard({
 
                 {/* body */}
                 <div className="flex-1">
-                    <p className="text-sm font-semibold tracking-wide text-emerald-50/60">
+                    <Text as="p" variant="meta">
                         Highlights
-                    </p>
+                    </Text>
 
-                    <p className="mt-2 text-sm leading-relaxed text-emerald-50/85 break-words">
+                    <Text as="p" variant="muted" className="mt-2 break-words">
                         {desc}
-                    </p>
+                    </Text>
 
                     {/* chips */}
                     <PillHighlightList 
@@ -128,12 +130,12 @@ function EducationCard({
                 <div className="my-4 h-px w-full bg-card-border/70" />
 
                 {/* footer */}
-                <div className="flex items-center justify-between text-sm text-emerald-50/60">
+                <Text as="div" variant="meta" className="flex items-center justify-between">
                     <span>{issued || ""}</span>
                     <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100">
                         {hasLink ? "View details" : ""}
                     </span>
-                </div>
+                </Text>
             </div>
         </CardSurface>
     );

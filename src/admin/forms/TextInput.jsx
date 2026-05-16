@@ -1,4 +1,5 @@
 import FieldLabel from './FieldLabel';
+import { adminForm } from '../../styles/recipes';
 
 function TextInput({ id, label, value, onChange, ...props }) {
     return (
@@ -13,7 +14,7 @@ function TextInput({ id, label, value, onChange, ...props }) {
                 type="text"
                 value={value}
                 onChange={e => onChange(e.target.value)}
-                className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none focus:border-sky-500"
+                className={adminForm.input}
                 {...props}
             />
         </div>

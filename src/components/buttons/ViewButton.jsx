@@ -1,13 +1,18 @@
 import { useState, useCallback } from 'react';
+import GradientText from '../ui/GradientText';
+
+const cx = (...classes) => classes.filter(Boolean).join(" ");
+
+const variantClasses = {
+    primary: "border-button-border bg-button shadow-button-inset text-text",
+    secondary: "border-card-border bg-card shadow-card-inset text-text",
+};
 
 function ViewButton({ 
     name, 
     url,
     isTextGradient = false, 
-    bgColor, 
-    borderColor, 
-    insetShadowDark, 
-    insetShadowLight,
+    variant = "primary",
     aos 
 }) {
     const [isHovered, setIsHovered] = useState(false);
@@ -17,7 +22,7 @@ function ViewButton({
 
     return (
         <a
-            className="group w-fit inline-block"
+            className="group w-fit inline-block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/60"
             href={url}
             target="_blank"
             rel="noopener noreferrer"
@@ -28,22 +33,18 @@ function ViewButton({
         >
             <span
                 className={[
-                    "inline-flex w-fit p-3 text-xl font-bold rounded-xl text-emerald-50",
-                    `${bgColor} border-2 ${borderColor}`,
-                    `shadow-[${insetShadowDark},${insetShadowLight}]`,
+                    "inline-flex w-fit p-3 text-xl font-bold rounded-xl border-2",
+                    variantClasses[variant] || variantClasses.primary,
                     "transition-transform duration-200 ease-out",
                     "group-active:scale-[0.99]",
-                    `${isHovered ? 'animate-bounce scale-[1.02] will-change-transform' : ''}`,
+                    cx(isHovered && "animate-bounce scale-[1.02] will-change-transform"),
                 ].join(" ")}
             >
-                <span 
-                    className={isTextGradient ? 
-                        "animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text" 
-                        : ""
-                    }
-                >
-                    View {name}
-                </span>
+                {isTextGradient ? (
+                    <GradientText>View {name}</GradientText>
+                ) : (
+                    <span>View {name}</span>
+                )}
             </span>
         </a>
     )

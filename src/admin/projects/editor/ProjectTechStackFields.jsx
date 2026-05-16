@@ -1,4 +1,5 @@
 import TechListEditor from '../../lists/TechListEditor';
+import { adminUi } from '../../../styles/recipes';
 
 
 function ProjectTechStackFields({ projectId, stack, handleFieldChange }) {
@@ -9,8 +10,8 @@ function ProjectTechStackFields({ projectId, stack, handleFieldChange }) {
     };
 
     return (
-        <div className="space-y-3 pt-2 border-t border-slate-800">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Tech (categorized)</p>
+        <div className={adminUi.divider}>
+            <p className={adminUi.sectionLabel}>Tech (categorized)</p>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <TechListEditor

@@ -1,3 +1,5 @@
+import GradientText from "../ui/GradientText";
+
 function TechTagMarquee({ tags, className }) {
     // copies so the loop is seamless
     const duplicateTags = [...tags, ...tags, ...tags, ...tags];
@@ -8,11 +10,11 @@ function TechTagMarquee({ tags, className }) {
                 {duplicateTags.map((tag, index) => (
                     <div
                         key={`${tag}-${index}`}
-                        className={`${className} border-2 border-card-border shadow-[inset_2px_2px_4px_#242a33,inset_-2px_-2px_4px_#3a4350]`}
+                        className={`${className} border-2 border-card-border shadow-tag-inset`}
                     >
-                        <span className="bg-gradient-to-r from-sky-400 via-sky-300 to-sky-100 text-transparent bg-clip-text">
+                        <GradientText animated={false}>
                             {tag}
-                        </span>
+                        </GradientText>
                     </div>
                 ))}
             </div>

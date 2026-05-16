@@ -1,4 +1,5 @@
 import TextAreaInput from '../forms/TextAreaInput';
+import { adminUi, cx } from '../../styles/recipes';
 
 function TechListItem({
     id,
@@ -12,13 +13,14 @@ function TechListItem({
     return (
         <div
             {...dragProps}
-            className={[
-                'flex gap-2 items-center rounded-md border border-slate-700 px-2 py-1',
-                isDragOver ? 'bg-slate-800/70' : 'bg-slate-900',
-                isDragging ? 'opacity-70' : '',
-            ].join(' ')}
+            className={cx(
+                'flex gap-2 items-center px-2 py-1',
+                adminUi.panel,
+                isDragOver && 'bg-admin-panel-hover/70',
+                isDragging && 'opacity-70',
+            )}
         >
-            <span className="cursor-grab select-none text-xs text-slate-400">
+            <span className="cursor-grab select-none text-xs text-admin-text-subtle">
                 ☰
             </span>
 
@@ -34,7 +36,7 @@ function TechListItem({
             <button
                 type="button"
                 onClick={onRemove}
-                className="text-xs px-2 py-1 rounded-md border border-slate-700 hover:bg-slate-800"
+                className={adminUi.iconButton}
             >
                 ✕
             </button>

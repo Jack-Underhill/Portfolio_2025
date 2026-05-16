@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import FieldLabel from '../forms/FieldLabel';
 import TechListItem from './TechListItem'
+import { adminUi } from '../../styles/recipes';
 
 function TechListEditor({ idPrefix, label, values, onChange }) {
     const list = Array.isArray(values) ? values : [];
@@ -103,7 +104,7 @@ function TechListEditor({ idPrefix, label, values, onChange }) {
             <button
                 type="button"
                 onClick={handleAdd}
-                className="text-xs text-sky-300 hover:text-sky-200"
+                className={adminUi.addLink}
             >
                 + Add tech
             </button>

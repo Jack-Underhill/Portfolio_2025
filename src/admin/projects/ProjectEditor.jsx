@@ -5,6 +5,7 @@ import ProjectEditorHeader      from './editor/ProjectEditorHeader';
 import ProjectTechStackFields   from './editor/ProjectTechStackFields';
 import ProjectMediaFields       from './editor/ProjectMediaFields'
 import ProjectIntroFields       from './editor/ProjectIntroFields';
+import { adminUi }              from '../../styles/recipes';
 
 
 function ProjectEditor({ project, onChange, onRemove }) {
@@ -17,7 +18,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
 
 
   return (
-    <div className="border border-slate-700 rounded-lg p-4 space-y-4">
+    <div className={adminUi.editorPanel}>
       <ProjectEditorHeader
         permalink={permalink}
         sortOrder={project.sortOrder}

@@ -1,8 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
 import CardSurface from '../ui/CardSurface';
+import GradientText from '../ui/GradientText';
+import Text from '../ui/Text';
 import TechTagMarquee from './TechTagMarquee';
 import VideoGlowFrame from '../media/VideoGlowFrame';
 import { canUseNetlifyFunctions } from '../../runtime/netlify';
+import useHoverPreviewIntent from '../../hooks/useHoverPreviewIntent';
 
 import placeholderVideo from '../../assets/placeholder.mp4';
 
@@ -29,87 +31,21 @@ function ProjectCard({
             ? placeholderVideo
             : video;
 
-    const [isPreviewed, setIsPreviewed] = useState(false);
-    const [isLoadingVideo, setIsLoadingVideo] = useState(false);
-
-    const videoRef = useRef(null);
-    const hoverTimerRef = useRef(null);
-
-    useEffect(() => {
-        if (!isActivePreview) return;
-
-        setIsPreviewed(true);
-
-        // hover intent: don't even attach src unless long enough hovered
-        hoverTimerRef.current = window.setTimeout(() => {
-            setIsLoadingVideo(true); // attaches src
-        }, HOVER_INTENT_MS);
-
-        return () => {
-            disablePreviewLocal();
-        };
-    }, [isActivePreview]);
-
-    // This runs AFTER React commits the src to the <video />
-    useEffect(() => {
-        if(!isPreviewed || !isLoadingVideo) return;
-
-        const v = videoRef.current;
-        if (!v) return;
-
-        let cancelled = false;
-
-        const tryPlay = async () => {
-            if(cancelled) return;
-            try {
-                await v.play();
-            } catch {
-                // Ignore (browser can occasionally block/queue)
-            } 
-        };
-
-        // If already buffered enough, play immediately
-        if(v.readyState >= 2) {
-            tryPlay();
-            return () => {  cancelled = true; };
-        }
-
-        // Otherwise wait for it to be ready
-        const onCanPlay = () => tryPlay();
-        v.addEventListener('canplay', onCanPlay, { once: true });
-
-        return () => {
-            cancelled = true;
-            v.removeEventListener('canplay', onCanPlay);
-        };
-    }, [isPreviewed, isLoadingVideo]);
-
-    const enablePreview = () => {
-        if(safeVideo && !isModalOpen) {
-            requestPreview?.(id); // claim global ownership
-        }
-    };
-
-    const disablePreviewAndRelease = () => {
-        disablePreviewLocal();
-        clearPreview?.(id); // release global ownership
-    };
-
-    const disablePreviewLocal = () => {
-        window.clearTimeout(hoverTimerRef.current);
-        setIsPreviewed((prev) => (prev ? false : prev));
-        setIsLoadingVideo((prev) => (prev ? false : prev)); // detaches src
-
-        const v = videoRef.current;
-        if (!v || (!v.currentSrc && !v.getAttribute('src'))) return;
-
-        v.pause();
-        v.currentTime = 0;
-
-        // show poster again
-        v.removeAttribute('src');
-        v.load();
-    };
+    const {
+        videoRef,
+        isPreviewed,
+        isLoadingVideo,
+        enablePreview,
+        disablePreviewAndRelease,
+    } = useHoverPreviewIntent({
+        id,
+        safeVideo,
+        isActivePreview,
+        isModalOpen,
+        requestPreview,
+        clearPreview,
+        hoverIntentMs: HOVER_INTENT_MS,
+    });
 
     const handleOnClick = (e) => {
         const button = e.button ?? e?.nativeEvent?.button; // 0=left, 1=middle
@@ -182,32 +118,30 @@ function ProjectCard({
                                 opacity: isPreviewed ? 0 : 1,
                             }}
                         >
-                            <span 
+                            <GradientText
+                                animated={!isPreviewed && !isModalOpen}
                                 className={[
-                                    (isPreviewed || isModalOpen) ? "" : "animated-gradient",
-                                    "py-3 font-extrabold ",
-                                    "bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400",
-                                    "text-transparent text-balance bg-clip-text",
+                                    "py-3 font-extrabold text-balance",
                                     "text-[clamp(1.25rem,11cqw,10rem)]",
                                     "leading-[1.05] md:leading-[1.1]",
-                                    "drop-shadow-[0_0_6px_rgba(0,0,0,0.9)]",
+                                    "drop-shadow-modal-title",
                                 ].join(" ")}
                                 style={{ transitionDuration: `${FADE_DURATION_MS}ms` }}
                             >
                                 {title}
-                            </span>
+                            </GradientText>
                         </div>
                     </VideoGlowFrame>
                 )}
             </div>
 
-            <div className='px-8 pt-6 pb-4 text-xl font-semibold text-emerald-50'>
+            <Text as="div" variant="body" className="px-8 pt-6 pb-4">
                 {desc}
-            </div>
+            </Text>
 
             <div className='pb-4 mb-0 mt-auto text-sm md:text-md lg:text-xl'>
                 <TechTagMarquee
-                    className='px-3 py-1 font-semibold rounded-lg bg-card-att text-emerald-50'
+                    className='px-3 py-1 font-semibold rounded-lg bg-card-att text-text'
                     tags={tags}
                 />
             </div>

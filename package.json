@@ -7,6 +7,7 @@
     "dev": "vite",
     "admin:server": "node --env-file=.env.local server/admin/index.js",
     "diagnose:runtime": "node scripts/diagnose-runtime.mjs",
+    "check:schema": "node scripts/check-schema-drift.mjs",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

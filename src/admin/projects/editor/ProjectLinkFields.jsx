@@ -1,10 +1,11 @@
 import TextInput from "../../forms/TextInput";
+import { adminUi } from '../../../styles/recipes';
 
 
 function ProjectLinkFields({ projectId, live, source, writeup, video, handleFieldChange }) {
     return (
-        <div className="space-y-3 pt-2 border-t border-slate-800">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Links</p>
+        <div className={adminUi.divider}>
+            <p className={adminUi.sectionLabel}>Links</p>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <TextInput

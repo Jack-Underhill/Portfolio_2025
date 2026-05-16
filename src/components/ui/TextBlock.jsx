@@ -1,12 +1,13 @@
+import SectionTitle from "./SectionTitle";
+import Text from "./Text";
+
 function TextBlock({ title, desc }) {
     return (
         <div className='flex flex-col gap-y-7' data-aos="fade-down">
-            <div className='text-4xl font-bold text-emerald-50'>
-              <span className="animated-gradient bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text">{title}</span>
-            </div>
-            <div className='text-xl font-semibold text-emerald-50'>
+            <SectionTitle as="div">{title}</SectionTitle>
+            <Text as="div" variant="body">
               {desc}
-            </div>
+            </Text>
         </div>
     )
 }

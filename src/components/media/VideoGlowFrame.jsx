@@ -28,7 +28,7 @@ const VideoGlowFrame = forwardRef(function VideoGlowFrame({
                         "absolute z-0 -inset-1 blur",
                         "transition duration-500 ease-in-out",
                         "animated-gradient bg-gradient-to-r",
-                        "from-sky-400 via-emerald-50 to-sky-400",
+                        "from-accent-soft via-text to-accent-soft",
                     )}
                 />
             )}

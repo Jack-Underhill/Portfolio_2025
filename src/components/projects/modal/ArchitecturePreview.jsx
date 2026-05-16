@@ -17,7 +17,7 @@ export default function ArchitecturePreview({ data }) {
 
     if (!archImg || !previewUrl) {
         return (
-            <div className="w-full h-40 rounded-xl border border-card-border bg-black/20 grid place-items-center text-emerald-50/60 text-sm">
+            <div className="w-full h-40 rounded-xl border border-card-border bg-scrim/20 grid place-items-center text-text/60 text-sm">
                 {fallbackText}
             </div>
         );
@@ -32,12 +32,12 @@ export default function ArchitecturePreview({ data }) {
 
     return (
         <div className="space-y-2">
-            <div className="relative rounded-xl border border-card-border bg-black/20 overflow-hidden">
+            <div className="relative rounded-xl border border-card-border bg-scrim/20 overflow-hidden">
                 {/* Clickable overlay */}
                 <a
                     href={viewerUrl}
                     aria-label={`Open ${data.title} architecture diagram viewer page`}
-                    className="absolute inset-0 z-10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60"
+                    className="absolute inset-0 z-10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft/60"
                 >
                     <span className="sr-only">Open full diagram</span>
                 </a>

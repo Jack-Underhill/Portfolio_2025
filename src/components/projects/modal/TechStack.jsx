@@ -12,7 +12,7 @@ export default function TechStack({ data }) {
             <>
                 {isValidList(list) && (
                     <div className="space-y-2">
-                        <div className="text-emerald-50/80 text-sm font-semibold">
+                        <div className="text-text/80 text-sm font-semibold">
                             {label}
                         </div>
                         <PillHighlightList 

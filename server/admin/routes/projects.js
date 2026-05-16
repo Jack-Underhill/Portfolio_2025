@@ -1,6 +1,7 @@
 import { requireServiceClient } from '../clients/supabaseService.js';
 import { makePermalink, resolveProjectMediaUrls } from '../utils/storage.js';
 import { flattenTechStack, normalizeStringArray } from '../utils/strings.js';
+import { PROJECT_TECH_STACK_KEYS } from '../../../src/domain/projects/constants.js';
 import {
   applyMultipartFiles,
   BadRequestError,
@@ -11,7 +12,6 @@ import { sendJson, sendRouteError } from './responses.js';
 import { validateProjectsState } from './validation.js';
 
 const PROJECT_SECTION_ID = 1;
-const TECH_STACK_ORDER = ['frontend', 'backend', 'data', 'infrastructure'];
 
 export async function loadProjectsData() {
   const client = requireServiceClient();
@@ -97,7 +97,7 @@ export async function handleProjectsWrite(req, res) {
 function dbRowToUiProject(project) {
   const techStack = project.tech_stack ?? null;
   const tagsFromDb = normalizeStringArray(project.tech_tags);
-  const tagsFromStack = flattenTechStack(techStack, TECH_STACK_ORDER);
+  const tagsFromStack = flattenTechStack(techStack, PROJECT_TECH_STACK_KEYS);
   const techTags = tagsFromDb.length ? tagsFromDb : tagsFromStack;
 
   return toUiProject({
@@ -325,7 +325,7 @@ function normalizeUiProjects(state) {
     const techStack = normalizeTechStack(project.techStack);
     const challenges = Array.isArray(project.challenges) ? project.challenges : null;
 
-    const tagsFromStack = flattenTechStack(techStack, TECH_STACK_ORDER);
+    const tagsFromStack = flattenTechStack(techStack, PROJECT_TECH_STACK_KEYS);
     const tagsManual = normalizeStringArray(project.techTags);
     const techTags = tagsFromStack.length ? tagsFromStack : tagsManual;
 

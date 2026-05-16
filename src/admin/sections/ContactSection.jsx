@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import TechListEditor from '../lists/TechListEditor';
 import SocialLinkItem from '../social/SocialLinkItem';
+import Text from '../../components/ui/Text';
+import { adminUi } from '../../styles/recipes';
 
 function ContactSection({ state, onChange }) {
     const { proficientTechs, experiencingTechs, socialLinks } = state;
@@ -109,9 +111,9 @@ function ContactSection({ state, onChange }) {
 
             {/* Social / professional links */}
             <div className="space-y-2">
-                <p className="text-xs font-semibold text-slate-300">
+                <Text as="p" variant="adminLabel">
                     Social / professional links
-                </p>
+                </Text>
 
                 <div className="space-y-2">
                     {socialLinks.map((link, index) => (
@@ -140,7 +142,7 @@ function ContactSection({ state, onChange }) {
                 <button
                     type="button"
                     onClick={handleAddLink}
-                    className="text-xs text-sky-300 hover:text-sky-200"
+                    className={adminUi.addLink}
                 >
                     + Add link
                 </button>

@@ -1,94 +1,9 @@
 @import "tailwindcss";
-
-@theme {
-  --color-background: #161C24;
-  --color-code: #2FBE0D;
-
-  --color-card: #181E24;
-  --color-card-border: #222832;
-  --color-card-att: #2F3742;
-
-  --color-button: #0e8ac2;
-  --color-button-border: #1b95cc;
-}
+@import "./styles/theme.css";
 
 html, body, #root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   margin: 0px;
   padding: 0px;
-  background-color: #0E1419;
-}
-
-@keyframes moveGradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 200% 50%;
-  }
-}
-
-.animated-gradient {
-  background-size: 200% 100%;
-  animation: moveGradient 3s reverse linear infinite;
-}
-
-.hover-animated-gradient:hover {
-  background-size: 200% 100%;
-  animation: moveGradient 3s reverse linear infinite;
-  @apply bg-gradient-to-r from-sky-400 via-emerald-50 to-sky-400 text-transparent bg-clip-text hover:scale-125 hover:pb-2 transition duration-200 ease-in-out;
-}
-
-@keyframes tech-tag-marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    /* move left by half the track width */
-    transform: translateX(-50%);
-  }
-}
-
-.tech-tag-marquee {
-  animation: tech-tag-marquee 15s linear infinite;
-  will-change: transform;
-}
-
-/**------------------ Custom Modal Scroll bar -------------------*/
-
-/* Firefox */
-.scrollbar-modal {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.45) rgba(15, 23, 42, 0.25);
-}
-
-/* Chrome, Edge, Safari */
-.scrollbar-modal::-webkit-scrollbar {
-  width: 10px;
-}
-
-.scrollbar-modal::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.25);
-  border-radius: 999px;
-}
-
-.scrollbar-modal::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.45);
-  border-radius: 999px;
-  border: 2px solid rgba(15, 23, 42, 0.25); /* gives it “inset” look */
-}
-
-.scrollbar-modal::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.70);
-}
-
-/**------------------ Modal Pauses background animations -------------------*/
-
-html[data-modal-open="true"] .tech-tag-marquee,
-html[data-modal-open="true"] .animated-gradient {
-  animation-play-state: paused;
-}
-
-html[data-modal-open="true"] #Modal .animated-gradient {
-  animation-play-state: running;
+  background-color: var(--color-page);
 }

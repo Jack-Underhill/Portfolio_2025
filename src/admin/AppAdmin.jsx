@@ -6,6 +6,7 @@ import { loadAdminData, saveAdminData } from './api/adminClient';
 
 import BackToTopButton      from "./navigation/BackToTopButton";
 import BackToBottomButton   from './navigation/BackToBottomButton';
+import { adminUi }          from '../styles/recipes';
 
 const initialAboutState = {
     profileImageFile:   null,
@@ -73,7 +74,7 @@ function AppAdmin() {
     return (
         <div className='relative w-full h-full'>
 
-            <div className="min-h-screen px-5 sm:px-10 md:px-15 lg:px-25 xl:px-35 py-10 bg-slate-950 text-slate-50 space-y-10">
+            <div className={adminUi.page}>
                 <header className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold">Portfolio Admin</h1>
                     <nav className="flex gap-4 text-sm">
@@ -107,12 +108,12 @@ function AppAdmin() {
                     type="button"
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium hover:bg-sky-500"
+                    className={adminUi.primaryButton}
                 >
                     {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 {error && (
-                    <p className="text-sm text-red-300">
+                    <p className="text-sm text-admin-danger-hover">
                         {error.message || 'Admin request failed'}
                     </p>
                 )}

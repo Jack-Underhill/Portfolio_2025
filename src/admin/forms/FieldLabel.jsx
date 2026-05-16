@@ -1,11 +1,15 @@
+import Text from '../../components/ui/Text';
+
 function FieldLabel({ htmlFor, children }) {
     return (
-        <label
+        <Text
+            as="label"
             htmlFor={htmlFor}
-            className="block text-xs font-semibold text-slate-300 mb-1"
+            variant="adminLabel"
+            className="block mb-1"
         >
             {children}
-        </label>
+        </Text>
     );
 }
 

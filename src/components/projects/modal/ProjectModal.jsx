@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 import Section from "./Section";
 import CardSurface from "../../ui/CardSurface";
@@ -9,6 +9,7 @@ import TechStack from "./TechStack";
 import VideoGlowFrame from "../../media/VideoGlowFrame";
 import BulletList from "./BulletList";
 import { canUseNetlifyFunctions } from "../../../runtime/netlify";
+import useModalSideEffects from "../../../hooks/useModalSideEffects";
 
 import placeholderVideo from "../../../assets/placeholder.mp4";
 
@@ -23,40 +24,7 @@ export default function ProjectModal({
         return { ...(project ?? {}) };
     }, [project]);
 
-    const closeBtnRef = useRef(null);
-    const lastActiveElRef = useRef(null);
-
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const root = document.documentElement;
-        const prevModalOpen = root.getAttribute("data-modal-open");
-        root.setAttribute("data-modal-open", "true");
-
-        // Save focus and lock scroll
-        lastActiveElRef.current = document.activeElement;
-        const prevOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        // Focus close button for accessibility
-        setTimeout(() => closeBtnRef.current?.focus(), 0);
-
-        const onKeyDown = (e) => {
-            if (e.key === "Escape") onClose?.();
-        };
-        window.addEventListener("keydown", onKeyDown);
-
-        return () => {
-            window.removeEventListener("keydown", onKeyDown);
-            document.body.style.overflow = prevOverflow;
-            // Restore focus
-            const el = lastActiveElRef.current;
-            if (el && typeof el.focus === "function") el.focus();
-
-            if (prevModalOpen === null) root.removeAttribute("data-modal-open");
-            else root.setAttribute("data-modal-open", prevModalOpen);
-        };
-    }, [isOpen, onClose]);
+    const { closeBtnRef } = useModalSideEffects({ isOpen, onClose });
 
     if (!isOpen) return null;
 
@@ -82,7 +50,7 @@ export default function ProjectModal({
     return (
         <div
             id="Modal"
-            className="fixed inset-0 z-[999] flex items-center justify-center px-4 py-6 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[999] flex items-center justify-center px-4 py-6 bg-scrim/60 backdrop-blur-sm"
             onMouseDown={handleBackdropMouseDown}
             aria-modal="true"
             role="dialog"
@@ -102,7 +70,7 @@ export default function ProjectModal({
                             <div className="flex flex-col lg:flex-row gap-10">
                                 {/* Media */}
                                 <div className="lg:w-6/10 space-y-4">
-                                    <div className="relative w-full aspect-video rounded-xl border border-card-border bg-black/20">
+                                    <div className="relative w-full aspect-video rounded-xl border border-card-border bg-scrim/20">
                                         {safeVideo ? (
                                             <VideoGlowFrame
                                                 src={safeVideo}
@@ -121,7 +89,7 @@ export default function ProjectModal({
                                                 alt={`${data.title} preview`}
                                             />
                                         ) : (
-                                            <div className="w-full h-full grid place-items-center text-emerald-50/60 text-sm">
+                                            <div className="w-full h-full grid place-items-center text-text/60 text-sm">
                                                 No demo media yet
                                             </div>
                                         )}
@@ -148,7 +116,7 @@ export default function ProjectModal({
                                 </Section>
 
                                 {/* ArchitecturePreview */}
-                                <Section title="ArchitecturePreview">
+                                <Section title="Architecture Preview">
                                     <ArchitecturePreview data={data} />
                                 </Section>
 

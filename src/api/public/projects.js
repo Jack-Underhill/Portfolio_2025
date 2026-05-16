@@ -1,8 +1,10 @@
 import { supabasePublic } from '../clients/supabasePublic.js';
+import {
+    mapProjectRowToPublicCard,
+    mapProjectRowToPublicDetails,
+} from '../../domain/projects/mappers.js';
 
 const PROJECT_SECTION_ID = 1;
-
-const asArray = (v) => (Array.isArray(v) ? v.filter(Boolean) : []);
 
 export async function fetchProjectSectionPublic() {
     if (!supabasePublic) return null;
@@ -24,7 +26,7 @@ export async function fetchProjectSectionPublic() {
 }
 
 /**
- * Fetch public project (about) section + projects.
+ * Fetch public project cards.
  * Returns null on error / misconfig so UI can fall back to defaults.
  */
 export async function fetchProjectsPublic() {
@@ -43,21 +45,12 @@ export async function fetchProjectsPublic() {
     if (!rows || !rows.length) return null;
 
     return {
-        projects: rows.map((row) => ({
-            id: row.id,
-            permalink: row.permalink || '',
-            imageUrl: row.image_url || '',
-            videoUrl: row.video_url || '',
-            title: row.title || '',
-            description: row.card_description || '',
-            directUrl: row.live_url || row.source_url || '',
-            techTags: Array.isArray(row.tech_tags) ? row.tech_tags : [],
-        })),
+        projects: rows.map(mapProjectRowToPublicCard),
     };
 }
 
 /**
- * Fetch Project Modal Specific Attributes.
+ * Fetch public project details for the modal.
  */
 export async function fetchProjectByIdPublic(id) {
     if (!supabasePublic) return null;
@@ -81,30 +74,5 @@ export async function fetchProjectByIdPublic(id) {
     }
     if (!row) return null;
 
-    return {
-        id: row.id,
-        permalink: row.permalink || '',
-        title: row.title || '',
-        imageUrl: row.image_url || '',
-        videoUrl: row.video_url && row.video_url !== 'NULL' ? row.video_url : '',
-
-        liveUrl: row.live_url || '',
-        sourceUrl: row.source_url || '',
-        writeupUrl: row.writeup_url || '',
-        videoPageUrl: row.video_page_url || '', // action link (NOT the hero video)
-
-        overview: row.overview || '',
-        role: row.role || '',
-
-        architectureImageUrl: row.architecture_image_url || '',
-        techStack: row.tech_stack || null,
-
-        features: asArray(row.features),
-        metrics: asArray(row.metrics),
-        challenges: Array.isArray(row.challenges) ? row.challenges : (row.challenges || []),
-        improvements: asArray(row.improvements),
-
-        published: !!row.published,
-        sortOrder: row.sort_order ?? 0,
-    };
+    return mapProjectRowToPublicDetails(row);
 }

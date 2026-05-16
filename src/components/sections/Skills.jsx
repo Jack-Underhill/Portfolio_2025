@@ -1,4 +1,5 @@
-import TechTag   from '../tags/TechTag'
+import TechTag from '../tags/TechTag';
+import GradientText from '../ui/GradientText';
 
 const DEFAULT_LANGUAGES = [
   'Java',
@@ -26,16 +27,16 @@ const DEFAULT_EXPERIENCE = [
 
 function TagList({ header, tags, isSmall = false }) {
     const TagClassName = isSmall
-        ? 'px-3 py-1 text-sm sm:text-base md:text-lg rounded-md bg-card-att text-emerald-50'
-        : 'px-5 py-1.5 text-xl sm:text-2xl md:text-3xl rounded-lg bg-card-att text-emerald-50';
+        ? 'px-3 py-1 text-sm sm:text-base md:text-lg rounded-md bg-card-att text-text'
+        : 'px-5 py-1.5 text-xl sm:text-2xl md:text-3xl rounded-lg bg-card-att text-text';
     const HeaderClassName = isSmall
-        ? 'text-2xl font-bold text-emerald-50'
-        : 'text-4xl font-bold text-emerald-50';
+        ? 'text-2xl font-bold text-text'
+        : 'text-4xl font-bold text-text';
 
     return (
         <div className="flex flex-col gap-8">
             <div className={HeaderClassName} data-aos="flip-down">
-                {header}
+                <GradientText>{header}</GradientText>
             </div>
             <TechTag
                 className={TagClassName}

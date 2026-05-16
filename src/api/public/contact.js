@@ -1,4 +1,5 @@
 import { supabasePublic } from '../clients/supabasePublic.js';
+import { mapContactRowsToPublic } from '../../domain/contact/mappers.js';
 
 /**
  * Fetch public Contact data: languages, experience, and social links.
@@ -28,35 +29,5 @@ export async function fetchContactPublic() {
         console.error('[fetchContactPublic] links error:', linksError);
     }
 
-    const proficient =
-        (skills || [])
-            .filter((s) => s.level === 'proficient')
-            .map((s) => s.name || '')
-            .filter(Boolean);
-
-    const experiencing =
-        (skills || [])
-            .filter((s) => s.level === 'experiencing')
-            .map((s) => s.name || '')
-            .filter(Boolean);
-
-    const socialLinks =
-        (links || [])
-            .map((row) => ({
-                id:       row.id,
-                platform: row.label || '',
-                url:      row.url || '',
-                iconUrl:  row.svg || '',
-            }))
-            .filter((l) => l.url);
-
-    if (!proficient.length && !experiencing.length && !socialLinks.length) {
-        return null;
-    }
-
-    return {
-        languages:  proficient,
-        experience: experiencing,
-        links:      socialLinks,
-    };
+    return mapContactRowsToPublic({ skills, links });
 }

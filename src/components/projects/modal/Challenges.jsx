@@ -7,8 +7,8 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
             onToggle={(e) => onToggle(idx, e.currentTarget.open)}
             className="
                 group/challenge rounded-2xl 
-                border border-button-border/40 open:border-button-border/80 open:bg-black/10
-                bg-black/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
+                border border-button-border/40 open:border-button-border/80 open:bg-scrim/10
+                bg-scrim/20 shadow-subtle-highlight
             "
         >
             <summary
@@ -23,7 +23,7 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
                     className="
                         mt-0.5 shrink-0 w-8 h-8 rounded-xl
                         grid place-items-center text-sm font-extrabold
-                        bg-card-att text-emerald-50 border 
+                        bg-card-att text-text border 
                         border-card-border/70 group-hover/summary:border-button-border/40
                         
                     "
@@ -34,17 +34,17 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
                 {/* Title + teaser */}
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-3">
-                        <h4 className="font-bold text-emerald-50 leading-snug">
+                        <h4 className="font-bold text-text leading-snug">
                             {c.challenge}
                         </h4>
 
                         {/* Chevron */}
                         <div
                             className="
-                                shrink-0 text-emerald-50/70
+                                shrink-0 text-text/70
                                 transition-transform duration-200
                                 group-open/challenge:rotate-180
-                                group-hover/summary:text-emerald-50
+                                group-hover/summary:text-text
                             "
                         >
                             ▾
@@ -53,8 +53,8 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
 
                     {/* Skimmable teaser line */}
                     {c.result && (
-                        <p className="mt-1 pr-8 text-sm text-emerald-50/70 line-clamp-1">
-                            <span className="font-semibold text-emerald-50/80">Result:</span>{" "}
+                        <p className="mt-1 pr-8 text-sm text-text/70 line-clamp-1">
+                            <span className="font-semibold text-text/80">Result:</span>{" "}
                             {c.result}
                         </p>
                     )}
@@ -76,14 +76,14 @@ function Row({ label, children }) {
     return (
         <div
             className="
-                rounded-xl border border-card-border bg-black/10
+                rounded-xl border border-card-border bg-scrim/10
                 p-2.5
             "
         >
-            <div className="text-xs font-bold uppercase tracking-wide text-emerald-50/60">
+            <div className="text-xs font-bold uppercase tracking-wide text-text/60">
                 {label}
             </div>
-            <div className="mt-1 text-sm leading-relaxed text-emerald-50/90">
+            <div className="mt-1 text-sm leading-relaxed text-text/90">
                 {children}
             </div>
         </div>
