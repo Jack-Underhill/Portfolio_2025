@@ -34,6 +34,10 @@ Project-specific colors, gradients, shadows, scrollbars, and shared visual utili
 
 The current Supabase schema snapshot, ordered migration notes, public read policies, and storage bucket expectations live in [database/README.md](./database/README.md). Keep database changes aligned with the domain mappers, public select lists, admin serializers, and server validation.
 
+## Project Truth Docs
+
+Current repo status, drift notes, testing plans, stale code notes, and architecture cleanup candidates live in [docs/README.md](./docs/README.md). Treat `docs/` as the tracked source of truth. Treat `planning/` as historical implementation memory and context logs.
+
 ## Local Development
 
 Install dependencies:
