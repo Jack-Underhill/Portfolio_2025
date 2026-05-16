@@ -53,7 +53,7 @@ Start here when you need to understand a boundary quickly:
 - [database/README.md](./database/README.md): Supabase schema, migrations, RLS expectations, and storage conventions.
 - [docs/README.md](./docs/README.md): current repo truth, drift notes, testing plan, stale-code review, and cleanup candidates.
 
-Treat `docs/` as the tracked source of truth for current status and next actions. Treat `planning/` as historical implementation memory and context logs.
+Treat `docs/` as the tracked source of truth for current status and next actions. Treat `codex-planning/` as local untracked historical implementation memory and context logs.
 
 ## Documentation Guide
 

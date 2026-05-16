@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 
-planning
+codex-planning/*
 
 # Editor directories and files
 .vscode/*
