@@ -10,7 +10,7 @@ const DEFAULT_ABOUT = {
     professionTitle:    "Full-Stack Developer",
     briefBio:           "WSU Computer Science senior student passionate about game, web, and software development.",
     profileImage:       avatarLogo,
-    resumeURL:          "/Jack_Underhill--Dev_Resume--No_Contact.pdf",
+    resumeUrl:          "/Jack_Underhill--Dev_Resume--No_Contact.pdf",
 };
 
 function mergeAboutData(data, previous) {
