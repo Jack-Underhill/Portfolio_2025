@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 import Section from "./Section";
 import CardSurface from "../../ui/CardSurface";
@@ -9,6 +9,7 @@ import TechStack from "./TechStack";
 import VideoGlowFrame from "../../media/VideoGlowFrame";
 import BulletList from "./BulletList";
 import { canUseNetlifyFunctions } from "../../../runtime/netlify";
+import useModalSideEffects from "../../../hooks/useModalSideEffects";
 
 import placeholderVideo from "../../../assets/placeholder.mp4";
 
@@ -23,40 +24,7 @@ export default function ProjectModal({
         return { ...(project ?? {}) };
     }, [project]);
 
-    const closeBtnRef = useRef(null);
-    const lastActiveElRef = useRef(null);
-
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const root = document.documentElement;
-        const prevModalOpen = root.getAttribute("data-modal-open");
-        root.setAttribute("data-modal-open", "true");
-
-        // Save focus and lock scroll
-        lastActiveElRef.current = document.activeElement;
-        const prevOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        // Focus close button for accessibility
-        setTimeout(() => closeBtnRef.current?.focus(), 0);
-
-        const onKeyDown = (e) => {
-            if (e.key === "Escape") onClose?.();
-        };
-        window.addEventListener("keydown", onKeyDown);
-
-        return () => {
-            window.removeEventListener("keydown", onKeyDown);
-            document.body.style.overflow = prevOverflow;
-            // Restore focus
-            const el = lastActiveElRef.current;
-            if (el && typeof el.focus === "function") el.focus();
-
-            if (prevModalOpen === null) root.removeAttribute("data-modal-open");
-            else root.setAttribute("data-modal-open", prevModalOpen);
-        };
-    }, [isOpen, onClose]);
+    const { closeBtnRef } = useModalSideEffects({ isOpen, onClose });
 
     if (!isOpen) return null;
 
