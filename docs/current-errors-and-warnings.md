@@ -13,14 +13,9 @@ Last checked with Windows `cmd /c` because direct PowerShell `npm` execution is 
 Passing:
 
 ```sh
-cmd /c npm run build
-cmd /c npm run check:schema
-```
-
-Failing:
-
-```sh
 cmd /c npm run lint
+cmd /c npm run check:schema
+cmd /c npm run build
 ```
 
 Direct PowerShell caveat:
@@ -34,32 +29,7 @@ Use `cmd /c npm ...` on this machine unless the PowerShell execution policy is c
 
 ## Current Lint Errors
 
-`npm run lint` currently fails on three polymorphic UI primitives:
-
-- `src/components/ui/GradientText.jsx`
-- `src/components/ui/SectionTitle.jsx`
-- `src/components/ui/Text.jsx`
-
-Error shape:
-
-```txt
-'Tag' is assigned a value but never used  no-unused-vars
-```
-
-Cause:
-
-- Each component uses a polymorphic `as: Tag = ...` prop and renders `<Tag>`.
-- The current ESLint parser/rule setup reports `Tag` as unused even though JSX consumes it.
-
-Current priority:
-
-- Fix lint first after these docs are created.
-
-Next actions:
-
-- Keep the polymorphic primitive API if possible.
-- Adjust implementation or ESLint configuration so `npm run lint` is green.
-- Add `npm run lint` to the baseline verification list once it passes.
+No current lint errors are known. `cmd /c npm run lint` is part of the passing baseline above.
 
 ## Local Runtime Warnings
 
@@ -107,7 +77,7 @@ Next actions:
 
 ## Quality Gate Target
 
-Near-term baseline:
+Current baseline:
 
 ```sh
 cmd /c npm run lint
@@ -120,4 +90,3 @@ Definition of done for this quality gate:
 - All three commands pass.
 - Known local dev warnings are documented as expected behavior.
 - README verification section points to the same baseline commands.
-

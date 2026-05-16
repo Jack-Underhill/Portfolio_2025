@@ -104,15 +104,13 @@ Guideline:
 
 Problem:
 
-- Build and schema drift checks pass.
-- Lint currently fails.
+- Lint, build, and schema drift checks pass.
 - No tests exist yet.
 
 Next actions:
 
-- Fix lint first.
 - Add high-value tests by feature area.
-- Update README verification once the baseline is green.
+- Keep README verification aligned with the active baseline.
 
 ## Definition of Done
 
@@ -124,4 +122,3 @@ This cleanup pass is complete when:
 - Route/function/storage constants have obvious homes.
 - Architecture diagram upload and viewer validation agree.
 - Stale project click functions are either wired intentionally or removed.
-

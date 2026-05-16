@@ -83,7 +83,7 @@ Known cleanup themes are documented rather than hidden:
 - Runtime route/function/storage constants need clearer homes.
 - Skills data is still partly legacy while the public Skills section uses newer grouped static content.
 - Project media upload paths need a safer per-media convention.
-- Lint is the immediate quality-gate blocker before tests become part of the default baseline.
+- The current lint, schema drift, and build checks are green; tests are the next quality-gate gap.
 
 ## Local Development
 
@@ -130,7 +130,7 @@ Plain Vite is enough for the public UI, but Netlify Dev is needed for `/.netlify
 
 ## Verification
 
-Near-term target checks:
+Current baseline checks:
 
 ```sh
 npm run lint
@@ -138,7 +138,13 @@ npm run check:schema
 npm run build
 ```
 
-Current docs note that `npm run check:schema` and `npm run build` pass, while `npm run lint` is the known blocker. On this Windows machine, direct PowerShell `npm` execution may be blocked by the unsigned `npm.ps1` policy; use `cmd /c npm ...` if that happens.
+On this Windows machine, direct PowerShell `npm` execution may be blocked by the unsigned `npm.ps1` policy; use `cmd /c npm ...` if that happens. The verified baseline is:
+
+```sh
+cmd /c npm run lint
+cmd /c npm run check:schema
+cmd /c npm run build
+```
 
 Useful boundary searches before shipping changes:
 

@@ -14,11 +14,11 @@ Current checks:
 
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
-- `cmd /c npm run lint` fails on three UI primitive lint errors.
+- `cmd /c npm run lint` passes.
 
-Immediate testing prerequisite:
+Immediate testing gap:
 
-- Fix lint before treating tests as part of the default quality gate.
+- Add the first high-value tests before treating tests as part of the default quality gate.
 
 ## Projects
 
@@ -163,4 +163,3 @@ Avoid for now:
 - Full live Supabase tests as the default gate.
 - Large React component suites before data contracts are covered.
 - Generic test abstraction before the first real tests exist.
-
