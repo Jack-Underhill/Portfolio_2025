@@ -18,6 +18,8 @@ cmd /c npm run check:schema
 cmd /c npm run build
 ```
 
+The unit test runner is installed and passing, but it is not promoted into the default quality gate in this document until the final P0 verification update.
+
 Direct PowerShell caveat:
 
 ```txt
@@ -48,12 +50,8 @@ When running the public app with plain Vite instead of Netlify dev, the function
 Decision:
 
 - This is an expected local development warning, not a production error.
-- It should remain documented so it is not mistaken for a broken visit counter.
-
-Next actions:
-
-- Document the preferred command for testing Netlify functions locally.
-- Keep the component fallback state so the public UI does not crash when functions are unavailable.
+- It remains documented so it is not mistaken for a broken visit counter.
+- Use `netlify dev` when testing deployed-function behavior locally.
 
 ## Architecture Viewer Local Warning
 
@@ -69,11 +67,8 @@ Decision:
 
 - This is expected behavior for local dev without Netlify functions.
 - The public site should use the function path when deployed or when tested through Netlify dev.
-
-Next actions:
-
-- Include this in the future `netlify/functions/README.md`.
-- Add browser smoke coverage later for invalid architecture viewer URLs and safe fallback states.
+- `netlify/functions/README.md` names `netlify dev` as the local command for function behavior.
+- Browser smoke coverage for invalid architecture viewer URLs and safe fallback states remains future work.
 
 ## Quality Gate Target
 

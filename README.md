@@ -83,7 +83,7 @@ Known cleanup themes are documented rather than hidden:
 - Runtime route/function/storage constants need clearer homes.
 - Skills data is still partly legacy while the public Skills section uses newer grouped static content.
 - Project media upload paths need a safer per-media convention.
-- The current lint, schema drift, and build checks are green; tests are the next quality-gate gap.
+- The current lint, schema drift, build, and unit-test checks are green; the test script is waiting for final P0 quality-gate promotion.
 
 ## Local Development
 
