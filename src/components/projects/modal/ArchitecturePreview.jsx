@@ -1,11 +1,13 @@
+import { buildProjectPath } from "../../../domain/projects/routing";
+import { PUBLIC_ROUTES } from "../../../runtime/paths";
 import { buildArchitectureViewerUrl, getInlineSvgUrl, isSvgUrl } from "../viewer/viewerUrl";
 
 function getProjectReturnTo(data) {
     const currentPath = window.location.pathname;
-    if (currentPath.startsWith("/p/")) return currentPath;
+    if (currentPath.startsWith(`${PUBLIC_ROUTES.PROJECT_BASE}/`)) return currentPath;
 
     const permalink = String(data.permalink || data.id || "").trim();
-    return permalink ? `/p/${encodeURIComponent(permalink)}` : "/";
+    return permalink ? buildProjectPath(permalink) : PUBLIC_ROUTES.HOME;
 }
 
 export default function ArchitecturePreview({ data }) {

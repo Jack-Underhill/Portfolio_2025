@@ -1,6 +1,6 @@
 import { canUseNetlifyFunctions } from "../../../runtime/netlify";
+import { NETLIFY_FUNCTION_PATHS, PUBLIC_ROUTES } from "../../../runtime/paths";
 
-const INLINE_SVG_PROXY_PATH = "/.netlify/functions/inline-svg";
 const ALLOWED_ARCHITECTURE_PATH_PREFIX = "/storage/v1/object/public/portfolio-assets/project-architecture/";
 
 export function isSvgUrl(url) {
@@ -15,7 +15,7 @@ export function getInlineSvgUrl(url) {
     if (!isSvgUrl(url)) return url;
     if (!canUseNetlifyFunctions()) return null;
 
-    return `${INLINE_SVG_PROXY_PATH}?url=${encodeURIComponent(url)}`;
+    return `${NETLIFY_FUNCTION_PATHS.INLINE_SVG}?url=${encodeURIComponent(url)}`;
 }
 
 export function isTrustedSupabaseArchitectureSvgUrl(rawUrl) {
@@ -41,7 +41,7 @@ export function getTrustedViewerSrc(rawSrc, origin = window.location.origin) {
         const url = new URL(rawSrc, origin);
         const isLocalProxy =
             url.origin === origin &&
-            url.pathname === INLINE_SVG_PROXY_PATH;
+            url.pathname === NETLIFY_FUNCTION_PATHS.INLINE_SVG;
 
         if (!isLocalProxy) return null;
 
@@ -69,5 +69,5 @@ export function buildArchitectureViewerUrl({ src, title, returnTo }) {
     if (title) params.set("title", title);
     params.set("returnTo", getSafeReturnTo(returnTo));
 
-    return `/architecture-viewer?${params.toString()}`;
+    return `${PUBLIC_ROUTES.ARCHITECTURE_VIEWER}?${params.toString()}`;
 }

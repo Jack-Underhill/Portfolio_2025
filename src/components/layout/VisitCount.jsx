@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import views from '../../assets/views.svg'
+import { NETLIFY_FUNCTION_PATHS } from '../../runtime/paths';
 
 function VisitCount() {
   const [visitCount, setVisitCount] = useState(null);
@@ -13,7 +14,7 @@ function VisitCount() {
 
     async function loadVisitCount() {
       try {
-        const response = await fetch('/.netlify/functions/track-visit');
+        const response = await fetch(NETLIFY_FUNCTION_PATHS.TRACK_VISIT);
         const contentType = response.headers.get('content-type') ?? '';
 
         if (!contentType.includes('application/json')) {

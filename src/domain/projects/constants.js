@@ -1,4 +1,6 @@
-export const PROJECT_ROUTE_PATTERN = /^\/p\/([^/]+)\/?$/i;
+import { PUBLIC_ROUTES } from '../../runtime/paths.js';
+
+export const PROJECT_ROUTE_PATTERN = new RegExp(`^${PUBLIC_ROUTES.PROJECT_BASE}/([^/]+)/?$`, 'i');
 
 export const PROJECT_TECH_STACK_KEYS = Object.freeze([
   'frontend',
