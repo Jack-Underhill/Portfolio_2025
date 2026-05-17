@@ -104,19 +104,19 @@ Guideline:
 
 Problem:
 
-- Lint, build, and schema drift checks pass.
-- No tests exist yet.
+- Unit tests, lint, build, and schema drift checks pass.
+- Browser smoke coverage and function-level tests are still future work.
 
 Next actions:
 
-- Add high-value tests by feature area.
 - Keep README verification aligned with the active baseline.
+- Add focused browser/function tests after route, storage, and runtime-path cleanup settle.
 
 ## Definition of Done
 
 This cleanup pass is complete when:
 
-- `cmd /c npm run lint`, `cmd /c npm run check:schema`, and `cmd /c npm run build` all pass.
+- `cmd /c npm run test`, `cmd /c npm run lint`, `cmd /c npm run check:schema`, and `cmd /c npm run build` all pass.
 - Root README points to `docs/`.
 - Public data ownership for Skills/Contact is explicit.
 - Route/function/storage constants have obvious homes.

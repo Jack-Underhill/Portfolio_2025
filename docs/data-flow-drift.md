@@ -65,7 +65,7 @@ Known caveat:
 Next actions:
 
 - Consider storing a stable platform key if icon fallback accuracy matters.
-- Add tests for mapped links and fallback behavior.
+- Keep existing contact mapper tests updated if the link fallback strategy changes.
 
 ## Education and Certifications
 
@@ -101,5 +101,4 @@ Current flow:
 
 Next actions:
 
-- Add a small test around the about mapper and Hero fallback merge behavior when tests are introduced.
-
+- Keep existing about mapper and Hero fallback merge tests updated if the public about shape changes.

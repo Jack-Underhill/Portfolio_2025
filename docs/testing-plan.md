@@ -4,21 +4,36 @@ Date: 2026-05-16
 
 ## Purpose
 
-This document records the testing plan by feature area. It is intentionally high level for now. Exact test file names can be chosen when implementation starts.
+This document records the testing plan by feature area. It stays high level, with the current baseline tests named so future work can build on them without guessing.
 
 ## Current State
 
-No test files are currently present.
+Vitest is installed as the default unit-test runner.
+
+Current baseline test files:
+
+- `tests/domain/projects/routing.test.js`
+- `tests/domain/projects/mappers.test.js`
+- `tests/domain/about/mappers.test.js`
+- `tests/domain/contact/mappers.test.js`
+- `tests/components/projects/viewer/viewerUrl.test.js`
+- `tests/server/admin/routes/validation.helpers.test.js`
+- `tests/server/admin/routes/validation.uploads.test.js`
+- `tests/server/admin/routes/validation.about.test.js`
+- `tests/server/admin/routes/validation.projects.test.js`
+- `tests/server/admin/routes/validation.contact.test.js`
 
 Current checks:
 
+- `cmd /c npm run test` passes.
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run lint` passes.
 
-Immediate testing gap:
+Remaining testing gap:
 
-- Add the first high-value tests before treating tests as part of the default quality gate.
+- Add browser/component smoke coverage later for modal focus, architecture viewer fallback states, and Netlify function behavior.
+- Keep live Supabase, Redis, and deployed Netlify behavior out of the default gate unless explicitly mocked.
 
 ## Projects
 
@@ -31,6 +46,12 @@ Highest-value coverage:
 - Permalink behavior for old and new projects.
 - Admin project validation and serialization.
 - Project media upload path behavior after the storage convention decision is made.
+
+Current coverage:
+
+- Route parsing/building, public project mappers, detail view models, fallback merging, and sort-order normalization are covered.
+- Admin project validation is covered through pure validation helper tests.
+- Media upload path conventions should wait for the P1 storage alignment work.
 
 Why this matters:
 
@@ -47,6 +68,11 @@ Highest-value coverage:
 - Hero fallback merge behavior when public data is missing or partial.
 - Profile image fallback behavior.
 
+Current coverage:
+
+- About row mapping, `resume_pdf` to `resumeUrl`, profile image mapping, and Hero fallback merge behavior are covered.
+- Hero fallback merge behavior now lives in `src/domain/about/viewModel.js`.
+
 Why this matters:
 
 - The Hero fallback bug was a small casing mismatch.
@@ -60,6 +86,10 @@ Highest-value coverage:
 - Empty link filtering.
 - Social link fallback behavior.
 - Uploaded icon URL handling.
+
+Current coverage:
+
+- Link row mapping, empty URL filtering, uploaded icon URL passthrough, and the current legacy skills split are covered.
 
 Why this matters:
 
@@ -109,6 +139,11 @@ Highest-value coverage:
 - Safe `returnTo` behavior.
 - Invalid viewer URL fallback state.
 
+Current coverage:
+
+- Trusted Supabase architecture SVG validation, unsafe viewer source rejection, inline SVG proxy URL generation, safe `returnTo`, and viewer URL encoding are covered.
+- Tests intentionally lock the current trusted path rule to `portfolio-assets/project-architecture/*.svg` until P1 aligns storage and viewer validation.
+
 Why this matters:
 
 - This feature handles externally hosted SVGs.
@@ -138,6 +173,10 @@ Highest-value coverage:
 - Duplicate and missing project ID handling.
 - Upload filename/path helpers.
 - JSON and multipart payload parsing.
+
+Current coverage:
+
+- Pure helper primitives, upload file validation, and about/project/contact state validation are covered.
 
 Why this matters:
 

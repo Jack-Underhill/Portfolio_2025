@@ -13,12 +13,11 @@ Last checked with Windows `cmd /c` because direct PowerShell `npm` execution is 
 Passing:
 
 ```sh
+cmd /c npm run test
 cmd /c npm run lint
 cmd /c npm run check:schema
 cmd /c npm run build
 ```
-
-The unit test runner is installed and passing, but it is not promoted into the default quality gate in this document until the final P0 verification update.
 
 Direct PowerShell caveat:
 
@@ -75,6 +74,7 @@ Decision:
 Current baseline:
 
 ```sh
+cmd /c npm run test
 cmd /c npm run lint
 cmd /c npm run check:schema
 cmd /c npm run build
@@ -82,6 +82,6 @@ cmd /c npm run build
 
 Definition of done for this quality gate:
 
-- All three commands pass.
+- All four commands pass.
 - Known local dev warnings are documented as expected behavior.
 - README verification section points to the same baseline commands.

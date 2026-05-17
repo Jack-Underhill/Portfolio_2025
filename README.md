@@ -83,7 +83,7 @@ Known cleanup themes are documented rather than hidden:
 - Runtime route/function/storage constants need clearer homes.
 - Skills data is still partly legacy while the public Skills section uses newer grouped static content.
 - Project media upload paths need a safer per-media convention.
-- The current lint, schema drift, build, and unit-test checks are green; the test script is waiting for final P0 quality-gate promotion.
+- The current unit-test, lint, schema drift, and build checks are green and part of the normal local quality gate.
 
 ## Local Development
 
@@ -133,6 +133,7 @@ Plain Vite is enough for the public UI, but Netlify Dev is needed for `/.netlify
 Current baseline checks:
 
 ```sh
+npm run test
 npm run lint
 npm run check:schema
 npm run build
@@ -141,6 +142,7 @@ npm run build
 On this Windows machine, direct PowerShell `npm` execution may be blocked by the unsigned `npm.ps1` policy; use `cmd /c npm ...` if that happens. The verified baseline is:
 
 ```sh
+cmd /c npm run test
 cmd /c npm run lint
 cmd /c npm run check:schema
 cmd /c npm run build
