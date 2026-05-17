@@ -2,6 +2,7 @@ import { useState, useEffect }        from 'react';
 import AboutSection                   from './sections/AboutSection';
 import ProjectsSection                from './sections/ProjectsSection';
 import ContactSection                 from './sections/ContactSection';
+import SkillsSection                  from './sections/SkillsSection';
 import { loadAdminData, saveAdminData } from './api/adminClient';
 
 import BackToTopButton      from "./navigation/BackToTopButton";
@@ -23,25 +24,29 @@ const initialProjectsState = {
 };
 
 const initialContactState = {
-    proficientTechs:    [''],
-    experiencingTechs:  [''],
     socialLinks:        [],
+};
+
+const initialSkillsState = {
+    groups: [],
 };
 
 function AppAdmin() {
     const [aboutState, setAboutState]       = useState(initialAboutState);
     const [projectsState, setProjectsState] = useState(initialProjectsState);
     const [contactState, setContactState]   = useState(initialContactState);
+    const [skillsState, setSkillsState]     = useState(initialSkillsState);
     const [isSaving, setIsSaving]           = useState(false);
     const [error, setError]                 = useState(null);
 
     useEffect(() => {
         (async () => {
             try {
-                const { about, projects, contact } = await loadAdminData();
+                const { about, projects, contact, skills } = await loadAdminData();
                 setAboutState(about);
                 setProjectsState(projects);
                 setContactState(contact);
+                setSkillsState(skills || initialSkillsState);
             } catch (err) {
                 console.error(err);
                 setError(err);
@@ -54,14 +59,16 @@ function AppAdmin() {
         setIsSaving(true);
         setError(null);
 
-        const { about, projects, contact } = await saveAdminData({
+        const { about, projects, contact, skills } = await saveAdminData({
             aboutState,
             projectsState,
             contactState,
+            skillsState,
         });
         setAboutState(about);
         setProjectsState(projects);
         setContactState(contact);
+        setSkillsState(skills || initialSkillsState);
 
         } catch (err) {
             console.error(err);
@@ -80,6 +87,7 @@ function AppAdmin() {
                     <nav className="flex gap-4 text-sm">
                         <a href="#about">About</a>
                         <a href="#projects">Projects</a>
+                        <a href="#skills">Skills</a>
                         <a href="#contact">Contact</a>
                     </nav>
                 </header>
@@ -93,6 +101,13 @@ function AppAdmin() {
                         <ProjectsSection
                             state={projectsState}
                             onChange={setProjectsState}
+                        />
+                    </section>
+
+                    <section id="skills">
+                        <SkillsSection
+                            state={skillsState}
+                            onChange={setSkillsState}
                         />
                     </section>
 

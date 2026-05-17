@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import TechListEditor from '../lists/TechListEditor';
 import SocialLinkItem from '../social/SocialLinkItem';
 import Text from '../../components/ui/Text';
 import { adminUi } from '../../styles/recipes';
 
 function ContactSection({ state, onChange }) {
-    const { proficientTechs, experiencingTechs, socialLinks } = state;
+    const { socialLinks } = state;
 
     const [dragIndex, setDragIndex] = useState(null);
     const [dragOverIndex, setDragOverIndex] = useState(null);
@@ -91,23 +90,7 @@ function ContactSection({ state, onChange }) {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Contact / Skills Section</h2>
-
-            {/* Proficient techs */}
-            <TechListEditor
-                idPrefix="proficient-tech"
-                label="Proficient technologies"
-                values={proficientTechs || []}
-                onChange={(next) => updateField('proficientTechs', next)}
-            />
-
-            {/* Experiencing techs */}
-            <TechListEditor
-                idPrefix="experiencing-tech"
-                label="Currently using / learning"
-                values={experiencingTechs || []}
-                onChange={(next) => updateField('experiencingTechs', next)}
-            />
+            <h2 className="text-xl font-semibold">Contact Section</h2>
 
             {/* Social / professional links */}
             <div className="space-y-2">

@@ -1,6 +1,7 @@
 import { loadAboutData, saveAboutData } from './about.js';
 import { attachContactFiles, loadContactData, saveContactData } from './contact.js';
 import { attachProjectFiles, loadProjectsData, saveProjectsData } from './projects.js';
+import { loadSkillsData, saveSkillsData } from './skills.js';
 import {
   applyMultipartFiles,
   assertPlainObject,
@@ -9,13 +10,14 @@ import {
 import { sendJson, sendRouteError } from './responses.js';
 
 export async function loadBootstrapData() {
-  const [about, projects, contact] = await Promise.all([
+  const [about, projects, contact, skills] = await Promise.all([
     loadAboutData(),
     loadProjectsData(),
     loadContactData(),
+    loadSkillsData(),
   ]);
 
-  return { about, projects, contact };
+  return { about, projects, contact, skills };
 }
 
 export async function handleBootstrapRead(_req, res) {
@@ -33,6 +35,7 @@ export async function handleSaveAllWrite(req, res) {
     assertPlainObject(body.about, 'about payload');
     assertPlainObject(body.projects, 'projects payload');
     assertPlainObject(body.contact, 'contact payload');
+    assertPlainObject(body.skills, 'skills payload');
 
     applyMultipartFiles(body.about, form, [
       {
@@ -51,13 +54,14 @@ export async function handleSaveAllWrite(req, res) {
     attachProjectFiles(body.projects, form);
     attachContactFiles(body.contact, form);
 
-    const [about, projects, contact] = await Promise.all([
+    const [about, projects, contact, skills] = await Promise.all([
       saveAboutData(body.about),
       saveProjectsData(body.projects),
       saveContactData(body.contact),
+      saveSkillsData(body.skills),
     ]);
 
-    sendJson(res, 200, { about, projects, contact });
+    sendJson(res, 200, { about, projects, contact, skills });
   } catch (error) {
     sendRouteError(res, error);
   }

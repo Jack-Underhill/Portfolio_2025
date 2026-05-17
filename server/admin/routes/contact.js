@@ -12,23 +12,11 @@ import { validateContactState } from './validation.js';
 export async function loadContactData() {
   const client = requireServiceClient();
 
-  const [
-    { data: skills, error: skillsError },
-    { data: links, error: linksError },
-  ] = await Promise.all([
-    client.from('skills').select('*').order('id', { ascending: true }),
-    client.from('links').select('*').order('id', { ascending: true }),
-  ]);
-
-  if (skillsError) throw skillsError;
+  const { data: links, error: linksError } = await client
+    .from('links')
+    .select('*')
+    .order('id', { ascending: true });
   if (linksError) throw linksError;
-
-  const proficient = (skills || [])
-    .filter((skill) => skill.level === 'proficient')
-    .map((skill) => skill.name || '');
-  const experiencing = (skills || [])
-    .filter((skill) => skill.level === 'experiencing')
-    .map((skill) => skill.name || '');
 
   const socialLinks = (links || []).map((row) => ({
     id: row.id,
@@ -39,8 +27,6 @@ export async function loadContactData() {
   }));
 
   return {
-    proficientTechs: proficient.length ? proficient : [''],
-    experiencingTechs: experiencing.length ? experiencing : [''],
     socialLinks,
   };
 }
@@ -56,27 +42,6 @@ export async function handleContactRead(_req, res) {
 export async function saveContactData(state) {
   const validState = validateContactState(state);
   const client = requireServiceClient();
-
-  const proficient = validState.proficientTechs;
-  const experiencing = validState.experiencingTechs;
-
-  const { error: deleteSkillsError } = await client
-    .from('skills')
-    .delete()
-    .neq('id', 0);
-  if (deleteSkillsError) throw deleteSkillsError;
-
-  const skillRows = [
-    ...proficient.map((name) => ({ name, level: 'proficient' })),
-    ...experiencing.map((name) => ({ name, level: 'experiencing' })),
-  ];
-
-  if (skillRows.length) {
-    const { error } = await client
-      .from('skills')
-      .insert(skillRows, { returning: 'minimal' });
-    if (error) throw error;
-  }
 
   const { error: deleteLinksError } = await client
     .from('links')
@@ -133,8 +98,6 @@ export async function saveContactData(state) {
 
   return {
     ...validState,
-    proficientTechs: proficient.length ? proficient : [''],
-    experiencingTechs: experiencing.length ? experiencing : [''],
     socialLinks: savedSocialLinks,
   };
 }
