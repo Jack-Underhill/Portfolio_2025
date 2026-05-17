@@ -80,7 +80,7 @@ function normalizePermalink(value) {
 
 function normalizeProjectChallenges(value) {
   if (Array.isArray(value)) return value;
-  return value || [];
+  return [];
 }
 
 export function mapProjectRowToPublicCard(row) {

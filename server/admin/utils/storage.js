@@ -15,6 +15,33 @@ export function makePermalink(id, titleAtCreation) {
   return `${id}-${suffix}`;
 }
 
+export function buildProjectPreviewImagePath(id, ext) {
+  return buildProjectMediaPath(id, 'preview-image', ext);
+}
+
+export function buildProjectPreviewVideoPath(id, ext) {
+  return buildProjectMediaPath(id, 'preview-video', ext);
+}
+
+export function buildProjectArchitecturePath(id, ext) {
+  return buildProjectMediaPath(id, 'architecture', ext);
+}
+
+function buildProjectMediaPath(id, mediaStem, ext) {
+  const projectId = Number(id);
+  const validExt = ensureDotExt(ext, '');
+
+  if (!Number.isInteger(projectId) || projectId <= 0) {
+    throw new Error('project media path requires a positive project id');
+  }
+
+  if (!/^\.[a-z0-9]+$/i.test(validExt)) {
+    throw new Error('project media path requires a safe file extension');
+  }
+
+  return `projects/${projectId}/${mediaStem}${validExt}`;
+}
+
 export async function uploadAndGetPublicUrl(path, file) {
   const client = requireServiceClient();
 
@@ -29,11 +56,27 @@ export async function uploadAndGetPublicUrl(path, file) {
   return publicUrlData?.publicUrl || '';
 }
 
-async function uploadMediaFileForProject(id, file, fallbackExt) {
+async function uploadPreviewImageFileForProject(id, file, fallbackExt) {
   if (!file) return null;
 
   const validExt = ensureDotExt(getFileExtension(file), fallbackExt);
-  const path = `projects/${id}/preview${validExt}`;
+  const path = buildProjectPreviewImagePath(id, validExt);
+  return uploadAndGetPublicUrl(path, file);
+}
+
+async function uploadVideoFileForProject(id, file, fallbackExt) {
+  if (!file) return null;
+
+  const validExt = ensureDotExt(getFileExtension(file), fallbackExt);
+  const path = buildProjectPreviewVideoPath(id, validExt);
+  return uploadAndGetPublicUrl(path, file);
+}
+
+async function uploadArchitectureFileForProject(id, file, fallbackExt) {
+  if (!file) return null;
+
+  const validExt = ensureDotExt(getFileExtension(file), fallbackExt);
+  const path = buildProjectArchitecturePath(id, validExt);
   return uploadAndGetPublicUrl(path, file);
 }
 
@@ -47,13 +90,13 @@ export async function resolveProjectMediaUrls(
   architectureImageUrl,
 ) {
   const imageBucketUrl =
-    (await uploadMediaFileForProject(id, imageFile, '.png')) || imageUrl;
+    (await uploadPreviewImageFileForProject(id, imageFile, '.png')) || imageUrl;
 
   const videoBucketUrl =
-    (await uploadMediaFileForProject(id, videoFile, '.mp4')) || videoUrl;
+    (await uploadVideoFileForProject(id, videoFile, '.mp4')) || videoUrl;
 
   const architectureImageBucketUrl =
-    (await uploadMediaFileForProject(id, architectureImageFile, '.svg')) ||
+    (await uploadArchitectureFileForProject(id, architectureImageFile, '.svg')) ||
     architectureImageUrl;
 
   return { imageBucketUrl, videoBucketUrl, architectureImageBucketUrl };

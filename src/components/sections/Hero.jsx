@@ -5,22 +5,14 @@ import ViewButton from '../buttons/ViewButton';
 import Avatar from '../profile/Avatar';
 import { fetchAboutPublic } from '../../api/public/about'
 import usePublicResource from '../../hooks/usePublicResource';
+import { mergeAboutData } from '../../domain/about/viewModel';
 
 const DEFAULT_ABOUT = {
     professionTitle:    "Full-Stack Developer",
     briefBio:           "WSU Computer Science senior student passionate about game, web, and software development.",
-    profileImage:       avatarLogo,
-    resumeURL:          "/Jack_Underhill--Dev_Resume--No_Contact.pdf",
+    profileImageUrl:    avatarLogo,
+    resumeUrl:          "/Jack_Underhill--Dev_Resume--No_Contact.pdf",
 };
-
-function mergeAboutData(data, previous) {
-    return {
-        professionTitle:  data.professionTitle || previous.professionTitle,
-        briefBio:         data.briefBio        || previous.briefBio,
-        profileImage:     data.profileImage    || previous.profileImage,
-        resumeUrl:        data.resumeUrl       || previous.resumeUrl,
-    };
-}
 
 function Hero() {
     const { data: about } = usePublicResource({
@@ -62,7 +54,7 @@ function Hero() {
                 </div>
             </div>
 
-            <Avatar avatarLogo={about.profileImage || avatarLogo} />
+            <Avatar avatarLogo={about.profileImageUrl || avatarLogo} />
         </div>
     )
 }

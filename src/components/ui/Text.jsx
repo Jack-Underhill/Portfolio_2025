@@ -12,18 +12,20 @@ const variantClasses = {
 };
 
 export default function Text({
-    as: Tag = "p",
+    as = "p",
     variant = "body",
     className = "",
     children,
     ...props
 }) {
+    const Component = as;
+
     return (
-        <Tag
+        <Component
             {...props}
             className={cx(variantClasses[variant] || variantClasses.body, className)}
         >
             {children}
-        </Tag>
+        </Component>
     );
 }

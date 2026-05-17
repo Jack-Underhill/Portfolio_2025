@@ -5,10 +5,11 @@ import './index.css'
 import App from './App.jsx'
 import AppAdmin from './admin/AppAdmin.jsx'
 import ArchitectureViewer from './components/projects/viewer/ArchitectureViewer.jsx'
+import { PUBLIC_ROUTES } from './runtime/paths.js'
 
 const isDev = import.meta.env.DEV;
-const isAdminRoute = window.location.pathname.startsWith('/admin');
-const isArchitectureViewerRoute = window.location.pathname === '/architecture-viewer';
+const isAdminRoute = window.location.pathname.startsWith(PUBLIC_ROUTES.ADMIN_BASE);
+const isArchitectureViewerRoute = window.location.pathname === PUBLIC_ROUTES.ARCHITECTURE_VIEWER;
 
 const RootComponent = isArchitectureViewerRoute
   ? ArchitectureViewer

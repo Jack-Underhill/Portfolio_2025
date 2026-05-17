@@ -1,4 +1,5 @@
-const ALLOWED_PATH_PREFIX = "/storage/v1/object/public/portfolio-assets/project-architecture/";
+const TRUSTED_ARCHITECTURE_SVG_PATH_PATTERN =
+    /^\/storage\/v1\/object\/public\/portfolio-assets\/projects\/[1-9]\d*\/architecture\.svg$/i;
 
 function validateSvgUrl(rawUrl) {
     if (!rawUrl) return null;
@@ -6,9 +7,7 @@ function validateSvgUrl(rawUrl) {
     try {
         const url = new URL(rawUrl);
         const isSupabaseStorage = url.protocol === "https:" && url.hostname.endsWith(".supabase.co");
-        const isProjectArchitectureSvg =
-            url.pathname.startsWith(ALLOWED_PATH_PREFIX) &&
-            url.pathname.toLowerCase().endsWith(".svg");
+        const isProjectArchitectureSvg = TRUSTED_ARCHITECTURE_SVG_PATH_PATTERN.test(url.pathname);
 
         if (!isSupabaseStorage || !isProjectArchitectureSvg) return null;
         return url;

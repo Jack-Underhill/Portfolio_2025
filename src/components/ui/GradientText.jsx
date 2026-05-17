@@ -1,14 +1,16 @@
 const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 export default function GradientText({
-    as: Tag = "span",
+    as = "span",
     animated = true,
     className = "",
     children,
     ...props
 }) {
+    const Component = as;
+
     return (
-        <Tag
+        <Component
             {...props}
             className={cx(
                 animated && "animated-gradient",
@@ -17,6 +19,6 @@ export default function GradientText({
             )}
         >
             {children}
-        </Tag>
+        </Component>
     );
 }

@@ -1,4 +1,5 @@
 import { PROJECT_ROUTE_PATTERN } from './constants.js';
+import { PUBLIC_ROUTES } from '../../runtime/paths.js';
 
 export function parseProjectPath(pathname) {
   const match = String(pathname ?? '').match(PROJECT_ROUTE_PATTERN);
@@ -15,5 +16,5 @@ export function parseProjectPath(pathname) {
 
 export function buildProjectPath(permalinkOrId) {
   const segment = String(permalinkOrId ?? '').trim();
-  return `/p/${encodeURIComponent(segment)}`;
+  return `${PUBLIC_ROUTES.PROJECT_BASE}/${encodeURIComponent(segment)}`;
 }
