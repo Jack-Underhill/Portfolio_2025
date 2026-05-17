@@ -41,4 +41,5 @@ Keep this directory free of browser code, React components, public anon-key read
 ## Current Caveats
 
 - `routes/about.js` and `routes/projects.js` each own singleton IDs for their current table shapes.
-- Project image, video, and architecture uploads currently share the `projects/:id/preview.ext` storage stem in `utils/storage.js`; update storage docs and viewer validation together if that changes.
+- Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
+- Architecture SVG viewer validation still needs to be aligned with the project-scoped architecture path.

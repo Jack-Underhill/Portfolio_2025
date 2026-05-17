@@ -8,7 +8,7 @@ This document records runtime paths, route constants, storage paths, singleton I
 
 ## Current Verdict
 
-Several important runtime values are still scattered. This is now a cleanup candidate, not a sign that the architecture is wrong.
+Some runtime and storage boundary values have been centralized, while architecture SVG trust still needs alignment with the admin upload convention. This is still a cleanup candidate, not a sign that the architecture is wrong.
 
 Keep the fix small. The goal is one obvious home for important constants, not a broad configuration framework.
 
@@ -22,17 +22,16 @@ Current active routes:
 
 Current files:
 
+- `src/runtime/paths.js` owns public route constants.
 - `src/domain/projects/constants.js` owns `PROJECT_ROUTE_PATTERN`.
 - `src/domain/projects/routing.js` builds `/p/:project`.
-- `src/components/projects/modal/ArchitecturePreview.jsx` also manually builds `/p/:project` return paths.
+- `src/components/projects/modal/ArchitecturePreview.jsx` uses the route helper for `/p/:project` return paths.
 - `src/main.jsx` detects `/architecture-viewer` and `/admin`.
 - `netlify.toml` rewrites `/p/*` and `/architecture-viewer` to `index.html`.
 
 Next actions:
 
-- Centralize public route path constants.
 - Keep route parsing/building in domain where it is pure.
-- Make components import route helpers instead of rebuilding strings locally.
 
 ## Netlify Function Paths
 
@@ -43,6 +42,7 @@ Current active function paths:
 
 Current files:
 
+- `src/runtime/paths.js`
 - `src/components/layout/VisitCount.jsx`
 - `src/components/projects/viewer/viewerUrl.js`
 - `netlify/functions/track-visit.mjs`
@@ -50,7 +50,6 @@ Current files:
 
 Next actions:
 
-- Centralize browser-visible function paths in a tiny browser-safe config module.
 - Document local testing requirements for Netlify functions.
 
 ## Admin Runtime Paths
@@ -98,24 +97,19 @@ Current object paths:
 - `about/profile{ext}`
 - `docs/resume{ext}`
 - `links/{slug}{ext}`
-- `projects/{id}/preview{ext}`
-
-Current issue:
-
-- Project image, video, and architecture image uploads share the same `projects/{id}/preview{ext}` stem.
-- Different extensions usually avoid collisions.
-- Same-extension uploads can overwrite one another.
-
-Best-practice direction:
-
-- Store each media type under a distinct, stable path.
-- Keep paths predictable and project-scoped.
-
-Recommended future convention:
-
 - `projects/{id}/preview-image{ext}`
 - `projects/{id}/preview-video{ext}`
 - `projects/{id}/architecture{ext}`
+
+Current behavior:
+
+- New project image, video, and architecture uploads use distinct media-type stems.
+- Existing stored URLs may still point at older objects until re-uploaded.
+
+Path direction:
+
+- Store each media type under a distinct, stable path.
+- Keep paths predictable and project-scoped.
 
 ## Architecture Diagram Storage
 
@@ -129,7 +123,7 @@ Current viewer trust rule:
 
 Current admin upload behavior:
 
-- Admin-uploaded architecture images are stored through the same `projects/{id}/preview{ext}` helper as project image/video media.
+- Admin-uploaded architecture images are stored under `projects/{id}/architecture{ext}`.
 - Public project rows expose `architecture_image_url`.
 
 Decision:
@@ -157,4 +151,3 @@ This area is stable when:
 - Admin API defaults are documented and not duplicated without reason.
 - Project media paths cannot overwrite each other by media type.
 - Architecture viewer validation matches the admin upload convention.
-

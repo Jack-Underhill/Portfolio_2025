@@ -61,9 +61,11 @@ Current object path conventions:
 - `about/profile{ext}`
 - `docs/resume{ext}`
 - `links/{slug}{ext}`
-- `projects/{id}/preview{ext}`
+- `projects/{id}/preview-image{ext}`
+- `projects/{id}/preview-video{ext}`
+- `projects/{id}/architecture{ext}`
 
-Project image, video, and architecture-image uploads currently share the `projects/{id}/preview{ext}` stem. Different file extensions usually keep them distinct; if two project media uploads use the same extension, they target the same object path.
+Existing stored project URLs may still point at older object paths until media is re-uploaded. New admin uploads use distinct image, video, and architecture stems so same-extension project media cannot overwrite another media type.
 
 ## Evolving Fields
 
