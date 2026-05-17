@@ -1,29 +1,14 @@
 import TechTag from '../tags/TechTag';
 import GradientText from '../ui/GradientText';
+import { fetchSkillsPublic } from '../../api/public/skills';
+import { DEFAULT_SKILL_GROUPS } from '../../domain/skills/defaults';
+import usePublicResource from '../../hooks/usePublicResource';
 
-const DEFAULT_LANGUAGES = [
-  'Java',
-  'C++',
-  'JavaScript',
-  'C#',
-];
+function mergeSkillGroups(data, previous) {
+    const groups = Array.isArray(data?.groups) ? data.groups : [];
 
-const DEFAULT_EXPERIENCE = [
-  'C',
-  'Python',
-  'React',
-  'HTML',
-  'CSS',
-  'Node.js',
-  'Express.js',
-  'Vite',
-  'TailwindCSS',
-  'Recharts',
-  'MySQL',
-  'SQLite',
-  'Upstash',
-  'Supabase',
-];
+    return groups.length ? groups : previous;
+}
 
 function TagList({ header, tags, isSmall = false }) {
     const TagClassName = isSmall
@@ -47,66 +32,25 @@ function TagList({ header, tags, isSmall = false }) {
 }
 
 function Skills() {
+    const { data: skillGroups } = usePublicResource({
+        load: fetchSkillsPublic,
+        initialData: DEFAULT_SKILL_GROUPS,
+        merge: mergeSkillGroups,
+        label: 'Skills',
+    });
+
     return (
         <div
             id="Skills"
             className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 md:gap-15 xl:gap-20'
         >
-            <TagList
-                header="Core Web Stack"
-                tags={[
-                    'JavaScript',
-                    'React',
-                    'TailwindCSS',
-                    'Vite',
-                    'Netlify',
-                ]}
-            />
-            <TagList
-                header="Backend"
-                tags={[
-                    'Node',
-                    'Express',
-                ]}
-            />
-            <TagList
-                header="Data"
-                tags={[
-                    'Supabase (Postgres)',
-                    'Upstash (Redis)',
-                    'SQLite',
-                    'MySQL',
-                ]}
-            />
-            <TagList
-                header="Infra & Tooling"
-                tags={[
-                    'Git',
-                    'GitHub',
-                    'Azure',
-                    'Docker',
-                    'Traefik',
-                ]}
-            />
-            <TagList
-                header="Languages"
-                tags={[
-                    'C++',
-                    'Java',
-                    'Python',
-                    'C#',
-                    'C',
-                ]}
-            />
-            <TagList
-                header="Also Built With"
-                tags={[
-                    'Bootstrap',
-                    'AOS',
-                    'Recharts',
-                    'Unity',
-                ]}
-            />
+            {skillGroups.map((group) => (
+                <TagList
+                    key={`${group.sortOrder}-${group.label}`}
+                    header={group.label}
+                    tags={group.items.map((item) => item.label)}
+                />
+            ))}
         </div>
     );
 }
