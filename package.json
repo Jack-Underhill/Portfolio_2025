@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "admin:server": "node --env-file=.env.local server/admin/index.js",
+    "backup:supabase": "node --env-file=.env.local scripts/backup-supabase.mjs",
     "diagnose:runtime": "node scripts/diagnose-runtime.mjs",
     "check:schema": "node scripts/check-schema-drift.mjs",
     "build": "vite build",
