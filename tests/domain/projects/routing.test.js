@@ -5,6 +5,7 @@ import {
   buildProjectPath,
   parseProjectPath,
 } from '../../../src/domain/projects/routing.js';
+import { PUBLIC_ROUTES } from '../../../src/runtime/paths.js';
 
 describe('project routing helpers', () => {
   it('keeps the public project route pattern scoped to one /p segment', () => {
@@ -47,7 +48,9 @@ describe('project routing helpers', () => {
   });
 
   it('builds the public project route for a permalink segment', () => {
-    expect(buildProjectPath('example-project')).toBe('/p/example-project');
+    expect(buildProjectPath('example-project')).toBe(
+      `${PUBLIC_ROUTES.PROJECT_BASE}/example-project`,
+    );
   });
 
   it('encodes unsafe characters when building project routes', () => {
