@@ -10,6 +10,7 @@ Apply SQL in this order when setting up or refreshing a Supabase project:
 
 1. `migrations/0001_current_portfolio_schema.sql`
 2. `migrations/0002_public_read_policies.sql`
+3. `migrations/0003_grouped_skills.sql`
 
 Use `schema.sql` as the readable snapshot of the desired current schema. Do not apply destructive SQL to a live project without confirming the live schema and backing up data.
 
@@ -20,7 +21,7 @@ Current runtime tables:
 - `about`: singleton profile content. Admin upserts `id = 1`; public code reads profile image, profession title, bio, and resume URL.
 - `project_section`: singleton project-section intro text. Admin upserts `id = 1`; public code reads `about_projects`.
 - `projects`: project cards and modal details, including media URLs, permalink, publish state, sort order, and structured project lists.
-- `skills`: contact skill rows grouped by `level`.
+- `skills`: grouped Skills rows with display group labels, item labels, sort order, and publish state.
 - `links`: contact/social link rows with optional uploaded icon URL.
 
 `database/schema.sql` owns the detailed column list.
@@ -70,6 +71,14 @@ Existing stored project URLs may still point at older object paths until media i
 Architecture SVGs are trusted by the public viewer and `inline-svg` proxy only when they are Supabase public bucket URLs shaped as `projects/{id}/architecture.svg`. Non-SVG architecture files may remain stored in `architecture_image_url`, but they are not inputs for the SVG proxy.
 
 ## Evolving Fields
+
+### Skills Backfill
+
+`migrations/0003_grouped_skills.sql` removes the old `skills.name` and `skills.level` columns after backfilling existing rows into grouped columns. Existing legacy rows become unpublished `Imported Proficient` or `Imported Experiencing` grouped rows, preserving the labels without making them the new public Skills display by accident.
+
+Run `npm run backup:supabase` before applying that migration to a live Supabase project. The current static Skills groups remain the public fallback source until grouped rows are curated and published.
+
+---
 
 When adding or changing a persisted portfolio field, update the matching files in the same substep:
 
