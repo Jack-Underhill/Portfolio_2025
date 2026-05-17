@@ -22,25 +22,25 @@ The next architecture work should be small and stabilizing.
 
 Problem:
 
-- Important route, function, bucket, path, host, and singleton values are scattered.
+- Some runtime values still live at their natural runtime boundary, while public route and browser-visible function paths now have one browser-safe home.
 
 Examples:
 
-- `/p/`
-- `/architecture-viewer`
 - `/admin`
 - `/admin-api`
-- `/.netlify/functions/track-visit`
-- `/.netlify/functions/inline-svg`
 - `portfolio-assets`
 - `PROJECT_SECTION_ID = 1`
 - `ABOUT_ID = 1`
 - `http://localhost:8787/admin-api`
 - `http://localhost:5173`
 
+Current state:
+
+- `src/runtime/paths.js` owns public route constants and browser-visible Netlify function paths.
+- `src/domain/projects/routing.js` keeps pure project route parsing/building.
+
 Next actions:
 
-- Add a tiny browser-safe runtime/routes module for public route and function paths.
 - Add a server-safe constants home only if it can be imported by Node without Vite/browser dependencies.
 - Document values that should not be shared across browser/server boundaries.
 
@@ -104,12 +104,12 @@ Guideline:
 Problem:
 
 - Unit tests, lint, build, and schema drift checks pass.
-- Browser smoke coverage and function-level tests are still future work.
+- Browser smoke coverage and `track-visit` function behavior are still future work.
 
 Next actions:
 
 - Keep README verification aligned with the active baseline.
-- Add focused browser/function tests after route, storage, and runtime-path cleanup settle.
+- Add focused browser smoke tests and mocked `track-visit` tests when those areas become active work.
 
 ## Definition of Done
 

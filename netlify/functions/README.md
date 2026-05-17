@@ -32,5 +32,5 @@ Functions are available locally when the site runs through Netlify Dev, not plai
 - Public browser code may call these handlers through `/.netlify/functions/*`, but should not import handler code directly.
 - Admin-only writes belong in `server/admin`.
 - Public Supabase reads belong in `src/api/public`.
-- Keep route path constants browser-safe if they are centralized later.
+- Browser-visible function path constants live in `src/runtime/paths.js`; function-side URL validation stays local to these handlers and is protected by tests.
 - Keep detailed function drift and testing notes in `docs/`. This README is only the local map for maintainers reading `netlify/functions`.

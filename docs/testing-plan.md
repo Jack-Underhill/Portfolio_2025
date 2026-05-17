@@ -54,7 +54,7 @@ Current coverage:
 
 - Route parsing/building, public project mappers, detail view models, fallback merging, and sort-order normalization are covered.
 - Admin project validation is covered through pure validation helper tests.
-- Media upload path conventions should wait for the P1 storage alignment work.
+- Project media upload path conventions are covered by focused storage utility tests.
 
 Why this matters:
 
@@ -163,6 +163,7 @@ Highest-value coverage:
 Current coverage:
 
 - `inline-svg` URL validation and SVG response headers are covered with mocked fetch behavior.
+- `track-visit` remains covered only by local/manual Netlify Dev checks.
 
 Decision:
 

@@ -42,4 +42,4 @@ Keep this directory free of browser code, React components, public anon-key read
 
 - `routes/about.js` and `routes/projects.js` each own singleton IDs for their current table shapes.
 - Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
-- Architecture SVG viewer validation still needs to be aligned with the project-scoped architecture path.
+- Architecture SVG viewer validation and the Netlify inline SVG proxy trust the same project-scoped `projects/:id/architecture.svg` path.

@@ -27,7 +27,7 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 - `components/`: public portfolio components, section components, project modal/viewer components, and shared UI primitives.
 - `domain/`: pure data mappers, route helpers, defaults, and browser/server-safe domain constants. See `src/domain/README.md`.
 - `hooks/`: reusable React hooks for browser lifecycle behavior and shared UI state. See `src/hooks/README.md`.
-- `runtime/`: tiny browser runtime helpers, currently Netlify function availability.
+- `runtime/`: tiny browser runtime helpers, including public route constants, browser-visible Netlify function paths, and Netlify function availability.
 - `styles/`: shared theme tokens, global CSS utilities, and reusable admin class recipes. See `src/styles/README.md`.
 
 ## Data Boundaries
@@ -52,6 +52,6 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 
 ## Current Caveats
 
-- Some route, function, singleton ID, and storage path constants are still scattered while runtime constant cleanup is pending.
+- Singleton IDs and local admin defaults still live at their owning runtime boundaries.
 - Contact skills currently bridge old `proficient` and `experiencing` data into the public Contact shape.
 - Keep detailed architecture status and cleanup notes in `docs/`; this README is the local map for maintainers working inside `src`.

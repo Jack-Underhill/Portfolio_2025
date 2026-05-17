@@ -28,4 +28,4 @@ Keep this directory free of privileged writes, service-role keys, admin validati
 
 ## Current Caveat
 
-`public/projects.js` currently owns `PROJECT_SECTION_ID = 1` for the singleton project section read. If runtime constants are centralized later, keep the replacement browser-safe and avoid importing frontend-only code into server/admin modules.
+`public/projects.js` currently owns `PROJECT_SECTION_ID = 1` for the singleton project section read. Centralize singleton IDs later only if the replacement stays browser-safe and does not import frontend-only code into server/admin modules.

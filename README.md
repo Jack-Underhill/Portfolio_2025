@@ -80,9 +80,9 @@ Detailed current-state notes live in `docs/`:
 
 Known cleanup themes are documented rather than hidden:
 
-- Runtime route/function/storage constants need clearer homes.
+- Singleton IDs and local admin runtime defaults still live at their owning runtime boundaries.
 - Skills data is still partly legacy while the public Skills section uses newer grouped static content.
-- Project media upload paths need a safer per-media convention.
+- Browser smoke coverage and `track-visit` function tests remain future quality work.
 - The current unit-test, lint, schema drift, and build checks are green and part of the normal local quality gate.
 
 ## Local Development
