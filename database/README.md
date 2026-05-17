@@ -11,6 +11,7 @@ Apply SQL in this order when setting up or refreshing a Supabase project:
 1. `migrations/0001_current_portfolio_schema.sql`
 2. `migrations/0002_public_read_policies.sql`
 3. `migrations/0003_grouped_skills.sql`
+4. `migrations/0004_project_classification.sql`
 
 Use `schema.sql` as the readable snapshot of the desired current schema. Do not apply destructive SQL to a live project without confirming the live schema and backing up data.
 
@@ -20,7 +21,7 @@ Current runtime tables:
 
 - `about`: singleton profile content. Admin upserts `id = 1`; public code reads profile image, profession title, bio, and resume URL.
 - `project_section`: singleton project-section intro text. Admin upserts `id = 1`; public code reads `about_projects`.
-- `projects`: project cards and modal details, including media URLs, permalink, publish state, sort order, and structured project lists.
+- `projects`: project cards and modal details, including media URLs, permalink, publish state, sort order, classification fields, labels, and structured project lists.
 - `skills`: grouped Skills rows with display group labels, item labels, sort order, and publish state.
 - `links`: contact/social link rows with optional uploaded icon URL.
 
@@ -71,6 +72,16 @@ Existing stored project URLs may still point at older object paths until media i
 Architecture SVGs are trusted by the public viewer and `inline-svg` proxy only when they are Supabase public bucket URLs shaped as `projects/{id}/architecture.svg`. Non-SVG architecture files may remain stored in `architecture_image_url`, but they are not inputs for the SVG proxy.
 
 ## Evolving Fields
+
+### Project Classification
+
+`migrations/0004_project_classification.sql` adds optional project classification fields:
+
+- `featured_rank`: nullable integer. `NULL` means the project is not featured; lower numbers sort first for featured projects.
+- `project_type`: nullable primary classification constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
+- `labels`: nullable JSONB array for display labels shared by project cards and details.
+
+Existing project rows remain valid without classification values. Public mappers and admin validation should treat these fields as optional and normalize display labels before rendering or saving.
 
 ### Skills Backfill
 

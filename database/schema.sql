@@ -51,8 +51,20 @@ CREATE TABLE IF NOT EXISTS projects (
     challenges              JSONB,
     improvements            JSONB,
 
+    featured_rank           INTEGER,
+    project_type            TEXT,
+    labels                  JSONB,
+
     published               BOOLEAN NOT NULL DEFAULT TRUE,
-    sort_order              INTEGER NOT NULL DEFAULT 0
+    sort_order              INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT projects_project_type_check
+        CHECK (
+            project_type IS NULL
+            OR project_type IN ('school', 'internship', 'personal', 'client', 'open-source')
+        ),
+    CONSTRAINT projects_labels_array_check
+        CHECK (labels IS NULL OR jsonb_typeof(labels) = 'array')
 );
 
 COMMENT ON TABLE projects IS
@@ -72,6 +84,12 @@ COMMENT ON COLUMN projects.challenges IS
     'Nullable JSON array of objects with challenge, solution, and result fields.';
 COMMENT ON COLUMN projects.improvements IS
     'JSON string array for modal future improvements.';
+COMMENT ON COLUMN projects.featured_rank IS
+    'Nullable integer for featured project ordering. Null means not featured; lower numbers sort first.';
+COMMENT ON COLUMN projects.project_type IS
+    'Optional primary project classification: school, internship, personal, client, or open-source.';
+COMMENT ON COLUMN projects.labels IS
+    'Optional JSONB string array of display labels for project cards and details.';
 
 CREATE INDEX IF NOT EXISTS projects_public_order_idx
     ON projects (published, sort_order, id);
