@@ -22,6 +22,13 @@ const DETAIL_PLAIN_FIELDS = [
   'techStack',
 ];
 
+const DETAIL_CLASSIFICATION_FIELDS = [
+  'isFeatured',
+  'featuredRank',
+  'projectType',
+  'labels',
+];
+
 const DETAIL_TEXT_FIELDS = [
   'overview',
   'role',
@@ -40,6 +47,14 @@ const MERGE_FALLBACK_FIELDS = [
   'imageUrl',
   'videoUrl',
 ];
+
+const PROJECT_TYPES = new Set([
+  'school',
+  'internship',
+  'personal',
+  'client',
+  'open-source',
+]);
 
 function hasOwnValue(object, field) {
   return object?.[field] !== undefined;
@@ -83,6 +98,48 @@ function normalizeProjectChallenges(value) {
   return [];
 }
 
+function normalizeFeaturedRank(value) {
+  const normalized = normalizeOptionalString(value);
+  if (normalized === null) return null;
+
+  const rank = Number(normalized);
+  return Number.isSafeInteger(rank) ? rank : null;
+}
+
+function normalizeProjectType(value) {
+  const projectType = normalizeOptionalString(value);
+  if (!PROJECT_TYPES.has(projectType)) return null;
+
+  return projectType;
+}
+
+function normalizeProjectLabels(value) {
+  const labels = normalizeStringArray(value, []);
+  return [...new Set(labels)];
+}
+
+function mapProjectClassification(row) {
+  const featuredRank = normalizeFeaturedRank(row?.featured_rank);
+
+  return {
+    isFeatured: featuredRank !== null,
+    featuredRank,
+    projectType: normalizeProjectType(row?.project_type),
+    labels: normalizeProjectLabels(row?.labels),
+  };
+}
+
+function mapProjectViewModelClassification(project) {
+  const featuredRank = normalizeFeaturedRank(project?.featuredRank);
+
+  return {
+    isFeatured: featuredRank !== null,
+    featuredRank,
+    projectType: normalizeProjectType(project?.projectType),
+    labels: normalizeProjectLabels(project?.labels),
+  };
+}
+
 export function mapProjectRowToPublicCard(row) {
   return {
     id: row?.id,
@@ -93,6 +150,7 @@ export function mapProjectRowToPublicCard(row) {
     description: normalizeString(row?.card_description),
     directUrl: normalizeString(row?.live_url || row?.source_url),
     techTags: normalizeStringArray(row?.tech_tags, []),
+    ...mapProjectClassification(row),
   };
 }
 
@@ -122,6 +180,8 @@ export function mapProjectRowToPublicDetails(row) {
     challenges: normalizeProjectChallenges(row.challenges),
     improvements: normalizeStringArray(row.improvements, []),
 
+    ...mapProjectClassification(row),
+
     published: !!row.published,
     sortOrder: row.sort_order ?? 0,
   };
@@ -140,6 +200,7 @@ export function toProjectCardViewModel(project, { fallbackImageUrl = null, fallb
     directUrl: normalizeOptionalString(project?.directUrl),
     techTags: normalizeStringArray(project?.techTags, []),
     ...createEmptyProjectDetails(),
+    ...mapProjectViewModelClassification(project),
   };
 }
 
@@ -154,6 +215,7 @@ export function toProjectDetailsViewModel(project) {
   copyUrlFields(project, output, DETAIL_URL_FIELDS);
   copyTextFields(project, output, DETAIL_TEXT_FIELDS);
   copyArrayFields(project, output, DETAIL_ARRAY_FIELDS);
+  copyPlainFields(mapProjectViewModelClassification(project), output, DETAIL_CLASSIFICATION_FIELDS);
 
   return output;
 }
