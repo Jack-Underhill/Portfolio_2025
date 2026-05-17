@@ -120,4 +120,3 @@ This cleanup pass is complete when:
 - Public data ownership for Skills/Contact is explicit.
 - Route/function/storage constants have obvious homes.
 - Architecture diagram upload and viewer validation agree.
-- Stale project click functions are either wired intentionally or removed.

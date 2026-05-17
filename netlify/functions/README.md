@@ -34,7 +34,3 @@ Functions are available locally when the site runs through Netlify Dev, not plai
 - Public Supabase reads belong in `src/api/public`.
 - Keep route path constants browser-safe if they are centralized later.
 - Keep detailed function drift and testing notes in `docs/`. This README is only the local map for maintainers reading `netlify/functions`.
-
-## Current Caveat
-
-`project-click-track.js` and `project-click-count.js` are not referenced by active `src` code. They should either be wired intentionally and cleaned up, or removed with the related stale-code notes updated.

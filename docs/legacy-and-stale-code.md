@@ -41,34 +41,6 @@ Next actions:
 
 - Review and replace this flow when the new skills data model is designed.
 
-## Project Click Functions
-
-Status: stale or unintegrated.
-
-Files:
-
-- `netlify/functions/project-click-track.js`
-- `netlify/functions/project-click-count.js`
-
-Current source search:
-
-- These functions are not referenced by active `src` code.
-
-Known issues:
-
-- `project-click-count.js` decodes the `project` query param before validating that it exists.
-- `project-click-count.js` returns an error message that says `repo` instead of `project`.
-
-Decision:
-
-- Mark as stale because it is not wired or referenced.
-- Review before either wiring or removing.
-
-Next actions:
-
-- If project click tracking is still desired, wire it intentionally and test it.
-- If not, remove both functions and any related planning notes.
-
 ## Static Education and Certifications
 
 Status: current static implementation, future data-flow candidate.
@@ -101,4 +73,3 @@ Decision:
 Next actions:
 
 - Future `planning/README.md` should explain which planning docs are historical and which are closest to current.
-

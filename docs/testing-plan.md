@@ -159,7 +159,6 @@ Highest-value coverage:
 - `track-visit` counted and skipped IP behavior.
 - Redis failure behavior.
 - `inline-svg` URL validation and content type response.
-- Stale project click functions if they are kept for review.
 
 Current coverage:
 
