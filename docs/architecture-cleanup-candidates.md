@@ -67,14 +67,12 @@ Next actions:
 Problem:
 
 - Contact links are data-driven.
-- Skills display is static.
-- Old skill database/admin paths still exist.
+- Skills are data-driven with static grouped fallbacks.
 
 Next actions:
 
-- Decide and implement a grouped skills data model.
-- Remove stale languages/experience outputs once replaced.
-- Keep static fallback groups so the public site remains resilient.
+- Keep Contact links and Skills owned by separate public/domain/admin modules.
+- Keep static Skills fallback groups so the public site remains resilient.
 
 ## Documentation Boundaries
 

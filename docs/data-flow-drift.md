@@ -8,44 +8,33 @@ This document records where the database, admin UI, public API, and public compo
 
 ## Current Verdict
 
-The main active drift is contact and skills.
+The main Skills and Contact drift has been resolved.
 
-The database and admin backend still treat `skills` as editable rows grouped by old levels. The public site no longer displays skills that way. `Skills.jsx` now renders deliberate static groups such as Core Web Stack, Backend, Data, Infra and Tooling, Languages, and Also Built With.
+Skills now use one grouped data flow: database rows, browser-safe public fetch, pure domain mapper/defaults, public `Skills.jsx`, local admin route, and admin Skills editor all agree on grouped rows with labels, sort order, and publish state. Contact owns contact/social links only.
 
-That means the database is partially legacy for skills. The future direction is not to return to the old `languages` and `experience` display. The future direction is to map the new public skills grouping back into the data flow.
+## Skills
 
-## Contact and Skills
-
-Current database/admin shape:
+Current flow:
 
 - Table: `skills`
-- Columns include `name` and `level`.
-- Admin state uses `proficientTechs` and `experiencingTechs`.
-- `server/admin/routes/contact.js` reads and writes skills using levels `proficient` and `experiencing`.
-- `src/api/public/contact.js` fetches `skills` and `links`.
-- `src/domain/contact/mappers.js` maps skill rows into `languages` and `experience`.
-
-Current public UI shape:
-
-- `src/components/sections/Contact.jsx` consumes only `links`.
-- `src/components/sections/Skills.jsx` renders static grouped skills.
-- `languages` and `experience` from the contact public mapper are stale and unused.
+- Columns: `group_label`, `label`, `group_sort_order`, `item_sort_order`, and `published`.
+- Public read: `src/api/public/skills.js`
+- Domain mapper/defaults: `src/domain/skills/mappers.js` and `src/domain/skills/defaults.js`
+- Public UI: `src/components/sections/Skills.jsx`
+- Admin backend: `server/admin/routes/skills.js`
+- Admin UI: `src/admin/sections/SkillsSection.jsx`
 
 Decision:
 
-- Treat `languages` and `experience` as stale.
-- Do not preserve them as the future public Skills contract.
-- Future work should define a new grouped skills data model that matches the public display.
-- Once the new model exists, public Skills should consume it through the same boundary pattern as projects/about/contact: database -> public API -> domain mapper -> component.
+- Skills are no longer coupled to Contact.
+- The public Skills section uses grouped database rows when available and falls back to static grouped defaults when public data is missing, empty, or errored.
+- Admin Skills saves use simple full-table replacement after validation normalizes row order and publish state.
 
 Next actions:
 
-- Decide the new persisted skills shape. Likely fields: group label, item label, sort order, and publish state.
-- Update database schema/migration docs once the shape is chosen.
-- Update admin editing to manage grouped skills instead of old proficient/experiencing arrays.
-- Update public API and domain mapper to return grouped skills.
-- Update `Skills.jsx` to render mapped public data with static fallbacks.
-- Remove or rename stale `languages` and `experience` mapper output.
+- Keep `database/migrations/0003_grouped_skills.sql` in setup order for live Supabase migration.
+- Run `npm run backup:supabase` before applying the grouped Skills migration to live data.
+- Curate and publish grouped Skills rows in Supabase when ready; static defaults remain the resilient public fallback.
 
 ## Contact Links
 

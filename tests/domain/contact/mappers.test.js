@@ -14,8 +14,6 @@ describe('contact public mapper', () => {
         },
       ],
     })).toEqual({
-      languages: [],
-      experience: [],
       links: [
         {
           id: 'github',
@@ -53,22 +51,16 @@ describe('contact public mapper', () => {
     ]);
   });
 
-  it('documents the current legacy skills split into languages and experience', () => {
+  it('ignores legacy skill rows because Skills now has its own public mapper', () => {
     expect(mapContactRowsToPublic({
       skills: [
-        { name: ' JavaScript ', level: 'proficient' },
-        { name: ' Supabase ', level: 'experiencing' },
-        { name: ' ', level: 'proficient' },
-        { name: 'Figma', level: 'other' },
+        { name: ' JavaScript ', level: 'legacy-primary' },
+        { name: ' Supabase ', level: 'legacy-secondary' },
       ],
-    })).toEqual({
-      languages: ['JavaScript'],
-      experience: ['Supabase'],
-      links: [],
-    });
+    })).toBeNull();
   });
 
-  it('returns null when contact rows contain no public links or legacy skills', () => {
+  it('returns null when contact rows contain no public links', () => {
     expect(mapContactRowsToPublic({
       skills: 'JavaScript',
       links: [

@@ -7,7 +7,7 @@ Use this directory for privileged admin reads and writes that require the Supaba
 ## Scope
 
 - Start the local admin HTTP server on loopback only.
-- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Projects, and save-all flows.
+- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Skills, Projects, and save-all flows.
 - Read and write Supabase tables with the service-role client.
 - Validate admin payloads and uploaded files before persistence.
 - Upload admin-managed media into the `portfolio-assets` bucket and return public URLs.
@@ -25,7 +25,8 @@ Keep this directory free of browser code, React components, public anon-key read
 - `index.js`: creates the local HTTP server, applies CORS for the Vite dev origin, and routes `/admin-api/*` requests.
 - `routes/bootstrap.js`: loads or saves About, Projects, and Contact data together.
 - `routes/about.js`: manages the singleton About row and About media uploads.
-- `routes/contact.js`: manages skills, social links, and social icon uploads.
+- `routes/contact.js`: manages social links and social icon uploads.
+- `routes/skills.js`: manages grouped Skills rows with service-role replacement saves.
 - `routes/projects.js`: manages project section text, projects, project media uploads, ordering, permalink creation, and deleted-project cleanup.
 - `routes/requestBody.js`: parses JSON and multipart admin requests, enforces body limits, and attaches uploaded files to state objects.
 - `routes/validation.js`: normalizes and validates admin payloads, URLs, arrays, booleans, IDs, and upload file limits.

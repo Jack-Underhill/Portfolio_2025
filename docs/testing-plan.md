@@ -17,6 +17,7 @@ Current baseline test files:
 - `tests/domain/projects/mappers.test.js`
 - `tests/domain/about/mappers.test.js`
 - `tests/domain/contact/mappers.test.js`
+- `tests/domain/skills/mappers.test.js`
 - `tests/components/projects/viewer/viewerUrl.test.js`
 - `tests/netlify/functions/inline-svg.test.js`
 - `tests/server/admin/utils/storage.test.js`
@@ -25,6 +26,7 @@ Current baseline test files:
 - `tests/server/admin/routes/validation.about.test.js`
 - `tests/server/admin/routes/validation.projects.test.js`
 - `tests/server/admin/routes/validation.contact.test.js`
+- `tests/server/admin/routes/validation.skills.test.js`
 
 Current checks:
 
@@ -92,7 +94,7 @@ Highest-value coverage:
 
 Current coverage:
 
-- Link row mapping, empty URL filtering, uploaded icon URL passthrough, and the current legacy skills split are covered.
+- Link row mapping, empty URL filtering, uploaded icon URL passthrough, and links-only null behavior are covered.
 
 Why this matters:
 
@@ -103,19 +105,20 @@ Why this matters:
 
 Current status:
 
-- The old database/admin skills flow is legacy.
-- Public `Skills.jsx` is static and grouped by the newer display direction.
-- `languages` and `experience` are stale mapper outputs.
+- Grouped Skills are in the full data flow.
+- Public `Skills.jsx` consumes mapped grouped rows and falls back to static grouped defaults.
+- Contact no longer exposes Skills output.
 
-Testing should wait until the new skills data shape is chosen.
-
-Future coverage:
+Current coverage:
 
 - Grouped skills row mapping.
 - Sort order.
 - Fallback static groups.
 - Admin grouped skills validation.
-- Public Skills rendering from mapped data.
+
+Future coverage:
+
+- Thin component smoke coverage for `Skills.jsx` fallback/render states if public data fetching behavior changes.
 
 ## Education and Certifications
 
@@ -183,7 +186,7 @@ Highest-value coverage:
 
 Current coverage:
 
-- Pure helper primitives, upload file validation, and about/project/contact state validation are covered.
+- Pure helper primitives, upload file validation, and about/project/contact/skills state validation are covered.
 
 Why this matters:
 

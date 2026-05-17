@@ -6,7 +6,7 @@ The `planning/` directory is historical working memory. It contains implementati
 
 ## Current Docs
 
-- [Data Flow Drift](./data-flow-drift.md): current database/admin/public drift, especially contact, skills, education, and certifications.
+- [Data Flow Drift](./data-flow-drift.md): current database/admin/public drift, especially Skills, Contact, Education, and Certifications.
 - [Current Errors and Warnings](./current-errors-and-warnings.md): current command failures, lint errors, local runtime warnings, and known quality gates.
 - [Testing Plan](./testing-plan.md): high-level testing plan grouped by feature area.
 - [Routes, Runtime, and Data Collisions](./routes-runtime-and-data-collisions.md): route constants, function paths, storage paths, singleton IDs, and data collision risks.
@@ -20,4 +20,3 @@ The `planning/` directory is historical working memory. It contains implementati
 - Prefer repo-specific details over generic architecture advice.
 - Update docs when a drift item is fixed, removed, or intentionally accepted.
 - Future subdirectory READMEs should be concise. These docs may stay more audit-like and detailed.
-
