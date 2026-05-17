@@ -1,7 +1,8 @@
 import { canUseNetlifyFunctions } from "../../../runtime/netlify";
 import { NETLIFY_FUNCTION_PATHS, PUBLIC_ROUTES } from "../../../runtime/paths";
 
-const ALLOWED_ARCHITECTURE_PATH_PREFIX = "/storage/v1/object/public/portfolio-assets/project-architecture/";
+const TRUSTED_ARCHITECTURE_SVG_PATH_PATTERN =
+    /^\/storage\/v1\/object\/public\/portfolio-assets\/projects\/[1-9]\d*\/architecture\.svg$/i;
 
 export function isSvgUrl(url) {
     try {
@@ -24,9 +25,7 @@ export function isTrustedSupabaseArchitectureSvgUrl(rawUrl) {
     try {
         const url = new URL(rawUrl);
         const isSupabaseStorage = url.protocol === "https:" && url.hostname.endsWith(".supabase.co");
-        const isProjectArchitectureSvg =
-            url.pathname.startsWith(ALLOWED_ARCHITECTURE_PATH_PREFIX) &&
-            url.pathname.toLowerCase().endsWith(".svg");
+        const isProjectArchitectureSvg = TRUSTED_ARCHITECTURE_SVG_PATH_PATTERN.test(url.pathname);
 
         return isSupabaseStorage && isProjectArchitectureSvg;
     } catch {

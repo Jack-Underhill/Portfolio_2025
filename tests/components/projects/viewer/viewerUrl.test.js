@@ -11,9 +11,9 @@ import {
 
 const ORIGIN = 'https://portfolio.example.test';
 const TRUSTED_ARCHITECTURE_SVG =
-  'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/project-architecture/launch.svg';
-const TRUSTED_ARCHITECTURE_SVG_WITH_SPACES =
-  'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/project-architecture/launch diagram.svg';
+  'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/architecture.svg';
+const TRUSTED_ARCHITECTURE_SVG_FOR_VIEWER =
+  'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/42/architecture.svg';
 
 describe('architecture viewer URL helpers', () => {
   afterEach(() => {
@@ -41,28 +41,46 @@ describe('architecture viewer URL helpers', () => {
     );
   });
 
-  it('accepts only the current trusted Supabase project-architecture SVG path', () => {
+  it('accepts only the current trusted Supabase project-scoped architecture SVG path', () => {
     expect(isTrustedSupabaseArchitectureSvgUrl(TRUSTED_ARCHITECTURE_SVG)).toBe(true);
     expect(isTrustedSupabaseArchitectureSvgUrl(
-      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/project-architecture/LAUNCH.SVG',
+      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/ARCHITECTURE.SVG',
     )).toBe(true);
   });
 
-  it('rejects untrusted architecture SVG hosts, paths, extensions, and malformed values', () => {
+  it('rejects untrusted architecture SVG hosts, buckets, paths, extensions, and malformed values', () => {
     expect(isTrustedSupabaseArchitectureSvgUrl(
-      'http://abc123.supabase.co/storage/v1/object/public/portfolio-assets/project-architecture/launch.svg',
+      'http://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/architecture.svg',
     )).toBe(false);
     expect(isTrustedSupabaseArchitectureSvgUrl(
-      'https://abc123.supabase.co.evil.test/storage/v1/object/public/portfolio-assets/project-architecture/launch.svg',
+      'https://abc123.supabase.co.evil.test/storage/v1/object/public/portfolio-assets/projects/7/architecture.svg',
     )).toBe(false);
     expect(isTrustedSupabaseArchitectureSvgUrl(
-      'https://cdn.example.test/storage/v1/object/public/portfolio-assets/project-architecture/launch.svg',
+      'https://cdn.example.test/storage/v1/object/public/portfolio-assets/projects/7/architecture.svg',
     )).toBe(false);
     expect(isTrustedSupabaseArchitectureSvgUrl(
-      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/architecture.svg',
+      'https://abc123.supabase.co/storage/v1/object/public/other-bucket/projects/7/architecture.svg',
     )).toBe(false);
     expect(isTrustedSupabaseArchitectureSvgUrl(
-      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/project-architecture/launch.png',
+      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/project-architecture/launch.svg',
+    )).toBe(false);
+    expect(isTrustedSupabaseArchitectureSvgUrl(
+      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/0/architecture.svg',
+    )).toBe(false);
+    expect(isTrustedSupabaseArchitectureSvgUrl(
+      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/diagram.svg',
+    )).toBe(false);
+    expect(isTrustedSupabaseArchitectureSvgUrl(
+      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/architecture.png',
+    )).toBe(false);
+    expect(isTrustedSupabaseArchitectureSvgUrl(
+      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/architecture.png?file=architecture.svg',
+    )).toBe(false);
+    expect(isTrustedSupabaseArchitectureSvgUrl(
+      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/%2e%2e/architecture.svg',
+    )).toBe(false);
+    expect(isTrustedSupabaseArchitectureSvgUrl(
+      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/architecture.svg%3Fdownload=.png',
     )).toBe(false);
     expect(isTrustedSupabaseArchitectureSvgUrl('not a url.svg')).toBe(false);
   });
@@ -81,8 +99,8 @@ describe('architecture viewer URL helpers', () => {
     vi.stubEnv('VITE_ENABLE_NETLIFY_FUNCTIONS', 'true');
 
     const untrustedTarget = 'https://cdn.example.test/architecture.svg';
-    const futureProjectScopedTarget =
-      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/projects/7/architecture.svg';
+    const legacyProjectArchitectureTarget =
+      'https://abc123.supabase.co/storage/v1/object/public/portfolio-assets/project-architecture/launch.svg';
 
     expect(getTrustedViewerSrc(TRUSTED_ARCHITECTURE_SVG, ORIGIN)).toBeNull();
     expect(getTrustedViewerSrc(
@@ -98,7 +116,7 @@ describe('architecture viewer URL helpers', () => {
       ORIGIN,
     )).toBeNull();
     expect(getTrustedViewerSrc(
-      `/.netlify/functions/inline-svg?url=${encodeURIComponent(futureProjectScopedTarget)}`,
+      `/.netlify/functions/inline-svg?url=${encodeURIComponent(legacyProjectArchitectureTarget)}`,
       ORIGIN,
     )).toBeNull();
     expect(getTrustedViewerSrc('://bad-url', ORIGIN)).toBeNull();
@@ -120,14 +138,14 @@ describe('architecture viewer URL helpers', () => {
 
   it('builds the viewer route with encoded src, title, and safe return path', () => {
     const viewerUrl = buildArchitectureViewerUrl({
-      src: TRUSTED_ARCHITECTURE_SVG_WITH_SPACES,
+      src: TRUSTED_ARCHITECTURE_SVG_FOR_VIEWER,
       title: 'Launch Console / Architecture',
       returnTo: 'https://evil.example.test/p/7',
     });
     const parsed = new URL(viewerUrl, ORIGIN);
 
     expect(parsed.pathname).toBe('/architecture-viewer');
-    expect(parsed.searchParams.get('src')).toBe(TRUSTED_ARCHITECTURE_SVG_WITH_SPACES);
+    expect(parsed.searchParams.get('src')).toBe(TRUSTED_ARCHITECTURE_SVG_FOR_VIEWER);
     expect(parsed.searchParams.get('title')).toBe('Launch Console / Architecture');
     expect(parsed.searchParams.get('returnTo')).toBe('/');
   });

@@ -8,7 +8,7 @@ This document records runtime paths, route constants, storage paths, singleton I
 
 ## Current Verdict
 
-Some runtime and storage boundary values have been centralized, while architecture SVG trust still needs alignment with the admin upload convention. This is still a cleanup candidate, not a sign that the architecture is wrong.
+Some runtime, storage, and architecture SVG boundary values have been centralized or clarified. The remaining cleanup is narrow and mostly about documenting local runtime expectations and future data-model work.
 
 Keep the fix small. The goal is one obvious home for important constants, not a broad configuration framework.
 
@@ -113,34 +113,24 @@ Path direction:
 
 ## Architecture Diagram Storage
 
-Current viewer trust rule:
-
-- `netlify/functions/inline-svg.js` and `viewerUrl.js` only trust SVGs under:
-
-```txt
-/storage/v1/object/public/portfolio-assets/project-architecture/
-```
-
 Current admin upload behavior:
 
 - Admin-uploaded architecture images are stored under `projects/{id}/architecture{ext}`.
 - Public project rows expose `architecture_image_url`.
 
-Decision:
+Current SVG trust rule:
 
-- Admin-uploaded architecture diagrams should be uploaded to Supabase, stored as the project's architecture diagram, fetched through public project data, and used by the public site.
-- The implementation should align the admin upload path with the viewer trust rule.
+- `netlify/functions/inline-svg.js` and `viewerUrl.js` only trust project-scoped Supabase SVGs with this path shape:
 
-Open implementation choice:
+```txt
+/storage/v1/object/public/portfolio-assets/projects/{id}/architecture.svg
+```
 
-- Either update the viewer trust rule to accept `projects/{id}/architecture.svg`, or store architecture diagrams under `project-architecture/{id}.svg`.
-- Prefer one convention and document it in database docs, server upload utilities, viewer validation, and Netlify function validation.
+Notes:
 
-Recommendation:
-
-- Prefer `projects/{id}/architecture{ext}` for project ownership and collision avoidance.
-- If SVG proxying remains SVG-only, allow only `.svg` architecture URLs through the inline viewer proxy.
-- Non-SVG architecture images can still render as normal images, but should not go through the inline SVG proxy.
+- The inline SVG proxy remains SVG-only.
+- Non-SVG architecture images can render as normal images in supported UI, but they should not go through the inline SVG proxy.
+- Older `project-architecture/*.svg` URLs are not trusted by the current viewer/proxy contract.
 
 ## Collision Definition of Done
 

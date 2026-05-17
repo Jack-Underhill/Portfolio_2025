@@ -16,7 +16,7 @@ Keep this directory free of React components, local admin routes, service-role a
 ## Active Files
 
 - `track-visit.mjs`: increments and returns the `unique_visits` Redis counter, skipping IPs listed in `SKIP_TRACKING_IPS`.
-- `inline-svg.js`: fetches and returns trusted Supabase-hosted project architecture SVGs for inline preview rendering.
+- `inline-svg.js`: fetches and returns trusted Supabase-hosted project architecture SVGs for inline preview rendering. Trusted SVGs must come from the public `portfolio-assets` bucket at `projects/{id}/architecture.svg`.
 - `utils/shouldSkipIP.js`: reads `SKIP_TRACKING_IPS` and decides whether a request IP should be excluded from tracking.
 
 ## Local Testing

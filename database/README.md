@@ -67,6 +67,8 @@ Current object path conventions:
 
 Existing stored project URLs may still point at older object paths until media is re-uploaded. New admin uploads use distinct image, video, and architecture stems so same-extension project media cannot overwrite another media type.
 
+Architecture SVGs are trusted by the public viewer and `inline-svg` proxy only when they are Supabase public bucket URLs shaped as `projects/{id}/architecture.svg`. Non-SVG architecture files may remain stored in `architecture_image_url`, but they are not inputs for the SVG proxy.
+
 ## Evolving Fields
 
 When adding or changing a persisted portfolio field, update the matching files in the same substep:

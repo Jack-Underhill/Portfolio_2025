@@ -54,14 +54,13 @@ Avoid:
 
 Problem:
 
-- Project image, video, and architecture upload paths currently share the same preview stem.
-- Architecture viewer trust rules do not clearly match admin architecture upload behavior.
+- Project media storage conventions have been clarified, including the architecture SVG trust path.
+- Future storage work should preserve the current media-specific project path helpers.
 
 Next actions:
 
-- Introduce distinct project media path helpers.
-- Align architecture upload paths with viewer validation.
-- Update database docs and server storage docs together.
+- Keep database docs and server storage docs updated when storage conventions change.
+- Add new storage helpers only when another media type needs its own stable object path.
 
 ## Public Data Ownership
 

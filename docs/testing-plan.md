@@ -12,11 +12,14 @@ Vitest is installed as the default unit-test runner.
 
 Current baseline test files:
 
+- `tests/runtime/paths.test.js`
 - `tests/domain/projects/routing.test.js`
 - `tests/domain/projects/mappers.test.js`
 - `tests/domain/about/mappers.test.js`
 - `tests/domain/contact/mappers.test.js`
 - `tests/components/projects/viewer/viewerUrl.test.js`
+- `tests/netlify/functions/inline-svg.test.js`
+- `tests/server/admin/utils/storage.test.js`
 - `tests/server/admin/routes/validation.helpers.test.js`
 - `tests/server/admin/routes/validation.uploads.test.js`
 - `tests/server/admin/routes/validation.about.test.js`
@@ -32,7 +35,7 @@ Current checks:
 
 Remaining testing gap:
 
-- Add browser/component smoke coverage later for modal focus, architecture viewer fallback states, and Netlify function behavior.
+- Add browser/component smoke coverage later for modal focus, architecture viewer fallback states, and remaining Netlify function behavior such as `track-visit`.
 - Keep live Supabase, Redis, and deployed Netlify behavior out of the default gate unless explicitly mocked.
 
 ## Projects
@@ -142,7 +145,7 @@ Highest-value coverage:
 Current coverage:
 
 - Trusted Supabase architecture SVG validation, unsafe viewer source rejection, inline SVG proxy URL generation, safe `returnTo`, and viewer URL encoding are covered.
-- Tests intentionally lock the current trusted path rule to `portfolio-assets/project-architecture/*.svg` until P1 aligns storage and viewer validation.
+- Tests lock the current trusted path rule to project-scoped `portfolio-assets/projects/{id}/architecture.svg` SVGs.
 
 Why this matters:
 
@@ -157,6 +160,10 @@ Highest-value coverage:
 - Redis failure behavior.
 - `inline-svg` URL validation and content type response.
 - Stale project click functions if they are kept for review.
+
+Current coverage:
+
+- `inline-svg` URL validation and SVG response headers are covered with mocked fetch behavior.
 
 Decision:
 
