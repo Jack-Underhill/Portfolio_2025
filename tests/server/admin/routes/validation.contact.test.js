@@ -4,12 +4,10 @@ import { validateContactState } from '../../../../server/admin/routes/validation
 import { fakeUploadFile } from './fakeUploadFile.js';
 
 describe('admin contact validation', () => {
-  it('normalizes contact links and current legacy skill arrays', () => {
+  it('normalizes contact links', () => {
     const iconFile = fakeUploadFile({ name: 'github.svg', type: 'image/svg+xml' });
 
     expect(validateContactState({
-      proficientTechs: [' React ', '', 'Node'],
-      experiencingTechs: [' Supabase ', null, 'Vite'],
       socialLinks: [{
         id: '4',
         label: ' GitHub ',
@@ -18,8 +16,6 @@ describe('admin contact validation', () => {
         iconFile,
       }],
     })).toEqual({
-      proficientTechs: ['React', 'Node'],
-      experiencingTechs: ['Supabase', 'Vite'],
       socialLinks: [{
         id: 4,
         label: 'GitHub',

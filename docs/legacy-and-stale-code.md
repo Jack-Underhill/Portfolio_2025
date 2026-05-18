@@ -22,24 +22,20 @@ Next actions:
 
 - Add or update a `planning/README.md` later to explain how to read historical plans.
 
-## Skills Languages and Experience Flow
+## Skills Legacy Level Flow
 
-Status: stale legacy data flow.
+Status: resolved in active code, historical in migrations.
 
-Current stale pieces:
+Current state:
 
-- `src/domain/contact/mappers.js` returns `languages` and `experience`.
-- `src/api/public/contact.js` still describes public contact data as languages, experience, and social links.
-- Admin contact state still uses `proficientTechs` and `experiencingTechs`.
-
-Why stale:
-
-- The public Skills section no longer displays this old shape.
-- The desired future is grouped skills mapped back into the data flow.
+- Active Skills use grouped rows through `src/api/public/skills.js`, `src/domain/skills/*`, `src/components/sections/Skills.jsx`, `server/admin/routes/skills.js`, and `src/admin/sections/SkillsSection.jsx`.
+- Contact is links-only in active public and admin code.
+- `database/migrations/0001_current_portfolio_schema.sql` and `0003_grouped_skills.sql` still mention legacy level values only to preserve setup history and live-data backfill behavior.
 
 Next actions:
 
-- Review and replace this flow when the new skills data model is designed.
+- Do not rebuild new Skills work on the old Contact mapper shape.
+- Keep the migration backfill note visible until live Supabase data has been migrated and curated.
 
 ## Static Education and Certifications
 

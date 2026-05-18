@@ -27,7 +27,7 @@ export async function loadProjectsData() {
       .maybeSingle(),
     client
       .from('projects')
-      .select('id, permalink, image_url, video_url, title, card_description, live_url, overview, role, source_url, writeup_url, video_page_url, architecture_image_url, tech_stack, tech_tags, features, metrics, challenges, improvements, published, sort_order')
+      .select('id, permalink, image_url, video_url, title, card_description, live_url, overview, role, source_url, writeup_url, video_page_url, architecture_image_url, tech_stack, tech_tags, features, metrics, challenges, improvements, featured_rank, project_type, labels, published, sort_order')
       .order('sort_order', { ascending: true })
       .order('id', { ascending: true }),
   ]);
@@ -124,6 +124,10 @@ function dbRowToUiProject(project) {
     metrics: project.metrics,
     challenges: project.challenges,
     improvements: project.improvements,
+
+    featuredRank: project.featured_rank,
+    projectType: project.project_type,
+    labels: project.labels,
 
     published: project.published,
     sortOrder: project.sort_order,
@@ -264,6 +268,10 @@ function toUiProject(
     metrics: Array.isArray(p.metrics) ? p.metrics : null,
     improvements: Array.isArray(p.improvements) ? p.improvements : [],
 
+    featuredRank: p.featuredRank ?? '',
+    projectType: p.projectType ?? '',
+    labels: Array.isArray(p.labels) && p.labels.length ? p.labels : [''],
+
     published: p.published !== false,
     sortOrder: Number.isFinite(p.sortOrder) ? p.sortOrder : 0,
   };
@@ -292,6 +300,10 @@ function toDbProjectPayload(project) {
     metrics: project.metrics,
     challenges: project.challenges,
     improvements: project.improvements,
+
+    featured_rank: project.featuredRank,
+    project_type: project.projectType,
+    labels: project.labels.length ? project.labels : null,
 
     published: project.published,
     sort_order: project.sortOrder,
@@ -368,6 +380,9 @@ function normalizeUiProjects(state) {
       metrics: Array.isArray(project.metrics) ? project.metrics : null,
       challenges,
       improvements: Array.isArray(project.improvements) ? project.improvements : null,
+      featuredRank: project.featuredRank,
+      projectType: project.projectType,
+      labels: project.labels,
     });
   }
 

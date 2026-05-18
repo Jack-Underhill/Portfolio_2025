@@ -49,6 +49,10 @@ export function createEmptyProjectDraft({ id = null, sortOrder = 0 } = {}) {
     challenges: [],
     improvements: [''],
 
+    featuredRank: '',
+    projectType: '',
+    labels: [''],
+
     published: true,
     sortOrder,
   };

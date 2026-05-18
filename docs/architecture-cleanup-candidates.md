@@ -67,14 +67,14 @@ Next actions:
 Problem:
 
 - Contact links are data-driven.
-- Skills display is static.
-- Old skill database/admin paths still exist.
+- Skills are data-driven with static grouped fallbacks.
+- Project classification is data-driven with one shared project row shape.
 
 Next actions:
 
-- Decide and implement a grouped skills data model.
-- Remove stale languages/experience outputs once replaced.
-- Keep static fallback groups so the public site remains resilient.
+- Keep Contact links and Skills owned by separate public/domain/admin modules.
+- Keep static Skills fallback groups so the public site remains resilient.
+- Keep project featured/standard grouping in `src/domain/projects/viewModel.js` so future project-list UI work does not duplicate sorting rules.
 
 ## Documentation Boundaries
 

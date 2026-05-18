@@ -1,9 +1,13 @@
 import { BadRequestError, assertPlainObject } from './requestBody.js';
+import { PROJECT_TYPES } from '../../../src/domain/projects/constants.js';
 
 const SHORT_TEXT_LIMIT = 240;
 const MEDIUM_TEXT_LIMIT = 1000;
 const LONG_TEXT_LIMIT = 6000;
 const URL_LIMIT = 2000;
+const PROJECT_LABEL_LIMIT = 12;
+const PROJECT_LABEL_LENGTH_LIMIT = 80;
+const PROJECT_TYPE_SET = new Set(PROJECT_TYPES);
 
 export const FILE_LIMITS = {
   image: {
@@ -59,17 +63,15 @@ export function validateContactState(state) {
 
   return {
     ...state,
-    proficientTechs: normalizeStringList(
-      state.proficientTechs,
-      'proficientTechs',
-      { maxItems: 120, maxLength: SHORT_TEXT_LIMIT },
-    ),
-    experiencingTechs: normalizeStringList(
-      state.experiencingTechs,
-      'experiencingTechs',
-      { maxItems: 120, maxLength: SHORT_TEXT_LIMIT },
-    ),
     socialLinks: normalizeSocialLinks(state.socialLinks),
+  };
+}
+
+export function validateSkillsState(state) {
+  assertPlainObject(state, 'skills payload');
+
+  return {
+    groups: normalizeSkillGroups(state.groups),
   };
 }
 
@@ -207,6 +209,9 @@ function normalizeProjectArray(projects) {
         project.improvements,
         `project ${index + 1} improvements`,
       ),
+      featuredRank: optionalInteger(project.featuredRank, `project ${index + 1} featured rank`),
+      projectType: optionalProjectType(project.projectType, `project ${index + 1} project type`),
+      labels: normalizeLabels(project.labels ?? [], `project ${index + 1} labels`),
       published: optionalBoolean(project.published, `project ${index + 1} published`, true),
     });
   }
@@ -233,6 +238,88 @@ function normalizeSocialLinks(links) {
       ),
     };
   });
+}
+
+function normalizeSkillGroups(groups) {
+  const input = requiredArray(groups, 'skill groups', 20);
+  const normalized = [];
+  const seenLabels = new Set();
+  let itemCount = 0;
+
+  for (let groupIndex = 0; groupIndex < input.length; groupIndex += 1) {
+    const group = input[groupIndex];
+    assertPlainObject(group, `skill group ${groupIndex + 1}`);
+
+    const label = optionalString(
+      group.label,
+      `skill group ${groupIndex + 1} label`,
+      SHORT_TEXT_LIMIT,
+    );
+    const items = normalizeSkillItems(group.items ?? [], groupIndex + 1);
+
+    if (!label && !items.length) continue;
+    if (!label) {
+      throw new BadRequestError(`skill group ${groupIndex + 1} label is required`);
+    }
+    if (!items.length) {
+      throw new BadRequestError(`skill group ${groupIndex + 1} must include at least one item`);
+    }
+
+    const labelKey = label.toLowerCase();
+    if (seenLabels.has(labelKey)) {
+      throw new BadRequestError(`skill group label "${label}" appears more than once`);
+    }
+    seenLabels.add(labelKey);
+
+    itemCount += items.length;
+    if (itemCount > 160) {
+      throw new BadRequestError('skills must include 160 items or fewer');
+    }
+
+    normalized.push({
+      label,
+      sortOrder: normalized.length,
+      items: items.map((item, itemIndex) => ({
+        ...item,
+        sortOrder: itemIndex,
+      })),
+    });
+  }
+
+  return normalized;
+}
+
+function normalizeSkillItems(items, groupNumber) {
+  const input = requiredArray(
+    items,
+    `skill group ${groupNumber} items`,
+    40,
+  );
+  const normalized = [];
+
+  for (let itemIndex = 0; itemIndex < input.length; itemIndex += 1) {
+    const item = input[itemIndex];
+    assertPlainObject(item, `skill group ${groupNumber} item ${itemIndex + 1}`);
+
+    const label = optionalString(
+      item.label,
+      `skill group ${groupNumber} item ${itemIndex + 1} label`,
+      SHORT_TEXT_LIMIT,
+    );
+
+    if (!label) continue;
+
+    normalized.push({
+      label,
+      published: optionalBoolean(
+        item.published,
+        `skill group ${groupNumber} item ${itemIndex + 1} published`,
+        true,
+      ),
+    });
+  }
+
+  return normalized;
 }
 
 function normalizeTechStack(techStack, label) {
@@ -271,6 +358,46 @@ function normalizeStringList(value, label, { maxItems, maxLength }) {
   return requiredArray(value, label, maxItems)
     .map((item, index) => optionalString(item, `${label} item ${index + 1}`, maxLength))
     .filter(Boolean);
+}
+
+function optionalInteger(value, label) {
+  if (value == null || value === '') return null;
+
+  const number = typeof value === 'number' ? value : Number(value);
+  if (!Number.isInteger(number)) {
+    throw new BadRequestError(`${label} must be an integer`);
+  }
+
+  return number;
+}
+
+function optionalProjectType(value, label) {
+  const projectType = optionalString(value, label, SHORT_TEXT_LIMIT);
+  if (!projectType) return null;
+  if (!PROJECT_TYPE_SET.has(projectType)) {
+    throw new BadRequestError(`${label} must be an accepted project type`);
+  }
+
+  return projectType;
+}
+
+function normalizeLabels(value, label) {
+  const normalized = normalizeStringList(value, label, {
+    maxItems: PROJECT_LABEL_LIMIT,
+    maxLength: PROJECT_LABEL_LENGTH_LIMIT,
+  });
+  const out = [];
+  const seen = new Set();
+
+  for (const item of normalized) {
+    const key = item.toLowerCase();
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    out.push(item);
+  }
+
+  return out;
 }
 
 function normalizeChallenges(value, label) {

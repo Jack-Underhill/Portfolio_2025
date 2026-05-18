@@ -9,6 +9,22 @@ export const PROJECT_TECH_STACK_KEYS = Object.freeze([
   'infrastructure',
 ]);
 
+export const PROJECT_TYPES = Object.freeze([
+  'school',
+  'internship',
+  'personal',
+  'client',
+  'open-source',
+]);
+
+export const PROJECT_TYPE_OPTIONS = Object.freeze([
+  { value: 'school', label: 'School' },
+  { value: 'internship', label: 'Internship' },
+  { value: 'personal', label: 'Personal' },
+  { value: 'client', label: 'Client' },
+  { value: 'open-source', label: 'Open source' },
+]);
+
 export const EMPTY_PROJECT_TECH_STACK = Object.freeze({
   frontend: Object.freeze(['']),
   backend: Object.freeze(['']),

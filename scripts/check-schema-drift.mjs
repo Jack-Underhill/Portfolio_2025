@@ -52,6 +52,9 @@ const requiredProjectColumns = [
   'metrics',
   'challenges',
   'improvements',
+  'featured_rank',
+  'project_type',
+  'labels',
   'published',
   'sort_order',
 ];

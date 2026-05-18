@@ -21,6 +21,10 @@ describe('project public mappers', () => {
       live_url: '',
       source_url: ' https://github.com/example/launch-console ',
       tech_tags: [' React ', null, 'NULL', 'Supabase'],
+      sort_order: 5,
+      featured_rank: 1,
+      project_type: 'school',
+      labels: [' School ', '', 'Personal', 'School'],
     })).toEqual({
       id: 7,
       permalink: '7-launch-console',
@@ -30,6 +34,11 @@ describe('project public mappers', () => {
       description: 'Mission-control dashboard',
       directUrl: 'https://github.com/example/launch-console',
       techTags: ['React', 'Supabase'],
+      sortOrder: 5,
+      isFeatured: true,
+      featuredRank: 1,
+      projectType: 'school',
+      labels: ['School', 'Personal'],
     });
   });
 
@@ -57,6 +66,9 @@ describe('project public mappers', () => {
       metrics: ['99% static delivery'],
       challenges: [{ title: 'Routing drift', solution: 'Pure helpers' }],
       improvements: ['Add grouped skills'],
+      featured_rank: '2',
+      project_type: 'personal',
+      labels: [' Portfolio ', 'Portfolio', 'Demo'],
       published: 1,
       sort_order: 3,
     })).toEqual({
@@ -82,8 +94,38 @@ describe('project public mappers', () => {
       metrics: ['99% static delivery'],
       challenges: [{ title: 'Routing drift', solution: 'Pure helpers' }],
       improvements: ['Add grouped skills'],
+      isFeatured: true,
+      featuredRank: 2,
+      projectType: 'personal',
+      labels: ['Portfolio', 'Demo'],
       published: true,
       sortOrder: 3,
+    });
+  });
+
+  it('normalizes missing or malformed project classification fields safely', () => {
+    expect(mapProjectRowToPublicCard({
+      id: 12,
+      featured_rank: '1.5',
+      project_type: 'portfolio',
+      labels: [' ', 'NULL', null, 'Client'],
+    })).toMatchObject({
+      isFeatured: false,
+      featuredRank: null,
+      projectType: null,
+      labels: ['Client'],
+    });
+
+    expect(mapProjectRowToPublicDetails({
+      id: 13,
+      featured_rank: undefined,
+      project_type: '',
+      labels: { label: 'Client' },
+    })).toMatchObject({
+      isFeatured: false,
+      featuredRank: null,
+      projectType: null,
+      labels: [],
     });
   });
 
@@ -116,6 +158,7 @@ describe('project public mappers', () => {
       description: '',
       directUrl: ' https://example.test ',
       techTags: [' Vite ', undefined],
+      sortOrder: '3',
     }, {
       fallbackId: 0,
       fallbackImageUrl: '/fallback.png',
@@ -128,6 +171,7 @@ describe('project public mappers', () => {
       description: null,
       directUrl: 'https://example.test',
       techTags: ['Vite'],
+      sortOrder: 3,
       overview: null,
       role: null,
       techStack: null,
@@ -136,6 +180,10 @@ describe('project public mappers', () => {
       metrics: null,
       challenges: [],
       improvements: [],
+      isFeatured: false,
+      featuredRank: null,
+      projectType: null,
+      labels: [],
     });
   });
 
@@ -158,6 +206,9 @@ describe('project public mappers', () => {
       metrics: ['0 live service calls'],
       challenges: [],
       improvements: ['Tighten storage paths'],
+      featured_rank: 4,
+      project_type: 'open-source',
+      labels: ['Open Source', 'React'],
     });
 
     expect(toProjectDetailsViewModel(detail)).toEqual({
@@ -178,6 +229,10 @@ describe('project public mappers', () => {
       metrics: ['0 live service calls'],
       challenges: [],
       improvements: ['Tighten storage paths'],
+      isFeatured: true,
+      featuredRank: 4,
+      projectType: 'open-source',
+      labels: ['Open Source', 'React'],
     });
   });
 

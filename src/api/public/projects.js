@@ -36,7 +36,7 @@ export async function fetchProjectsPublic() {
     const projectRes = await 
         client
             .from('projects')
-            .select('id, permalink, image_url, video_url, title, card_description, tech_tags, live_url, source_url, published, sort_order')
+            .select('id, permalink, image_url, video_url, title, card_description, tech_tags, live_url, source_url, featured_rank, project_type, labels, published, sort_order')
             .eq('published', true)
             .order('sort_order', { ascending: true })
             .order('id', { ascending: true });
@@ -63,7 +63,9 @@ export async function fetchProjectByIdPublic(id) {
             overview, role,
             live_url, source_url, writeup_url, video_page_url,
             tech_stack,
-            features, metrics, challenges, improvements
+            features, metrics, challenges, improvements,
+            featured_rank, project_type, labels,
+            published, sort_order
         `)
         .eq('id', id)
         .maybeSingle();

@@ -53,5 +53,6 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 ## Current Caveats
 
 - Singleton IDs and local admin defaults still live at their owning runtime boundaries.
-- Contact skills currently bridge old `proficient` and `experiencing` data into the public Contact shape.
+- Skills have their own grouped public/admin flow and static grouped fallbacks; Contact owns links only.
+- Project classification fields are data-backed and grouped through `src/domain/projects/viewModel.js`; the current public grid renders featured projects first without changing card/modal presentation.
 - Keep detailed architecture status and cleanup notes in `docs/`; this README is the local map for maintainers working inside `src`.

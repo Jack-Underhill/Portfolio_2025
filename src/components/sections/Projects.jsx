@@ -1,36 +1,47 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import projectWorkLogo from '../../assets/Project_Work.png'; // card fallback image
 
-import ProjectCard from '../projects/ProjectCard';
-import ProjectModal from '../projects/modal/ProjectModal';
-import SectionTitle from '../ui/SectionTitle';
-import Text from '../ui/Text';
+import FeaturedProjectsGroup from './projects/FeaturedProjectsGroup';
+import StandardProjectsGroup from './projects/StandardProjectsGroup';
 import { fetchProjectsPublic } from '../../api/public/projects';
 import { toProjectCardViewModel } from '../../domain/projects/mappers';
+import { groupProjectsForDisplay } from '../../domain/projects/viewModel';
 import useProjectModalRouting from '../../hooks/useProjectModalRouting';
 import usePublicResource from '../../hooks/usePublicResource';
+
+const EMPTY_PROJECT_GROUPS = {
+  featuredProjects: [],
+  standardProjects: [],
+};
 
 function mergeProjectCards(data, previous) {
   const rows = Array.isArray(data.projects) ? data.projects : [];
   if (!rows.length) return previous;
 
-  return rows.map((project, index) => toProjectCardViewModel(project, {
+  const cards = rows.map((project, index) => toProjectCardViewModel(project, {
     fallbackId: index,
     fallbackImageUrl: projectWorkLogo,
   }));
+
+  return groupProjectsForDisplay(cards);
 }
 
 /**
  * Projects component.
  */
 function Projects() {
-  const { data: projects, isLoading: isLoadingProjects } = usePublicResource({
+  const { data: projectGroups, isLoading: isLoadingProjects } = usePublicResource({
     load: fetchProjectsPublic,
-    initialData: [],
+    initialData: EMPTY_PROJECT_GROUPS,
     merge: mergeProjectCards,
     label: 'Projects',
   });
+  const { featuredProjects, standardProjects } = projectGroups;
+  const allProjects = useMemo(
+    () => [...featuredProjects, ...standardProjects],
+    [featuredProjects, standardProjects],
+  );
 
   // Hover Previews
   const [activePreviewId, setActivePreviewId] = useState(null);
@@ -40,7 +51,15 @@ function Projects() {
     isModalOpen,
     openFromCard,
     closeModal,
-  } = useProjectModalRouting({ projects });
+  } = useProjectModalRouting({ projects: allProjects });
+  const activeProjectId = Number(activeProject?.id);
+  const isFeaturedModalProject = Number.isFinite(activeProjectId)
+    && featuredProjects.some((project) => Number(project.id) === activeProjectId);
+  const isStandardModalProject = Number.isFinite(activeProjectId)
+    && standardProjects.some((project) => Number(project.id) === activeProjectId);
+  const renderModalInFeaturedGroup = isModalOpen
+    && (isFeaturedModalProject || (!isStandardModalProject && featuredProjects.length > 0));
+  const renderModalInStandardGroup = isModalOpen && !renderModalInFeaturedGroup;
 
   useEffect(() => {
     const onPointerDown = () => { lastInputRef.current = 'pointer'; };
@@ -69,56 +88,35 @@ function Projects() {
   }, []);
 
   return (
-    <div
-      id="Projects"
-      className="
-        w-full min-h-fit scroll-mt-10
-        flex flex-col justify-center
-      "
-    >
-      <SectionTitle className="mb-8" data-aos="flip-down">
-        Project Showcase
-      </SectionTitle>
-
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        {isLoadingProjects && projects.length === 0 && (
-          <Text as="div" variant="meta" className="col-span-full">
-            Loading projects…
-          </Text>
-        )}
-
-        {!isLoadingProjects && projects.length === 0 && (
-          <Text as="div" variant="meta" className="col-span-full">
-            No projects published yet.
-          </Text>
-        )}
-
-        {projects.map((p) => (
-          <ProjectCard
-            key={p.id}
-            id={p.id}
-            isActivePreview={Number(activePreviewId) === Number(p.id)}
-            requestPreview={requestPreview}
-            clearPreview={clearPreview}
-            lastInputRef={lastInputRef}
-            image={p.imageUrl}
-            video={p.videoUrl}
-            title={p.title}
-            desc={p.description}
-            link={p.directUrl}
-            tags={p.techTags}
-            onOpenModal={() => openFromCard(p)}
-            isModalOpen={isModalOpen}
-          />
-        ))}
-      </div>
-
-      <ProjectModal
-        isOpen={isModalOpen}
-        project={activeProject}
-        onClose={closeModal}
+    <>
+      <FeaturedProjectsGroup
+        projects={featuredProjects}
+        isLoadingProjects={isLoadingProjects}
+        activePreviewId={activePreviewId}
+        requestPreview={requestPreview}
+        clearPreview={clearPreview}
+        lastInputRef={lastInputRef}
+        openFromCard={openFromCard}
+        isModalOpen={isModalOpen}
+        activeProject={activeProject}
+        closeModal={closeModal}
+        shouldRenderModal={renderModalInFeaturedGroup}
       />
-    </div>
+
+      <StandardProjectsGroup
+        projects={standardProjects}
+        isLoadingProjects={isLoadingProjects}
+        activePreviewId={activePreviewId}
+        requestPreview={requestPreview}
+        clearPreview={clearPreview}
+        lastInputRef={lastInputRef}
+        openFromCard={openFromCard}
+        isModalOpen={isModalOpen}
+        activeProject={activeProject}
+        closeModal={closeModal}
+        shouldRenderModal={renderModalInStandardGroup}
+      />
+    </>
   );
 }
 

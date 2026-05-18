@@ -5,6 +5,7 @@ import { handleBootstrapRead, handleSaveAllWrite } from './routes/bootstrap.js';
 import { handleContactRead, handleContactWrite } from './routes/contact.js';
 import { handleHealth } from './routes/health.js';
 import { handleProjectsRead, handleProjectsWrite } from './routes/projects.js';
+import { handleSkillsRead, handleSkillsWrite } from './routes/skills.js';
 import { sendJson } from './routes/responses.js';
 
 const DEFAULT_HOST = '127.0.0.1';
@@ -79,6 +80,16 @@ function handleRequest(req, res) {
 
   if (req.method === 'POST' && requestUrl.pathname === '/admin-api/contact') {
     handleContactWrite(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && requestUrl.pathname === '/admin-api/skills') {
+    handleSkillsRead(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && requestUrl.pathname === '/admin-api/skills') {
+    handleSkillsWrite(req, res);
     return;
   }
 

@@ -17,9 +17,10 @@ Keep this directory free of React components, browser lifecycle code, API client
 ## Folders
 
 - `about/`: maps the singleton About row into the public About shape.
-- `contact/`: maps contact links and current skill-level rows into the public Contact shape.
+- `contact/`: maps contact links into the public Contact shape.
 - `projects/`: owns project row mappers, view-model helpers, project route helpers, editable draft defaults, and project-specific constants.
 - `shared/`: holds generic normalization helpers used by feature folders.
+- `skills/`: owns grouped Skills defaults and row mapping for the public Skills section.
 
 ## Boundary Notes
 
@@ -30,4 +31,10 @@ Keep this directory free of React components, browser lifecycle code, API client
 
 ## Current Caveat
 
-`contact/mappers.js` still maps skill rows into `languages` and `experience` buckets based on `proficient` and `experiencing` levels. That reflects the current public contract while the broader skills data model is being cleaned up.
+Singleton IDs and persistence permissions still live outside `src/domain`; keep them at their owning runtime boundaries unless a future shared home is clearly browser-safe and server-safe.
+
+Project classification notes:
+
+- `projects/constants.js` owns accepted project types.
+- `projects/mappers.js` maps classification fields into `isFeatured`, `featuredRank`, `projectType`, and `labels`.
+- `projects/viewModel.js` owns the featured/standard grouping and sort rules for public project presentation.
