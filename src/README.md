@@ -35,6 +35,7 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 - Public browser reads go through `src/api/public` and use anon-safe Supabase access.
 - Privileged writes go through the local admin backend in `server/admin`; browser admin code calls it through `src/admin/api/adminClient.js`.
 - Pure row shaping and route semantics belong in `src/domain`.
+- Admin-managed storage path helpers belong in `server/admin/utils`; browser code should consume stored public URLs rather than rebuild upload paths.
 - Netlify serverless handlers live in `netlify/functions` and should be called over `/.netlify/functions/*`, not imported into browser code.
 
 ## UI Boundaries
@@ -50,9 +51,10 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 - Admin editing needs the local admin server from `server/admin` and the `VITE_ADMIN_API_BASE_URL` setting if the default `http://localhost:8787/admin-api` is not used.
 - Netlify functions such as visit tracking and inline SVG proxying need Netlify Dev for local testing.
 
-## Current Caveats
+## Current Guardrails And Caveats
 
 - Singleton IDs and local admin defaults still live at their owning runtime boundaries.
 - Skills have their own grouped public/admin flow and static grouped fallbacks; Contact owns links only.
-- Project classification fields are data-backed and grouped through `src/domain/projects/viewModel.js`; the current public grid renders featured projects first without changing card/modal presentation.
+- Project classification fields are data-backed and grouped through `src/domain/projects/viewModel.js`; `Projects.jsx` fetches once, maps once, then renders `FeaturedProjectsGroup` and `StandardProjectsGroup`.
+- Project presentation cleanup is limited to explicit decisions about loading/empty state ownership, peer section structure, modal placement, and visual label treatment.
 - Keep detailed architecture status and cleanup notes in `docs/`; this README is the local map for maintainers working inside `src`.

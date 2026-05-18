@@ -4,15 +4,21 @@ Date: 2026-05-16
 
 ## Purpose
 
-This document records where the database, admin UI, public API, and public components do not fully agree. Some drift is legacy from the earlier database shape. Some drift is intentional product direction that has not yet been mapped back into the data flow.
+This document records active mismatches between database, admin UI, public API, domain helpers, and public components.
+
+## Maintenance Rules
+
+- Keep active data-flow mismatches, accepted caveats, and next actions.
+- Remove resolved drift unless it remains a current guardrail.
+- Preserve detailed implementation history outside this doc.
 
 ## Current Verdict
 
-The main Skills, Contact, and Project classification drift has been resolved.
+The active drift is limited:
 
-Skills now use one grouped data flow: database rows, browser-safe public fetch, pure domain mapper/defaults, public `Skills.jsx`, local admin route, and admin Skills editor all agree on grouped rows with labels, sort order, and publish state. Contact owns contact/social links only.
-
-Project classification now uses one persisted row shape on `projects`. Public reads, mappers, admin controls, admin validation, and project grouping all agree on optional `featured_rank`, `project_type`, and JSON display `labels`.
+- Projects have aligned persisted classification fields, but the public presentation still needs an explicit section/state/modal/label decision.
+- Contact link icon fallbacks remain positional.
+- Education and Certifications are intentionally static until a database/admin/public flow is designed.
 
 ## Projects
 
@@ -27,45 +33,30 @@ Current classification flow:
 - Admin backend: `server/admin/routes/projects.js` and `server/admin/routes/validation.js`
 - Admin UI: `src/admin/projects/editor/ProjectClassificationFields.jsx`
 
+Current public presentation flow:
+
+- `Projects.jsx` fetches once, maps once, and calls `groupProjectsForDisplay`.
+- `FeaturedProjectsGroup.jsx` renders featured projects under the `#Projects` anchor.
+- `StandardProjectsGroup.jsx` renders standard projects under the `#ProjectGallery` anchor.
+- Modal routing still uses one flattened featured-plus-standard list from `Projects.jsx`.
+
 Decision:
 
 - Featured projects are selected by non-null `featured_rank`, not by hardcoded component IDs.
 - Featured projects sort by `featuredRank`, then `sortOrder`, then `id`; standard projects sort by `sortOrder`, then `id`.
 - `project_type` is constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
 - `labels` stay as optional JSON display labels until labels need analytics, filtering, or cross-project metadata.
+- Decide whether the current two peer page sections are intended, or whether `Projects.jsx` should restore one top-level Projects wrapper with child groups.
 
 Next actions:
 
-- Use `groupProjectsForDisplay` in the future project-list redesign instead of duplicating featured/standard sorting in components.
-- Keep route-backed modal behavior unchanged while redesigning project presentation.
-
-## Skills
-
-Current flow:
-
-- Table: `skills`
-- Columns: `group_label`, `label`, `group_sort_order`, `item_sort_order`, and `published`.
-- Public read: `src/api/public/skills.js`
-- Domain mapper/defaults: `src/domain/skills/mappers.js` and `src/domain/skills/defaults.js`
-- Public UI: `src/components/sections/Skills.jsx`
-- Admin backend: `server/admin/routes/skills.js`
-- Admin UI: `src/admin/sections/SkillsSection.jsx`
-
-Decision:
-
-- Skills are no longer coupled to Contact.
-- The public Skills section uses grouped database rows when available and falls back to static grouped defaults when public data is missing, empty, or errored.
-- Admin Skills saves use simple full-table replacement after validation normalizes row order and publish state.
-
-Next actions:
-
-- Keep `database/migrations/0003_grouped_skills.sql` in setup order for live Supabase migration.
-- Run `npm run backup:supabase` before applying the grouped Skills migration to live data.
-- Curate and publish grouped Skills rows in Supabase when ready; static defaults remain the resilient public fallback.
+- Keep `groupProjectsForDisplay` as the current grouping and sorting source.
+- Move global loading and zero-project empty state decisions back to `Projects.jsx` if per-group empty states are not accepted.
+- Hide empty group headings, or explicitly document that empty groups should remain visible.
+- Prefer rendering `ProjectModal` once in `Projects.jsx` unless group-specific modal placement becomes intentional.
+- Render project labels on cards/details, or keep documenting them as mapped and admin-ready but visually dormant.
 
 ## Contact Links
-
-Contact links are mostly aligned.
 
 Current flow:
 
@@ -83,9 +74,9 @@ Next actions:
 - Consider storing a stable platform key if icon fallback accuracy matters.
 - Keep existing contact mapper tests updated if the link fallback strategy changes.
 
-## Education and Certifications
+## Static Education and Certifications
 
-Education and certifications are not current drift. They are static by design right now.
+Education and certifications are static by design right now.
 
 Current shape:
 
@@ -103,18 +94,3 @@ Next actions:
 - Keep static source as the current truth until the data model is designed.
 - Document future tables before implementation.
 - Add tests after mappers exist, not while the data is still static component-local content.
-
-## About and Hero
-
-The Hero resume fallback mismatch from the latest audit appears fixed.
-
-Current flow:
-
-- Database column `about.resume_pdf`.
-- Public mapper returns `resumeUrl`.
-- `Hero.jsx` default data uses `resumeUrl`.
-- `Hero.jsx` merge function preserves previous fallback values when public data is empty.
-
-Next actions:
-
-- Keep existing about mapper and Hero fallback merge tests updated if the public about shape changes.

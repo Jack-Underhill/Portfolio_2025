@@ -1,14 +1,20 @@
 # Current Errors and Warnings
 
-Date: 2026-05-17
+Date: 2026-05-18
 
 ## Purpose
 
 This document records known current failures, lint warnings/errors, local runtime warnings, and quality gate status.
 
+## Maintenance Rules
+
+- Keep only current failures, expected warnings, and the latest verified quality gate.
+- Remove resolved failures after the fix is verified.
+- Keep local-machine caveats only when they still affect how commands should be run.
+
 ## Command Status
 
-Last checked after the P2.7 project classification closeout with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
+Last checked on 2026-05-18 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
 
 Passing:
 

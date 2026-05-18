@@ -6,6 +6,12 @@ Date: 2026-05-16
 
 This document records runtime paths, route constants, storage paths, singleton IDs, and collision risks that should be centralized or clarified.
 
+## Maintenance Rules
+
+- Keep current routes, runtime paths, storage conventions, singleton IDs, and active collision risks.
+- Remove resolved collision notes unless they remain a guardrail for future changes.
+- Prefer one current owner for each boundary value over historical explanation.
+
 ## Current Verdict
 
 Some runtime, storage, and architecture SVG boundary values have been centralized or clarified. The remaining cleanup is narrow and mostly about documenting local runtime expectations and future data-model work.
