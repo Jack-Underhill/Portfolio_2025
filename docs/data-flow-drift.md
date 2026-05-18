@@ -8,9 +8,36 @@ This document records where the database, admin UI, public API, and public compo
 
 ## Current Verdict
 
-The main Skills and Contact drift has been resolved.
+The main Skills, Contact, and Project classification drift has been resolved.
 
 Skills now use one grouped data flow: database rows, browser-safe public fetch, pure domain mapper/defaults, public `Skills.jsx`, local admin route, and admin Skills editor all agree on grouped rows with labels, sort order, and publish state. Contact owns contact/social links only.
+
+Project classification now uses one persisted row shape on `projects`. Public reads, mappers, admin controls, admin validation, and project grouping all agree on optional `featured_rank`, `project_type`, and JSON display `labels`.
+
+## Projects
+
+Current classification flow:
+
+- Table: `projects`
+- Columns: `featured_rank`, `project_type`, and `labels`.
+- Public read: `src/api/public/projects.js`
+- Domain mapper/defaults: `src/domain/projects/mappers.js`
+- Domain grouping helper: `src/domain/projects/viewModel.js`
+- Public UI: `src/components/sections/Projects.jsx`
+- Admin backend: `server/admin/routes/projects.js` and `server/admin/routes/validation.js`
+- Admin UI: `src/admin/projects/editor/ProjectClassificationFields.jsx`
+
+Decision:
+
+- Featured projects are selected by non-null `featured_rank`, not by hardcoded component IDs.
+- Featured projects sort by `featuredRank`, then `sortOrder`, then `id`; standard projects sort by `sortOrder`, then `id`.
+- `project_type` is constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
+- `labels` stay as optional JSON display labels until labels need analytics, filtering, or cross-project metadata.
+
+Next actions:
+
+- Use `groupProjectsForDisplay` in the future project-list redesign instead of duplicating featured/standard sorting in components.
+- Keep route-backed modal behavior unchanged while redesigning project presentation.
 
 ## Skills
 

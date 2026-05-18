@@ -83,6 +83,8 @@ Architecture SVGs are trusted by the public viewer and `inline-svg` proxy only w
 
 Existing project rows remain valid without classification values. Public mappers and admin validation should treat these fields as optional and normalize display labels before rendering or saving.
 
+Public grouping uses `src/domain/projects/viewModel.js`: featured projects are rows with a valid `featured_rank`, sorted by featured rank, `sort_order`, then `id`; standard projects sort by `sort_order`, then `id`.
+
 ### Skills Backfill
 
 `migrations/0003_grouped_skills.sql` removes the old `skills.name` and `skills.level` columns after backfilling existing rows into grouped columns. Existing legacy rows become unpublished `Imported Proficient` or `Imported Experiencing` grouped rows, preserving the labels without making them the new public Skills display by accident.

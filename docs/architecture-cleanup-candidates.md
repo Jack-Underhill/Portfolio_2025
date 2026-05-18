@@ -68,11 +68,13 @@ Problem:
 
 - Contact links are data-driven.
 - Skills are data-driven with static grouped fallbacks.
+- Project classification is data-driven with one shared project row shape.
 
 Next actions:
 
 - Keep Contact links and Skills owned by separate public/domain/admin modules.
 - Keep static Skills fallback groups so the public site remains resilient.
+- Keep project featured/standard grouping in `src/domain/projects/viewModel.js` so future project-list UI work does not duplicate sorting rules.
 
 ## Documentation Boundaries
 

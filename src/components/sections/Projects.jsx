@@ -8,6 +8,7 @@ import SectionTitle from '../ui/SectionTitle';
 import Text from '../ui/Text';
 import { fetchProjectsPublic } from '../../api/public/projects';
 import { toProjectCardViewModel } from '../../domain/projects/mappers';
+import { groupProjectsForDisplay } from '../../domain/projects/viewModel';
 import useProjectModalRouting from '../../hooks/useProjectModalRouting';
 import usePublicResource from '../../hooks/usePublicResource';
 
@@ -15,10 +16,13 @@ function mergeProjectCards(data, previous) {
   const rows = Array.isArray(data.projects) ? data.projects : [];
   if (!rows.length) return previous;
 
-  return rows.map((project, index) => toProjectCardViewModel(project, {
+  const cards = rows.map((project, index) => toProjectCardViewModel(project, {
     fallbackId: index,
     fallbackImageUrl: projectWorkLogo,
   }));
+  const { featuredProjects, standardProjects } = groupProjectsForDisplay(cards);
+
+  return [...featuredProjects, ...standardProjects];
 }
 
 /**

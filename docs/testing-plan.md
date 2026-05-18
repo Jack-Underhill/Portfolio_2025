@@ -15,6 +15,7 @@ Current baseline test files:
 - `tests/runtime/paths.test.js`
 - `tests/domain/projects/routing.test.js`
 - `tests/domain/projects/mappers.test.js`
+- `tests/domain/projects/viewModel.test.js`
 - `tests/domain/about/mappers.test.js`
 - `tests/domain/contact/mappers.test.js`
 - `tests/domain/skills/mappers.test.js`
@@ -55,6 +56,7 @@ Highest-value coverage:
 Current coverage:
 
 - Route parsing/building, public project mappers, detail view models, fallback merging, and sort-order normalization are covered.
+- Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
 - Admin project validation is covered through pure validation helper tests.
 - Project media upload path conventions are covered by focused storage utility tests.
 

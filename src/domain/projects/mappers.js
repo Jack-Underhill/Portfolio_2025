@@ -101,6 +101,11 @@ function normalizeFeaturedRank(value) {
   return Number.isSafeInteger(rank) ? rank : null;
 }
 
+function normalizeSortValue(value) {
+  const number = typeof value === 'number' ? value : Number(value);
+  return Number.isSafeInteger(number) ? number : 0;
+}
+
 function normalizeProjectType(value) {
   const projectType = normalizeOptionalString(value);
   if (!PROJECT_TYPE_SET.has(projectType)) return null;
@@ -145,6 +150,7 @@ export function mapProjectRowToPublicCard(row) {
     description: normalizeString(row?.card_description),
     directUrl: normalizeString(row?.live_url || row?.source_url),
     techTags: normalizeStringArray(row?.tech_tags, []),
+    sortOrder: normalizeSortValue(row?.sort_order),
     ...mapProjectClassification(row),
   };
 }
@@ -194,6 +200,7 @@ export function toProjectCardViewModel(project, { fallbackImageUrl = null, fallb
     description: project?.description || null,
     directUrl: normalizeOptionalString(project?.directUrl),
     techTags: normalizeStringArray(project?.techTags, []),
+    sortOrder: normalizeSortValue(project?.sortOrder),
     ...createEmptyProjectDetails(),
     ...mapProjectViewModelClassification(project),
   };

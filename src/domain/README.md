@@ -32,3 +32,9 @@ Keep this directory free of React components, browser lifecycle code, API client
 ## Current Caveat
 
 Singleton IDs and persistence permissions still live outside `src/domain`; keep them at their owning runtime boundaries unless a future shared home is clearly browser-safe and server-safe.
+
+Project classification notes:
+
+- `projects/constants.js` owns accepted project types.
+- `projects/mappers.js` maps classification fields into `isFeatured`, `featuredRank`, `projectType`, and `labels`.
+- `projects/viewModel.js` owns the featured/standard grouping and sort rules for public project presentation.
