@@ -95,7 +95,47 @@ Accepted tradeoff candidates:
 - Local plain Vite can show expected Netlify function fallback warnings for visit count and architecture preview.
 - The admin UI is development-only, so fixes should improve labels and keyboard ergonomics without a broad design-system rewrite.
 
-Unable to verify locally yet:
+## Public Walkthrough - 2026-05-18
 
-- Full keyboard-only public walkthrough has not been run in this step.
-- Browser accessibility tree inspection and screen reader checks have not been run in this step.
+Method:
+
+- Started the public app through Vite in a Playwright-driven local browser session.
+- Checked the rendered heading list, landmark list, keyboard tab order with the navigation closed and opened, and an axe scan with `@axe-core/playwright`.
+- Inspected source for public section structure and accessible names where runtime data was unavailable.
+
+Fix now:
+
+- Navigation exposes closed menu links in the tab order and duplicates every item as both a `button` and nested `a`.
+  Repro: load `/`, press `Tab` from the top of the page before opening the menu. Focus moves from the menu button into hidden Projects, Education, Certifications, Skills, and Contact controls, with separate tab stops for each button and nested link. Axe reports `nested-interactive`.
+- The menu button has no accessible text or `aria-expanded` state.
+  Repro: focus the first top-bar button. The accessible name is empty because the only child image says `View menu svg`, and the button does not announce whether the menu is expanded.
+- The page has no `main` landmark and no level-one heading.
+  Repro: rendered heading scan starts at `h2` (`Featured Work`), and axe reports `landmark-one-main`, `region`, and `page-has-heading-one`.
+- Several public sections are not exposed as landmarks or labeled regions.
+  Repro: the rendered landmark scan only finds the Certifications `section`; Hero, About, Projects, Education, Skills, and Contact content is mostly in plain `div` wrappers.
+- The hidden back-to-top wrapper sets `aria-hidden="true"` while still containing a focusable button.
+  Repro: axe reports `aria-hidden-focus` for the fixed back-to-top container before it is visually available.
+- Credential/card meta text is slightly below contrast threshold.
+  Repro: axe reports `color-contrast` for `text-text-subtle` credential highlight/footer text at roughly 4.12-4.29 contrast against the card background.
+- Public icon alt text is noisy in several places.
+  Repro: source inspection shows labels like `View svg`, `View menu svg`, `Up Arrow Button to go back to top`, and `external link icon`; these should become action-oriented names on controls or empty alt text for decorative icons.
+- Hero and About headings are visually prominent but not semantic headings.
+  Repro: source uses `SectionTitle as="div"` through `TextBlock`, so `Jack Underhill`, `Full-Stack Developer`, and `About Me` do not appear in the rendered heading list.
+
+Defer:
+
+- Add sparse Playwright/axe smoke tests after Substeps 2-6 land so tests protect the final markup instead of current known-broken structure.
+- Full project-card and modal keyboard walkthrough with live project data should happen after navigation/landmark fixes; plain Vite in this sandbox could not fetch public Supabase-backed project data.
+- Browser accessibility tree snapshots remain a useful future check, but the installed Playwright API in this local script did not expose `page.accessibility.snapshot`.
+
+Accepted tradeoff:
+
+- Plain Vite continues to show expected visit-count Netlify function warnings and unavailable status text. This remains acceptable for local walkthroughs; `netlify dev` is still the correct runtime for testing functions.
+- Public data fetch failures in the sandbox left the page on static fallbacks or empty project states. The walkthrough still captured structural issues, but live content checks remain outside this substep.
+- The avatar LinkedIn image and contact icons are informative links; their current visible behavior is acceptable for this pass, though alt/name polish can be folded into the public semantics pass.
+
+Unable to verify locally:
+
+- A native screen reader session was not run in this window.
+- Live Supabase-backed project cards, route-backed project modal entry, and modal focus return were not verified through the browser because public data fetches failed under the plain Vite sandbox.
+- Browser accessibility tree inspection was attempted through Playwright, but `page.accessibility.snapshot` was unavailable in the installed API surface.
