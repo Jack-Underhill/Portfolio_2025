@@ -1,4 +1,5 @@
 import ProjectChallengeFields   from './editor/ProjectChallengeFields';
+import ProjectClassificationFields from './editor/ProjectClassificationFields';
 import ProjectListFields        from './editor/ProjectListFields';
 import ProjectLinkFields        from './editor/ProjectLinkFields';
 import ProjectEditorHeader      from './editor/ProjectEditorHeader';
@@ -27,6 +28,14 @@ function ProjectEditor({ project, onChange, onRemove }) {
         onRemove={onRemove}
       />
 
+      <ProjectClassificationFields
+        projectId={project.id}
+        featuredRank={project.featuredRank}
+        projectType={project.projectType}
+        labels={project.labels}
+        handleFieldChange={handleFieldChange}
+      />
+
       <ProjectIntroFields
         projectId={project.id}
         title={project.title}
@@ -49,7 +58,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
         video={project.videoPageUrl}
         handleFieldChange={handleFieldChange}
       />
-      
+
       <ProjectTechStackFields
         projectId={project.id}
         stack={project.techStack}

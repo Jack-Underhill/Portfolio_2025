@@ -1,9 +1,13 @@
 import { BadRequestError, assertPlainObject } from './requestBody.js';
+import { PROJECT_TYPES } from '../../../src/domain/projects/constants.js';
 
 const SHORT_TEXT_LIMIT = 240;
 const MEDIUM_TEXT_LIMIT = 1000;
 const LONG_TEXT_LIMIT = 6000;
 const URL_LIMIT = 2000;
+const PROJECT_LABEL_LIMIT = 12;
+const PROJECT_LABEL_LENGTH_LIMIT = 80;
+const PROJECT_TYPE_SET = new Set(PROJECT_TYPES);
 
 export const FILE_LIMITS = {
   image: {
@@ -205,6 +209,9 @@ function normalizeProjectArray(projects) {
         project.improvements,
         `project ${index + 1} improvements`,
       ),
+      featuredRank: optionalInteger(project.featuredRank, `project ${index + 1} featured rank`),
+      projectType: optionalProjectType(project.projectType, `project ${index + 1} project type`),
+      labels: normalizeLabels(project.labels ?? [], `project ${index + 1} labels`),
       published: optionalBoolean(project.published, `project ${index + 1} published`, true),
     });
   }
@@ -351,6 +358,46 @@ function normalizeStringList(value, label, { maxItems, maxLength }) {
   return requiredArray(value, label, maxItems)
     .map((item, index) => optionalString(item, `${label} item ${index + 1}`, maxLength))
     .filter(Boolean);
+}
+
+function optionalInteger(value, label) {
+  if (value == null || value === '') return null;
+
+  const number = typeof value === 'number' ? value : Number(value);
+  if (!Number.isInteger(number)) {
+    throw new BadRequestError(`${label} must be an integer`);
+  }
+
+  return number;
+}
+
+function optionalProjectType(value, label) {
+  const projectType = optionalString(value, label, SHORT_TEXT_LIMIT);
+  if (!projectType) return null;
+  if (!PROJECT_TYPE_SET.has(projectType)) {
+    throw new BadRequestError(`${label} must be an accepted project type`);
+  }
+
+  return projectType;
+}
+
+function normalizeLabels(value, label) {
+  const normalized = normalizeStringList(value, label, {
+    maxItems: PROJECT_LABEL_LIMIT,
+    maxLength: PROJECT_LABEL_LENGTH_LIMIT,
+  });
+  const out = [];
+  const seen = new Set();
+
+  for (const item of normalized) {
+    const key = item.toLowerCase();
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    out.push(item);
+  }
+
+  return out;
 }
 
 function normalizeChallenges(value, label) {

@@ -4,6 +4,7 @@ import {
   normalizeString,
   normalizeStringArray,
 } from '../shared/normalize.js';
+import { PROJECT_TYPES } from './constants.js';
 import { createEmptyProjectDetails } from './defaults.js';
 
 const DETAIL_URL_FIELDS = [
@@ -48,13 +49,7 @@ const MERGE_FALLBACK_FIELDS = [
   'videoUrl',
 ];
 
-const PROJECT_TYPES = new Set([
-  'school',
-  'internship',
-  'personal',
-  'client',
-  'open-source',
-]);
+const PROJECT_TYPE_SET = new Set(PROJECT_TYPES);
 
 function hasOwnValue(object, field) {
   return object?.[field] !== undefined;
@@ -108,7 +103,7 @@ function normalizeFeaturedRank(value) {
 
 function normalizeProjectType(value) {
   const projectType = normalizeOptionalString(value);
-  if (!PROJECT_TYPES.has(projectType)) return null;
+  if (!PROJECT_TYPE_SET.has(projectType)) return null;
 
   return projectType;
 }

@@ -3,7 +3,7 @@ import FieldLabel from '../forms/FieldLabel';
 import TechListItem from './TechListItem'
 import { adminUi } from '../../styles/recipes';
 
-function TechListEditor({ idPrefix, label, values, onChange }) {
+function TechListEditor({ idPrefix, label, values, onChange, addLabel = '+ Add tech' }) {
     const list = Array.isArray(values) ? values : [];
 
     const [dragIndex, setDragIndex] = useState(null);
@@ -106,7 +106,7 @@ function TechListEditor({ idPrefix, label, values, onChange }) {
                 onClick={handleAdd}
                 className={adminUi.addLink}
             >
-                + Add tech
+                {addLabel}
             </button>
         </div>
     );
