@@ -7,6 +7,7 @@
     "dev": "vite",
     "admin:server": "node --env-file=.env.local server/admin/index.js",
     "backup:supabase": "node --env-file=.env.local scripts/backup-supabase.mjs",
+    "migrate:supabase": "node --env-file=.env.local scripts/run-supabase-migration.mjs",
     "diagnose:runtime": "node scripts/diagnose-runtime.mjs",
     "check:schema": "node scripts/check-schema-drift.mjs",
     "build": "vite build",
@@ -34,6 +35,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "playwright": "^1.60.0",
+    "postgres": "^3.4.9",
     "vite": "^6.3.5",
     "vitest": "^4.1.6"
   }
