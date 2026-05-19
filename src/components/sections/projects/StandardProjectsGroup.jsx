@@ -1,5 +1,4 @@
 import ProjectCard from '../../projects/ProjectCard';
-import ProjectModal from '../../projects/modal/ProjectModal';
 import SectionTitle from '../../ui/SectionTitle';
 import Text from '../../ui/Text';
 
@@ -12,19 +11,17 @@ function StandardProjectsGroup({
   lastInputRef,
   openFromCard,
   isModalOpen,
-  activeProject,
-  closeModal,
-  shouldRenderModal,
 }) {
   return (
-    <div
+    <section
       id="ProjectGallery"
+      aria-labelledby="project-gallery-heading"
       className="
         w-full min-h-fit scroll-mt-10
         flex flex-col justify-center
       "
     >
-      <SectionTitle className="mb-8" data-aos="flip-down">
+      <SectionTitle id="project-gallery-heading" className="mb-8" data-aos="flip-down">
         Project Gallery
       </SectionTitle>
 
@@ -60,15 +57,7 @@ function StandardProjectsGroup({
           />
         ))}
       </div>
-
-      {shouldRenderModal && (
-        <ProjectModal
-          isOpen={isModalOpen}
-          project={activeProject}
-          onClose={closeModal}
-        />
-      )}
-    </div>
+    </section>
   );
 }
 

@@ -6,6 +6,12 @@ Date: 2026-05-16
 
 This document records the testing plan by feature area. It stays high level, with the current baseline tests named so future work can build on them without guessing.
 
+## Maintenance Rules
+
+- Keep current coverage, remaining gaps, and active test strategy.
+- Move completed gaps into current coverage once tests land.
+- Avoid preserving completed issue history unless it explains a current test boundary.
+
 ## Current State
 
 Vitest is installed as the default unit-test runner.
@@ -82,8 +88,7 @@ Current coverage:
 
 Why this matters:
 
-- The Hero fallback bug was a small casing mismatch.
-- A tiny contract test would catch the same class of issue quickly.
+- Mapper and view-model tests catch field-name contract drift quickly.
 
 ## Contact and Links
 
@@ -107,9 +112,8 @@ Why this matters:
 
 Current status:
 
-- Grouped Skills are in the full data flow.
+- Skills are covered as their own grouped database/admin/public flow.
 - Public `Skills.jsx` consumes mapped grouped rows and falls back to static grouped defaults.
-- Contact no longer exposes Skills output.
 
 Current coverage:
 
@@ -127,7 +131,6 @@ Future coverage:
 Current status:
 
 - Static component-local data.
-- Not current drift.
 - Future candidate for database/admin/public data flow.
 
 Future coverage after migration:

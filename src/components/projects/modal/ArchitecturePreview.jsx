@@ -13,13 +13,19 @@ function getProjectReturnTo(data) {
 export default function ArchitecturePreview({ data }) {
     const archImg = data.architectureImageUrl || null;
     const previewUrl = archImg ? getInlineSvgUrl(archImg) : null;
+    const projectTitle = String(data.title || "").trim() || "Project";
+    const diagramTitle = `${projectTitle} architecture diagram`;
     const fallbackText = archImg
         ? "Architecture preview unavailable in local dev without Netlify"
         : "No architecture image yet";
 
     if (!archImg || !previewUrl) {
         return (
-            <div className="w-full h-40 rounded-xl border border-card-border bg-scrim/20 grid place-items-center text-text/60 text-sm">
+            <div
+                role="note"
+                aria-label={`${projectTitle} architecture preview status`}
+                className="w-full h-40 rounded-xl border border-card-border bg-scrim/20 grid place-items-center text-text/60 text-sm"
+            >
                 {fallbackText}
             </div>
         );
@@ -27,39 +33,43 @@ export default function ArchitecturePreview({ data }) {
 
     const viewerUrl = buildArchitectureViewerUrl({
         src: previewUrl,
-        title: data.title ? `${data.title} Architecture` : "Architecture Diagram",
+        title: `${projectTitle} Architecture`,
         returnTo: getProjectReturnTo(data),
     });
     const isSvg = isSvgUrl(archImg);
 
     return (
         <div className="space-y-2">
-            <div className="relative rounded-xl border border-card-border bg-scrim/20 overflow-hidden">
+            <div className="relative rounded-xl focus-within:ring-4 focus-within:ring-accent-soft/60">
                 {/* Clickable overlay */}
                 <a
                     href={viewerUrl}
-                    aria-label={`Open ${data.title} architecture diagram viewer page`}
-                    className="absolute inset-0 z-10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft/60"
+                    aria-label={`Open ${diagramTitle} viewer`}
+                    className="absolute inset-0 z-10 cursor-pointer rounded-xl focus:outline-none"
                 >
-                    <span className="sr-only">Open full diagram</span>
+                    <span className="sr-only">Open full architecture diagram</span>
                 </a>
 
-                {/* SVG Architecture Image */}
-                <div className="w-full aspect-[16/9]">
-                    {isSvg ? (
-                        <object
-                            data={previewUrl}
-                            type="image/svg+xml"
-                            className="w-full h-full block"
-                            aria-label={`${data.title} architecture`}
-                        />
-                    ) : (
-                        <img
-                            src={previewUrl}
-                            alt={`${data.title} architecture`}
-                            className="w-full h-full block object-contain"
-                        />
-                    )}
+                <div className="overflow-hidden rounded-xl border border-card-border bg-scrim/20">
+                    {/* SVG Architecture Image */}
+                    <div className="w-full aspect-[16/9]">
+                        {isSvg ? (
+                            <object
+                                data={previewUrl}
+                                type="image/svg+xml"
+                                className="w-full h-full block"
+                                aria-hidden="true"
+                                tabIndex={-1}
+                            />
+                        ) : (
+                            <img
+                                src={previewUrl}
+                                alt=""
+                                aria-hidden="true"
+                                className="w-full h-full block object-contain"
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

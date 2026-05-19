@@ -2,11 +2,11 @@
 
 This directory is the tracked source of truth for where the portfolio stands now and what should happen next.
 
-The `planning/` directory is historical working memory. It contains implementation plans, context dumps, and audits that were useful while the repo was being refactored, but those files are not authoritative by themselves. Use them as logs when reconstructing why a change happened. Use this directory when deciding what the current repo state is.
+Use this directory when deciding what the current repo state is.
 
 ## Current Docs
 
-- [Data Flow Drift](./data-flow-drift.md): current database/admin/public drift, especially Skills, Contact, Education, and Certifications.
+- [Data Flow Drift](./data-flow-drift.md): active database/admin/public/UI drift, including Projects presentation, Contact icon fallback behavior, and static Education/Certifications.
 - [Current Errors and Warnings](./current-errors-and-warnings.md): current command failures, lint errors, local runtime warnings, and known quality gates.
 - [Testing Plan](./testing-plan.md): high-level testing plan grouped by feature area.
 - [Routes, Runtime, and Data Collisions](./routes-runtime-and-data-collisions.md): route constants, function paths, storage paths, singleton IDs, and data collision risks.
@@ -15,8 +15,9 @@ The `planning/` directory is historical working memory. It contains implementati
 
 ## Documentation Rules
 
+- `docs/` should describe current repo state, accepted caveats, and active next actions, not preserve PRD history.
 - Keep current truth and next actions together.
-- Keep historical references explicit: cite `planning/` only as background, not as the final answer.
 - Prefer repo-specific details over generic architecture advice.
+- Remove resolved issues unless they remain an active caveat or current guardrail.
 - Update docs when a drift item is fixed, removed, or intentionally accepted.
-- Future subdirectory READMEs should be concise. These docs may stay more audit-like and detailed.
+- Subdirectory READMEs should stay concise. These docs may stay more detailed when they describe active decisions.

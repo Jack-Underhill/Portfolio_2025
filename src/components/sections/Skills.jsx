@@ -20,9 +20,9 @@ function TagList({ header, tags, isSmall = false }) {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className={HeaderClassName} data-aos="flip-down">
+            <h3 className={HeaderClassName} data-aos="flip-down">
                 <GradientText>{header}</GradientText>
-            </div>
+            </h3>
             <TechTag
                 className={TagClassName}
                 tags={tags}
@@ -40,10 +40,12 @@ function Skills() {
     });
 
     return (
-        <div
+        <section
             id="Skills"
+            aria-labelledby="skills-heading"
             className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 md:gap-15 xl:gap-20'
         >
+            <h2 id="skills-heading" className="sr-only">Skills</h2>
             {skillGroups.map((group) => (
                 <TagList
                     key={`${group.sortOrder}-${group.label}`}
@@ -51,7 +53,7 @@ function Skills() {
                     tags={group.items.map((item) => item.label)}
                 />
             ))}
-        </div>
+        </section>
     );
 }
 

@@ -24,7 +24,7 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
                         mt-0.5 shrink-0 w-8 h-8 rounded-xl
                         grid place-items-center text-sm font-extrabold
                         bg-card-att text-text border 
-                        border-card-border/70 group-hover/summary:border-button-border/40
+                        border-card-border/70 group-hover/summary:border-button-border/40 group-focus/summary:border-button-border/40
                         
                     "
                 >
@@ -45,6 +45,7 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
                                 transition-transform duration-200
                                 group-open/challenge:rotate-180
                                 group-hover/summary:text-text
+                                group-focus/summary:text-text
                             "
                         >
                             ▾

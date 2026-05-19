@@ -1,8 +1,31 @@
 import { useEffect, useRef } from "react";
 
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "textarea:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "summary",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+function getFocusableElements(root) {
+  if (!root) return [];
+
+  return Array.from(root.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el) => {
+    if (el.getAttribute("aria-hidden") === "true") return false;
+    if (el.hasAttribute("disabled")) return false;
+
+    return el.getClientRects().length > 0;
+  });
+}
+
 function useModalSideEffects({ isOpen, onClose } = {}) {
+  const initialFocusRef = useRef(null);
   const closeBtnRef = useRef(null);
   const lastActiveElRef = useRef(null);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (!isOpen || typeof document === "undefined") return undefined;
@@ -16,13 +39,48 @@ function useModalSideEffects({ isOpen, onClose } = {}) {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    // Focus close button for accessibility
+    // Focus the first primary modal action when available, with close as the fallback.
     const focusTimer = window.setTimeout(() => {
-      closeBtnRef.current?.focus();
+      const initialTarget = initialFocusRef.current || closeBtnRef.current;
+      initialTarget?.focus();
     }, 0);
 
     const onKeyDown = (e) => {
-      if (e.key === "Escape") onClose?.();
+      if (e.key === "Escape") {
+        onClose?.();
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      const focusableEls = getFocusableElements(modalRef.current);
+      if (!focusableEls.length) {
+        e.preventDefault();
+        return;
+      }
+
+      const firstEl = focusableEls[0];
+      const lastEl = focusableEls[focusableEls.length - 1];
+      const activeEl = document.activeElement;
+      const isFocusInsideModal = modalRef.current?.contains(activeEl);
+
+      if (!isFocusInsideModal) {
+        e.preventDefault();
+        if (e.shiftKey) lastEl.focus();
+        else firstEl.focus();
+        return;
+      }
+
+      if (e.shiftKey && activeEl === firstEl) {
+        e.preventDefault();
+        lastEl.focus();
+        return;
+      }
+
+      if (!e.shiftKey && activeEl === lastEl) {
+        e.preventDefault();
+        firstEl.focus();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
 
@@ -33,14 +91,14 @@ function useModalSideEffects({ isOpen, onClose } = {}) {
 
       // Restore focus
       const el = lastActiveElRef.current;
-      if (el && typeof el.focus === "function") el.focus();
+      if (el && document.contains(el) && typeof el.focus === "function") el.focus();
 
       if (prevModalOpen === null) root.removeAttribute("data-modal-open");
       else root.setAttribute("data-modal-open", prevModalOpen);
     };
   }, [isOpen, onClose]);
 
-  return { closeBtnRef };
+  return { closeBtnRef, initialFocusRef, modalRef };
 }
 
 export default useModalSideEffects;

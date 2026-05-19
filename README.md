@@ -15,7 +15,7 @@ This repository is written for a mixed audience:
 - A separate local Node admin backend for privileged reads, writes, deletes, and uploads.
 - Netlify serverless functions for public runtime features that must stay outside the browser.
 - Pure domain mappers and route helpers that keep database shape, UI shape, and admin persistence from bleeding into one another.
-- A documentation trail that distinguishes current repo truth from historical planning notes.
+- A documentation trail that keeps current repo truth and cleanup priorities easy to find.
 
 ## Architecture Overview
 
@@ -53,7 +53,7 @@ Start here when you need to understand a boundary quickly:
 - [database/README.md](./database/README.md): Supabase schema, migrations, RLS expectations, and storage conventions.
 - [docs/README.md](./docs/README.md): current repo truth, drift notes, testing plan, stale-code review, and cleanup candidates.
 
-Treat `docs/` as the tracked source of truth for current status and next actions. Treat `codex-planning/` as local untracked historical implementation memory and context logs.
+Treat `docs/` as the tracked source of truth for current status and next actions.
 
 ## Documentation Guide
 
@@ -61,7 +61,7 @@ The root README is the orientation layer. It should stay readable for people eva
 
 Detailed current-state notes live in `docs/`:
 
-- [Data Flow Drift](./docs/data-flow-drift.md): database/admin/public drift, especially Contact and Skills.
+- [Data Flow Drift](./docs/data-flow-drift.md): active database/admin/public/UI drift and accepted caveats.
 - [Current Errors and Warnings](./docs/current-errors-and-warnings.md): known command failures, lint state, and expected local runtime warnings.
 - [Testing Plan](./docs/testing-plan.md): feature-area testing priorities.
 - [Routes, Runtime, and Data Collisions](./docs/routes-runtime-and-data-collisions.md): route constants, function paths, singleton IDs, storage paths, and collision risks.
@@ -81,7 +81,7 @@ Detailed current-state notes live in `docs/`:
 Known cleanup themes are documented rather than hidden:
 
 - Singleton IDs and local admin runtime defaults still live at their owning runtime boundaries.
-- Skills data is still partly legacy while the public Skills section uses newer grouped static content.
+- Project presentation structure, local runtime constants, and storage conventions are documented as active cleanup boundaries.
 - Browser smoke coverage and `track-visit` function tests remain future quality work.
 - The current unit-test, lint, schema drift, and build checks are green and part of the normal local quality gate.
 

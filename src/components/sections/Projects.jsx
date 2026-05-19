@@ -4,6 +4,7 @@ import projectWorkLogo from '../../assets/Project_Work.png'; // card fallback im
 
 import FeaturedProjectsGroup from './projects/FeaturedProjectsGroup';
 import StandardProjectsGroup from './projects/StandardProjectsGroup';
+import ProjectModal from '../projects/modal/ProjectModal';
 import { fetchProjectsPublic } from '../../api/public/projects';
 import { toProjectCardViewModel } from '../../domain/projects/mappers';
 import { groupProjectsForDisplay } from '../../domain/projects/viewModel';
@@ -52,14 +53,6 @@ function Projects() {
     openFromCard,
     closeModal,
   } = useProjectModalRouting({ projects: allProjects });
-  const activeProjectId = Number(activeProject?.id);
-  const isFeaturedModalProject = Number.isFinite(activeProjectId)
-    && featuredProjects.some((project) => Number(project.id) === activeProjectId);
-  const isStandardModalProject = Number.isFinite(activeProjectId)
-    && standardProjects.some((project) => Number(project.id) === activeProjectId);
-  const renderModalInFeaturedGroup = isModalOpen
-    && (isFeaturedModalProject || (!isStandardModalProject && featuredProjects.length > 0));
-  const renderModalInStandardGroup = isModalOpen && !renderModalInFeaturedGroup;
 
   useEffect(() => {
     const onPointerDown = () => { lastInputRef.current = 'pointer'; };
@@ -98,9 +91,6 @@ function Projects() {
         lastInputRef={lastInputRef}
         openFromCard={openFromCard}
         isModalOpen={isModalOpen}
-        activeProject={activeProject}
-        closeModal={closeModal}
-        shouldRenderModal={renderModalInFeaturedGroup}
       />
 
       <StandardProjectsGroup
@@ -112,10 +102,15 @@ function Projects() {
         lastInputRef={lastInputRef}
         openFromCard={openFromCard}
         isModalOpen={isModalOpen}
-        activeProject={activeProject}
-        closeModal={closeModal}
-        shouldRenderModal={renderModalInStandardGroup}
       />
+
+      {isModalOpen && (
+        <ProjectModal
+          isOpen={isModalOpen}
+          project={activeProject}
+          onClose={closeModal}
+        />
+      )}
     </>
   );
 }

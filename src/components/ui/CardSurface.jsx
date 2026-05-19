@@ -35,7 +35,7 @@ export default function CardSurface({
                 <>
                     {/* premium sheen (tinted) */}
                     <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[520px] -translate-x-1/2 rounded-full bg-accent-soft/10 blur-3xl opacity-25" />
-                    <div className="surface-sheen-radial pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <div className="surface-sheen-radial pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100" />
                 </>
             )}
 

@@ -16,13 +16,16 @@ function ViewButton({
     aos 
 }) {
     const [isHovered, setIsHovered] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
     const onEnter = useCallback(() => setIsHovered(true), []);
     const onLeave = useCallback(() => setIsHovered(false), []);
+    const onFocus = useCallback(() => setIsFocused(true), []);
+    const onBlur = useCallback(() => setIsFocused(false), []);
 
     return (
         <a
-            className="group w-fit inline-block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/60"
+            className="group w-fit inline-block rounded-xl focus:outline-none"
             href={url}
             target="_blank"
             rel="noopener noreferrer"
@@ -30,6 +33,8 @@ function ViewButton({
             data-aos={aos}
             onPointerEnter={onEnter}
             onPointerLeave={onLeave}
+            onFocus={onFocus}
+            onBlur={onBlur}
         >
             <span
                 className={[
@@ -37,7 +42,7 @@ function ViewButton({
                     variantClasses[variant] || variantClasses.primary,
                     "transition-transform duration-200 ease-out",
                     "group-active:scale-[0.99]",
-                    cx(isHovered && "animate-bounce scale-[1.02] will-change-transform"),
+                    cx((isHovered || isFocused) && "animate-bounce scale-[1.02] will-change-transform"),
                 ].join(" ")}
             >
                 {isTextGradient ? (

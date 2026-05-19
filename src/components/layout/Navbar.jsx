@@ -3,6 +3,14 @@ import { useState } from 'react';
 import menu from '../../assets/menu.svg';
 import useModalOpenFlag from '../../hooks/useModalOpenFlag';
 
+const SECTION_LINKS = [
+    { href: '#Projects', label: 'Projects' },
+    { href: '#Education', label: 'Education' },
+    { href: '#Certifications', label: 'Certifications' },
+    { href: '#Skills', label: 'Skills' },
+    { href: '#Contact', label: 'Contact' },
+];
+
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const isModalOpen = useModalOpenFlag();
@@ -15,46 +23,44 @@ function Navbar() {
     if (isModalOpen) return null;
 
     return (
-        <div
+        <nav
+            aria-label="Primary sections"
             className="w-fit z-12 h-full flex flex-col sm:flex-row-reverse gap-0 sm:gap-10 items-center"
             data-aos="flip-up"
         >
-            <button className='h-full self-end hover:animate-pulse hover:scale-125' onClick={menuClick}>
+            <button
+                type="button"
+                className='h-full self-end hover:animate-pulse hover:scale-125 focus:animate-pulse focus:scale-125'
+                onClick={menuClick}
+                aria-controls="primary-section-navigation"
+                aria-expanded={isOpen}
+                aria-label={isOpen ? 'Close section navigation' : 'Open section navigation'}
+            >
                 <img
                     src={menu}
-                    alt={`View menu svg`}
-                    title='Open Menu'
+                    alt=""
+                    aria-hidden="true"
                     className='h-full transition-transform duration-300 ease-in-out hover:rotate-360'
                 />
             </button>
-            <div className={`pr-3 sm:pr-0 flex flex-col sm:flex-row gap-5 text-md font-semibold text-emerald-50 transition-all duration-400 ease-in-out items-center ${isOpen ? 'opacity-100 translate-y-10 sm:translate-x-0 sm:translate-y-0' : 'opacity-0 translate-y-0 sm:translate-x-10 pointer-events-none'}`}>
-                <button onClick={menuClick}>
-                    <a href="#Projects">
-                        <div className='hover-animated-gradient'>Projects</div>
+            <div
+                id="primary-section-navigation"
+                aria-hidden={!isOpen}
+                className={`pr-3 sm:pr-0 flex flex-col sm:flex-row gap-5 text-md font-semibold text-emerald-50 transition-all duration-400 ease-in-out items-center ${isOpen ? 'opacity-100 translate-y-10 sm:translate-x-0 sm:translate-y-0' : 'opacity-0 translate-y-0 sm:translate-x-10 pointer-events-none'}`}
+            >
+                {SECTION_LINKS.map((link) => (
+                    <a
+                        key={link.href}
+                        href={link.href}
+                        onClick={menuClick}
+                        tabIndex={isOpen ? undefined : -1}
+                        className="block rounded-sm hover-animated-gradient focus:outline-none focus-visible:ring-1 focus-visible:ring-focus-ring"
+                    >
+                        {link.label}
                     </a>
-                </button>
-                <button onClick={menuClick}>
-                    <a href="#Education">
-                        <div className='hover-animated-gradient'>Education</div>
-                    </a>
-                </button>
-                <button onClick={menuClick}>
-                    <a href="#Certifications">
-                        <div className='hover-animated-gradient'>Certifications</div>
-                    </a>
-                </button>
-                <button onClick={menuClick}>
-                    <a href="#Skills">
-                        <div className='hover-animated-gradient'>Skills</div>
-                    </a>
-                </button>
-                <button onClick={menuClick}>
-                    <a href="#Contact">
-                        <div className='hover-animated-gradient'>Contact</div>
-                    </a>
-                </button>
+                ))}
             </div>
-        </div>
+        </nav>
     );
 }
 
