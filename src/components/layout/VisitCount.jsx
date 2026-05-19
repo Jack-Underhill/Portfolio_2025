@@ -7,7 +7,8 @@ function VisitCount() {
   const [visitCount, setVisitCount] = useState(null);
   const [isUnavailable, setIsUnavailable] = useState(false);
 
-  const isLoading = () => visitCount === null && !isUnavailable;
+  const isLoading = visitCount === null && !isUnavailable;
+  const statusText = isLoading ? 'Loading ...' : isUnavailable ? 'Views unavailable' : `${visitCount} views`;
 
   useEffect(() => {
     let isMounted = true;
@@ -59,15 +60,17 @@ function VisitCount() {
       <div 
         className="w-fit h-full flex gap-2 items-center group" 
         title='User Visit Count' 
+        aria-label="Portfolio visit count"
         data-aos="flip-up"
       >
         <img 
             src={views} 
-            alt={`View svg`}
-            className={`h-full ${isLoading() ? 'animate-spin' : 'group-hover:animate-spin'}`} 
+            alt=""
+            aria-hidden="true"
+            className={`h-full ${isLoading ? 'animate-spin' : 'group-hover:animate-spin'}`}
         />
-        <div className='text-md font-semibold text-emerald-50'>
-          {isLoading() ? 'Loading ...' : isUnavailable ? 'Views unavailable' : `${visitCount} views`}
+        <div className='text-md font-semibold text-emerald-50' role="status" aria-live="polite" aria-atomic="true">
+          {statusText}
         </div>
       </div>
   );

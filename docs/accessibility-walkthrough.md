@@ -139,3 +139,22 @@ Unable to verify locally:
 - A native screen reader session was not run in this window.
 - Live Supabase-backed project cards, route-backed project modal entry, and modal focus return were not verified through the browser because public data fetches failed under the plain Vite sandbox.
 - Browser accessibility tree inspection was attempted through Playwright, but `page.accessibility.snapshot` was unavailable in the installed API surface.
+
+## Architecture Viewer and Status Text - 2026-05-18
+
+Fixes completed:
+
+- Architecture preview links now have project-aware names, and duplicated preview images/objects are hidden from screen readers.
+- Architecture preview fallback text is exposed as a named note instead of relying on visual text alone.
+- The standalone architecture viewer now labels the main viewer area, diagram canvas, zoom-control group, Back link, and zoom buttons more clearly.
+- Keyboard shortcut guidance for Escape, plus, minus, and 0 is available to assistive technology without adding visible instructional UI.
+- Viewer loading, empty, error, and zoom-percent changes use scoped live-region behavior.
+- Visit count status now hides the decorative views icon and announces count/unavailable changes through a single polite status region.
+
+Deferred:
+
+- Browser smoke coverage for the architecture viewer invalid-source fallback remains deferred to Substep 7, where it can be considered alongside the broader Playwright/axe decision.
+
+Accepted tradeoff:
+
+- The architecture preview still shows a local Netlify fallback when SVG proxy functions are unavailable; this remains expected plain Vite behavior.
