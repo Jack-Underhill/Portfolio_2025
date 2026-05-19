@@ -40,6 +40,7 @@ function EducationCard({
                 "focus:-translate-y-1 focus:border-button-border/70",
                 "hover-shadow-card-accent",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/50",
+                "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus:translate-y-0",
                 "overflow-hidden",
                 className,
             ].join(" ")}
@@ -134,7 +135,7 @@ function EducationCard({
                 {/* footer */}
                 <Text as="div" variant="meta" className="flex items-center justify-between">
                     <span>{issued || ""}</span>
-                    <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100 group-focus:opacity-100">
+                    <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100 group-focus:opacity-100 motion-reduce:transition-none">
                         {hasLink ? "View details" : ""}
                     </span>
                 </Text>

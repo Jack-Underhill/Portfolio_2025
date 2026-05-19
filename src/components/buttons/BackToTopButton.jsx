@@ -1,5 +1,6 @@
 import ArrowUp from "../../assets/arrow-up.svg";
 import useModalOpenFlag from "../../hooks/useModalOpenFlag";
+import usePrefersReducedMotion from "../../hooks/usePrefersReducedMotion";
 import useScrollVisibility from "../../hooks/useScrollVisibility";
 
 
@@ -9,9 +10,13 @@ function BackToTopButton({
     right = "right-6",
 }) {
     const isModalOpen = useModalOpenFlag();
+    const prefersReducedMotion = usePrefersReducedMotion();
     const visible = useScrollVisibility({ direction: "top", showAfter, disabled: isModalOpen });
 
-    const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+    const scrollToTop = () => window.scrollTo({
+        top: 0,
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
 
     // Fully remove it from the DOM while modal is open
     if (isModalOpen) return null;
@@ -46,6 +51,7 @@ function BackToTopButton({
                     "hover:scale-105 focus:scale-105",
                     "hover-shadow-button-accent focus:animate-bounce",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/60",
+                    "motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:focus:scale-100 motion-reduce:focus:animate-none",
                 ].join(" ")}
             >
                 <img

@@ -37,6 +37,7 @@ function CertificationCard({
                 "hover:-translate-y-1 hover:border-button-border/70",
                 "focus:-translate-y-1 focus:border-button-border/70",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/50",
+                "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus:translate-y-0",
                 "overflow-hidden",
                 className,
             ].join(" ")}
@@ -120,7 +121,7 @@ function CertificationCard({
                 {/* footer */}
                 <Text as="div" variant="meta" className="flex items-center justify-between">
                     <span>{issued ? `Issued ${issued}` : ""}</span>
-                    <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100 group-focus:opacity-100">
+                    <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100 group-focus:opacity-100 motion-reduce:transition-none">
                         {hasLink ? "View credential" : ""}
                     </span>
                 </Text>

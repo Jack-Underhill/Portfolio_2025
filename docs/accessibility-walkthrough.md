@@ -158,3 +158,22 @@ Deferred:
 Accepted tradeoff:
 
 - The architecture preview still shows a local Netlify fallback when SVG proxy functions are unavailable; this remains expected plain Vite behavior.
+
+## Reduced Motion, Contrast, and Focus - 2026-05-19
+
+Fixes completed:
+
+- AOS now follows `prefers-reduced-motion: reduce`, disabling section animation for reduced-motion users and refreshing when the preference changes.
+- Project-card hover/focus video previews no longer request or play video while reduced motion is active, and any active preview is released if the preference changes.
+- Reduced-motion CSS now calms AOS elements, animated gradient text, tag marquee motion, hover-gradient transforms, avatar float/tilt motion, and avatar hover transforms.
+- The public back-to-top button uses instant scrolling when reduced motion is active.
+- Credential/card meta contrast was improved by raising `--color-text-subtle` to `#8BA1B6`.
+- Visible focus was strengthened on the public menu button, project cards, credential cards, back-to-top control, and shared admin form/button/link recipes.
+
+Deferred:
+
+- Browser reduced-motion and focus-ring smoke coverage remains part of the Substep 7 test decision, alongside the already-deferred Playwright/axe checks.
+
+Accepted tradeoff:
+
+- Motion is calmed through the media query and runtime guards, but default users keep the portfolio's existing animated personality.

@@ -10,7 +10,7 @@
 
   --color-text: #ECFDF5;
   --color-text-muted: #9DB3C7;
-  --color-text-subtle: #6F8397;
+  --color-text-subtle: #8BA1B6;
 
   --color-accent: #0E8AC2;
   --color-accent-strong: #1B95CC;
@@ -161,6 +161,53 @@
 .tech-tag-marquee {
   animation: tech-tag-marquee 15s linear infinite;
   will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  [data-aos],
+  [data-aos^="fade"],
+  [data-aos^="flip"],
+  [data-aos^="zoom"] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .animated-gradient,
+  .tech-tag-marquee {
+    animation: none !important;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .hover-animated-gradient:hover,
+  .hover-animated-gradient:focus-visible {
+    animation: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    transform: none !important;
+  }
+
+  .avatar-float,
+  .avatar-tilt,
+  .avatar-logo-motion {
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
 }
 
 /* Firefox */

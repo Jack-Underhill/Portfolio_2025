@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import usePrefersReducedMotion from './usePrefersReducedMotion';
+
 function useHoverPreviewIntent({
   id,
   safeVideo,
@@ -9,6 +11,7 @@ function useHoverPreviewIntent({
   clearPreview,
   hoverIntentMs = 250,
 } = {}) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [isPreviewed, setIsPreviewed] = useState(false);
   const [isLoadingVideo, setIsLoadingVideo] = useState(false);
 
@@ -35,6 +38,7 @@ function useHoverPreviewIntent({
 
   useEffect(() => {
     if (!isActivePreview || typeof window === 'undefined') return undefined;
+    if (prefersReducedMotion) return undefined;
 
     setIsPreviewed(true);
 
@@ -46,7 +50,14 @@ function useHoverPreviewIntent({
     return () => {
       disablePreviewLocal();
     };
-  }, [disablePreviewLocal, hoverIntentMs, isActivePreview]);
+  }, [disablePreviewLocal, hoverIntentMs, isActivePreview, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      disablePreviewLocal();
+      clearPreview?.(id);
+    }
+  }, [clearPreview, disablePreviewLocal, id, prefersReducedMotion]);
 
   useEffect(() => {
     if (!isPreviewed || !isLoadingVideo) return undefined;
@@ -83,10 +94,10 @@ function useHoverPreviewIntent({
   }, [isLoadingVideo, isPreviewed]);
 
   const enablePreview = useCallback(() => {
-    if (safeVideo && !isModalOpen) {
+    if (safeVideo && !isModalOpen && !prefersReducedMotion) {
       requestPreview?.(id);
     }
-  }, [id, isModalOpen, requestPreview, safeVideo]);
+  }, [id, isModalOpen, prefersReducedMotion, requestPreview, safeVideo]);
 
   const disablePreviewAndRelease = useCallback(() => {
     disablePreviewLocal();
