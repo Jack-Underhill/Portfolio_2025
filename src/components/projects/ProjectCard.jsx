@@ -89,7 +89,7 @@ function ProjectCard({
     return (
         <CardSurface
             link={link}
-            title={`Open case study | ${title}`}
+            title={`Open ${title} case study`}
             onClick={handleOnClick}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}

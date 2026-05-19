@@ -1,9 +1,14 @@
-export default function ActionButton({ href, children }) {
+import { forwardRef } from "react";
+
+const ActionButton = forwardRef(function ActionButton({ href, children, accessibleLabel }, ref) {
     if (!href) return null;
+
     return (
         <a
+            ref={ref}
             href={href}
-            title="Open Link"
+            aria-label={accessibleLabel}
+            title={accessibleLabel || "Open link"}
             target="_blank"
             rel="noopener noreferrer"
             className="
@@ -17,4 +22,6 @@ export default function ActionButton({ href, children }) {
             {children}
         </a>
     );
-}
+});
+
+export default ActionButton;

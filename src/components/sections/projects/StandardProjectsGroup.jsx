@@ -1,5 +1,4 @@
 import ProjectCard from '../../projects/ProjectCard';
-import ProjectModal from '../../projects/modal/ProjectModal';
 import SectionTitle from '../../ui/SectionTitle';
 import Text from '../../ui/Text';
 
@@ -12,9 +11,6 @@ function StandardProjectsGroup({
   lastInputRef,
   openFromCard,
   isModalOpen,
-  activeProject,
-  closeModal,
-  shouldRenderModal,
 }) {
   return (
     <section
@@ -61,14 +57,6 @@ function StandardProjectsGroup({
           />
         ))}
       </div>
-
-      {shouldRenderModal && (
-        <ProjectModal
-          isOpen={isModalOpen}
-          project={activeProject}
-          onClose={closeModal}
-        />
-      )}
     </section>
   );
 }

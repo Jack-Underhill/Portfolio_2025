@@ -24,7 +24,7 @@ export default function ProjectModal({
         return { ...(project ?? {}) };
     }, [project]);
 
-    const { closeBtnRef } = useModalSideEffects({ isOpen, onClose });
+    const { closeBtnRef, initialFocusRef, modalRef } = useModalSideEffects({ isOpen, onClose });
 
     if (!isOpen) return null;
 
@@ -41,6 +41,7 @@ export default function ProjectModal({
     const hasMetrics = isNonEmptyArray(data.metrics);
     const hasChallenges = isNonEmptyArray(data.challenges);
     const hasImprovements = isNonEmptyArray(data.improvements);
+    const modalTitleId = `project-modal-title-${data.id ?? "active"}`;
 
     const handleBackdropMouseDown = (e) => {
         // Only close if they clicked the backdrop itself
@@ -53,7 +54,9 @@ export default function ProjectModal({
             className="fixed inset-0 z-[999] flex items-center justify-center px-4 py-6 bg-scrim/60 backdrop-blur-sm"
             onMouseDown={handleBackdropMouseDown}
             aria-modal="true"
+            aria-labelledby={modalTitleId}
             role="dialog"
+            ref={modalRef}
         >
             <CardSurface 
                 className="p-2" 
@@ -61,7 +64,13 @@ export default function ProjectModal({
                 data-aos="zoom-in-up"
             >
                 <div className="w-full max-w-[80vw] xl:max-w-6xl h-[92vh] overflow-hidden rounded-xl flex flex-col">
-                    <Header data={data} onClose={onClose} closeBtnRef={closeBtnRef} />
+                    <Header
+                        data={data}
+                        onClose={onClose}
+                        closeBtnRef={closeBtnRef}
+                        initialFocusRef={initialFocusRef}
+                        titleId={modalTitleId}
+                    />
 
                     {/* Body */}
                     <div className="flex-1 min-h-0 overflow-y-auto scrollbar-modal p-8">
