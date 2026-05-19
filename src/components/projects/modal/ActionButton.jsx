@@ -15,6 +15,7 @@ const ActionButton = forwardRef(function ActionButton({ href, children, accessib
                 px-3 py-1.5 rounded-lg text-sm font-semibold 
                 bg-card text-text border border-button-border 
                 hover:scale-110 hover:brightness-110
+                focus-visible:scale-110 focus-visible:brightness-110
                 shadow-chip-inset
                 transition-transform duration-100 ease-out
             "

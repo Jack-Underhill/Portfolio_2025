@@ -79,7 +79,7 @@ export default function Header({ data, onClose, closeBtnRef, initialFocusRef, ti
                 <button
                     ref={closeBtnRef}
                     onClick={onClose}
-                    className="ml-1 size-8 rounded-lg text-text hover:brightness-130 hover:scale-110 transition duration-500 ease-out"
+                    className="ml-1 size-8 rounded-lg text-text hover:brightness-130 hover:scale-110 focus-visible:brightness-130 focus-visible:scale-110 transition duration-500 ease-out"
                     aria-label="Close case study"
                     title="Close case study"
                 >
@@ -87,7 +87,7 @@ export default function Header({ data, onClose, closeBtnRef, initialFocusRef, ti
                         src={closeIcon}
                         alt=""
                         aria-hidden="true"
-                        className='h-full transition-transform duration-500 ease-in-out hover:rotate-360'
+                        className='h-full transition-transform duration-500 ease-in-out hover:rotate-360 focus-visible:rotate-360'
                     />
                 </button>
             </div>
