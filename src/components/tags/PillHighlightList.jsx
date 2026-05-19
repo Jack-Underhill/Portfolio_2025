@@ -13,7 +13,7 @@ export default function PillHighlightList({
 }) {
     const highlightClassName = 
         isOnlyHighlightedOnHover 
-            ? "border-card-border/70 group-hover:border-button-border/40"
+            ? "border-card-border/70 group-hover:border-button-border/40 group-focus-visible:border-button-border/40"
             : "border-button-border/40";
 
     return (

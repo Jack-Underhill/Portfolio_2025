@@ -23,13 +23,18 @@ function Hero() {
     });
 
     return (
-        <div id="Hero" className="w-full min-h-fit lg:min-h-screen items-center flex flex-col-reverse md:flex-row gap-y-6 gap-x-4 pt-8 md:pt-0">
+        <section
+            id="Hero"
+            aria-labelledby="hero-heading"
+            className="w-full min-h-fit lg:min-h-screen items-center flex flex-col-reverse md:flex-row gap-y-6 gap-x-4 pt-8 md:pt-0"
+        >
             <div className="scroll-mt-10 w-full h-full md:w-3/5 flex flex-col gap-y-7 justify-center z-100">
-                <div className='text-6xl font-bold text-emerald-50' data-aos="fade-up">
+                <h1 id="hero-heading" className='text-6xl font-bold text-emerald-50' data-aos="fade-up">
                     Jack Underhill
-                </div>
+                </h1>
 
                 <TextBlock
+                    titleAs="h2"
                     title={about.professionTitle}
                     desc={about.briefBio}
                 />
@@ -55,7 +60,7 @@ function Hero() {
             </div>
 
             <Avatar avatarLogo={about.profileImageUrl || avatarLogo} />
-        </div>
+        </section>
     )
 }
 

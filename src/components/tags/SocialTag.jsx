@@ -2,9 +2,12 @@ import { useState, useCallback } from 'react'
 
 function SocialTag({ name, link, icon, aos = "fade-down-right" }) {
     const [isHovered, setIsHovered] = useState(false)
+    const [isFocused, setIsFocused] = useState(false)
 
     const onEnter = useCallback(() => setIsHovered(true), [])
     const onLeave = useCallback(() => setIsHovered(false), [])
+    const onFocus = useCallback(() => setIsFocused(true), [])
+    const onBlur  = useCallback(() => setIsFocused(false), [])
 
     return (
         <div className="h-20 w-20" data-aos={aos}>
@@ -16,6 +19,8 @@ function SocialTag({ name, link, icon, aos = "fade-down-right" }) {
                 title={`View My ${name}`}
                 onPointerEnter={onEnter}
                 onPointerLeave={onLeave}
+                onFocus={onFocus}
+                onBlur={onBlur}
             >
                 <img
                     src={icon}
@@ -23,7 +28,7 @@ function SocialTag({ name, link, icon, aos = "fade-down-right" }) {
                     draggable={false}
                     className={[
                         "h-full",
-                        isHovered ? "animate-bounce will-change-transform" : "",
+                        (isHovered || isFocused) ? "animate-bounce will-change-transform" : "",
                     ].join(" ")}
                 />
             </a>

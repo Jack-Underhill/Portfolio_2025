@@ -29,8 +29,8 @@ const DEFAULT_CERTS = [
 
 function Certifications() {
     return (
-        <section id="Certifications" className="flex flex-col gap-6">
-            <SectionTitle data-aos="flip-down">
+        <section id="Certifications" aria-labelledby="certifications-heading" className="flex flex-col gap-6">
+            <SectionTitle id="certifications-heading" data-aos="flip-down">
                 Certifications
             </SectionTitle>
 

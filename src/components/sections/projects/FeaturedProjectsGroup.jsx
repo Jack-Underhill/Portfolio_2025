@@ -17,14 +17,15 @@ function FeaturedProjectsGroup({
   shouldRenderModal,
 }) {
   return (
-    <div
+    <section
       id="Projects"
+      aria-labelledby="featured-work-heading"
       className="
         w-full min-h-fit scroll-mt-10
         flex flex-col justify-center
       "
     >
-      <SectionTitle className="mb-8" data-aos="flip-down">
+      <SectionTitle id="featured-work-heading" className="mb-8" data-aos="flip-down">
         Featured Work
       </SectionTitle>
 
@@ -68,7 +69,7 @@ function FeaturedProjectsGroup({
           onClose={closeModal}
         />
       )}
-    </div>
+    </section>
   );
 }
 

@@ -36,21 +36,23 @@ function BackToTopButton({
                 type="button"
                 onClick={scrollToTop}
                 aria-label="Back to top"
+                tabIndex={visible ? undefined : -1}
                 title="Back to top"
                 className={[
                     "group flex h-12 w-12 items-center justify-center rounded-full border-2",
                     "border-button-border bg-button",
                     "shadow-button-inset",
                     `transition-[transform,box-shadow] duration-[200ms] ease-out`,
-                    "hover:scale-105",
-                    "hover-shadow-button-accent",
+                    "hover:scale-105 focus:scale-105",
+                    "hover-shadow-button-accent focus:animate-bounce",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/60",
                 ].join(" ")}
             >
                 <img
                     src={ArrowUp}
-                    alt="Up Arrow Button to go back to top"
-                    className="size-5/10 object-contain opacity-80 transition-opacity group-hover:opacity-95"
+                    alt=""
+                    aria-hidden="true"
+                    className="size-5/10 object-contain opacity-80 transition-opacity group-hover:opacity-95 group-focus-visible:opacity-95"
                 />
             </button>
         </div>

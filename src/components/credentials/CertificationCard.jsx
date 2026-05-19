@@ -35,6 +35,7 @@ function CertificationCard({
                 "transition-[transform,border-color] duration-700 ease-in-out",
                 // Premium but on-theme hover: sky/button border + soft glow
                 "hover:-translate-y-1 hover:border-button-border/70",
+                "focus:-translate-y-1 focus:border-button-border/70",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-button-border/50",
                 "overflow-hidden",
                 className,
@@ -50,7 +51,7 @@ function CertificationCard({
                                 src={logoSrc}
                                 alt={`${org} logo`}
                                 style={{ width: logoScalePercent, height: logoScalePercent }}
-                                className="object-contain opacity-100 transition-opacity group-hover:opacity-100"
+                                className="object-contain opacity-100 transition-opacity group-hover:opacity-100 group-focus:opacity-100"
                             />
                         ) : (
                             <div className="size-7 rounded-md bg-card-border/70" />
@@ -73,12 +74,13 @@ function CertificationCard({
                                         "border border-card-border bg-card-att",
                                         "transition-[transform,border-color] duration-700 ease-in-out",
                                         "group-hover:border-button-border/60",
+                                        "group-focus:border-button-border/60",
                                     ].join(" ")}
                                 >
                                     <img
                                         src={ExternalLinkIcon}
                                         alt="external link icon"
-                                        className="size-8/10 object-contain opacity-80 transition-opacity group-hover:opacity-95"
+                                        className="size-8/10 object-contain opacity-80 transition-opacity group-hover:opacity-95 group-focus:opacity-95"
                                     />
                                 </div>
                             )}
@@ -118,7 +120,7 @@ function CertificationCard({
                 {/* footer */}
                 <Text as="div" variant="meta" className="flex items-center justify-between">
                     <span>{issued ? `Issued ${issued}` : ""}</span>
-                    <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100">
+                    <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100 group-focus:opacity-100">
                         {hasLink ? "View credential" : ""}
                     </span>
                 </Text>

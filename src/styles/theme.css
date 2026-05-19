@@ -90,11 +90,11 @@
   box-shadow: var(--shadow-subtle-highlight);
 }
 
-.hover-shadow-card-accent:hover {
+.hover-shadow-card-accent:hover, .hover-shadow-card-accent:focus-visible {
   box-shadow: var(--shadow-card-inset), var(--shadow-accent-ring-soft), var(--shadow-accent-glow-soft);
 }
 
-.hover-shadow-button-accent:hover {
+.hover-shadow-button-accent:hover, .hover-shadow-button-accent:focus-visible {
   box-shadow: var(--shadow-button-inset), var(--shadow-accent-ring), var(--shadow-accent-glow);
 }
 
@@ -142,10 +142,10 @@
   animation: moveGradient 3s reverse linear infinite;
 }
 
-.hover-animated-gradient:hover {
+.hover-animated-gradient:hover, .hover-animated-gradient:focus-visible {
   background-size: 200% 100%;
   animation: moveGradient 3s reverse linear infinite;
-  @apply bg-gradient-to-r from-accent-soft via-text to-accent-soft text-transparent bg-clip-text hover:scale-125 hover:pb-2 transition duration-200 ease-in-out;
+  @apply bg-gradient-to-r from-accent-soft via-text to-accent-soft text-transparent bg-clip-text hover:scale-125 hover:pb-2 focus-visible:scale-125 focus-visible:pb-0.5 focus-visible:px-1 focus-visible:mb-1.5 transition duration-200 ease-in-out;
 }
 
 @keyframes tech-tag-marquee {

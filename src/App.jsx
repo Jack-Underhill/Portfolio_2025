@@ -5,7 +5,7 @@ import 'aos/dist/aos.css'
 
 import VisitCount from './components/layout/VisitCount'
 import Navbar from './components/layout/Navbar'
-import BackToTopButton from "./components/buttons/BackToTopButton";
+import BackToTopButton from './components/buttons/BackToTopButton';
 
 import Hero from './components/sections/Hero'
 import About from './components/sections/About'
@@ -37,13 +37,17 @@ function App() {
       />
 
       {/* Top Bar */}
-      <div className="m-5 sm:m-10 md:mx-15 lg:mx-20 h-12 flex justify-between">
+      <header className="m-5 sm:m-10 md:mx-15 lg:mx-20 h-12 flex justify-between">
         <VisitCount />
         <Navbar />
-      </div>
+      </header>
 
       {/* Layout */}
-      <div className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-35 px-10 sm:px-15 md:px-20 lg:px-30 xl:px-40 pb-40'>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-35 px-10 sm:px-15 md:px-20 lg:px-30 xl:px-40 pb-40'
+      >
         <Hero />
         <About />
         <Projects />
@@ -51,7 +55,7 @@ function App() {
         <Certifications />
         <Skills />
         <Contact />
-      </div>
+      </main>
 
       <BackToTopButton showAfter={500} />
     </div>

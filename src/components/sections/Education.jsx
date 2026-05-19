@@ -47,8 +47,8 @@ const DEFAULT_EDUCATION = [
 
 function Education() {
     return (
-        <div id="Education" className="flex flex-col gap-8">
-            <SectionTitle data-aos="flip-down">
+        <section id="Education" aria-labelledby="education-heading" className="flex flex-col gap-8">
+            <SectionTitle id="education-heading" data-aos="flip-down">
                 Education
             </SectionTitle>
 
@@ -57,7 +57,7 @@ function Education() {
                     <EducationCard key={edu.id} {...edu} />
                 ))}
             </div>
-        </div>
+        </section>
     );
 }
 

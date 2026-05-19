@@ -279,7 +279,15 @@ function Avatar({ avatarLogo }) {
                             mouseTargetRef.current.x = 0
                             mouseTargetRef.current.y = 0
                         }}
+                        onFocus={() => {
+                            hoveringRef.current = true
+                            mouseTargetRef.current.x = 0
+                            mouseTargetRef.current.y = 0
+                        }}
                         onMouseLeave={() => {
+                            hoveringRef.current = false
+                        }}
+                        onBlur={() => {
                             hoveringRef.current = false
                         }}
                     >
@@ -294,6 +302,10 @@ function Avatar({ avatarLogo }) {
                                 group-hover:-translate-y-5
                                 group-hover:scale-[1.05]
                                 will-change-transform
+                                
+                                group-focus:rotate-8
+                                group-focus:-translate-y-5
+                                group-focus:scale-[1.05]
                             "
                         />
                     </a>

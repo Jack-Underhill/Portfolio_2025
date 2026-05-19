@@ -17,14 +17,15 @@ function StandardProjectsGroup({
   shouldRenderModal,
 }) {
   return (
-    <div
+    <section
       id="ProjectGallery"
+      aria-labelledby="project-gallery-heading"
       className="
         w-full min-h-fit scroll-mt-10
         flex flex-col justify-center
       "
     >
-      <SectionTitle className="mb-8" data-aos="flip-down">
+      <SectionTitle id="project-gallery-heading" className="mb-8" data-aos="flip-down">
         Project Gallery
       </SectionTitle>
 
@@ -68,7 +69,7 @@ function StandardProjectsGroup({
           onClose={closeModal}
         />
       )}
-    </div>
+    </section>
   );
 }
 
