@@ -24,6 +24,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
         permalink={permalink}
         sortOrder={project.sortOrder}
         published={project.published}
+        title={project.title}
         handleFieldChange={handleFieldChange}
         onRemove={onRemove}
       />

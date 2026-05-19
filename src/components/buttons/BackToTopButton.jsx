@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import ArrowUp from "../../assets/arrow-up.svg";
 import useModalOpenFlag from "../../hooks/useModalOpenFlag";
 import usePrefersReducedMotion from "../../hooks/usePrefersReducedMotion";
@@ -12,17 +14,31 @@ function BackToTopButton({
     const isModalOpen = useModalOpenFlag();
     const prefersReducedMotion = usePrefersReducedMotion();
     const visible = useScrollVisibility({ direction: "top", showAfter, disabled: isModalOpen });
+    const wrapperRef = useRef(null);
 
-    const scrollToTop = () => window.scrollTo({
-        top: 0,
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-    });
+    useEffect(() => {
+        if (visible) return;
+
+        const wrapper = wrapperRef.current;
+        if (wrapper?.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+    }, [visible]);
+
+    const scrollToTop = (event) => {
+        event.currentTarget.blur();
+        window.scrollTo({
+            top: 0,
+            behavior: prefersReducedMotion ? "auto" : "smooth",
+        });
+    };
 
     // Fully remove it from the DOM while modal is open
     if (isModalOpen) return null;
 
     return (
         <div
+            ref={wrapperRef}
             aria-hidden={!visible}
             className={[
                 "fixed z-50",

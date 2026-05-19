@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import ArrowUp from "../../assets/arrow-up.svg";
 import useScrollVisibility from "../../hooks/useScrollVisibility";
 
@@ -8,11 +10,25 @@ function BackToTopButton({
     right = "right-6",
 }) {
     const visible = useScrollVisibility({ direction: "top", showAfter });
+    const wrapperRef = useRef(null);
 
-    const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+    useEffect(() => {
+        if (visible) return;
+
+        const wrapper = wrapperRef.current;
+        if (wrapper?.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+    }, [visible]);
+
+    const scrollToTop = (event) => {
+        event.currentTarget.blur();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
     return (
         <div
+            ref={wrapperRef}
             aria-hidden={!visible}
             className={[
                 "fixed z-50",
@@ -32,6 +48,7 @@ function BackToTopButton({
                 onClick={scrollToTop}
                 aria-label="Back to top"
                 title="Back to top"
+                tabIndex={visible ? 0 : -1}
                 className={[
                     "group flex h-12 w-12 items-center justify-center rounded-full border-2",
                     "border-button-border bg-button",
@@ -44,7 +61,8 @@ function BackToTopButton({
             >
                 <img
                     src={ArrowUp}
-                    alt="Up Arrow Button to go back to top"
+                    alt=""
+                    aria-hidden="true"
                     className="size-5/10 object-contain opacity-80 transition-opacity group-hover:opacity-95"
                 />
             </button>

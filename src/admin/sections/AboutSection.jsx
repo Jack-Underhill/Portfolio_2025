@@ -19,7 +19,7 @@ function AboutSection({ state, onChange }) {
 
     return (
         <div className="space-y-4">
-            <h2 className="text-xl font-semibold">About Section</h2>
+            <h2 id="admin-about-heading" className="text-xl font-semibold">About Section</h2>
 
             <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-4">
@@ -32,7 +32,7 @@ function AboutSection({ state, onChange }) {
                     <ImagePreview
                         file={profileImageFile}
                         url={profileImageUrl}
-                        alt="Profile preview"
+                        alt="Profile image preview"
                         isFixedSize={true}
                     />
                 </div>

@@ -90,7 +90,7 @@ function ContactSection({ state, onChange }) {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Contact Section</h2>
+            <h2 id="admin-contact-heading" className="text-xl font-semibold">Contact Section</h2>
 
             {/* Social / professional links */}
             <div className="space-y-2">
@@ -125,6 +125,7 @@ function ContactSection({ state, onChange }) {
                 <button
                     type="button"
                     onClick={handleAddLink}
+                    aria-label="Add social or professional link"
                     className={adminUi.addLink}
                 >
                     + Add link

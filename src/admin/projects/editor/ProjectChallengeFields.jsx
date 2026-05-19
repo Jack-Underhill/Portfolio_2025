@@ -32,6 +32,7 @@ function ProjectChallengeFields({ projectId, challenges, handleFieldChange }) {
                 <button
                     type="button"
                     onClick={addChallenge}
+                    aria-label="Add challenge"
                     className={adminUi.smallSecondaryButton}
                 >
                     + Add
@@ -49,6 +50,7 @@ function ProjectChallengeFields({ projectId, challenges, handleFieldChange }) {
                                 <button
                                     type="button"
                                     onClick={() => removeChallenge(idx)}
+                                    aria-label={`Remove challenge ${idx + 1}`}
                                     className={adminUi.dangerLink}
                                 >
                                     Remove

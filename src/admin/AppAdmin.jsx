@@ -84,7 +84,7 @@ function AppAdmin() {
             <div className={adminUi.page}>
                 <header className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold">Portfolio Admin</h1>
-                    <nav className="flex gap-4 text-sm">
+                    <nav className="flex gap-4 text-sm" aria-label="Admin sections">
                         <a href="#about">About</a>
                         <a href="#projects">Projects</a>
                         <a href="#skills">Skills</a>
@@ -93,25 +93,25 @@ function AppAdmin() {
                 </header>
 
                 <main className="space-y-16">
-                    <section id="about">
+                    <section id="about" aria-labelledby="admin-about-heading">
                         <AboutSection state={aboutState} onChange={setAboutState} />
                     </section>
 
-                    <section id="projects">
+                    <section id="projects" aria-labelledby="admin-projects-heading">
                         <ProjectsSection
                             state={projectsState}
                             onChange={setProjectsState}
                         />
                     </section>
 
-                    <section id="skills">
+                    <section id="skills" aria-labelledby="admin-skills-heading">
                         <SkillsSection
                             state={skillsState}
                             onChange={setSkillsState}
                         />
                     </section>
 
-                    <section id="contact">
+                    <section id="contact" aria-labelledby="admin-contact-heading">
                         <ContactSection
                             state={contactState}
                             onChange={setContactState}
@@ -123,12 +123,13 @@ function AppAdmin() {
                     type="button"
                     onClick={handleSave}
                     disabled={isSaving}
+                    aria-busy={isSaving}
                     className={adminUi.primaryButton}
                 >
                     {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 {error && (
-                    <p className="text-sm text-admin-danger-hover">
+                    <p className="text-sm text-admin-danger-hover" role="alert">
                         {error.message || 'Admin request failed'}
                     </p>
                 )}

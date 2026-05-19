@@ -12,6 +12,8 @@ function SocialLinkItem({
     onRemove,
     dragProps,
 }) {
+    const linkName = link.label || `link ${index + 1}`;
+
     return (
         <div
             {...dragProps}
@@ -23,7 +25,10 @@ function SocialLinkItem({
             )}
         >
             {/* drag handle */}
-            <span className="cursor-grab select-none text-xs text-admin-text-subtle mt-6">
+            <span
+                aria-hidden="true"
+                className="cursor-grab select-none text-xs text-admin-text-subtle mt-6"
+            >
                 ☰
             </span>
 
@@ -38,7 +43,7 @@ function SocialLinkItem({
                 <ImagePreview
                     file={link.iconFile || null}
                     url={link.iconUrl || ''}
-                    alt={`${link.label || 'Social'} icon`}
+                    alt={`${linkName} icon preview`}
                     isFixedSize={true}
                 />
             </div>
@@ -65,6 +70,7 @@ function SocialLinkItem({
             <button
                 type="button"
                 onClick={onRemove}
+                aria-label={`Remove ${linkName}`}
                 className={`${adminUi.iconButton} h-8 mt-6`}
             >
                 ✕

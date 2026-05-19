@@ -177,3 +177,24 @@ Deferred:
 Accepted tradeoff:
 
 - Motion is calmed through the media query and runtime guards, but default users keep the portfolio's existing animated personality.
+
+## Admin Accessibility Pass - 2026-05-19
+
+Fixes completed:
+
+- The admin header nav now has an explicit label, and each admin section is exposed as a named region through its visible heading.
+- Admin save failures are announced as alerts, and the save button exposes its busy state while a save is in progress.
+- Project selector buttons now expose selected state with `aria-pressed` and project-specific names.
+- Existing admin drag reorder behavior was left unchanged; no additional reorder controls were added.
+- Repeated list textareas now have item-specific accessible names, and remove buttons describe the item they affect.
+- Project, challenge, skill, and social add/remove/reorder controls received more specific accessible names where those controls already existed.
+- Admin preview images now use clearer preview alt text, while decorative scroll-button icons are hidden from assistive technology.
+- Hidden admin back-to-top/back-to-bottom controls are removed from the tab order until visible.
+
+Accepted tradeoff:
+
+- Personal-use admin reorder remains mouse-drag based by owner preference; this pass focuses on screen-reader names, labels, landmarks, status text, and alt text rather than adding new admin controls.
+
+Verification:
+
+- `cmd /c npm run test`, `cmd /c npm run lint`, `cmd /c npm run check:schema`, and `cmd /c npm run build` passed after the admin accessibility changes.

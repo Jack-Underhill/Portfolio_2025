@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import FieldLabel from '../forms/FieldLabel';
+import Text from '../../components/ui/Text';
 import TechListItem from './TechListItem'
 import { adminUi } from '../../styles/recipes';
 
@@ -70,13 +70,18 @@ function TechListEditor({ idPrefix, label, values, onChange, addLabel = '+ Add t
     };
 
     const handleDragEnd = () => resetDragState();
+    const labelId = `${idPrefix}-label`;
 
     return (
-        <div className="space-y-2">
+        <div
+            className="space-y-2"
+            role="group"
+            aria-labelledby={label ? labelId : undefined}
+        >
             {label && 
-                <FieldLabel htmlFor={idPrefix}>
+                <Text id={labelId} as="p" variant="adminLabel" className="mb-1">
                     {label}
-                </FieldLabel>
+                </Text>
             }
 
             <div className="space-y-2">
@@ -84,6 +89,8 @@ function TechListEditor({ idPrefix, label, values, onChange, addLabel = '+ Add t
                     <TechListItem
                         key={`${idPrefix}-${index}`}
                         id={`${idPrefix}-${index}`}
+                        itemLabel={`${label || 'List'} item ${index + 1}`}
+                        listLabel={label || 'list'}
                         value={value}
                         isDragging={dragIndex === index}
                         isDragOver={dragOverIndex === index}

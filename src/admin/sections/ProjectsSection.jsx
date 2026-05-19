@@ -73,7 +73,7 @@ function ProjectsSection({ state, onChange }) {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Projects Section</h2>
+            <h2 id="admin-projects-heading" className="text-xl font-semibold">Projects Section</h2>
 
             <TextAreaInput
                 id="project-bio"
@@ -94,6 +94,7 @@ function ProjectsSection({ state, onChange }) {
                 <button
                     type="button"
                     onClick={handleAddProject}
+                    aria-label="Add project"
                     className={adminUi.secondaryButton}
                 >
                     + Add Project
