@@ -243,11 +243,82 @@ Stop condition for a fresh context window:
 
 - Stop after public mappers, admin validation, admin UI, schema expectations, tests, and current-state docs agree on the classification contract.
 
+## Workflow: Update Project Media
+
+When to use it:
+
+- A project preview image, preview video, architecture diagram, media upload behavior, storage convention, or architecture viewer/proxy trust rule changes.
+- The work touches admin project uploads, public project media rendering, architecture preview fallback behavior, or Netlify inline SVG behavior.
+
+Read first:
+
+- [Database README](../database/README.md)
+- [Admin Server README](../server/admin/README.md)
+- [Netlify Functions README](../netlify/functions/README.md)
+- [Current Errors and Warnings](./current-errors-and-warnings.md)
+- [Testing Plan](./testing-plan.md)
+- [Routes, Runtime, and Data Collisions](./routes-runtime-and-data-collisions.md)
+- `server/admin/utils/storage.js`
+- `src/components/projects/modal/ArchitecturePreview.jsx`
+- `src/components/projects/viewer/ArchitectureViewer.jsx`
+- `src/components/projects/viewer/viewerUrl.js`
+- `netlify/functions/inline-svg.js`
+
+Do:
+
+- Use the current project-scoped storage paths:
+
+  ```txt
+  projects/{id}/preview-image{ext}
+  projects/{id}/preview-video{ext}
+  projects/{id}/architecture{ext}
+  ```
+
+- Keep upload path building in `server/admin/utils/storage.js`; public components should consume stored URLs instead of rebuilding upload paths.
+- Keep image, video, and architecture media on distinct stems so same-extension uploads cannot overwrite another media type.
+- Keep architecture SVG trust aligned across `server/admin/utils/storage.js`, `src/components/projects/viewer/viewerUrl.js`, and `netlify/functions/inline-svg.js`.
+- Trust inline architecture SVGs only when the target is an HTTPS Supabase public bucket URL shaped as `portfolio-assets/projects/{id}/architecture.svg`.
+- Let non-SVG architecture files remain normal stored media URLs; do not send them through the inline SVG proxy.
+- Use `netlify dev` for manual local checks of `/.netlify/functions/inline-svg`.
+- Add or update focused tests when storage paths, viewer URL trust, proxy validation, or fallback behavior changes.
+
+Do not:
+
+- Let preview images, preview videos, and architecture files share the same storage stem.
+- Trust arbitrary SVG URLs, legacy `project-architecture/*.svg` URLs, non-Supabase hosts, wrong buckets, or query-string tricks in the architecture viewer.
+- Put service-role storage writes, upload path generation, or admin storage helpers in browser code.
+- Import Netlify function handlers directly into public React components.
+- Treat the plain Vite architecture preview fallback as a production failure.
+
+Verification:
+
+```sh
+cmd /c npm run test
+cmd /c npm run lint
+cmd /c npm run check:schema
+cmd /c npm run build
+```
+
+Run the focused accessibility smoke if rendered architecture viewer behavior, preview fallback markup, or viewer route accessibility changes:
+
+```sh
+cmd /c npm run test:a11y
+```
+
+Docs update expectations:
+
+- Update [Database README](../database/README.md), [Admin Server README](../server/admin/README.md), and [Routes, Runtime, and Data Collisions](./routes-runtime-and-data-collisions.md) if storage bucket names, object paths, or architecture trust rules change.
+- Update [Current Errors and Warnings](./current-errors-and-warnings.md) only if expected local Netlify function caveats or the latest verified gate change.
+- Update [Testing Plan](./testing-plan.md) when media path, viewer URL, inline SVG proxy, or accessibility smoke coverage changes.
+
+Stop condition for a fresh context window:
+
+- Stop after storage helper behavior, public media consumption, architecture SVG trust, Netlify function expectations, tests, and current-state docs all describe the same media contract.
+
 ## Workflow Sections
 
 Later P3.10 implementation windows fill in these shared workflows:
 
-- Update project media.
 - Accessibility walkthrough.
 - Data-flow docs after schema changes.
 - Roadmap and docs closeout.
