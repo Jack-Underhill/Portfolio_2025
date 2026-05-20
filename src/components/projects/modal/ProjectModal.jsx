@@ -19,6 +19,7 @@ export default function ProjectModal({
     isOpen,
     project,
     onClose,
+    isAdminPreview = false,
 }) {
     const data = useMemo(() => {
         return { ...(project ?? {}) };
@@ -128,7 +129,10 @@ export default function ProjectModal({
 
                                 {/* ArchitecturePreview */}
                                 <Section title="Architecture Preview">
-                                    <ArchitecturePreview data={data} />
+                                    <ArchitecturePreview
+                                        data={data}
+                                        isAdminPreview={isAdminPreview}
+                                    />
                                 </Section>
 
                                 {/* Features */}

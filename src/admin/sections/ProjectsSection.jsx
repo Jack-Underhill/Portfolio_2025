@@ -1,16 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+
+import ProjectModal from '../../components/projects/modal/ProjectModal';
 
 import ProjectEditor from '../projects/ProjectEditor';
+import ProjectPreviewActions from '../projects/ProjectPreviewActions';
 import TextAreaInput from '../forms/TextAreaInput';
 import CardSelector from '../navigation/CardSelector';
+
 import { createEmptyProjectDraft } from '../../domain/projects/defaults';
 import { normalizeProjectSortOrder } from '../../domain/projects/mappers';
+import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
 import { adminUi } from '../../styles/recipes';
 
 
 function ProjectsSection({ state, onChange }) {
     const { projectBio, projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [previewMediaUrls, setPreviewMediaUrls] = useState({});
 
     // auto-set activeId to first project if none selected
     useEffect(() => {
@@ -28,6 +35,43 @@ function ProjectsSection({ state, onChange }) {
         : (projects[0]?.id ?? null);
 
     const activeProject = projects.find((p) => p.id === resolvedActiveId) ?? null;
+    const previewProject = useMemo(() => {
+        if (!activeProject) return null;
+        return {
+            ...mapProjectDraftToPreviewProject(activeProject),
+            ...previewMediaUrls,
+        };
+    }, [activeProject, previewMediaUrls]);
+
+    useEffect(() => {
+        if (!isPreviewOpen || !activeProject) {
+            setPreviewMediaUrls({});
+            return undefined;
+        }
+
+        const urls = {};
+        if (activeProject.imageFile) {
+            urls.imageUrl = URL.createObjectURL(activeProject.imageFile);
+        }
+        if (activeProject.videoFile) {
+            urls.videoUrl = URL.createObjectURL(activeProject.videoFile);
+        }
+        if (activeProject.architectureImageFile) {
+            urls.architectureImageUrl = URL.createObjectURL(activeProject.architectureImageFile);
+        }
+
+        setPreviewMediaUrls(urls);
+
+        return () => {
+            Object.values(urls).forEach((url) => URL.revokeObjectURL(url));
+        };
+    }, [
+        activeProject,
+        activeProject?.architectureImageFile,
+        activeProject?.imageFile,
+        activeProject?.videoFile,
+        isPreviewOpen,
+    ]);
 
     // state handlers
     const updateState = (patch) => {
@@ -43,6 +87,14 @@ function ProjectsSection({ state, onChange }) {
         const next = normalizeProjectSortOrder(nextRaw);
         updateState({ projects: next });
     };
+
+    const handleOpenPreview = useCallback(() => {
+        setIsPreviewOpen(true);
+    }, []);
+
+    const handleClosePreview = useCallback(() => {
+        setIsPreviewOpen(false);
+    }, []);
 
     // --- add / update / remove ---
     const handleAddProject = () => {
@@ -69,6 +121,7 @@ function ProjectsSection({ state, onChange }) {
 
     const handleRemoveProject = (id) => {
         setProjects((prev) => prev.filter((p) => p.id !== id));
+        setIsPreviewOpen(false);
     };
 
     return (
@@ -102,11 +155,25 @@ function ProjectsSection({ state, onChange }) {
             </div>
 
             {activeProject && (
-                <ProjectEditor
-                    project={activeProject}
-                    onChange={(updated) => handleChangeProject(activeProject.id, updated)}
-                    onRemove={() => handleRemoveProject(activeProject.id)}
-                />
+                <>
+                    <ProjectPreviewActions
+                        canPreview={Boolean(previewProject)}
+                        onPreview={handleOpenPreview}
+                    />
+
+                    <ProjectEditor
+                        project={activeProject}
+                        onChange={(updated) => handleChangeProject(activeProject.id, updated)}
+                        onRemove={() => handleRemoveProject(activeProject.id)}
+                    />
+
+                    <ProjectModal
+                        isOpen={isPreviewOpen}
+                        project={previewProject}
+                        onClose={handleClosePreview}
+                        isAdminPreview
+                    />
+                </>
             )}
         </div>
     );
