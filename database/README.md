@@ -93,7 +93,7 @@ Run `npm run backup:supabase` before applying that migration to a live Supabase 
 
 ---
 
-When adding or changing a persisted portfolio field, update the matching files in the same substep:
+When adding or changing a persisted portfolio field, update the matching files in the same scoped change:
 
 - SQL snapshot and migrations in `database/`.
 - Public select list in `src/api/public/*` if the public site reads it.

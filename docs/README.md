@@ -10,13 +10,14 @@ Use this directory when deciding what the current repo state is.
 - [Agent Workflow Playbooks](./agent-workflow-playbooks.md): reusable fresh-context workflows, source-of-truth orientation, and agent handoff shape.
 - [Current Errors and Warnings](./current-errors-and-warnings.md): current command failures, lint errors, local runtime warnings, and known quality gates.
 - [Testing Plan](./testing-plan.md): high-level testing plan grouped by feature area.
+- [Accessibility Walkthrough](./accessibility-walkthrough.md): current accessibility state, implemented behavior, accepted tradeoffs, deferred checks, and local verification limits.
 - [Routes, Runtime, and Data Collisions](./routes-runtime-and-data-collisions.md): route constants, function paths, storage paths, singleton IDs, and data collision risks.
 - [Legacy and Stale Code](./legacy-and-stale-code.md): code that appears unused, historical, or out of sync with the active product direction.
 - [Architecture Cleanup Candidates](./architecture-cleanup-candidates.md): cleanup work that would reduce drift without changing the product direction.
 
 ## Documentation Rules
 
-- `docs/` should describe current repo state, accepted caveats, and active next actions, not preserve PRD history.
+- `docs/` should describe current repo state, accepted caveats, and active next actions, not preserve implementation history.
 - Keep current truth and next actions together.
 - Prefer repo-specific details over generic architecture advice.
 - Remove resolved issues unless they remain an active caveat or current guardrail.

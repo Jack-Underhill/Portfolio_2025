@@ -6,7 +6,7 @@ Date: 2026-05-20
 
 This document gives future fresh-context agents a current-state starting point for repeated work on this portfolio. Use it to orient before editing content, project data, media, accessibility behavior, data-flow contracts, verification, or closeout docs.
 
-The playbooks should point to live repo truth, not stale planning memory. Start from `README.md`, `docs/`, and the local README for the files you are touching. Use `codex-planning/` for implementation history and roadmap status, not as the first source for active warnings or current contracts.
+The playbooks should point to live repo truth, not stale planning memory. Start from `README.md`, `docs/`, and the local README for the files you are touching. Planning notes outside the tracked docs may explain why work happened, but they are not the source for active warnings or current contracts.
 
 ## Maintenance Rules
 
@@ -37,7 +37,7 @@ Then read the local README nearest the files you expect to touch:
 - [Database README](../database/README.md): schema, migrations, RLS expectations, and storage conventions.
 - [Netlify Functions README](../netlify/functions/README.md): deployed public function boundaries and local Netlify Dev expectations.
 
-For planning context, read only the current PRD substep or roadmap item that owns the work. After that, return to the current-state docs and code before deciding what to edit.
+If external planning notes are provided with a task, use them only to understand the requested scope. Return to the current-state docs and code before deciding what to edit.
 
 ## Trust Boundaries
 
@@ -72,7 +72,7 @@ Stop condition for a fresh context window:
 
 When to use it:
 
-- Before marking a PRD substep, roadmap item, or scoped phase complete.
+- Before calling a scoped task complete.
 - After changes to contracts, routes, rendered public structure, admin persistence, schema snapshots, or docs that alter verification guidance.
 - Before updating `docs/current-errors-and-warnings.md` with a new baseline.
 
@@ -104,7 +104,7 @@ Do:
 
 Do not:
 
-- Mark a PRD step or roadmap item complete after a partial gate unless the skipped command and reason are documented.
+- Call a scoped task complete after a partial gate unless the skipped command and reason are documented.
 - Treat plain Vite Netlify function warnings as production failures.
 - Add live Supabase, Redis, or deployed Netlify checks to the default local quality gate.
 
@@ -320,7 +320,7 @@ Stop condition for a fresh context window:
 When to use it:
 
 - Public rendered structure, landmarks, headings, navigation, project cards, modal behavior, architecture viewer states, reduced-motion behavior, focus treatment, status text, or admin accessibility behavior changes.
-- A phase needs to classify accessibility findings without turning this portfolio into a broad certification project.
+- A task needs to review accessibility behavior without turning this portfolio into a broad certification project.
 
 Read first:
 
@@ -338,7 +338,7 @@ Read first:
 
 Do:
 
-- Review the current accessibility walkthrough state before deciding whether a finding is new.
+- Review the current accessibility state before deciding whether behavior, tradeoffs, or verification gaps changed.
 - Classify findings as `Fix now`, `Defer`, `Accepted tradeoff`, or `Unable to verify locally`.
 - Keep accessibility semantics close to the component that renders the markup.
 - Prefer native HTML structure and names before adding ARIA.
@@ -346,7 +346,7 @@ Do:
 - Preserve route-backed project modal behavior while changing focus or dialog markup.
 - Preserve the current reduced-motion decision: default users keep the portfolio's animated feel, while reduced-motion users get calmer non-essential motion.
 - Add focused tests only for stable rendered routes, pure helpers, or browser states that can run without live Supabase, Redis, or deployed Netlify dependencies.
-- Update `docs/accessibility-walkthrough.md` with current lingering issues, deferred checks, accepted tradeoffs, and unable-to-verify notes.
+- Update `docs/accessibility-walkthrough.md` with current behavior, deferred checks, accepted tradeoffs, and unable-to-verify notes.
 
 Do not:
 
@@ -369,14 +369,14 @@ cmd /c npm run test:a11y
 
 Docs update expectations:
 
-- Update [Accessibility Walkthrough](./accessibility-walkthrough.md) whenever accessibility findings, accepted tradeoffs, deferred checks, or local verification limits change.
+- Update [Accessibility Walkthrough](./accessibility-walkthrough.md) whenever accessibility behavior, accepted tradeoffs, deferred checks, or local verification limits change.
 - Update [Testing Plan](./testing-plan.md) when accessibility smoke coverage, modal focus coverage, or browser-route coverage changes.
 - Update [Current Errors and Warnings](./current-errors-and-warnings.md) only when the latest verified gate or expected local warning state changes.
 - Update local READMEs only when component ownership, boundary guidance, or setup expectations change.
 
 Stop condition for a fresh context window:
 
-- Stop after accessibility findings are classified, fixes are scoped to the rendering owner, verification has passed or a current failure is documented, and the walkthrough reflects only current accessibility truth.
+- Stop after accessibility behavior and tradeoffs are current, fixes are scoped to the rendering owner, verification has passed or a current failure is documented, and the walkthrough reflects only current accessibility truth.
 
 ## Workflow: Data-Flow Docs After Schema Changes
 
@@ -446,11 +446,66 @@ Stop condition for a fresh context window:
 
 - Stop after schema, migrations, schema drift checks, public readers, domain shape, admin writes, validation, tests, and current-state docs agree on the changed contract, or after a mismatch is documented as active drift for the next window.
 
-## Workflow Sections
+## Workflow: Current-State Docs Closeout
 
-Later P3.10 implementation windows fill in these shared workflows:
+When to use it:
 
-- Roadmap and docs closeout.
+- A scoped task is ready to be called complete.
+- Work changed source-of-truth docs, test coverage, active drift, warnings, accessibility state, or implementation details that future work needs.
+- A fresh-context window needs to leave the repo in a state the next window can trust from current docs and code.
+
+Read first:
+
+- [Current Errors and Warnings](./current-errors-and-warnings.md)
+- [Testing Plan](./testing-plan.md)
+- [Data Flow Drift](./data-flow-drift.md)
+- [Architecture Cleanup Candidates](./architecture-cleanup-candidates.md)
+- [Accessibility Walkthrough](./accessibility-walkthrough.md)
+- Any feature-specific docs or local READMEs touched by the work.
+
+Do:
+
+- Run the required verification commands before calling the work complete.
+- Update only docs whose current project truth changed.
+- Add short implementation notes that future work needs: final data shape, helper locations, accepted tradeoffs, remaining warnings, test coverage, and deferred tests.
+- Update scoped docs after verification when the current project truth changed.
+- Keep docs in their existing tone and current-state shape.
+- Leave a fresh-context handoff when another window needs to continue immediately.
+
+Do not:
+
+- Call work complete before the relevant gate passes or a current failure is documented.
+- Update unrelated docs just because they were mentioned in older planning notes.
+- Turn docs into a completion diary of every edit.
+- Preserve resolved warnings, resolved drift, or old implementation history in current-state docs.
+
+Verification:
+
+```sh
+cmd /c npm run test
+cmd /c npm run lint
+cmd /c npm run check:schema
+cmd /c npm run build
+```
+
+Run the focused accessibility smoke if public rendered structure, accessibility behavior, route rendering, modal focus behavior, or accessibility guidance changed:
+
+```sh
+cmd /c npm run test:a11y
+```
+
+Docs update expectations:
+
+- Update [Current Errors and Warnings](./current-errors-and-warnings.md) when the latest verified gate, current failures, expected warnings, or command caveats change.
+- Update [Testing Plan](./testing-plan.md) when current coverage or deferred test gaps change.
+- Update [Data Flow Drift](./data-flow-drift.md) when active database/admin/public/UI drift changes.
+- Update [Architecture Cleanup Candidates](./architecture-cleanup-candidates.md) when active cleanup candidates are completed, reframed, or newly accepted.
+- Update [Accessibility Walkthrough](./accessibility-walkthrough.md) when accessibility behavior, accepted tradeoffs, deferred checks, or smoke guidance change.
+- Update README files only when onboarding, setup, source-of-truth pointers, or boundary rules change.
+
+Stop condition for a fresh context window:
+
+- Stop after current-state docs, verification results, and future-facing implementation notes all agree on the completed scope.
 
 ## Fresh Context Handoff Template
 
@@ -459,8 +514,8 @@ Use this shape when leaving notes for the next context window:
 ```md
 ## Fresh Context Handoff
 
-Current PRD or roadmap item:
-- `path/to/source.md`, substep or item name.
+Current task:
+- Short name for the requested work.
 
 Status:
 - Completed:
@@ -475,11 +530,11 @@ Verification:
 - Not run:
 - Expected warnings:
 
-Implementation details future steps need:
+Implementation details future work needs:
 - Final helper names, contracts, accepted caveats, or remaining decisions.
 
 Next stop condition:
 - The precise point where the next window should stop.
 ```
 
-Keep handoffs short. They should help the next agent continue from current truth without rereading every completed PRD note.
+Keep handoffs short. They should help the next agent continue from current truth without relying on historical planning notes.

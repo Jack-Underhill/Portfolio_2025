@@ -65,7 +65,7 @@ Detailed current-state notes live in `docs/`:
 - [Agent Workflow Playbooks](./docs/agent-workflow-playbooks.md): fresh-context starting points and repeated agent workflow handoffs.
 - [Current Errors and Warnings](./docs/current-errors-and-warnings.md): known command failures, lint state, and expected local runtime warnings.
 - [Testing Plan](./docs/testing-plan.md): feature-area testing priorities.
-- [Accessibility Walkthrough](./docs/accessibility-walkthrough.md): current accessibility findings, accepted tradeoffs, and deferred checks.
+- [Accessibility Walkthrough](./docs/accessibility-walkthrough.md): current accessibility state, implemented behavior, accepted tradeoffs, and deferred checks.
 - [Routes, Runtime, and Data Collisions](./docs/routes-runtime-and-data-collisions.md): route constants, function paths, singleton IDs, storage paths, and collision risks.
 - [Legacy and Stale Code](./docs/legacy-and-stale-code.md): unused, historical, or out-of-sync code paths.
 - [Architecture Cleanup Candidates](./docs/architecture-cleanup-candidates.md): small stabilizing architecture work that should reduce drift.
