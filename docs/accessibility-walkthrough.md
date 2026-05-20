@@ -198,3 +198,17 @@ Accepted tradeoff:
 Verification:
 
 - `cmd /c npm run test`, `cmd /c npm run lint`, `cmd /c npm run check:schema`, and `cmd /c npm run build` passed after the admin accessibility changes.
+
+## Focused Accessibility Tests - 2026-05-19
+
+Fixes completed:
+
+- `eslint-plugin-jsx-a11y` is wired into `cmd /c npm run lint` through the recommended flat-config rules.
+- The lint setup intentionally tunes `media-has-caption` for muted decorative preview videos and allows `tabIndex` on scrollable `region` containers used by the architecture viewer.
+- `cmd /c npm run test:a11y` starts a local Vite server, drives Chromium with Playwright, and runs axe against stable rendered routes.
+- The smoke runner currently covers the public home page landmark/menu baseline and the architecture viewer invalid-source fallback.
+
+Deferred:
+
+- Browser modal focus smoke coverage remains deferred because stable project-card/modal data still depends on the public Supabase-backed content path or a future mocked fixture.
+- `track-visit` function behavior remains outside browser smoke coverage and should stay mocked or Netlify Dev based rather than becoming a live Redis gate.

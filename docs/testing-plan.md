@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-16
+Date: 2026-05-19
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records the testing plan by feature area. It stays high level, wit
 
 ## Current State
 
-Vitest is installed as the default unit-test runner.
+Vitest is installed as the default unit-test runner. A focused Playwright/axe smoke runner is available through `cmd /c npm run test:a11y` for stable rendered accessibility checks.
 
 Current baseline test files:
 
@@ -41,10 +41,11 @@ Current checks:
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run lint` passes.
+- `cmd /c npm run test:a11y` passes.
 
 Remaining testing gap:
 
-- Add browser/component smoke coverage later for modal focus, architecture viewer fallback states, and remaining Netlify function behavior such as `track-visit`.
+- Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
 - Keep live Supabase, Redis, and deployed Netlify behavior out of the default gate unless explicitly mocked.
 
 ## Projects
@@ -154,6 +155,7 @@ Current coverage:
 
 - Trusted Supabase architecture SVG validation, unsafe viewer source rejection, inline SVG proxy URL generation, safe `returnTo`, and viewer URL encoding are covered.
 - Tests lock the current trusted path rule to project-scoped `portfolio-assets/projects/{id}/architecture.svg` SVGs.
+- `cmd /c npm run test:a11y` covers the invalid-source viewer fallback, disabled zoom controls, safe Back link, and an axe scan of the fallback route.
 
 Why this matters:
 
@@ -210,7 +212,7 @@ Then add:
 
 - Public data-flow contract tests.
 - Thin component smoke tests.
-- Sparse browser smoke tests.
+- Sparse browser smoke tests for stable rendered routes.
 
 Avoid for now:
 

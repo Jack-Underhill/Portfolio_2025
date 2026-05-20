@@ -1,6 +1,6 @@
 # Current Errors and Warnings
 
-Date: 2026-05-18
+Date: 2026-05-19
 
 ## Purpose
 
@@ -23,6 +23,12 @@ cmd /c npm run test
 cmd /c npm run lint
 cmd /c npm run check:schema
 cmd /c npm run build
+```
+
+Additional focused accessibility smoke check:
+
+```sh
+cmd /c npm run test:a11y
 ```
 
 Direct PowerShell caveat:
@@ -73,7 +79,7 @@ Decision:
 - This is expected behavior for local dev without Netlify functions.
 - The public site should use the function path when deployed or when tested through Netlify dev.
 - `netlify/functions/README.md` names `netlify dev` as the local command for function behavior.
-- Browser smoke coverage for invalid architecture viewer URLs and safe fallback states remains future work.
+- `cmd /c npm run test:a11y` covers invalid architecture viewer URLs and safe fallback states through a local Vite browser smoke check.
 
 ## Quality Gate Target
 
@@ -84,6 +90,12 @@ cmd /c npm run test
 cmd /c npm run lint
 cmd /c npm run check:schema
 cmd /c npm run build
+```
+
+Focused accessibility smoke:
+
+```sh
+cmd /c npm run test:a11y
 ```
 
 Definition of done for this quality gate:

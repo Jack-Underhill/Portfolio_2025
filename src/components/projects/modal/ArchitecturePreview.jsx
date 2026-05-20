@@ -58,9 +58,12 @@ export default function ArchitecturePreview({ data }) {
                                 data={previewUrl}
                                 type="image/svg+xml"
                                 className="w-full h-full block"
+                                aria-label={diagramTitle}
                                 aria-hidden="true"
                                 tabIndex={-1}
-                            />
+                            >
+                                {diagramTitle}
+                            </object>
                         ) : (
                             <img
                                 src={previewUrl}

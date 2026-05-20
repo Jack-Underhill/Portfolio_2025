@@ -61,12 +61,13 @@ Avoid:
 Problem:
 
 - Unit tests, lint, build, and schema drift checks pass.
-- Browser smoke coverage and `track-visit` function behavior are still future work.
+- Focused browser accessibility smoke coverage exists for stable public/accessibility routes.
+- Modal focus browser smoke coverage and `track-visit` function behavior are still future work.
 
 Next actions:
 
 - Keep README verification aligned with the active baseline.
-- Add focused browser smoke tests and mocked `track-visit` tests when those areas become active work.
+- Add modal focus browser smoke tests and mocked `track-visit` tests when those areas become active work.
 
 ## Definition of Done
 

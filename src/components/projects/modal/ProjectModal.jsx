@@ -53,17 +53,19 @@ export default function ProjectModal({
             id="Modal"
             className="fixed inset-0 z-[999] flex items-center justify-center px-4 py-6 bg-scrim/60 backdrop-blur-sm"
             onMouseDown={handleBackdropMouseDown}
-            aria-modal="true"
-            aria-labelledby={modalTitleId}
-            role="dialog"
-            ref={modalRef}
+            role="presentation"
         >
-            <CardSurface 
-                className="p-2" 
-                isPremiumSheenActive={true}
-                data-aos="zoom-in-up"
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={modalTitleId}
+                ref={modalRef}
             >
-                <div className="w-full max-w-[80vw] xl:max-w-6xl h-[92vh] overflow-hidden rounded-xl flex flex-col">
+                <CardSurface 
+                    className="p-2" 
+                    isPremiumSheenActive={true}
+                >
+                    <div className="w-full max-w-[80vw] xl:max-w-6xl h-[92vh] overflow-hidden rounded-xl flex flex-col">
                     <Header
                         data={data}
                         onClose={onClose}
@@ -166,8 +168,9 @@ export default function ProjectModal({
                             </div>
                         </div>
                     </div>
-                </div>
-            </CardSurface>
+                    </div>
+                </CardSurface>
+            </div>
         </div>
     );
 }
