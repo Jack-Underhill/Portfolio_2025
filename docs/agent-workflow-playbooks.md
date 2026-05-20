@@ -378,11 +378,78 @@ Stop condition for a fresh context window:
 
 - Stop after accessibility findings are classified, fixes are scoped to the rendering owner, verification has passed or a current failure is documented, and the walkthrough reflects only current accessibility truth.
 
+## Workflow: Data-Flow Docs After Schema Changes
+
+When to use it:
+
+- A persisted field, table, migration, public select, mapper default, admin validation rule, admin editor field, or schema drift check changes.
+- Static component-local content is moving toward database/admin/public ownership.
+- A current data-flow mismatch is being resolved or a new accepted caveat is being documented.
+
+Read first:
+
+- [Data Flow Drift](./data-flow-drift.md)
+- [Testing Plan](./testing-plan.md)
+- [Database README](../database/README.md)
+- `database/schema.sql`
+- `database/migrations/`
+- `scripts/check-schema-drift.mjs`
+- Relevant `src/api/public/*` reader.
+- Relevant `src/domain/*` mapper, default, view-model, or routing helper.
+- Relevant `server/admin/routes/*` route and `server/admin/routes/validation.js`.
+- Relevant admin UI section under `src/admin`.
+
+Do:
+
+- Start with the intended persisted shape: table, column names, nullability/defaults, constraints, RLS expectation, storage impact, and whether public reads should expose the field.
+- Add or update an ordered migration and `database/schema.sql` together.
+- Update `scripts/check-schema-drift.mjs` when a table, required runtime column, or forbidden stale reference changes.
+- Update public select lists in `src/api/public/*` only after the schema exists.
+- Update pure domain mappers, defaults, view models, and route helpers before changing rendering components.
+- Update admin route serialization, admin reads/writes, and `server/admin/routes/validation.js` before or alongside admin UI fields.
+- Keep shared enums and constrained values centralized in domain constants when both browser and admin code need them.
+- Add or update tests at the mapper, view-model, validation, storage, or function-helper layer where the contract changed.
+- Update current-state docs after verification, especially `docs/data-flow-drift.md`, `database/README.md`, and `docs/testing-plan.md` when their active truth changes.
+
+Do not:
+
+- Add fields to public selects before the schema and snapshot include them.
+- Update admin UI fields without server-side validation and serialization.
+- Make browser components own persisted data shape that belongs in a mapper or view model.
+- Put service-role writes, schema checks, or admin validators in `src`.
+- Normalize tables prematurely when an existing constrained field or JSON display list fits the current portfolio use.
+- Leave resolved drift in `docs/data-flow-drift.md` as completed history.
+
+Verification:
+
+```sh
+cmd /c npm run test
+cmd /c npm run lint
+cmd /c npm run check:schema
+cmd /c npm run build
+```
+
+Run the focused accessibility smoke if the schema change also changes rendered public structure, routes, modal behavior, or accessibility guidance:
+
+```sh
+cmd /c npm run test:a11y
+```
+
+Docs update expectations:
+
+- Update [Data Flow Drift](./data-flow-drift.md) so it names only active mismatches, accepted caveats, and next actions.
+- Update [Database README](../database/README.md) when setup order, table shape, RLS expectation, storage convention, or field semantics change.
+- Update [Testing Plan](./testing-plan.md) when coverage is added, removed, or intentionally deferred.
+- Update local READMEs only when ownership boundaries or setup expectations move.
+
+Stop condition for a fresh context window:
+
+- Stop after schema, migrations, schema drift checks, public readers, domain shape, admin writes, validation, tests, and current-state docs agree on the changed contract, or after a mismatch is documented as active drift for the next window.
+
 ## Workflow Sections
 
 Later P3.10 implementation windows fill in these shared workflows:
 
-- Data-flow docs after schema changes.
 - Roadmap and docs closeout.
 
 ## Fresh Context Handoff Template
