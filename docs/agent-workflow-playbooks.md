@@ -1,6 +1,6 @@
 # Agent Workflow Playbooks
 
-Date: 2026-05-19
+Date: 2026-05-20
 
 ## Purpose
 
@@ -315,11 +315,73 @@ Stop condition for a fresh context window:
 
 - Stop after storage helper behavior, public media consumption, architecture SVG trust, Netlify function expectations, tests, and current-state docs all describe the same media contract.
 
+## Workflow: Accessibility Walkthrough
+
+When to use it:
+
+- Public rendered structure, landmarks, headings, navigation, project cards, modal behavior, architecture viewer states, reduced-motion behavior, focus treatment, status text, or admin accessibility behavior changes.
+- A phase needs to classify accessibility findings without turning this portfolio into a broad certification project.
+
+Read first:
+
+- [Accessibility Walkthrough](./accessibility-walkthrough.md)
+- [Testing Plan](./testing-plan.md)
+- [Current Errors and Warnings](./current-errors-and-warnings.md)
+- `src/App.jsx`
+- `src/components/layout/Navbar.jsx`
+- `src/components/sections/Projects.jsx`
+- `src/components/projects/ProjectCard.jsx`
+- `src/components/projects/modal/ProjectModal.jsx`
+- `src/hooks/useModalSideEffects.js`
+- `src/components/projects/viewer/ArchitectureViewer.jsx`
+- `src/admin/AppAdmin.jsx`
+
+Do:
+
+- Review the current accessibility walkthrough state before deciding whether a finding is new.
+- Classify findings as `Fix now`, `Defer`, `Accepted tradeoff`, or `Unable to verify locally`.
+- Keep accessibility semantics close to the component that renders the markup.
+- Prefer native HTML structure and names before adding ARIA.
+- Keep shared modal focus, Escape close, focus restore, body scroll lock, and root modal state in existing hooks when behavior is shared.
+- Preserve route-backed project modal behavior while changing focus or dialog markup.
+- Preserve the current reduced-motion decision: default users keep the portfolio's animated feel, while reduced-motion users get calmer non-essential motion.
+- Add focused tests only for stable rendered routes, pure helpers, or browser states that can run without live Supabase, Redis, or deployed Netlify dependencies.
+- Update `docs/accessibility-walkthrough.md` with current lingering issues, deferred checks, accepted tradeoffs, and unable-to-verify notes.
+
+Do not:
+
+- Claim full WCAG certification.
+- Add broad browser test matrices for live Supabase, Redis, or deployed Netlify behavior.
+- Use ARIA to hide invalid markup that can be fixed with native structure.
+- Remove the site's visual personality for default users while implementing reduced-motion support.
+- Break route-backed modal entry or focus restore while fixing dialog semantics.
+- Treat the plain Vite `track-visit` or `inline-svg` function caveats as accessibility regressions unless user-facing fallback behavior changes.
+
+Verification:
+
+```sh
+cmd /c npm run test
+cmd /c npm run lint
+cmd /c npm run check:schema
+cmd /c npm run build
+cmd /c npm run test:a11y
+```
+
+Docs update expectations:
+
+- Update [Accessibility Walkthrough](./accessibility-walkthrough.md) whenever accessibility findings, accepted tradeoffs, deferred checks, or local verification limits change.
+- Update [Testing Plan](./testing-plan.md) when accessibility smoke coverage, modal focus coverage, or browser-route coverage changes.
+- Update [Current Errors and Warnings](./current-errors-and-warnings.md) only when the latest verified gate or expected local warning state changes.
+- Update local READMEs only when component ownership, boundary guidance, or setup expectations change.
+
+Stop condition for a fresh context window:
+
+- Stop after accessibility findings are classified, fixes are scoped to the rendering owner, verification has passed or a current failure is documented, and the walkthrough reflects only current accessibility truth.
+
 ## Workflow Sections
 
 Later P3.10 implementation windows fill in these shared workflows:
 
-- Accessibility walkthrough.
 - Data-flow docs after schema changes.
 - Roadmap and docs closeout.
 
