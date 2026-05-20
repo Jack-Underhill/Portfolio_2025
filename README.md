@@ -62,6 +62,7 @@ The root README is the orientation layer. It should stay readable for people eva
 Detailed current-state notes live in `docs/`:
 
 - [Data Flow Drift](./docs/data-flow-drift.md): active database/admin/public/UI drift and accepted caveats.
+- [Agent Workflow Playbooks](./docs/agent-workflow-playbooks.md): fresh-context starting points and repeated agent workflow handoffs.
 - [Current Errors and Warnings](./docs/current-errors-and-warnings.md): known command failures, lint state, and expected local runtime warnings.
 - [Testing Plan](./docs/testing-plan.md): feature-area testing priorities.
 - [Accessibility Walkthrough](./docs/accessibility-walkthrough.md): current accessibility findings, accepted tradeoffs, and deferred checks.

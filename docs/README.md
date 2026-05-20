@@ -7,6 +7,7 @@ Use this directory when deciding what the current repo state is.
 ## Current Docs
 
 - [Data Flow Drift](./data-flow-drift.md): active database/admin/public/UI drift, including Projects presentation, Contact icon fallback behavior, and static Education/Certifications.
+- [Agent Workflow Playbooks](./agent-workflow-playbooks.md): reusable fresh-context workflows, source-of-truth orientation, and agent handoff shape.
 - [Current Errors and Warnings](./current-errors-and-warnings.md): current command failures, lint errors, local runtime warnings, and known quality gates.
 - [Testing Plan](./testing-plan.md): high-level testing plan grouped by feature area.
 - [Routes, Runtime, and Data Collisions](./routes-runtime-and-data-collisions.md): route constants, function paths, storage paths, singleton IDs, and data collision risks.
