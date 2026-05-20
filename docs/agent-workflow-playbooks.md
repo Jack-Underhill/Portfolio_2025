@@ -132,13 +132,122 @@ Stop condition for a fresh context window:
 
 - Stop after the needed commands have passed or after a pre-existing failure is recorded as current state with enough detail for the next window.
 
+## Workflow: Add or Edit a Case Study
+
+When to use it:
+
+- A project card, project detail modal, permalink-backed project, or admin-managed project content changes.
+- The work may be content-only, admin editor work, schema work, public rendering work, or a mix.
+
+Read first:
+
+- [Data Flow Drift](./data-flow-drift.md)
+- [Testing Plan](./testing-plan.md)
+- [Database README](../database/README.md)
+- `src/api/public/projects.js`
+- `src/domain/projects/mappers.js`
+- `src/domain/projects/viewModel.js`
+- `src/components/sections/Projects.jsx`
+- `src/components/projects/modal/ProjectModal.jsx`
+- `server/admin/routes/projects.js`
+- `server/admin/routes/validation.js`
+
+Do:
+
+- Classify the task before editing: content-only, admin UI, schema, public rendering, routing, or validation.
+- Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
+- Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
+- Preserve route-backed project opens through the current project routing helpers.
+- Use `server/admin/routes/validation.js` for persisted project edit rules and `server/admin/routes/projects.js` for admin serialization.
+- Add or update tests when mapper, view-model, routing, validation, or public/admin contract behavior changes.
+
+Do not:
+
+- Hardcode a project ID in public components.
+- Add browser writes to Supabase.
+- Add service-role code or admin route imports to `src`.
+- Change modal data shape without reviewing public mappers, admin validation, and route-backed modal behavior.
+- Let component-local fallback behavior become the only source for persisted project fields.
+
+Verification:
+
+```sh
+cmd /c npm run test
+cmd /c npm run lint
+cmd /c npm run check:schema
+cmd /c npm run build
+```
+
+Docs update expectations:
+
+- Update [Data Flow Drift](./data-flow-drift.md) when a project content decision changes active drift, accepted caveats, grouping, label display, or empty-state behavior.
+- Update [Testing Plan](./testing-plan.md) when project mapper, validation, routing, or component smoke coverage changes.
+- Update local READMEs only when boundaries or setup expectations change.
+
+Stop condition for a fresh context window:
+
+- Stop after the requested case-study behavior is implemented, the touched public/admin/schema contracts agree, verification is run or a current failure is documented, and any active docs drift is updated.
+
+## Workflow: Add or Adjust Project Labels and Classification
+
+When to use it:
+
+- `featured_rank`, `project_type`, `labels`, featured-vs-standard grouping, or label display behavior changes.
+- A task changes accepted project type values, label validation rules, admin classification inputs, or public grouping/sorting.
+
+Read first:
+
+- [Data Flow Drift](./data-flow-drift.md)
+- `src/domain/projects/constants.js`
+- `src/domain/projects/mappers.js`
+- `src/domain/projects/viewModel.js`
+- `src/admin/projects/editor/ProjectClassificationFields.jsx`
+- `server/admin/routes/projects.js`
+- `server/admin/routes/validation.js`
+- `database/schema.sql`
+- [Database README](../database/README.md)
+
+Do:
+
+- Reuse the existing `featured_rank`, `project_type`, and `labels` model.
+- Keep accepted project type values centralized in `src/domain/projects/constants.js`.
+- Keep featured and standard projects on the same mapped project shape.
+- Keep grouping and sorting behavior in `src/domain/projects/viewModel.js`.
+- Keep admin classification inputs aligned with server validation and admin serialization.
+- Update mapper, view-model, and admin validation tests if accepted values, label normalization, sorting, or grouping rules change.
+- Make an explicit product decision before rendering labels publicly; labels are currently mapped and admin-ready, but visual display remains an active decision.
+
+Do not:
+
+- Create a normalized label table unless filtering, search, analytics, or cross-project metadata requires it now.
+- Duplicate featured/standard sorting rules in components.
+- Treat labels as visually implemented if they are only mapped and editable in admin.
+- Add a new project type in admin UI without updating constants, validation, mappers, schema expectations, and tests as needed.
+
+Verification:
+
+```sh
+cmd /c npm run test
+cmd /c npm run lint
+cmd /c npm run check:schema
+cmd /c npm run build
+```
+
+Docs update expectations:
+
+- Update [Data Flow Drift](./data-flow-drift.md) if label display, empty groups, featured grouping, project type semantics, or standard project presentation changes.
+- Update [Testing Plan](./testing-plan.md) if project classification coverage changes.
+- Update [Database README](../database/README.md) if persisted project classification fields or storage/schema expectations change.
+
+Stop condition for a fresh context window:
+
+- Stop after public mappers, admin validation, admin UI, schema expectations, tests, and current-state docs agree on the classification contract.
+
 ## Workflow Sections
 
 Later P3.10 implementation windows fill in these shared workflows:
 
-- Add or edit a case study.
 - Update project media.
-- Add or adjust project labels and classification.
 - Accessibility walkthrough.
 - Data-flow docs after schema changes.
 - Roadmap and docs closeout.
