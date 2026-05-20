@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last checked on 2026-05-18 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
+Last checked on 2026-05-19 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
 
 Passing:
 
@@ -23,9 +23,10 @@ cmd /c npm run test
 cmd /c npm run lint
 cmd /c npm run check:schema
 cmd /c npm run build
+cmd /c npm run test:a11y
 ```
 
-Additional focused accessibility smoke check:
+Focused accessibility smoke check included in the current accessibility closeout:
 
 ```sh
 cmd /c npm run test:a11y
@@ -101,5 +102,6 @@ cmd /c npm run test:a11y
 Definition of done for this quality gate:
 
 - All four commands pass.
+- The focused accessibility smoke passes when accessibility or public structure changes are in scope.
 - Known local dev warnings are documented as expected behavior.
 - README verification section points to the same baseline commands.

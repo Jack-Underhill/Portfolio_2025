@@ -1,6 +1,6 @@
 # Architecture Cleanup Candidates
 
-Date: 2026-05-16
+Date: 2026-05-19
 
 ## Purpose
 
@@ -68,12 +68,14 @@ Next actions:
 
 - Keep README verification aligned with the active baseline.
 - Add modal focus browser smoke tests and mocked `track-visit` tests when those areas become active work.
+- Keep `cmd /c npm run test:a11y` focused on stable rendered routes unless a new browser smoke adds clear regression value.
 
 ## Definition of Done
 
 This cleanup pass is complete when:
 
 - `cmd /c npm run test`, `cmd /c npm run lint`, `cmd /c npm run check:schema`, and `cmd /c npm run build` all pass.
+- `cmd /c npm run test:a11y` passes for the current public accessibility smoke scope.
 - Root README points to `docs/`.
 - Route/function constants have obvious homes.
 - Architecture diagram upload and viewer validation agree.

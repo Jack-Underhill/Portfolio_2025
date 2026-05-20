@@ -64,6 +64,7 @@ Detailed current-state notes live in `docs/`:
 - [Data Flow Drift](./docs/data-flow-drift.md): active database/admin/public/UI drift and accepted caveats.
 - [Current Errors and Warnings](./docs/current-errors-and-warnings.md): known command failures, lint state, and expected local runtime warnings.
 - [Testing Plan](./docs/testing-plan.md): feature-area testing priorities.
+- [Accessibility Walkthrough](./docs/accessibility-walkthrough.md): current accessibility findings, accepted tradeoffs, and deferred checks.
 - [Routes, Runtime, and Data Collisions](./docs/routes-runtime-and-data-collisions.md): route constants, function paths, singleton IDs, storage paths, and collision risks.
 - [Legacy and Stale Code](./docs/legacy-and-stale-code.md): unused, historical, or out-of-sync code paths.
 - [Architecture Cleanup Candidates](./docs/architecture-cleanup-candidates.md): small stabilizing architecture work that should reduce drift.
@@ -82,7 +83,7 @@ Known cleanup themes are documented rather than hidden:
 
 - Singleton IDs and local admin runtime defaults still live at their owning runtime boundaries.
 - Project presentation structure, local runtime constants, and storage conventions are documented as active cleanup boundaries.
-- Browser smoke coverage and `track-visit` function tests remain future quality work.
+- Focused browser accessibility smoke coverage exists for stable public routes; modal focus smoke and `track-visit` function tests remain future quality work.
 - The current unit-test, lint, schema drift, and build checks are green and part of the normal local quality gate.
 
 ## Local Development
@@ -146,6 +147,12 @@ cmd /c npm run test
 cmd /c npm run lint
 cmd /c npm run check:schema
 cmd /c npm run build
+```
+
+Focused accessibility smoke:
+
+```sh
+cmd /c npm run test:a11y
 ```
 
 Useful boundary searches before shipping changes:

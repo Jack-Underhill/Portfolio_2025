@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-05-16
+Date: 2026-05-19
 
 ## Purpose
 
@@ -16,7 +16,7 @@ This document records active mismatches between database, admin UI, public API, 
 
 The active drift is limited:
 
-- Projects have aligned persisted classification fields, but the public presentation still needs an explicit section/state/modal/label decision.
+- Projects have aligned persisted classification fields and centralized modal ownership, but the public presentation still needs explicit label-display and empty-state decisions.
 - Contact link icon fallbacks remain positional.
 - Education and Certifications are intentionally static until a database/admin/public flow is designed.
 
@@ -38,7 +38,7 @@ Current public presentation flow:
 - `Projects.jsx` fetches once, maps once, and calls `groupProjectsForDisplay`.
 - `FeaturedProjectsGroup.jsx` renders featured projects under the `#Projects` anchor.
 - `StandardProjectsGroup.jsx` renders standard projects under the `#ProjectGallery` anchor.
-- Modal routing still uses one flattened featured-plus-standard list from `Projects.jsx`.
+- Modal routing uses one flattened featured-plus-standard list from `Projects.jsx`, and `ProjectModal` is rendered once from `Projects.jsx`.
 
 Decision:
 
@@ -53,7 +53,6 @@ Next actions:
 - Keep `groupProjectsForDisplay` as the current grouping and sorting source.
 - Move global loading and zero-project empty state decisions back to `Projects.jsx` if per-group empty states are not accepted.
 - Hide empty group headings, or explicitly document that empty groups should remain visible.
-- Prefer rendering `ProjectModal` once in `Projects.jsx` unless group-specific modal placement becomes intentional.
 - Render project labels on cards/details, or keep documenting them as mapped and admin-ready but visually dormant.
 
 ## Contact Links

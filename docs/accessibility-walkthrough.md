@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-05-18
+Date: 2026-05-19
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Baseline
 
-Last checked on 2026-05-18 with Windows `cmd /c` commands.
+Last checked on 2026-05-19 with Windows `cmd /c` commands.
 
 Passing:
 
@@ -24,6 +24,7 @@ cmd /c npm run test
 cmd /c npm run lint
 cmd /c npm run check:schema
 cmd /c npm run build
+cmd /c npm run test:a11y
 ```
 
 Accessibility-related tools currently installed:
@@ -35,8 +36,9 @@ Accessibility-related tools currently installed:
 
 Current state:
 
-- The tools are installed but not yet wired into the default lint/test gate.
-- Browser smoke coverage for modal focus, architecture viewer fallback states, and `track-visit` remains a documented future gap.
+- `eslint-plugin-jsx-a11y` is wired into the default lint gate through `eslint.config.js`.
+- `cmd /c npm run test:a11y` runs a focused Playwright/axe smoke for the public home page accessibility baseline and the invalid architecture viewer fallback.
+- Browser smoke coverage for modal focus and `track-visit` remains a documented future gap.
 - Plain Vite local runtime still has expected Netlify function caveats for visit count and architecture SVG proxy behavior.
 
 ## Accessibility Surface Map
@@ -212,3 +214,26 @@ Deferred:
 
 - Browser modal focus smoke coverage remains deferred because stable project-card/modal data still depends on the public Supabase-backed content path or a future mocked fixture.
 - `track-visit` function behavior remains outside browser smoke coverage and should stay mocked or Netlify Dev based rather than becoming a live Redis gate.
+
+## Closeout State - 2026-05-19
+
+Current fixed areas:
+
+- Public navigation now uses valid link-based markup, a labeled navigation landmark, an expanded/collapsed menu button, and collapsed links that leave the tab order.
+- Public page structure now has a skip link, one `main` landmark, a semantic top header, a real `h1`, and labeled section landmarks.
+- Project cards expose project-specific case-study names, and the modal has one owner, an `h2`-backed dialog name, focus containment, Escape close, and invoking-element focus restore.
+- Architecture preview/viewer states and visit count expose clearer names and targeted live regions without changing URL trust behavior.
+- Reduced-motion, contrast, and visible focus behavior were tightened through one shared motion hook plus theme and recipe updates.
+- Development-only admin controls have clearer labels, selected/busy/error state announcements, and hidden scroll controls that leave the tab order.
+
+Accepted tradeoffs:
+
+- Default users keep the portfolio's animated feel; reduced-motion users get calmer behavior for non-essential motion.
+- Personal-use admin drag reorder remains mouse-based.
+- Plain Vite still shows expected Netlify function fallback behavior for visit count and inline SVG previews.
+
+Remaining deferred checks:
+
+- Browser modal focus smoke coverage still needs stable project data through public Supabase or a mocked browser fixture.
+- `track-visit` should be covered through mocked function tests or Netlify Dev checks, not a live Redis browser gate.
+- A native screen reader session remains a useful future validation pass.
