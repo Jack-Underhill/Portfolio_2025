@@ -232,6 +232,26 @@ describe('agent project draft import helpers', () => {
     ]);
   });
 
+  it('reports unsupported-only payloads without changing the active project draft', () => {
+    const activeProject = createActiveProject();
+    const result = applyAgentProjectDraftPatch(activeProject, {
+      id: 999,
+      permalink: 'new-permalink',
+      media: {
+        imageUrl: 'https://cdn.example.test/new.png',
+      },
+    });
+
+    expect(result.project).toEqual(activeProject);
+    expect(result.patch).toEqual({});
+    expect(result.appliedFields).toEqual([]);
+    expect(result.warnings).toEqual([
+      'Ignored unsupported project draft field "id".',
+      'Ignored unsupported project draft field "permalink".',
+      'Ignored unsupported project draft field "media".',
+    ]);
+  });
+
   it('rejects malformed list fields before falling back to the current project', () => {
     expect(() => mapAgentProjectDraftToProjectPatch({ features: 'one feature' })).toThrow(
       new AgentProjectDraftImportError('features must be an array.'),
