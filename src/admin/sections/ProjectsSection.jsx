@@ -3,24 +3,30 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import ProjectModal from '../../components/projects/modal/ProjectModal';
 
 import ProjectEditor from '../projects/ProjectEditor';
+import ProjectDraftContextPanel from '../projects/ProjectDraftContextPanel';
 import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
 import ProjectPreviewActions from '../projects/ProjectPreviewActions';
 import TextAreaInput from '../forms/TextAreaInput';
 import CardSelector from '../navigation/CardSelector';
 
 import { validateProjectDraft } from '../api/adminClient';
-import { applyAgentProjectDraftPatch } from '../../domain/projects/agentDraft';
+import {
+    applyAgentProjectDraftPatch,
+    stringifyAgentProjectDraftReviewContext,
+} from '../../domain/projects/agentDraft';
 import { createEmptyProjectDraft } from '../../domain/projects/defaults';
 import { normalizeProjectSortOrder } from '../../domain/projects/mappers';
 import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
 import { adminUi } from '../../styles/recipes';
 
 const PROJECT_DRAFT_IMPORT_PANEL_ID = 'project-agent-draft-import-panel';
+const PROJECT_DRAFT_CONTEXT_PANEL_ID = 'project-agent-draft-context-panel';
 
 function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidationBusyChange }) {
     const { projectBio, projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
     const [isImportPanelOpen, setIsImportPanelOpen] = useState(false);
+    const [isContextPanelOpen, setIsContextPanelOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [previewMediaUrls, setPreviewMediaUrls] = useState({});
     const [validationState, setValidationState] = useState(null);
@@ -57,6 +63,10 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
             ...previewMediaUrls,
         };
     }, [activeProject, previewMediaUrls]);
+    const currentProjectContextText = useMemo(() => {
+        if (!activeProject) return '';
+        return stringifyAgentProjectDraftReviewContext(activeProject);
+    }, [activeProject]);
 
     useEffect(() => {
         if (!isPreviewOpen || !activeProject) {
@@ -115,6 +125,10 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
 
     const handleToggleImportPanel = useCallback(() => {
         setIsImportPanelOpen((isOpen) => !isOpen);
+    }, []);
+
+    const handleToggleContextPanel = useCallback(() => {
+        setIsContextPanelOpen((isOpen) => !isOpen);
     }, []);
 
     const handleClosePreview = useCallback(() => {
@@ -235,17 +249,28 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
             {activeProject && (
                 <>
                     <ProjectPreviewActions
+                        canCopyContext={Boolean(activeProject)}
                         canImport={Boolean(activeProject)}
                         canPreview={Boolean(previewProject)}
                         canValidate={projects.length > 0}
+                        contextPanelId={PROJECT_DRAFT_CONTEXT_PANEL_ID}
                         importPanelId={PROJECT_DRAFT_IMPORT_PANEL_ID}
+                        isContextOpen={isContextPanelOpen}
                         isImportOpen={isImportPanelOpen}
                         isSaveInFlight={isSaveInFlight}
                         isValidating={isValidating}
+                        onToggleContext={handleToggleContextPanel}
                         onToggleImport={handleToggleImportPanel}
                         onPreview={handleOpenPreview}
                         onValidate={handleValidateDraft}
                     />
+
+                    {isContextPanelOpen && (
+                        <ProjectDraftContextPanel
+                            id={PROJECT_DRAFT_CONTEXT_PANEL_ID}
+                            contextText={currentProjectContextText}
+                        />
+                    )}
 
                     {isImportPanelOpen && (
                         <ProjectDraftImportPanel

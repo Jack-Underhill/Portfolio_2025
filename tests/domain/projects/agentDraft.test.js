@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentProjectDraftImportError,
   applyAgentProjectDraftPatch,
+  createAgentProjectDraftReviewContext,
   mapAgentProjectDraftToProjectPatch,
   parseAgentProjectDraftPayload,
+  stringifyAgentProjectDraftReviewContext,
 } from '../../../src/domain/projects/agentDraft.js';
 
 function createActiveProject() {
@@ -325,5 +327,91 @@ describe('agent project draft import helpers', () => {
       projectType: '',
       labels: [],
     });
+  });
+
+  it('serializes safe current project context for existing-project review', () => {
+    const activeProject = createActiveProject();
+    activeProject.features = [' Current feature ', '', 'NULL'];
+    activeProject.metrics = null;
+    activeProject.challenges = [
+      {
+        challenge: ' Current challenge ',
+        solution: ' Current solution ',
+        result: ' Current result ',
+      },
+      {
+        challenge: '',
+        solution: '',
+        result: '',
+      },
+    ];
+    activeProject.labels = [' Current ', 'current', 'Portfolio'];
+    activeProject.techStack = {
+      frontend: [' React ', ''],
+      backend: [' Node '],
+      data: [' Supabase '],
+      infrastructure: [' Netlify '],
+      unsupported: ['Ignored'],
+    };
+    activeProject.featuredRank = '4';
+
+    expect(createAgentProjectDraftReviewContext(activeProject)).toEqual({
+      projectContext: {
+        id: 42,
+        title: 'Current title',
+        permalink: 'active-project',
+        projectType: '',
+        labels: ['Current', 'Portfolio'],
+      },
+      draft: {
+        title: 'Current title',
+        description: 'Current card copy',
+        overview: 'Current overview',
+        role: 'Current role',
+        features: ['Current feature'],
+        metrics: [],
+        challenges: [
+          {
+            challenge: 'Current challenge',
+            solution: 'Current solution',
+            result: 'Current result',
+          },
+        ],
+        improvements: ['Current improvement'],
+        techStack: {
+          frontend: ['React'],
+          backend: ['Node'],
+          data: ['Supabase'],
+          infrastructure: ['Netlify'],
+        },
+        projectType: '',
+        labels: ['Current', 'Portfolio'],
+        url: 'https://current.example.test',
+        sourceUrl: null,
+        writeupUrl: null,
+        videoPageUrl: null,
+        published: true,
+        featuredRank: 4,
+      },
+    });
+  });
+
+  it('omits identity, media, upload, and derived tag fields from exported draft context', () => {
+    const contextText = stringifyAgentProjectDraftReviewContext(createActiveProject());
+    const context = JSON.parse(contextText);
+
+    expect(context.projectContext).toHaveProperty('id', 42);
+    expect(context.projectContext).toHaveProperty('permalink', 'active-project');
+    expect(context).not.toHaveProperty('id');
+    expect(context.draft).not.toHaveProperty('id');
+    expect(context.draft).not.toHaveProperty('permalink');
+    expect(context.draft).not.toHaveProperty('sortOrder');
+    expect(context.draft).not.toHaveProperty('imageUrl');
+    expect(context.draft).not.toHaveProperty('videoUrl');
+    expect(context.draft).not.toHaveProperty('architectureImageUrl');
+    expect(context.draft).not.toHaveProperty('imageFile');
+    expect(context.draft).not.toHaveProperty('videoFile');
+    expect(context.draft).not.toHaveProperty('architectureImageFile');
+    expect(context.draft).not.toHaveProperty('techTags');
   });
 });

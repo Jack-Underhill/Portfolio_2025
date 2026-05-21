@@ -1,19 +1,33 @@
 import { adminUi } from '../../styles/recipes';
 
 function ProjectPreviewActions({
+  canCopyContext,
   canPreview,
   canImport,
   canValidate,
+  contextPanelId,
   importPanelId,
+  isContextOpen,
   isImportOpen,
   isSaveInFlight = false,
   isValidating,
+  onToggleContext,
   onToggleImport,
   onPreview,
   onValidate,
 }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        onClick={onToggleContext}
+        disabled={!canCopyContext || isSaveInFlight}
+        aria-expanded={isContextOpen}
+        aria-controls={contextPanelId}
+        className={adminUi.secondaryButton}
+      >
+        Copy draft
+      </button>
       <button
         type="button"
         onClick={onToggleImport}
