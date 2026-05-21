@@ -71,7 +71,7 @@ Admin:
 
 - `src/admin/AppAdmin.jsx`: development-only admin landmarks, navigation, save status, save error announcements, and busy state.
 - `src/admin/sections/*`: section editors, named regions, and add/remove/reorder controls where present.
-- `src/admin/projects/*`: project selector, selected-state controls, and project editing labels.
+- `src/admin/projects/*`: project selector, selected-state controls, draft preview/validation actions, and project editing labels.
 - `src/admin/forms/*`: shared form labels and inputs.
 - `src/admin/lists/*`: repeated list editing controls and item-specific accessible names.
 - `src/admin/navigation/*`: admin back-to-top/back-to-bottom controls and hidden-control tab behavior.
@@ -118,7 +118,9 @@ Admin accessibility:
 - The admin header nav has an explicit label.
 - Each admin section is exposed as a named region through its visible heading.
 - Admin save failures are announced as alerts, and the save button exposes busy state while saving.
+- Admin draft validation feedback uses status or alert roles, and the global save status names saved, unsaved, saving, and draft-validation states.
 - Project selector buttons expose selected state with `aria-pressed` and project-specific names.
+- The admin project preview opens the shared project modal from the active unsaved draft and inherits the existing dialog focus containment, Escape close, and focus-restore behavior.
 - Repeated list textareas have item-specific accessible names, and remove buttons describe the item they affect.
 - Project, challenge, skill, and social add/remove/reorder controls use specific accessible names where those controls already exist.
 - Admin preview images use preview-specific alt text.

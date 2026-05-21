@@ -21,6 +21,7 @@ Current baseline test files:
 - `tests/runtime/paths.test.js`
 - `tests/domain/projects/routing.test.js`
 - `tests/domain/projects/mappers.test.js`
+- `tests/domain/projects/preview.test.js`
 - `tests/domain/projects/viewModel.test.js`
 - `tests/domain/about/mappers.test.js`
 - `tests/domain/contact/mappers.test.js`
@@ -32,6 +33,7 @@ Current baseline test files:
 - `tests/server/admin/routes/validation.uploads.test.js`
 - `tests/server/admin/routes/validation.about.test.js`
 - `tests/server/admin/routes/validation.projects.test.js`
+- `tests/server/admin/routes/projects.validate-route.test.js`
 - `tests/server/admin/routes/validation.contact.test.js`
 - `tests/server/admin/routes/validation.skills.test.js`
 
@@ -63,8 +65,9 @@ Highest-value coverage:
 Current coverage:
 
 - Route parsing/building, public project mappers, detail view models, fallback merging, and sort-order normalization are covered.
+- Draft-to-public-modal preview mapping is covered for complete drafts, optional fields, classification normalization, malformed list fallbacks, and challenge preservation.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
-- Admin project validation is covered through pure validation helper tests.
+- Admin project validation is covered through pure validation helper tests, and the no-write draft validation route is covered for success and shared validation errors.
 - Project media upload path conventions are covered by focused storage utility tests.
 
 Why this matters:
@@ -194,6 +197,7 @@ Highest-value coverage:
 Current coverage:
 
 - Pure helper primitives, upload file validation, and about/project/contact/skills state validation are covered.
+- The project draft validation endpoint is covered as a no-write route that reuses project state validation.
 
 Why this matters:
 

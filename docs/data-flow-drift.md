@@ -28,10 +28,19 @@ Current classification flow:
 - Columns: `featured_rank`, `project_type`, and `labels`.
 - Public read: `src/api/public/projects.js`
 - Domain mapper/defaults: `src/domain/projects/mappers.js`
+- Draft preview mapper: `src/domain/projects/preview.js`
 - Domain grouping helper: `src/domain/projects/viewModel.js`
 - Public UI: `src/components/sections/Projects.jsx`
 - Admin backend: `server/admin/routes/projects.js` and `server/admin/routes/validation.js`
 - Admin UI: `src/admin/projects/editor/ProjectClassificationFields.jsx`
+
+Current admin draft preview flow:
+
+- Project edits remain local unsaved React state until the explicit admin Save action.
+- `mapProjectDraftToPreviewProject` maps the active admin project draft into the public modal-compatible shape.
+- `ProjectsSection.jsx` renders the mapped draft through the shared `ProjectModal` with admin-local open/close state.
+- Newly selected image, video, and architecture files are previewed through temporary object URLs owned by admin UI state and revoked after use.
+- `POST /admin-api/projects/validate` validates the current projects payload without Supabase writes or storage uploads; `validateProjectDraft` is the browser helper.
 
 Current public presentation flow:
 

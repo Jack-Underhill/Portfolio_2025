@@ -146,9 +146,13 @@ Read first:
 - [Database README](../database/README.md)
 - `src/api/public/projects.js`
 - `src/domain/projects/mappers.js`
+- `src/domain/projects/preview.js`
 - `src/domain/projects/viewModel.js`
 - `src/components/sections/Projects.jsx`
 - `src/components/projects/modal/ProjectModal.jsx`
+- `src/admin/sections/ProjectsSection.jsx`
+- `src/admin/projects/ProjectPreviewActions.jsx`
+- `src/admin/api/adminClient.js`
 - `server/admin/routes/projects.js`
 - `server/admin/routes/validation.js`
 
@@ -156,9 +160,11 @@ Do:
 
 - Classify the task before editing: content-only, admin UI, schema, public rendering, routing, or validation.
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
+- For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
 - Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
 - Preserve route-backed project opens through the current project routing helpers.
 - Use `server/admin/routes/validation.js` for persisted project edit rules and `server/admin/routes/projects.js` for admin serialization.
+- Use `validateProjectDraft` and `POST /admin-api/projects/validate` when the admin needs validation feedback without saving or uploading.
 - Add or update tests when mapper, view-model, routing, validation, or public/admin contract behavior changes.
 
 Do not:
@@ -166,6 +172,7 @@ Do not:
 - Hardcode a project ID in public components.
 - Add browser writes to Supabase.
 - Add service-role code or admin route imports to `src`.
+- Add browser-side Supabase writes, autosave, localStorage drafts, or a persistent draft table for the current draft-preview workflow.
 - Change modal data shape without reviewing public mappers, admin validation, and route-backed modal behavior.
 - Let component-local fallback behavior become the only source for persisted project fields.
 
