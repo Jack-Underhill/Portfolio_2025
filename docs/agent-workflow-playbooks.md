@@ -171,6 +171,9 @@ Do:
 Agent-assisted draft payloads:
 
 - Read the relevant project notes, source files, docs, screenshots, or rough writeups before drafting.
+- Choose the mode before writing JSON:
+  - New draft mode: use project source material only and produce a full import payload.
+  - Existing project edit/review mode: read current project draft JSON first, then read the new report or source material, compare both, and produce either a full refreshed payload or a minimal patch payload.
 - Return one fenced `json` block shaped like this, with assumptions, caveats, and review notes outside the JSON:
 
   ```json
@@ -222,6 +225,58 @@ Agent-assisted draft payloads:
 - Do not use em dashes in drafted case-study copy. Use commas, parentheses, colons, semicolons, or shorter sentences instead.
 - Do not include identity, routing, media, upload, or persistence fields such as `id`, `permalink`, `sortOrder`, `imageUrl`, `videoUrl`, `architectureImageUrl`, file objects, or `techTags`.
 - Tell the user to paste the JSON into the admin `Import draft` panel, then run `Validate draft`, open `Preview`, and save only after review.
+
+Existing project edit/review mode:
+
+- Ask for or use current project draft context before revising an existing case study. Until a copy action exists, this context may come from a manual copy/export.
+- Review current project context shaped like this. Treat `projectContext` as read-only identification and `draft` as the supported content fields to compare, not as an import payload:
+
+  ```json
+  {
+    "projectContext": {
+      "id": "project-id-for-reference-only",
+      "title": "Current project title",
+      "permalink": "current-project-permalink",
+      "projectType": "personal",
+      "labels": ["Existing label"]
+    },
+    "draft": {
+      "title": "Current project title",
+      "description": "Current card summary",
+      "overview": "Current modal overview",
+      "role": "Current role summary",
+      "features": ["Current feature"],
+      "metrics": ["Current metric"],
+      "challenges": [
+        {
+          "challenge": "Current challenge",
+          "solution": "Current solution",
+          "result": "Current result"
+        }
+      ],
+      "improvements": ["Current improvement"],
+      "techStack": {
+        "frontend": ["React"],
+        "backend": ["Node"],
+        "data": ["Supabase"],
+        "infrastructure": ["Netlify"]
+      },
+      "projectType": "personal",
+      "labels": ["Existing label"],
+      "url": "https://example.com",
+      "sourceUrl": "https://github.com/example/repo",
+      "writeupUrl": "",
+      "videoPageUrl": "",
+      "published": true,
+      "featuredRank": ""
+    }
+  }
+  ```
+
+- Compare the current draft against the new source material before producing the import JSON. Name accurate existing content, stale content, missing content, and contradictions in notes outside the JSON.
+- Output either a full refreshed payload or a minimal patch payload using the same supported import fields. Missing supported keys preserve the active admin draft; present empty strings or arrays intentionally clear those fields.
+- Keep the change summary, preserved-field notes, assumptions, caveats, contradictions, and open questions outside the fenced JSON block.
+- Tell the user to paste only the import JSON into `Import draft`, then run `Validate draft` and `Preview` before saving.
 
 Do not:
 
