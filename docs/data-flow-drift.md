@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-05-19
+Date: 2026-05-21
 
 ## Purpose
 
@@ -39,8 +39,18 @@ Current admin draft preview flow:
 - Project edits remain local unsaved React state until the explicit admin Save action.
 - `mapProjectDraftToPreviewProject` maps the active admin project draft into the public modal-compatible shape.
 - `ProjectsSection.jsx` renders the mapped draft through the shared `ProjectModal` with admin-local open/close state.
+- `src/domain/projects/agentDraft.js` parses agent draft JSON, maps supported fields into a project patch, applies that patch to the active local draft, and serializes safe current project review context.
+- `ProjectPreviewActions.jsx` exposes local-only `Import draft` and `Copy current context` actions. The import and context panels live in `ProjectDraftImportPanel.jsx` and `ProjectDraftContextPanel.jsx`.
 - Newly selected image, video, and architecture files are previewed through temporary object URLs owned by admin UI state and revoked after use.
 - `POST /admin-api/projects/validate` validates the current projects payload without Supabase writes or storage uploads; `validateProjectDraft` is the browser helper.
+
+Agent draft import decision:
+
+- Supported payloads are pasted JSON or the first fenced `json` block with content fields only.
+- Import preserves identity, routing, sort order, media URLs, selected media file objects, and derived `techTags`; unknown keys are ignored with warnings.
+- Missing supported keys preserve the active project draft, while present empty strings or arrays intentionally clear those supported fields.
+- Import does not save, upload, call Supabase, persist drafts, or bypass Validate draft, Preview, or explicit Save.
+- Current project context export separates read-only `projectContext` from importable `draft` content so existing-project agent review has context without creating an identity/media mutation path.
 
 Current public presentation flow:
 

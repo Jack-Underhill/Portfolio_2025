@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-05-20
+Date: 2026-05-21
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last checked on 2026-05-20 with Windows `cmd /c` commands.
+Last checked on 2026-05-21 with Windows `cmd /c` commands.
 
 Passing:
 
@@ -121,6 +121,7 @@ Admin accessibility:
 - Admin draft validation feedback uses status or alert roles, and the global save status names saved, unsaved, saving, and draft-validation states.
 - Project selector buttons expose selected state with `aria-pressed` and project-specific names.
 - The admin project preview opens the shared project modal from the active unsaved draft and inherits the existing dialog focus containment, Escape close, and focus-restore behavior.
+- The admin project draft import and current-context panels use labeled textareas, alert/status feedback, and disabled states while Save is in flight so pasted draft changes do not race the save response.
 - Repeated list textareas have item-specific accessible names, and remove buttons describe the item they affect.
 - Project, challenge, skill, and social add/remove/reorder controls use specific accessible names where those controls already exist.
 - Admin preview images use preview-specific alt text.

@@ -162,6 +162,7 @@ Do:
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
 - For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
 - For agent-assisted drafts, produce a JSON payload that the admin `Import draft` action can apply through `src/domain/projects/agentDraft.js`.
+- For existing project revisions, ask the user for the admin `Copy current context` output before comparing current content against new source material.
 - Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
 - Preserve route-backed project opens through the current project routing helpers.
 - Use `server/admin/routes/validation.js` for persisted project edit rules and `server/admin/routes/projects.js` for admin serialization.
@@ -228,7 +229,7 @@ Agent-assisted draft payloads:
 
 Existing project edit/review mode:
 
-- Ask for or use current project draft context before revising an existing case study. Until a copy action exists, this context may come from a manual copy/export.
+- Ask for or use current project draft context before revising an existing case study. The preferred source is the admin `Copy current context` action; a manual copy/export is acceptable only if the UI is unavailable.
 - Review current project context shaped like this. Treat `projectContext` as read-only identification and `draft` as the supported content fields to compare, not as an import payload:
 
   ```json

@@ -18,7 +18,7 @@ Keep this directory free of React components, browser lifecycle code, API client
 
 - `about/`: maps the singleton About row into the public About shape.
 - `contact/`: maps contact links into the public Contact shape.
-- `projects/`: owns project row mappers, draft preview mapping, view-model helpers, project route helpers, editable draft defaults, and project-specific constants.
+- `projects/`: owns project row mappers, draft preview mapping, agent draft import/context helpers, view-model helpers, project route helpers, editable draft defaults, and project-specific constants.
 - `shared/`: holds generic normalization helpers used by feature folders.
 - `skills/`: owns grouped Skills defaults and row mapping for the public Skills section.
 
@@ -38,4 +38,5 @@ Project classification notes:
 - `projects/constants.js` owns accepted project types.
 - `projects/mappers.js` maps classification fields into `isFeatured`, `featuredRank`, `projectType`, and `labels`.
 - `projects/preview.js` maps local admin project drafts into the public modal-compatible preview shape without side effects.
+- `projects/agentDraft.js` parses agent-produced project draft JSON, normalizes supported import fields into local project patches, preserves identity/media fields during apply, and serializes safe current project review context.
 - `projects/viewModel.js` owns the featured/standard grouping and sort rules for public project presentation.

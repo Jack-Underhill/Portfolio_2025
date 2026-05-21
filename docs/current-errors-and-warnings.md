@@ -1,6 +1,6 @@
 # Current Errors and Warnings
 
-Date: 2026-05-20
+Date: 2026-05-21
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last checked on 2026-05-20 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
+Last checked on 2026-05-21 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
 
 Passing:
 

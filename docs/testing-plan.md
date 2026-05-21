@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-19
+Date: 2026-05-21
 
 ## Purpose
 
@@ -22,6 +22,7 @@ Current baseline test files:
 - `tests/domain/projects/routing.test.js`
 - `tests/domain/projects/mappers.test.js`
 - `tests/domain/projects/preview.test.js`
+- `tests/domain/projects/agentDraft.test.js`
 - `tests/domain/projects/viewModel.test.js`
 - `tests/domain/about/mappers.test.js`
 - `tests/domain/contact/mappers.test.js`
@@ -66,6 +67,7 @@ Current coverage:
 
 - Route parsing/building, public project mappers, detail view models, fallback merging, and sort-order normalization are covered.
 - Draft-to-public-modal preview mapping is covered for complete drafts, optional fields, classification normalization, malformed list fallbacks, and challenge preservation.
+- Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
 - Admin project validation is covered through pure validation helper tests, and the no-write draft validation route is covered for success and shared validation errors.
 - Project media upload path conventions are covered by focused storage utility tests.
