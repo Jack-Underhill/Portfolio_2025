@@ -26,20 +26,20 @@ function ProjectPreviewActions({
       </button>
       <button
         type="button"
-        onClick={onPreview}
-        disabled={!canPreview}
-        className={adminUi.secondaryButton}
-      >
-        Preview
-      </button>
-      <button
-        type="button"
         onClick={onValidate}
         disabled={!canValidate || isValidating || isSaveInFlight}
         aria-busy={isValidating}
         className={adminUi.secondaryButton}
       >
         {isValidating ? 'Validating...' : 'Validate draft'}
+      </button>
+      <button
+        type="button"
+        onClick={onPreview}
+        disabled={!canPreview}
+        className={adminUi.secondaryButton}
+      >
+        Preview
       </button>
     </div>
   );

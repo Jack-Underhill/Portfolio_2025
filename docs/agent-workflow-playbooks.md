@@ -1,6 +1,6 @@
 # Agent Workflow Playbooks
 
-Date: 2026-05-20
+Date: 2026-05-21
 
 ## Purpose
 
@@ -161,11 +161,67 @@ Do:
 - Classify the task before editing: content-only, admin UI, schema, public rendering, routing, or validation.
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
 - For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
+- For agent-assisted drafts, produce a JSON payload that the admin `Import draft` action can apply through `src/domain/projects/agentDraft.js`.
 - Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
 - Preserve route-backed project opens through the current project routing helpers.
 - Use `server/admin/routes/validation.js` for persisted project edit rules and `server/admin/routes/projects.js` for admin serialization.
 - Use `validateProjectDraft` and `POST /admin-api/projects/validate` when the admin needs validation feedback without saving or uploading.
 - Add or update tests when mapper, view-model, routing, validation, or public/admin contract behavior changes.
+
+Agent-assisted draft payloads:
+
+- Read the relevant project notes, source files, docs, screenshots, or rough writeups before drafting.
+- Return one fenced `json` block shaped like this, with assumptions, caveats, and review notes outside the JSON:
+
+  ```json
+  {
+    "title": "Project title",
+    "description": "One-sentence public card summary",
+    "overview": "Short paragraph explaining what the product is, who it serves, and the practical outcome.",
+    "role": "Short paragraph naming my role, ownership, and the main technical contribution.",
+    "features": ["Migrated a concrete surface or shipped a user-visible capability with the constraint preserved."],
+    "metrics": ["~400 users, >90% coverage, or another concrete outcome tied to the project impact."],
+    "challenges": [
+      {
+        "challenge": "Concise challenge headline that can stand alone in the collapsed card",
+        "solution": "What I did, written as an implementation summary for the expanded card",
+        "result": "Outcome, risk reduction, maintainability gain, or user impact"
+      }
+    ],
+    "improvements": ["Specific next improvement that would make the project easier to operate, maintain, or scale."],
+    "techStack": {
+      "frontend": ["React"],
+      "backend": ["Node"],
+      "data": ["Supabase"],
+      "infrastructure": ["Netlify"]
+    },
+    "projectType": "personal",
+    "labels": ["AI-assisted draft"],
+    "url": "https://example.com",
+    "sourceUrl": "https://github.com/example/repo",
+    "writeupUrl": "",
+    "videoPageUrl": "",
+    "published": true,
+    "featuredRank": ""
+  }
+  ```
+
+- Use only supported top-level payload fields: `title`, `description`, `overview`, `role`, `features`, `metrics`, `challenges`, `improvements`, `techStack`, `projectType`, `labels`, `url`, `sourceUrl`, `writeupUrl`, `videoPageUrl`, `published`, and `featuredRank`.
+- Use only `techStack.frontend`, `techStack.backend`, `techStack.data`, and `techStack.infrastructure`.
+- Use only accepted project types: `school`, `internship`, `personal`, `client`, or `open-source`.
+- Use `title` as the modal heading; keep it specific and portfolio-friendly.
+- Use `description` for the public project card, not the modal body. Make it one concise sentence.
+- Use `overview` for the first modal paragraph: what the project is, who it serves, and why it matters.
+- Use `role` for the second modal paragraph: my title or responsibility, what I owned, and the main technical direction.
+- Use `features` for the "Key Features" bullets. Each item should be a complete, skimmable sentence about a shipped behavior, migration, or system capability.
+- Use `metrics` for the "Metrics" bullets. Prefer quantified outcomes, adoption, coverage, reliability, performance, scope, or concrete delivery results.
+- Frame `challenges` as collapsed case-study cards: `challenge` is the bold card headline, `solution` appears under "What I did", and `result` appears both as the collapsed teaser and expanded result. Do not use alternate keys such as `problem` or `impact` in the JSON.
+- Use `improvements` for "What I'd Improve Next" bullets. Keep them as credible future engineering follow-ups, not apologies.
+- Keep `techStack` values short enough to work as pills, but include clarifying context when useful, such as `Redis (sessions / cache)` or `Traefik (reverse proxy / routing)`.
+- Leave optional action URLs as empty strings when there is no public link; do not invent links.
+- Do not use em dashes in drafted case-study copy. Use commas, parentheses, colons, semicolons, or shorter sentences instead.
+- Do not include identity, routing, media, upload, or persistence fields such as `id`, `permalink`, `sortOrder`, `imageUrl`, `videoUrl`, `architectureImageUrl`, file objects, or `techTags`.
+- Tell the user to paste the JSON into the admin `Import draft` panel, then run `Validate draft`, open `Preview`, and save only after review.
 
 Do not:
 
