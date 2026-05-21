@@ -40,6 +40,10 @@ export async function saveProjects(state) {
   return postAdminPayload('/projects', { projects: state });
 }
 
+export async function validateProjectDraft(state) {
+  return postAdminPayload('/projects/validate', { projects: state });
+}
+
 export async function loadContact() {
   return getJson('/contact');
 }

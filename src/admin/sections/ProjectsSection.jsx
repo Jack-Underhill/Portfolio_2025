@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 
 import ProjectModal from '../../components/projects/modal/ProjectModal';
 
@@ -7,6 +7,7 @@ import ProjectPreviewActions from '../projects/ProjectPreviewActions';
 import TextAreaInput from '../forms/TextAreaInput';
 import CardSelector from '../navigation/CardSelector';
 
+import { validateProjectDraft } from '../api/adminClient';
 import { createEmptyProjectDraft } from '../../domain/projects/defaults';
 import { normalizeProjectSortOrder } from '../../domain/projects/mappers';
 import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
@@ -18,6 +19,8 @@ function ProjectsSection({ state, onChange }) {
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [previewMediaUrls, setPreviewMediaUrls] = useState({});
+    const [validationState, setValidationState] = useState(null);
+    const validationRequestId = useRef(0);
 
     // auto-set activeId to first project if none selected
     useEffect(() => {
@@ -74,7 +77,13 @@ function ProjectsSection({ state, onChange }) {
     ]);
 
     // state handlers
+    const clearValidationState = useCallback(() => {
+        validationRequestId.current += 1;
+        setValidationState(null);
+    }, []);
+
     const updateState = (patch) => {
+        clearValidationState();
         onChange({ ...state, ...patch });
     };
 
@@ -95,6 +104,39 @@ function ProjectsSection({ state, onChange }) {
     const handleClosePreview = useCallback(() => {
         setIsPreviewOpen(false);
     }, []);
+
+    const handleValidateDraft = useCallback(async () => {
+        const requestId = validationRequestId.current + 1;
+        validationRequestId.current = requestId;
+        setValidationState({
+            state: 'validating',
+            type: 'status',
+            message: 'Validating draft...',
+        });
+
+        try {
+            const result = await validateProjectDraft(state);
+            if (validationRequestId.current !== requestId) return;
+
+            const count = result?.projectCount ?? projects.length;
+            setValidationState({
+                state: 'success',
+                type: 'status',
+                message:
+                    count === 1
+                        ? 'Draft validation passed for the project.'
+                        : `Draft validation passed for all ${count} projects.`,
+            });
+        } catch (error) {
+            if (validationRequestId.current !== requestId) return;
+
+            setValidationState({
+                state: 'error',
+                type: 'alert',
+                message: error?.message || 'Draft validation failed',
+            });
+        }
+    }, [projects.length, state]);
 
     // --- add / update / remove ---
     const handleAddProject = () => {
@@ -158,8 +200,24 @@ function ProjectsSection({ state, onChange }) {
                 <>
                     <ProjectPreviewActions
                         canPreview={Boolean(previewProject)}
+                        canValidate={projects.length > 0}
+                        isValidating={validationState?.state === 'validating'}
                         onPreview={handleOpenPreview}
+                        onValidate={handleValidateDraft}
                     />
+
+                    {validationState && (
+                        <p
+                            className={
+                                validationState.type === 'alert'
+                                    ? 'text-sm text-admin-danger-hover'
+                                    : 'text-sm text-admin-accent-text'
+                            }
+                            role={validationState.type}
+                        >
+                            {validationState.message}
+                        </p>
+                    )}
 
                     <ProjectEditor
                         project={activeProject}

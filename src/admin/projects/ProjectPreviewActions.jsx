@@ -1,6 +1,12 @@
 import { adminUi } from '../../styles/recipes';
 
-function ProjectPreviewActions({ canPreview, onPreview }) {
+function ProjectPreviewActions({
+  canPreview,
+  canValidate,
+  isValidating,
+  onPreview,
+  onValidate,
+}) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <button
@@ -10,6 +16,15 @@ function ProjectPreviewActions({ canPreview, onPreview }) {
         className={adminUi.secondaryButton}
       >
         Preview
+      </button>
+      <button
+        type="button"
+        onClick={onValidate}
+        disabled={!canValidate || isValidating}
+        aria-busy={isValidating}
+        className={adminUi.secondaryButton}
+      >
+        {isValidating ? 'Validating...' : 'Validate draft'}
       </button>
     </div>
   );
