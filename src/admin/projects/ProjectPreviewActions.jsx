@@ -17,7 +17,7 @@ function ProjectPreviewActions({
       <button
         type="button"
         onClick={onToggleImport}
-        disabled={!canImport}
+        disabled={!canImport || isSaveInFlight}
         aria-expanded={isImportOpen}
         aria-controls={importPanelId}
         className={adminUi.secondaryButton}

@@ -250,6 +250,7 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
                     {isImportPanelOpen && (
                         <ProjectDraftImportPanel
                             id={PROJECT_DRAFT_IMPORT_PANEL_ID}
+                            isDisabled={isSaveInFlight}
                             onApplyDraft={handleApplyAgentDraft}
                         />
                     )}

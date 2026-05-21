@@ -10,11 +10,12 @@ function formatAppliedFields(fields) {
   return `Applied ${fields.length} ${fields.length === 1 ? 'field' : 'fields'}: ${fields.join(', ')}.`;
 }
 
-function ProjectDraftImportPanel({ id, onApplyDraft }) {
+function ProjectDraftImportPanel({ id, isDisabled = false, onApplyDraft }) {
   const [payloadText, setPayloadText] = useState('');
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const [warnings, setWarnings] = useState([]);
+  const descriptionId = `${id}-description`;
 
   const resetFeedback = () => {
     setError('');
@@ -47,9 +48,9 @@ function ProjectDraftImportPanel({ id, onApplyDraft }) {
     <div id={id} className={`${adminUi.panel} space-y-3 p-4`}>
       <div className="space-y-1">
         <h3 className={adminUi.sectionLabel}>Project draft import</h3>
-        <h5 className={adminUi.helperText}>
+        <p id={descriptionId} className={adminUi.helperText}>
           Paste a supported JSON payload or fenced JSON block. Applying updates only this local draft.
-        </h5>
+        </p>
       </div>
 
       <TextAreaInput
@@ -62,13 +63,15 @@ function ProjectDraftImportPanel({ id, onApplyDraft }) {
         }}
         minRows={8}
         spellCheck={false}
+        aria-describedby={descriptionId}
+        disabled={isDisabled}
       />
 
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={handleApply}
-          disabled={!payloadText.trim()}
+          disabled={isDisabled || !payloadText.trim()}
           className={adminUi.secondaryButton}
         >
           Apply draft
