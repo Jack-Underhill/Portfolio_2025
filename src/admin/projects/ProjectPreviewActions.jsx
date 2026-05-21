@@ -3,6 +3,7 @@ import { adminUi } from '../../styles/recipes';
 function ProjectPreviewActions({
   canPreview,
   canValidate,
+  isSaveInFlight = false,
   isValidating,
   onPreview,
   onValidate,
@@ -20,7 +21,7 @@ function ProjectPreviewActions({
       <button
         type="button"
         onClick={onValidate}
-        disabled={!canValidate || isValidating}
+        disabled={!canValidate || isValidating || isSaveInFlight}
         aria-busy={isValidating}
         className={adminUi.secondaryButton}
       >

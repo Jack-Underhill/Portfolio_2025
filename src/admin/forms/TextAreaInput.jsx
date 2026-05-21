@@ -7,6 +7,12 @@ function TextAreaInput({ id, label, value, onChange, minRows = 1, ...props }) {
     const ref = useAutoTextarea({ value, minRows });
 
     const trimTrailingWhitespace = (s = '') => s.replace(/[ \t\r\n]+$/g, '');
+    const handleBlur = (event) => {
+        const trimmedValue = trimTrailingWhitespace(event.target.value);
+        if (trimmedValue !== event.target.value) {
+            onChange(trimmedValue);
+        }
+    };
 
     return (
         <div className="space-y-1">
@@ -21,7 +27,7 @@ function TextAreaInput({ id, label, value, onChange, minRows = 1, ...props }) {
                 id={id}
                 value={value}
                 onChange={e => onChange(e.target.value)}
-                onBlur={e => onChange(trimTrailingWhitespace(e.target.value))}
+                onBlur={handleBlur}
                 rows={minRows}
                 className={adminForm.textarea}
                 {...props}

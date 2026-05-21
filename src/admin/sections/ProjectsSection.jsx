@@ -14,13 +14,21 @@ import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
 import { adminUi } from '../../styles/recipes';
 
 
-function ProjectsSection({ state, onChange }) {
+function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidationBusyChange }) {
     const { projectBio, projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [previewMediaUrls, setPreviewMediaUrls] = useState({});
     const [validationState, setValidationState] = useState(null);
+    const [isValidating, setIsValidating] = useState(false);
     const validationRequestId = useRef(0);
+
+    useEffect(() => {
+        onValidationBusyChange?.(isValidating);
+        return () => {
+            if (isValidating) onValidationBusyChange?.(false);
+        };
+    }, [isValidating, onValidationBusyChange]);
 
     // auto-set activeId to first project if none selected
     useEffect(() => {
@@ -106,8 +114,11 @@ function ProjectsSection({ state, onChange }) {
     }, []);
 
     const handleValidateDraft = useCallback(async () => {
+        if (isValidating || isSaveInFlight) return;
+
         const requestId = validationRequestId.current + 1;
         validationRequestId.current = requestId;
+        setIsValidating(true);
         setValidationState({
             state: 'validating',
             type: 'status',
@@ -135,8 +146,10 @@ function ProjectsSection({ state, onChange }) {
                 type: 'alert',
                 message: error?.message || 'Draft validation failed',
             });
+        } finally {
+            setIsValidating(false);
         }
-    }, [projects.length, state]);
+    }, [isSaveInFlight, isValidating, projects.length, state]);
 
     // --- add / update / remove ---
     const handleAddProject = () => {
@@ -201,7 +214,8 @@ function ProjectsSection({ state, onChange }) {
                     <ProjectPreviewActions
                         canPreview={Boolean(previewProject)}
                         canValidate={projects.length > 0}
-                        isValidating={validationState?.state === 'validating'}
+                        isSaveInFlight={isSaveInFlight}
+                        isValidating={isValidating}
                         onPreview={handleOpenPreview}
                         onValidate={handleValidateDraft}
                     />

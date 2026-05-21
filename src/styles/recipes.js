@@ -14,13 +14,13 @@ export const adminForm = {
 export const adminUi = {
   page: "min-h-screen px-5 sm:px-10 md:px-15 lg:px-25 xl:px-35 py-10 bg-admin-page text-admin-text space-y-10",
   primaryButton:
-    "rounded-md bg-admin-accent px-4 py-2 text-sm font-medium hover:bg-admin-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "rounded-md bg-admin-accent px-4 py-2 text-sm font-medium hover:bg-admin-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-admin-accent",
   secondaryButton:
-    "rounded-md bg-admin-panel-hover px-4 py-2 text-sm hover:bg-admin-border focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "rounded-md bg-admin-panel-hover px-4 py-2 text-sm hover:bg-admin-border focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-admin-panel-hover",
   smallSecondaryButton:
-    "rounded-md bg-admin-panel-hover px-2 py-1 text-xs hover:bg-admin-border focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "rounded-md bg-admin-panel-hover px-2 py-1 text-xs hover:bg-admin-border focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-admin-panel-hover",
   iconButton:
-    "text-xs px-2 py-1 rounded-md border border-admin-border hover:bg-admin-panel-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "text-xs px-2 py-1 rounded-md border border-admin-border hover:bg-admin-panel-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
   addLink: "text-xs text-admin-accent-text hover:text-admin-accent-text-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
   inlineLink: "underline underline-offset-2 text-admin-link focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
   sectionLabel: "text-xs uppercase tracking-wide text-admin-text-subtle",
