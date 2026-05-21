@@ -3,20 +3,24 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import ProjectModal from '../../components/projects/modal/ProjectModal';
 
 import ProjectEditor from '../projects/ProjectEditor';
+import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
 import ProjectPreviewActions from '../projects/ProjectPreviewActions';
 import TextAreaInput from '../forms/TextAreaInput';
 import CardSelector from '../navigation/CardSelector';
 
 import { validateProjectDraft } from '../api/adminClient';
+import { applyAgentProjectDraftPatch } from '../../domain/projects/agentDraft';
 import { createEmptyProjectDraft } from '../../domain/projects/defaults';
 import { normalizeProjectSortOrder } from '../../domain/projects/mappers';
 import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
 import { adminUi } from '../../styles/recipes';
 
+const PROJECT_DRAFT_IMPORT_PANEL_ID = 'project-agent-draft-import-panel';
 
 function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidationBusyChange }) {
     const { projectBio, projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
+    const [isImportPanelOpen, setIsImportPanelOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [previewMediaUrls, setPreviewMediaUrls] = useState({});
     const [validationState, setValidationState] = useState(null);
@@ -109,6 +113,10 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
         setIsPreviewOpen(true);
     }, []);
 
+    const handleToggleImportPanel = useCallback(() => {
+        setIsImportPanelOpen((isOpen) => !isOpen);
+    }, []);
+
     const handleClosePreview = useCallback(() => {
         setIsPreviewOpen(false);
     }, []);
@@ -174,6 +182,21 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
         );
     };
 
+    const handleApplyAgentDraft = (payloadText) => {
+        if (!activeProject) return {
+            project: null,
+            patch: {},
+            appliedFields: [],
+            warnings: ['No active project is selected.'],
+        };
+
+        const result = applyAgentProjectDraftPatch(activeProject, payloadText);
+        if (result.appliedFields.length > 0) {
+            handleChangeProject(activeProject.id, result.project);
+        }
+        return result;
+    };
+
     const handleRemoveProject = (id) => {
         setProjects((prev) => prev.filter((p) => p.id !== id));
         setIsPreviewOpen(false);
@@ -212,13 +235,24 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
             {activeProject && (
                 <>
                     <ProjectPreviewActions
+                        canImport={Boolean(activeProject)}
                         canPreview={Boolean(previewProject)}
                         canValidate={projects.length > 0}
+                        importPanelId={PROJECT_DRAFT_IMPORT_PANEL_ID}
+                        isImportOpen={isImportPanelOpen}
                         isSaveInFlight={isSaveInFlight}
                         isValidating={isValidating}
+                        onToggleImport={handleToggleImportPanel}
                         onPreview={handleOpenPreview}
                         onValidate={handleValidateDraft}
                     />
+
+                    {isImportPanelOpen && (
+                        <ProjectDraftImportPanel
+                            id={PROJECT_DRAFT_IMPORT_PANEL_ID}
+                            onApplyDraft={handleApplyAgentDraft}
+                        />
+                    )}
 
                     {validationState && (
                         <p

@@ -2,14 +2,28 @@ import { adminUi } from '../../styles/recipes';
 
 function ProjectPreviewActions({
   canPreview,
+  canImport,
   canValidate,
+  importPanelId,
+  isImportOpen,
   isSaveInFlight = false,
   isValidating,
+  onToggleImport,
   onPreview,
   onValidate,
 }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        onClick={onToggleImport}
+        disabled={!canImport}
+        aria-expanded={isImportOpen}
+        aria-controls={importPanelId}
+        className={adminUi.secondaryButton}
+      >
+        Import draft
+      </button>
       <button
         type="button"
         onClick={onPreview}
