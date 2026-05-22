@@ -10,7 +10,7 @@ function formatAppliedFields(fields) {
   return `Applied ${fields.length} ${fields.length === 1 ? 'field' : 'fields'}: ${fields.join(', ')}.`;
 }
 
-function ProjectDraftImportPanel({ id, isDisabled = false, onApplyDraft }) {
+function ProjectDraftImportPanel({ id, isDisabled = false, onApplyDraft, onApplySuccess }) {
   const [payloadText, setPayloadText] = useState('');
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
@@ -30,6 +30,7 @@ function ProjectDraftImportPanel({ id, isDisabled = false, onApplyDraft }) {
       const result = onApplyDraft(payloadText);
       setStatus(formatAppliedFields(result.appliedFields));
       setWarnings(result.warnings);
+      onApplySuccess?.();
     } catch (applyError) {
       setError(
         applyError instanceof AgentProjectDraftImportError

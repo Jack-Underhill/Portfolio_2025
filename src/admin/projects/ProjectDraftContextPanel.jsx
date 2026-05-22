@@ -11,7 +11,7 @@ async function copyTextToClipboard(text) {
   await globalThis.navigator.clipboard.writeText(text);
 }
 
-function ProjectDraftContextPanel({ contextText, id }) {
+function ProjectDraftContextPanel({ contextText, id, onCopySuccess }) {
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const descriptionId = `${id}-description`;
@@ -32,6 +32,7 @@ function ProjectDraftContextPanel({ contextText, id }) {
     try {
       await copyTextToClipboard(contextText);
       setStatus('Copied current project draft context.');
+      onCopySuccess?.();
     } catch {
       setError('Clipboard copy failed. Select and copy the JSON manually.');
     }
@@ -45,18 +46,6 @@ function ProjectDraftContextPanel({ contextText, id }) {
           Copy this read-only context when asking Codex to revise an existing case study.
         </p>
       </div>
-
-      <TextAreaInput
-        id={`${id}-payload`}
-        label="Current project draft JSON"
-        value={contextText}
-        onChange={() => {}}
-        minRows={8}
-        spellCheck={false}
-        aria-describedby={descriptionId}
-        readOnly
-        onFocus={(event) => event.target.select()}
-      />
 
       <button
         type="button"
@@ -77,6 +66,18 @@ function ProjectDraftContextPanel({ contextText, id }) {
           {status}
         </p>
       )}
+
+      <TextAreaInput
+        id={`${id}-payload`}
+        label="Current project draft JSON"
+        value={contextText}
+        onChange={() => {}}
+        minRows={8}
+        spellCheck={false}
+        aria-describedby={descriptionId}
+        readOnly
+        onFocus={(event) => event.target.select()}
+      />
     </div>
   );
 }

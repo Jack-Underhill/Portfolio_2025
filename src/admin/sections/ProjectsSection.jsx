@@ -131,6 +131,24 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
         setIsContextPanelOpen((isOpen) => !isOpen);
     }, []);
 
+    const scrollToProjectsSection = useCallback(() => {
+        requestAnimationFrame(() => {
+            const target = document.getElementById('projects')
+                ?? document.getElementById('admin-projects-heading');
+            target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        });
+    }, []);
+
+    const handleContextCopied = useCallback(() => {
+        setIsContextPanelOpen(false);
+        scrollToProjectsSection();
+    }, [scrollToProjectsSection]);
+
+    const handleAgentDraftApplied = useCallback(() => {
+        setIsImportPanelOpen(false);
+        scrollToProjectsSection();
+    }, [scrollToProjectsSection]);
+
     const handleClosePreview = useCallback(() => {
         setIsPreviewOpen(false);
     }, []);
@@ -269,6 +287,7 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
                         <ProjectDraftContextPanel
                             id={PROJECT_DRAFT_CONTEXT_PANEL_ID}
                             contextText={currentProjectContextText}
+                            onCopySuccess={handleContextCopied}
                         />
                     )}
 
@@ -277,6 +296,7 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
                             id={PROJECT_DRAFT_IMPORT_PANEL_ID}
                             isDisabled={isSaveInFlight}
                             onApplyDraft={handleApplyAgentDraft}
+                            onApplySuccess={handleAgentDraftApplied}
                         />
                     )}
 
