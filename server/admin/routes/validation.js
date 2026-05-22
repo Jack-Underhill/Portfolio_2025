@@ -118,6 +118,12 @@ export function optionalPositiveInteger(value, label) {
   return number;
 }
 
+function optionalProjectId(value, label) {
+  if (typeof value === 'string' && isUuid(value)) return null;
+
+  return optionalPositiveInteger(value, label);
+}
+
 export function validateUploadFile(file, label, rules) {
   if (!file) return null;
   if (!isUploadedFile(file)) {
@@ -152,7 +158,7 @@ function normalizeProjectArray(projects) {
     const project = input[index];
     assertPlainObject(project, `project ${index + 1}`);
 
-    const id = optionalPositiveInteger(project.id, `project ${index + 1} id`);
+    const id = optionalProjectId(project.id, `project ${index + 1} id`);
     if (id) {
       if (seenIds.has(id)) {
         throw new BadRequestError(`project id ${id} appears more than once`);
@@ -447,6 +453,11 @@ function optionalBoolean(value, label, fallback) {
   }
 
   return value;
+}
+
+function isUuid(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    .test(value.trim());
 }
 
 function isUploadedFile(value) {
