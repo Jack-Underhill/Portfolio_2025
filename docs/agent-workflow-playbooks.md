@@ -144,6 +144,8 @@ Read first:
 - [Data Flow Drift](./data-flow-drift.md)
 - [Testing Plan](./testing-plan.md)
 - [Database README](../database/README.md)
+- [Project Editor Agent](./project-editor-agent/README.md) when drafting or revising project content.
+- [Case Study Draft Guidelines](./project-editor-agent/case-study-draft-guidelines.md) before producing agent-assisted project copy.
 - `src/api/public/projects.js`
 - `src/domain/projects/mappers.js`
 - `src/domain/projects/preview.js`
@@ -162,7 +164,7 @@ Do:
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
 - For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
 - For agent-assisted drafts, produce a JSON payload that the admin `Import draft` action can apply through `src/domain/projects/agentDraft.js`.
-- For existing project revisions, ask the user for the admin `Copy current context` output before comparing current content against new source material.
+- For existing project revisions, ask the user for the admin `Copy current context` output and follow [Existing Project Review Mode](./project-editor-agent/case-study-draft-guidelines.md#existing-project-review-mode) before comparing current content against new source material.
 - Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
 - Preserve route-backed project opens through the current project routing helpers.
 - Use `server/admin/routes/validation.js` for persisted project edit rules and `server/admin/routes/projects.js` for admin serialization.
@@ -172,6 +174,7 @@ Do:
 Agent-assisted draft payloads:
 
 - Read the relevant project notes, source files, docs, screenshots, or rough writeups before drafting.
+- Follow [Case Study Draft Guidelines](./project-editor-agent/case-study-draft-guidelines.md) for audience fit, field limits, anti-bloat rules, outlier criteria, and review checklist.
 - Choose the mode before writing JSON:
   - New draft mode: use project source material only and produce a full import payload.
   - Existing project edit/review mode: read current project draft JSON first, then read the new report or source material, compare both, and produce either a full refreshed payload or a minimal patch payload.
@@ -213,71 +216,11 @@ Agent-assisted draft payloads:
 - Use only supported top-level payload fields: `title`, `description`, `overview`, `role`, `features`, `metrics`, `challenges`, `improvements`, `techStack`, `projectType`, `labels`, `url`, `sourceUrl`, `writeupUrl`, `videoPageUrl`, `published`, and `featuredRank`.
 - Use only `techStack.frontend`, `techStack.backend`, `techStack.data`, and `techStack.infrastructure`.
 - Use only accepted project types: `school`, `internship`, `personal`, `client`, or `open-source`.
-- Use `title` as the modal heading; keep it specific and portfolio-friendly.
-- Use `description` for the public project card, not the modal body. Make it one concise sentence.
-- Use `overview` for the first modal paragraph: what the project is, who it serves, and why it matters.
-- Use `role` for the second modal paragraph: my title or responsibility, what I owned, and the main technical direction.
-- Use `features` for the "Key Features" bullets. Each item should be a complete, skimmable sentence about a shipped behavior, migration, or system capability.
-- Use `metrics` for the "Metrics" bullets. Prefer quantified outcomes, adoption, coverage, reliability, performance, scope, or concrete delivery results.
 - Frame `challenges` as collapsed case-study cards: `challenge` is the bold card headline, `solution` appears under "What I did", and `result` appears both as the collapsed teaser and expanded result. Do not use alternate keys such as `problem` or `impact` in the JSON.
-- Use `improvements` for "What I'd Improve Next" bullets. Keep them as credible future engineering follow-ups, not apologies.
-- Keep `techStack` values short enough to work as pills, but include clarifying context when useful, such as `Redis (sessions / cache)` or `Traefik (reverse proxy / routing)`.
 - Leave optional action URLs as empty strings when there is no public link; do not invent links.
 - Do not use em dashes in drafted case-study copy. Use commas, parentheses, colons, semicolons, or shorter sentences instead.
 - Do not include identity, routing, media, upload, or persistence fields such as `id`, `permalink`, `sortOrder`, `imageUrl`, `videoUrl`, `architectureImageUrl`, file objects, or `techTags`.
 - Tell the user to paste the JSON into the admin `Import draft` panel, then run `Validate draft`, open `Preview`, and save only after review.
-
-Existing project edit/review mode:
-
-- Ask for or use current project draft context before revising an existing case study. The preferred source is the admin `Copy current context` action; a manual copy/export is acceptable only if the UI is unavailable.
-- Review current project context shaped like this. Treat `projectContext` as read-only identification and `draft` as the supported content fields to compare, not as an import payload:
-
-  ```json
-  {
-    "projectContext": {
-      "id": "project-id-for-reference-only",
-      "title": "Current project title",
-      "permalink": "current-project-permalink",
-      "projectType": "personal",
-      "labels": ["Existing label"]
-    },
-    "draft": {
-      "title": "Current project title",
-      "description": "Current card summary",
-      "overview": "Current modal overview",
-      "role": "Current role summary",
-      "features": ["Current feature"],
-      "metrics": ["Current metric"],
-      "challenges": [
-        {
-          "challenge": "Current challenge",
-          "solution": "Current solution",
-          "result": "Current result"
-        }
-      ],
-      "improvements": ["Current improvement"],
-      "techStack": {
-        "frontend": ["React"],
-        "backend": ["Node"],
-        "data": ["Supabase"],
-        "infrastructure": ["Netlify"]
-      },
-      "projectType": "personal",
-      "labels": ["Existing label"],
-      "url": "https://example.com",
-      "sourceUrl": "https://github.com/example/repo",
-      "writeupUrl": "",
-      "videoPageUrl": "",
-      "published": true,
-      "featuredRank": ""
-    }
-  }
-  ```
-
-- Compare the current draft against the new source material before producing the import JSON. Name accurate existing content, stale content, missing content, and contradictions in notes outside the JSON.
-- Output either a full refreshed payload or a minimal patch payload using the same supported import fields. Missing supported keys preserve the active admin draft; present empty strings or arrays intentionally clear those fields.
-- Keep the change summary, preserved-field notes, assumptions, caveats, contradictions, and open questions outside the fenced JSON block.
-- Tell the user to paste only the import JSON into `Import draft`, then run `Validate draft` and `Preview` before saving.
 
 Do not:
 
@@ -301,6 +244,7 @@ Docs update expectations:
 
 - Update [Data Flow Drift](./data-flow-drift.md) when a project content decision changes active drift, accepted caveats, grouping, label display, or empty-state behavior.
 - Update [Testing Plan](./testing-plan.md) when project mapper, validation, routing, or component smoke coverage changes.
+- Update [Case Study Draft Guidelines](./project-editor-agent/case-study-draft-guidelines.md) when audience strategy, field limits, anti-bloat rules, or content quality standards change.
 - Update local READMEs only when boundaries or setup expectations change.
 
 Stop condition for a fresh context window:
