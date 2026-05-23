@@ -1,6 +1,7 @@
 import ProjectCard from '../../projects/ProjectCard';
 import SectionTitle from '../../ui/SectionTitle';
 import Text from '../../ui/Text';
+import useProjectViewportPreview from '../../../hooks/useProjectViewportPreview';
 
 function FeaturedProjectsGroup({
   projects = [],
@@ -12,6 +13,14 @@ function FeaturedProjectsGroup({
   openFromCard,
   isModalOpen,
 }) {
+  const { registerItem } = useProjectViewportPreview({
+    projects,
+    isModalOpen,
+    lastInputRef,
+    requestPreview,
+    clearPreview,
+  });
+
   return (
     <section
       id="Projects"
@@ -39,22 +48,23 @@ function FeaturedProjectsGroup({
         )}
 
         {projects.map((p) => (
-          <ProjectCard
-            key={p.id}
-            id={p.id}
-            isActivePreview={Number(activePreviewId) === Number(p.id)}
-            requestPreview={requestPreview}
-            clearPreview={clearPreview}
-            lastInputRef={lastInputRef}
-            image={p.imageUrl}
-            video={p.videoUrl}
-            title={p.title}
-            desc={p.description}
-            link={p.directUrl}
-            tags={p.techTags}
-            onOpenModal={() => openFromCard(p)}
-            isModalOpen={isModalOpen}
-          />
+          <div key={p.id} ref={registerItem(p.id)} className="h-full">
+            <ProjectCard
+              id={p.id}
+              isActivePreview={Number(activePreviewId) === Number(p.id)}
+              requestPreview={requestPreview}
+              clearPreview={clearPreview}
+              lastInputRef={lastInputRef}
+              image={p.imageUrl}
+              video={p.videoUrl}
+              title={p.title}
+              desc={p.description}
+              link={p.directUrl}
+              tags={p.techTags}
+              onOpenModal={() => openFromCard(p)}
+              isModalOpen={isModalOpen}
+            />
+          </div>
         ))}
       </div>
     </section>
