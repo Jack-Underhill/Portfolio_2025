@@ -7,13 +7,17 @@ export default function PillHighlightList({
     className = "mt-4",
 
     isOnlyHighlightedOnHover = false,
+    isActive = false,
 
     // text styling
     textClassName = "px-3 py-1 text-xs font-semibold",
 }) {
     const highlightClassName = 
         isOnlyHighlightedOnHover 
-            ? "border-card-border/70 group-hover:border-button-border/40 group-focus-visible:border-button-border/40"
+            ? cx(
+                isActive ? "border-button-border/40" : "border-card-border/70",
+                "group-hover:border-button-border/40 group-focus-visible:border-button-border/40"
+            )
             : "border-button-border/40";
 
     return (

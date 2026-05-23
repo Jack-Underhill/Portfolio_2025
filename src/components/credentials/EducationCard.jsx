@@ -1,3 +1,5 @@
+import { forwardRef } from "react";
+
 import ExternalLinkIcon from "../../assets/external-link.svg";
 
 import CardSurface from "../ui/CardSurface";
@@ -5,7 +7,7 @@ import GradientText from "../ui/GradientText";
 import Text from "../ui/Text";
 import PillHighlightList from "../tags/PillHighlightList";
 
-function EducationCard({
+const EducationCard = forwardRef(function EducationCard({
     title,
     org,
     desc,
@@ -17,9 +19,10 @@ function EducationCard({
 
     logoSrc, 
     logoScale = 0.7, // Percent of parent container size (e.g. 0.7 for 70%)
+    isActive = false,
 
     className = "",
-}) {
+}, ref) {
     const subtitle = [org, credentialType].filter(Boolean).join(" • ");
     const hasLink = Boolean(link);
 
@@ -27,8 +30,10 @@ function EducationCard({
 
     return (
         <CardSurface
+            ref={ref}
             link={link}
             title={`Open official page | ${title}`}
+            isActive={isActive}
             isPremiumSheenActive={true}
             data-aos="flip-left"
             className={[
@@ -76,7 +81,8 @@ function EducationCard({
                                     className={[
                                         "shrink-0",
                                         "flex size-8 items-center justify-center rounded-lg",
-                                        "border border-card-border bg-card-att",
+                                        "border bg-card-att",
+                                        isActive ? "border-button-border/60" : "border-card-border",
                                         "transition-[border-color,transform] duration-700 ease-in-out",
                                         "group-hover:border-button-border/60",
                                         "group-focus:border-button-border/60",
@@ -85,7 +91,10 @@ function EducationCard({
                                     <img
                                         src={ExternalLinkIcon}
                                         alt="external link icon"
-                                        className="h-5 w-5 object-contain opacity-80 transition-opacity group-hover:opacity-95 group-focus:opacity-95"
+                                        className={[
+                                            "h-5 w-5 object-contain transition-opacity group-hover:opacity-95 group-focus:opacity-95",
+                                            isActive ? "opacity-95" : "opacity-80",
+                                        ].join(" ")}
                                     />
                                 </div>
                             )}
@@ -126,6 +135,7 @@ function EducationCard({
                     <PillHighlightList 
                         textArray={chips}
                         isOnlyHighlightedOnHover={true}
+                        isActive={isActive}
                     />
                 </div>
 
@@ -135,13 +145,18 @@ function EducationCard({
                 {/* footer */}
                 <Text as="div" variant="meta" className="flex items-center justify-between">
                     <span>{issued || ""}</span>
-                    <span className="opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100 group-focus:opacity-100 motion-reduce:transition-none">
+                    <span
+                        className={[
+                            "transition-opacity duration-700 ease-in-out group-hover:opacity-100 group-focus:opacity-100 motion-reduce:transition-none",
+                            isActive ? "opacity-100" : "opacity-0",
+                        ].join(" ")}
+                    >
                         {hasLink ? "View details" : ""}
                     </span>
                 </Text>
             </div>
         </CardSurface>
     );
-}
+});
 
 export default EducationCard;

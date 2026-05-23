@@ -90,8 +90,17 @@
   box-shadow: var(--shadow-subtle-highlight);
 }
 
-.hover-shadow-card-accent:hover, .hover-shadow-card-accent:focus-visible {
+.hover-shadow-card-accent:hover,
+.hover-shadow-card-accent:focus-visible,
+.hover-shadow-card-accent[data-card-active="true"] {
+  border-color: rgb(27 149 204 / 0.7);
   box-shadow: var(--shadow-card-inset), var(--shadow-accent-ring-soft), var(--shadow-accent-glow-soft);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hover-shadow-card-accent[data-card-active="true"] {
+    transform: translateY(-0.25rem);
+  }
 }
 
 .hover-shadow-button-accent:hover, .hover-shadow-button-accent:focus-visible {
