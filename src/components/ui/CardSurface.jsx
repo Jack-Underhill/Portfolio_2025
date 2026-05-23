@@ -1,6 +1,8 @@
+import { forwardRef } from "react";
+
 const cx = (...xs) => xs.filter(Boolean).join(" ");
 
-export default function CardSurface({
+const CardSurface = forwardRef(function CardSurface({
     link,
     title,
     isPremiumSheenActive = false,
@@ -8,7 +10,7 @@ export default function CardSurface({
     className = "",
     children,
     ...props
-}) {
+}, ref) {
     const hasLink = Boolean(link);
     const Tag = hasLink ? "a" : "div";
     const linkProps = hasLink
@@ -23,6 +25,7 @@ export default function CardSurface({
 
     return (
         <Tag
+            ref={ref}
             {...linkProps}
             {...props}
             className={cx(
@@ -42,4 +45,6 @@ export default function CardSurface({
             {children}
         </Tag>
     );
-}
+});
+
+export default CardSurface;

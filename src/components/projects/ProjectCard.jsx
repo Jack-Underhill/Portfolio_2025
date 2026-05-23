@@ -1,3 +1,5 @@
+import { forwardRef } from 'react';
+
 import CardSurface from '../ui/CardSurface';
 import GradientText from '../ui/GradientText';
 import Text from '../ui/Text';
@@ -11,7 +13,7 @@ import placeholderVideo from '../../assets/placeholder.mp4';
 const HOVER_INTENT_MS = 250;
 const FADE_DURATION_MS = HOVER_INTENT_MS * 3;
 
-function ProjectCard({ 
+const ProjectCard = forwardRef(function ProjectCard({ 
     id,
     isActivePreview = false,
     requestPreview,
@@ -25,7 +27,7 @@ function ProjectCard({
     tags, 
     onOpenModal, 
     isModalOpen,
-}) {
+}, ref) {
     const safeVideo =
         video === null || video === '' || video === undefined || video === 'NULL' || !canUseNetlifyFunctions()
             ? placeholderVideo
@@ -88,6 +90,7 @@ function ProjectCard({
 
     return (
         <CardSurface
+            ref={ref}
             link={link}
             title={`Open ${title} case study`}
             onClick={handleOnClick}
@@ -147,6 +150,6 @@ function ProjectCard({
             </div>
         </CardSurface>
     )
-}
+});
 
 export default ProjectCard;

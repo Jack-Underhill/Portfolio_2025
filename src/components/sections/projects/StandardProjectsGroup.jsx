@@ -48,23 +48,23 @@ function StandardProjectsGroup({
         )}
 
         {projects.map((p) => (
-          <div key={p.id} ref={registerItem(p.id)} className="h-full">
-            <ProjectCard
-              id={p.id}
-              isActivePreview={Number(activePreviewId) === Number(p.id)}
-              requestPreview={requestPreview}
-              clearPreview={clearPreview}
-              lastInputRef={lastInputRef}
-              image={p.imageUrl}
-              video={p.videoUrl}
-              title={p.title}
-              desc={p.description}
-              link={p.directUrl}
-              tags={p.techTags}
-              onOpenModal={() => openFromCard(p)}
-              isModalOpen={isModalOpen}
-            />
-          </div>
+          <ProjectCard
+            key={p.id}
+            ref={registerItem(p.id)}
+            id={p.id}
+            isActivePreview={Number(activePreviewId) === Number(p.id)}
+            requestPreview={requestPreview}
+            clearPreview={clearPreview}
+            lastInputRef={lastInputRef}
+            image={p.imageUrl}
+            video={p.videoUrl}
+            title={p.title}
+            desc={p.description}
+            link={p.directUrl}
+            tags={p.techTags}
+            onOpenModal={() => openFromCard(p)}
+            isModalOpen={isModalOpen}
+          />
         ))}
       </div>
     </section>
