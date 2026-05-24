@@ -219,6 +219,7 @@ function useViewportActivationGroup({
   useEffect(() => () => {
     if (rafIdRef.current !== null && canUseDOM()) {
       window.cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
     }
   }, []);
 
