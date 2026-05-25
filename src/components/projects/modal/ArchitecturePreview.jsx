@@ -10,9 +10,11 @@ function getProjectReturnTo(data) {
     return permalink ? buildProjectPath(permalink) : PUBLIC_ROUTES.HOME;
 }
 
-export default function ArchitecturePreview({ data }) {
+export default function ArchitecturePreview({ data, isAdminPreview = false }) {
     const archImg = data.architectureImageUrl || null;
-    const previewUrl = archImg ? getInlineSvgUrl(archImg) : null;
+    const previewUrl = archImg
+        ? (isAdminPreview ? archImg : getInlineSvgUrl(archImg))
+        : null;
     const projectTitle = String(data.title || "").trim() || "Project";
     const diagramTitle = `${projectTitle} architecture diagram`;
     const fallbackText = archImg
@@ -27,6 +29,22 @@ export default function ArchitecturePreview({ data }) {
                 className="w-full h-40 rounded-xl border border-card-border bg-scrim/20 grid place-items-center text-text/60 text-sm"
             >
                 {fallbackText}
+            </div>
+        );
+    }
+
+    if (isAdminPreview) {
+        return (
+            <div className="space-y-2">
+                <div className="overflow-hidden rounded-xl border border-card-border bg-scrim/20">
+                    <div className="w-full aspect-[16/9]">
+                        <img
+                            src={previewUrl}
+                            alt={diagramTitle}
+                            className="w-full h-full block object-contain"
+                        />
+                    </div>
+                </div>
             </div>
         );
     }
@@ -58,9 +76,12 @@ export default function ArchitecturePreview({ data }) {
                                 data={previewUrl}
                                 type="image/svg+xml"
                                 className="w-full h-full block"
+                                aria-label={diagramTitle}
                                 aria-hidden="true"
                                 tabIndex={-1}
-                            />
+                            >
+                                {diagramTitle}
+                            </object>
                         ) : (
                             <img
                                 src={previewUrl}

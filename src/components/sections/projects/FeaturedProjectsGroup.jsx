@@ -1,6 +1,7 @@
 import ProjectCard from '../../projects/ProjectCard';
 import SectionTitle from '../../ui/SectionTitle';
 import Text from '../../ui/Text';
+import useProjectViewportPreview from '../../../hooks/useProjectViewportPreview';
 
 function FeaturedProjectsGroup({
   projects = [],
@@ -12,6 +13,14 @@ function FeaturedProjectsGroup({
   openFromCard,
   isModalOpen,
 }) {
+  const { registerItem } = useProjectViewportPreview({
+    projects,
+    isModalOpen,
+    lastInputRef,
+    requestPreview,
+    clearPreview,
+  });
+
   return (
     <section
       id="Projects"
@@ -41,6 +50,7 @@ function FeaturedProjectsGroup({
         {projects.map((p) => (
           <ProjectCard
             key={p.id}
+            ref={registerItem(p.id)}
             id={p.id}
             isActivePreview={Number(activePreviewId) === Number(p.id)}
             requestPreview={requestPreview}

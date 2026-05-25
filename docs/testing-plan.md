@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-16
+Date: 2026-05-24
 
 ## Purpose
 
@@ -14,17 +14,20 @@ This document records the testing plan by feature area. It stays high level, wit
 
 ## Current State
 
-Vitest is installed as the default unit-test runner.
+Vitest is installed as the default unit-test runner. A focused Playwright/axe smoke runner is available through `cmd /c npm run test:a11y` for stable rendered accessibility checks.
 
 Current baseline test files:
 
 - `tests/runtime/paths.test.js`
 - `tests/domain/projects/routing.test.js`
 - `tests/domain/projects/mappers.test.js`
+- `tests/domain/projects/preview.test.js`
+- `tests/domain/projects/agentDraft.test.js`
 - `tests/domain/projects/viewModel.test.js`
 - `tests/domain/about/mappers.test.js`
 - `tests/domain/contact/mappers.test.js`
 - `tests/domain/skills/mappers.test.js`
+- `tests/hooks/viewportActivationScoring.test.js`
 - `tests/components/projects/viewer/viewerUrl.test.js`
 - `tests/netlify/functions/inline-svg.test.js`
 - `tests/server/admin/utils/storage.test.js`
@@ -32,6 +35,7 @@ Current baseline test files:
 - `tests/server/admin/routes/validation.uploads.test.js`
 - `tests/server/admin/routes/validation.about.test.js`
 - `tests/server/admin/routes/validation.projects.test.js`
+- `tests/server/admin/routes/projects.validate-route.test.js`
 - `tests/server/admin/routes/validation.contact.test.js`
 - `tests/server/admin/routes/validation.skills.test.js`
 
@@ -41,10 +45,12 @@ Current checks:
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run lint` passes.
+- `cmd /c npm run test:a11y` passes.
 
 Remaining testing gap:
 
-- Add browser/component smoke coverage later for modal focus, architecture viewer fallback states, and remaining Netlify function behavior such as `track-visit`.
+- Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
+- Add browser smoke only if viewport card activation needs coverage beyond the pure scoring helpers.
 - Keep live Supabase, Redis, and deployed Netlify behavior out of the default gate unless explicitly mocked.
 
 ## Projects
@@ -62,8 +68,10 @@ Highest-value coverage:
 Current coverage:
 
 - Route parsing/building, public project mappers, detail view models, fallback merging, and sort-order normalization are covered.
+- Draft-to-public-modal preview mapping is covered for complete drafts, optional fields, classification normalization, malformed list fallbacks, and challenge preservation.
+- Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
-- Admin project validation is covered through pure validation helper tests.
+- Admin project validation is covered through pure validation helper tests, and the no-write draft validation route is covered for success and shared validation errors.
 - Project media upload path conventions are covered by focused storage utility tests.
 
 Why this matters:
@@ -131,7 +139,12 @@ Future coverage:
 Current status:
 
 - Static component-local data.
+- Touch-capable scroll activation is section-local and uses the shared viewport activation hook.
 - Future candidate for database/admin/public data flow.
+
+Current coverage:
+
+- Shared viewport activation scoring helpers are covered for diagonal selection, visible-ratio filtering, hysteresis, activation-band rejection, single-column center behavior, and multi-column left/right selection.
 
 Future coverage after migration:
 
@@ -154,6 +167,7 @@ Current coverage:
 
 - Trusted Supabase architecture SVG validation, unsafe viewer source rejection, inline SVG proxy URL generation, safe `returnTo`, and viewer URL encoding are covered.
 - Tests lock the current trusted path rule to project-scoped `portfolio-assets/projects/{id}/architecture.svg` SVGs.
+- `cmd /c npm run test:a11y` covers the invalid-source viewer fallback, disabled zoom controls, safe Back link, and an axe scan of the fallback route.
 
 Why this matters:
 
@@ -192,6 +206,7 @@ Highest-value coverage:
 Current coverage:
 
 - Pure helper primitives, upload file validation, and about/project/contact/skills state validation are covered.
+- The project draft validation endpoint is covered as a no-write route that reuses project state validation.
 
 Why this matters:
 
@@ -210,7 +225,7 @@ Then add:
 
 - Public data-flow contract tests.
 - Thin component smoke tests.
-- Sparse browser smoke tests.
+- Sparse browser smoke tests for stable rendered routes.
 
 Avoid for now:
 

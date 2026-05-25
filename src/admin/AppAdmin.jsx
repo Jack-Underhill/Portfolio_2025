@@ -1,4 +1,4 @@
-import { useState, useEffect }        from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AboutSection                   from './sections/AboutSection';
 import ProjectsSection                from './sections/ProjectsSection';
 import ContactSection                 from './sections/ContactSection';
@@ -37,6 +37,8 @@ function AppAdmin() {
     const [contactState, setContactState]   = useState(initialContactState);
     const [skillsState, setSkillsState]     = useState(initialSkillsState);
     const [isSaving, setIsSaving]           = useState(false);
+    const [isProjectValidationInFlight, setIsProjectValidationInFlight] = useState(false);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [error, setError]                 = useState(null);
 
     useEffect(() => {
@@ -47,6 +49,7 @@ function AppAdmin() {
                 setProjectsState(projects);
                 setContactState(contact);
                 setSkillsState(skills || initialSkillsState);
+                setHasUnsavedChanges(false);
             } catch (err) {
                 console.error(err);
                 setError(err);
@@ -54,7 +57,14 @@ function AppAdmin() {
         })();
     }, []);
 
+    const markDirty = useCallback((setter) => (nextState) => {
+        setHasUnsavedChanges(true);
+        setter(nextState);
+    }, []);
+
     const handleSave = async () => {
+        if (isSaving || isProjectValidationInFlight || !hasUnsavedChanges) return;
+
         try {
         setIsSaving(true);
         setError(null);
@@ -69,6 +79,7 @@ function AppAdmin() {
         setProjectsState(projects);
         setContactState(contact);
         setSkillsState(skills || initialSkillsState);
+        setHasUnsavedChanges(false);
 
         } catch (err) {
             console.error(err);
@@ -84,7 +95,7 @@ function AppAdmin() {
             <div className={adminUi.page}>
                 <header className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold">Portfolio Admin</h1>
-                    <nav className="flex gap-4 text-sm">
+                    <nav className="flex gap-4 text-sm" aria-label="Admin sections">
                         <a href="#about">About</a>
                         <a href="#projects">Projects</a>
                         <a href="#skills">Skills</a>
@@ -93,28 +104,30 @@ function AppAdmin() {
                 </header>
 
                 <main className="space-y-16">
-                    <section id="about">
-                        <AboutSection state={aboutState} onChange={setAboutState} />
+                    <section id="about" aria-labelledby="admin-about-heading">
+                        <AboutSection state={aboutState} onChange={markDirty(setAboutState)} />
                     </section>
 
-                    <section id="projects">
+                    <section id="projects" aria-labelledby="admin-projects-heading">
                         <ProjectsSection
                             state={projectsState}
-                            onChange={setProjectsState}
+                            onChange={markDirty(setProjectsState)}
+                            isSaveInFlight={isSaving}
+                            onValidationBusyChange={setIsProjectValidationInFlight}
                         />
                     </section>
 
-                    <section id="skills">
+                    <section id="skills" aria-labelledby="admin-skills-heading">
                         <SkillsSection
                             state={skillsState}
-                            onChange={setSkillsState}
+                            onChange={markDirty(setSkillsState)}
                         />
                     </section>
 
-                    <section id="contact">
+                    <section id="contact" aria-labelledby="admin-contact-heading">
                         <ContactSection
                             state={contactState}
-                            onChange={setContactState}
+                            onChange={markDirty(setContactState)}
                         />
                     </section>
                 </main>
@@ -122,13 +135,23 @@ function AppAdmin() {
                 <button
                     type="button"
                     onClick={handleSave}
-                    disabled={isSaving}
+                    disabled={isSaving || isProjectValidationInFlight || !hasUnsavedChanges}
+                    aria-busy={isSaving || undefined}
                     className={adminUi.primaryButton}
                 >
-                    {isSaving ? 'Saving...' : 'Save'}
+                    {isSaving ? 'Saving...' : hasUnsavedChanges ? 'Save changes' : 'Saved'}
                 </button>
+                <p className="text-xs text-admin-text-subtle" role="status" aria-live="polite">
+                    {isSaving
+                        ? 'Saving changes...'
+                        : isProjectValidationInFlight
+                            ? 'Draft validation is running.'
+                            : hasUnsavedChanges
+                                ? 'Unsaved draft changes'
+                                : 'All changes saved'}
+                </p>
                 {error && (
-                    <p className="text-sm text-admin-danger-hover">
+                    <p className="text-sm text-admin-danger-hover" role="alert">
                         {error.message || 'Admin request failed'}
                     </p>
                 )}

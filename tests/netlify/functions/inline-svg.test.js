@@ -27,6 +27,29 @@ describe('inline-svg Netlify function', () => {
     expect(String(fetchMock.mock.calls[0][0])).toBe(TRUSTED_ARCHITECTURE_SVG);
   });
 
+  it('removes external stylesheets and scripts from proxied SVGs', async () => {
+    const upstreamSvg = [
+      '<?xml-stylesheet href="https://fonts.googleapis.com/css2?family=Architects+Daughter" type="text/css"?>',
+      '<svg xmlns="http://www.w3.org/2000/svg">',
+      '<style>@import url("https://fonts.googleapis.com/css2?family=Architects+Daughter"); .label { fill: #123; }</style>',
+      '<script>alert("nope")</script>',
+      '<text class="label">Campus GPS</text>',
+      '</svg>',
+    ].join('');
+    const fetchMock = vi.fn(async () => new Response(upstreamSvg, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const response = await handler(makeRequest(TRUSTED_ARCHITECTURE_SVG));
+    const body = await response.text();
+
+    expect(body).not.toContain('xml-stylesheet');
+    expect(body).not.toContain('fonts.googleapis.com');
+    expect(body).not.toContain('<script>');
+    expect(body).toContain('.label { fill: #123; }');
+    expect(body).toContain('Campus GPS');
+    expect(response.headers.get('Content-Security-Policy')).toContain("default-src 'none'");
+  });
+
   it('rejects untrusted SVG targets without fetching them', async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);

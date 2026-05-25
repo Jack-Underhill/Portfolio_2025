@@ -6,6 +6,7 @@ import 'aos/dist/aos.css'
 import VisitCount from './components/layout/VisitCount'
 import Navbar from './components/layout/Navbar'
 import BackToTopButton from './components/buttons/BackToTopButton';
+import usePrefersReducedMotion from './hooks/usePrefersReducedMotion'
 
 import Hero from './components/sections/Hero'
 import About from './components/sections/About'
@@ -17,9 +18,16 @@ import Contact from './components/sections/Contact'
 
 
 function App() {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
   useEffect(() => {
-    AOS.init({duration: 1000});
-  }, []);
+    AOS.init({
+      duration: prefersReducedMotion ? 0 : 1000,
+      once: prefersReducedMotion,
+      disable: prefersReducedMotion,
+    });
+    AOS.refreshHard?.();
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {

@@ -42,6 +42,7 @@ function ViewButton({
                     variantClasses[variant] || variantClasses.primary,
                     "transition-transform duration-200 ease-out",
                     "group-active:scale-[0.99]",
+                    "motion-reduce:transition-none motion-reduce:animate-none motion-reduce:scale-100 motion-reduce:group-active:scale-100",
                     cx((isHovered || isFocused) && "animate-bounce scale-[1.02] will-change-transform"),
                 ].join(" ")}
             >

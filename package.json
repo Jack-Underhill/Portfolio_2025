@@ -13,6 +13,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:a11y": "node scripts/run-a11y-smoke.mjs",
     "test:watch": "vitest",
     "preview": "vite preview"
   },

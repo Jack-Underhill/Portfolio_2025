@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import ArrowUp from "../../assets/arrow-up.svg";
 import useScrollVisibility from "../../hooks/useScrollVisibility";
 
@@ -8,8 +10,19 @@ function BackToBottomButton({
     right = "right-6",
 }) {
     const visible = useScrollVisibility({ direction: "bottom", showAfter });
+    const wrapperRef = useRef(null);
 
-    const scrollToBottom = () => {
+    useEffect(() => {
+        if (visible) return;
+
+        const wrapper = wrapperRef.current;
+        if (wrapper?.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+    }, [visible]);
+
+    const scrollToBottom = (event) => {
+        event.currentTarget.blur();
         const el = document.scrollingElement || document.documentElement;
         const bottom = el.scrollHeight - el.clientHeight;
         window.scrollTo({ top: bottom, behavior: "smooth" });
@@ -17,6 +30,7 @@ function BackToBottomButton({
 
     return (
         <div
+            ref={wrapperRef}
             aria-hidden={!visible}
             className={[
                 "fixed z-50",
@@ -36,6 +50,7 @@ function BackToBottomButton({
                 onClick={scrollToBottom}
                 aria-label="Back to bottom"
                 title="Back to bottom"
+                tabIndex={visible ? 0 : -1}
                 className={[
                     "group flex h-12 w-12 items-center justify-center rounded-full border-2",
                     "border-button-border bg-button",
@@ -48,7 +63,8 @@ function BackToBottomButton({
             >
                 <img
                     src={ArrowUp}
-                    alt="Down Arrow"
+                    alt=""
+                    aria-hidden="true"
                     className="size-5/10 object-contain opacity-80 transition-opacity group-hover:opacity-95 rotate-180"
                 />
             </button>

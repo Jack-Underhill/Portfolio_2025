@@ -257,6 +257,7 @@ function Avatar({ avatarLogo }) {
                 ref={floatRef}
                 style={{ perspective: `${PARALLAX_PERSPECTIVE_PX}px` }}
                 className="
+                    avatar-float
                     h-full w-full max-w-4/5 max-h-4/5 aspect-auto rounded-3xl
                     will-change-transform
                     motion-reduce:transform-none
@@ -265,7 +266,7 @@ function Avatar({ avatarLogo }) {
                 {/* Inner: mouse tilt/parallax */}
                 <div
                     ref={tiltRef}
-                    className="h-full w-full rounded-3xl will-change-transform [transform-style:preserve-3d]"
+                    className="avatar-tilt h-full w-full rounded-3xl will-change-transform [transform-style:preserve-3d]"
                 >
                     <a
                         href="https://www.linkedin.com/in/underhill-jack/"
@@ -296,6 +297,7 @@ function Avatar({ avatarLogo }) {
                             alt="Profile Avatar"
                             draggable={false}
                             className="
+                                avatar-logo-motion
                                 w-full h-full rounded-3xl
                                 transition-transform duration-700 ease-in-out
                                 group-hover:rotate-8

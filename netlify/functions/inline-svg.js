@@ -16,6 +16,13 @@ function validateSvgUrl(rawUrl) {
     }
 }
 
+function sanitizeSvg(svgText) {
+    return String(svgText || "")
+        .replace(/<\?xml-stylesheet\b[\s\S]*?\?>/gi, "")
+        .replace(/<script\b[\s\S]*?<\/script\s*>/gi, "")
+        .replace(/@import\s+(?:url\()?['"]?https?:\/\/[^;'")]+['"]?\)?\s*;/gi, "");
+}
+
 export default async (request) => {
     try {
         const requestUrl = new URL(request.url);
@@ -35,7 +42,9 @@ export default async (request) => {
             return new Response("SVG not found", { status: upstream.status });
         }
 
-        return new Response(upstream.body, {
+        const svgText = await upstream.text();
+
+        return new Response(sanitizeSvg(svgText), {
             status: 200,
             headers: {
                 "Content-Type": "image/svg+xml; charset=utf-8",

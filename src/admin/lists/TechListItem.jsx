@@ -3,6 +3,8 @@ import { adminUi, cx } from '../../styles/recipes';
 
 function TechListItem({
     id,
+    itemLabel,
+    listLabel,
     value,
     isDragging,
     isDragOver,
@@ -20,7 +22,10 @@ function TechListItem({
                 isDragging && 'opacity-70',
             )}
         >
-            <span className="cursor-grab select-none text-xs text-admin-text-subtle">
+            <span
+                aria-hidden="true"
+                className="cursor-grab select-none text-xs text-admin-text-subtle"
+            >
                 ☰
             </span>
 
@@ -28,6 +33,7 @@ function TechListItem({
                 <TextAreaInput
                     id={id}
                     label={null}
+                    aria-label={itemLabel}
                     value={value}
                     onChange={onChange}
                 />
@@ -36,6 +42,7 @@ function TechListItem({
             <button
                 type="button"
                 onClick={onRemove}
+                aria-label={`Remove ${itemLabel} from ${listLabel}`}
                 className={adminUi.iconButton}
             >
                 ✕

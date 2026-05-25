@@ -1,6 +1,6 @@
 # Current Errors and Warnings
 
-Date: 2026-05-18
+Date: 2026-05-21
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last checked on 2026-05-18 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
+Last checked on 2026-05-21 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
 
 Passing:
 
@@ -23,6 +23,13 @@ cmd /c npm run test
 cmd /c npm run lint
 cmd /c npm run check:schema
 cmd /c npm run build
+cmd /c npm run test:a11y
+```
+
+Focused accessibility smoke check included in the current verification baseline:
+
+```sh
+cmd /c npm run test:a11y
 ```
 
 Direct PowerShell caveat:
@@ -73,7 +80,7 @@ Decision:
 - This is expected behavior for local dev without Netlify functions.
 - The public site should use the function path when deployed or when tested through Netlify dev.
 - `netlify/functions/README.md` names `netlify dev` as the local command for function behavior.
-- Browser smoke coverage for invalid architecture viewer URLs and safe fallback states remains future work.
+- `cmd /c npm run test:a11y` covers invalid architecture viewer URLs and safe fallback states through a local Vite browser smoke check.
 
 ## Quality Gate Target
 
@@ -86,8 +93,15 @@ cmd /c npm run check:schema
 cmd /c npm run build
 ```
 
+Focused accessibility smoke:
+
+```sh
+cmd /c npm run test:a11y
+```
+
 Definition of done for this quality gate:
 
 - All four commands pass.
+- The focused accessibility smoke passes when accessibility or public structure changes are in scope.
 - Known local dev warnings are documented as expected behavior.
 - README verification section points to the same baseline commands.

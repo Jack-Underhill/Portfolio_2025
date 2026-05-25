@@ -1,16 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+
+import ProjectModal from '../../components/projects/modal/ProjectModal';
 
 import ProjectEditor from '../projects/ProjectEditor';
+import ProjectDraftContextPanel from '../projects/ProjectDraftContextPanel';
+import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
+import ProjectPreviewActions from '../projects/ProjectPreviewActions';
 import TextAreaInput from '../forms/TextAreaInput';
 import CardSelector from '../navigation/CardSelector';
+
+import { validateProjectDraft } from '../api/adminClient';
+import {
+    applyAgentProjectDraftPatch,
+    stringifyAgentProjectDraftReviewContext,
+} from '../../domain/projects/agentDraft';
 import { createEmptyProjectDraft } from '../../domain/projects/defaults';
 import { normalizeProjectSortOrder } from '../../domain/projects/mappers';
+import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
 import { adminUi } from '../../styles/recipes';
 
+const PROJECT_DRAFT_IMPORT_PANEL_ID = 'project-agent-draft-import-panel';
+const PROJECT_DRAFT_CONTEXT_PANEL_ID = 'project-agent-draft-context-panel';
 
-function ProjectsSection({ state, onChange }) {
+function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidationBusyChange }) {
     const { projectBio, projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
+    const [isImportPanelOpen, setIsImportPanelOpen] = useState(false);
+    const [isContextPanelOpen, setIsContextPanelOpen] = useState(false);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [previewMediaUrls, setPreviewMediaUrls] = useState({});
+    const [validationState, setValidationState] = useState(null);
+    const [isValidating, setIsValidating] = useState(false);
+    const validationRequestId = useRef(0);
+
+    useEffect(() => {
+        onValidationBusyChange?.(isValidating);
+        return () => {
+            if (isValidating) onValidationBusyChange?.(false);
+        };
+    }, [isValidating, onValidationBusyChange]);
 
     // auto-set activeId to first project if none selected
     useEffect(() => {
@@ -28,9 +56,56 @@ function ProjectsSection({ state, onChange }) {
         : (projects[0]?.id ?? null);
 
     const activeProject = projects.find((p) => p.id === resolvedActiveId) ?? null;
+    const previewProject = useMemo(() => {
+        if (!activeProject) return null;
+        return {
+            ...mapProjectDraftToPreviewProject(activeProject),
+            ...previewMediaUrls,
+        };
+    }, [activeProject, previewMediaUrls]);
+    const currentProjectContextText = useMemo(() => {
+        if (!activeProject) return '';
+        return stringifyAgentProjectDraftReviewContext(activeProject);
+    }, [activeProject]);
+
+    useEffect(() => {
+        if (!isPreviewOpen || !activeProject) {
+            setPreviewMediaUrls({});
+            return undefined;
+        }
+
+        const urls = {};
+        if (activeProject.imageFile) {
+            urls.imageUrl = URL.createObjectURL(activeProject.imageFile);
+        }
+        if (activeProject.videoFile) {
+            urls.videoUrl = URL.createObjectURL(activeProject.videoFile);
+        }
+        if (activeProject.architectureImageFile) {
+            urls.architectureImageUrl = URL.createObjectURL(activeProject.architectureImageFile);
+        }
+
+        setPreviewMediaUrls(urls);
+
+        return () => {
+            Object.values(urls).forEach((url) => URL.revokeObjectURL(url));
+        };
+    }, [
+        activeProject,
+        activeProject?.architectureImageFile,
+        activeProject?.imageFile,
+        activeProject?.videoFile,
+        isPreviewOpen,
+    ]);
 
     // state handlers
+    const clearValidationState = useCallback(() => {
+        validationRequestId.current += 1;
+        setValidationState(null);
+    }, []);
+
     const updateState = (patch) => {
+        clearValidationState();
         onChange({ ...state, ...patch });
     };
 
@@ -43,6 +118,78 @@ function ProjectsSection({ state, onChange }) {
         const next = normalizeProjectSortOrder(nextRaw);
         updateState({ projects: next });
     };
+
+    const handleOpenPreview = useCallback(() => {
+        setIsPreviewOpen(true);
+    }, []);
+
+    const handleToggleImportPanel = useCallback(() => {
+        setIsImportPanelOpen((isOpen) => !isOpen);
+    }, []);
+
+    const handleToggleContextPanel = useCallback(() => {
+        setIsContextPanelOpen((isOpen) => !isOpen);
+    }, []);
+
+    const scrollToProjectsSection = useCallback(() => {
+        requestAnimationFrame(() => {
+            const target = document.getElementById('projects')
+                ?? document.getElementById('admin-projects-heading');
+            target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        });
+    }, []);
+
+    const handleContextCopied = useCallback(() => {
+        setIsContextPanelOpen(false);
+        scrollToProjectsSection();
+    }, [scrollToProjectsSection]);
+
+    const handleAgentDraftApplied = useCallback(() => {
+        setIsImportPanelOpen(false);
+        scrollToProjectsSection();
+    }, [scrollToProjectsSection]);
+
+    const handleClosePreview = useCallback(() => {
+        setIsPreviewOpen(false);
+    }, []);
+
+    const handleValidateDraft = useCallback(async () => {
+        if (isValidating || isSaveInFlight) return;
+
+        const requestId = validationRequestId.current + 1;
+        validationRequestId.current = requestId;
+        setIsValidating(true);
+        setValidationState({
+            state: 'validating',
+            type: 'status',
+            message: 'Validating draft...',
+        });
+
+        try {
+            const result = await validateProjectDraft(state);
+            if (validationRequestId.current !== requestId) return;
+
+            const count = result?.projectCount ?? projects.length;
+            setValidationState({
+                state: 'success',
+                type: 'status',
+                message:
+                    count === 1
+                        ? 'Draft validation passed for the project.'
+                        : `Draft validation passed for all ${count} projects.`,
+            });
+        } catch (error) {
+            if (validationRequestId.current !== requestId) return;
+
+            setValidationState({
+                state: 'error',
+                type: 'alert',
+                message: error?.message || 'Draft validation failed',
+            });
+        } finally {
+            setIsValidating(false);
+        }
+    }, [isSaveInFlight, isValidating, projects.length, state]);
 
     // --- add / update / remove ---
     const handleAddProject = () => {
@@ -67,13 +214,29 @@ function ProjectsSection({ state, onChange }) {
         );
     };
 
+    const handleApplyAgentDraft = (payloadText) => {
+        if (!activeProject) return {
+            project: null,
+            patch: {},
+            appliedFields: [],
+            warnings: ['No active project is selected.'],
+        };
+
+        const result = applyAgentProjectDraftPatch(activeProject, payloadText);
+        if (result.appliedFields.length > 0) {
+            handleChangeProject(activeProject.id, result.project);
+        }
+        return result;
+    };
+
     const handleRemoveProject = (id) => {
         setProjects((prev) => prev.filter((p) => p.id !== id));
+        setIsPreviewOpen(false);
     };
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Projects Section</h2>
+            <h2 id="admin-projects-heading" className="text-xl font-semibold">Projects Section</h2>
 
             <TextAreaInput
                 id="project-bio"
@@ -94,6 +257,7 @@ function ProjectsSection({ state, onChange }) {
                 <button
                     type="button"
                     onClick={handleAddProject}
+                    aria-label="Add project"
                     className={adminUi.secondaryButton}
                 >
                     + Add Project
@@ -101,11 +265,67 @@ function ProjectsSection({ state, onChange }) {
             </div>
 
             {activeProject && (
-                <ProjectEditor
-                    project={activeProject}
-                    onChange={(updated) => handleChangeProject(activeProject.id, updated)}
-                    onRemove={() => handleRemoveProject(activeProject.id)}
-                />
+                <>
+                    <ProjectPreviewActions
+                        canCopyContext={Boolean(activeProject)}
+                        canImport={Boolean(activeProject)}
+                        canPreview={Boolean(previewProject)}
+                        canValidate={projects.length > 0}
+                        contextPanelId={PROJECT_DRAFT_CONTEXT_PANEL_ID}
+                        importPanelId={PROJECT_DRAFT_IMPORT_PANEL_ID}
+                        isContextOpen={isContextPanelOpen}
+                        isImportOpen={isImportPanelOpen}
+                        isSaveInFlight={isSaveInFlight}
+                        isValidating={isValidating}
+                        onToggleContext={handleToggleContextPanel}
+                        onToggleImport={handleToggleImportPanel}
+                        onPreview={handleOpenPreview}
+                        onValidate={handleValidateDraft}
+                    />
+
+                    {isContextPanelOpen && (
+                        <ProjectDraftContextPanel
+                            id={PROJECT_DRAFT_CONTEXT_PANEL_ID}
+                            contextText={currentProjectContextText}
+                            onCopySuccess={handleContextCopied}
+                        />
+                    )}
+
+                    {isImportPanelOpen && (
+                        <ProjectDraftImportPanel
+                            id={PROJECT_DRAFT_IMPORT_PANEL_ID}
+                            isDisabled={isSaveInFlight}
+                            onApplyDraft={handleApplyAgentDraft}
+                            onApplySuccess={handleAgentDraftApplied}
+                        />
+                    )}
+
+                    {validationState && (
+                        <p
+                            className={
+                                validationState.type === 'alert'
+                                    ? 'text-sm text-admin-danger-hover'
+                                    : 'text-sm text-admin-accent-text'
+                            }
+                            role={validationState.type}
+                        >
+                            {validationState.message}
+                        </p>
+                    )}
+
+                    <ProjectEditor
+                        project={activeProject}
+                        onChange={(updated) => handleChangeProject(activeProject.id, updated)}
+                        onRemove={() => handleRemoveProject(activeProject.id)}
+                    />
+
+                    <ProjectModal
+                        isOpen={isPreviewOpen}
+                        project={previewProject}
+                        onClose={handleClosePreview}
+                        isAdminPreview
+                    />
+                </>
             )}
         </div>
     );

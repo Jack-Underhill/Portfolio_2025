@@ -94,6 +94,22 @@ export async function handleProjectsWrite(req, res) {
   }
 }
 
+export async function handleProjectsValidate(req, res) {
+  try {
+    const { body, form } = await parseAdminRequest(req);
+    const state = getStatePayload(body, 'projects');
+    attachProjectFiles(state, form);
+    const validState = validateProjectsState(state);
+
+    sendJson(res, 200, {
+      ok: true,
+      projectCount: validState.projects.length,
+    });
+  } catch (error) {
+    sendRouteError(res, error);
+  }
+}
+
 function dbRowToUiProject(project) {
   const techStack = project.tech_stack ?? null;
   const tagsFromDb = normalizeStringArray(project.tech_tags);

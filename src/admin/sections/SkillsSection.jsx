@@ -82,7 +82,7 @@ function SkillsSection({ state, onChange }) {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Skills Section</h2>
+            <h2 id="admin-skills-heading" className="text-xl font-semibold">Skills Section</h2>
 
             <div className="space-y-4">
                 {groups.map((group, groupIndex) => {
@@ -114,6 +114,7 @@ function SkillsSection({ state, onChange }) {
                                             groupIndex - 1,
                                         ))}
                                         disabled={groupIndex === 0}
+                                        aria-label={`Move skill group ${groupIndex + 1} up`}
                                         className={adminUi.iconButton}
                                     >
                                         Up
@@ -127,6 +128,7 @@ function SkillsSection({ state, onChange }) {
                                             groupIndex + 1,
                                         ))}
                                         disabled={groupIndex === groups.length - 1}
+                                        aria-label={`Move skill group ${groupIndex + 1} down`}
                                         className={adminUi.iconButton}
                                     >
                                         Down
@@ -137,6 +139,7 @@ function SkillsSection({ state, onChange }) {
                                         onClick={() => setGroups((current) => (
                                             current.filter((_, index) => index !== groupIndex)
                                         ))}
+                                        aria-label={`Remove skill group ${groupIndex + 1}`}
                                         className={adminUi.dangerLink}
                                     >
                                         Remove group
@@ -172,6 +175,7 @@ function SkillsSection({ state, onChange }) {
                                                     <input
                                                         type="checkbox"
                                                         checked={item.published !== false}
+                                                        aria-label={`Published state for skill ${itemIndex + 1} in group ${groupIndex + 1}`}
                                                         onChange={(e) => updateSkillItem(
                                                             groupIndex,
                                                             itemIndex,
@@ -193,6 +197,7 @@ function SkillsSection({ state, onChange }) {
                                                         ),
                                                     )}
                                                     disabled={itemIndex === 0}
+                                                    aria-label={`Move skill ${itemIndex + 1} up in group ${groupIndex + 1}`}
                                                     className={adminUi.iconButton}
                                                 >
                                                     Up
@@ -209,6 +214,7 @@ function SkillsSection({ state, onChange }) {
                                                         ),
                                                     )}
                                                     disabled={itemIndex === items.length - 1}
+                                                    aria-label={`Move skill ${itemIndex + 1} down in group ${groupIndex + 1}`}
                                                     className={adminUi.iconButton}
                                                 >
                                                     Down
@@ -217,6 +223,7 @@ function SkillsSection({ state, onChange }) {
                                                 <button
                                                     type="button"
                                                     onClick={() => removeSkillItem(groupIndex, itemIndex)}
+                                                    aria-label={`Remove skill ${itemIndex + 1} from group ${groupIndex + 1}`}
                                                     className={adminUi.dangerLink}
                                                 >
                                                     Remove
@@ -233,6 +240,7 @@ function SkillsSection({ state, onChange }) {
                                     ...items,
                                     createEmptySkillItem(),
                                 ])}
+                                aria-label={`Add skill to group ${groupIndex + 1}`}
                                 className={adminUi.addLink}
                             >
                                 + Add skill
@@ -248,6 +256,7 @@ function SkillsSection({ state, onChange }) {
                     ...current,
                     createEmptySkillGroup(),
                 ])}
+                aria-label="Add skill group"
                 className={adminUi.secondaryButton}
             >
                 + Add Skill Group

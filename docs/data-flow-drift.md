@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-05-16
+Date: 2026-05-21
 
 ## Purpose
 
@@ -16,7 +16,7 @@ This document records active mismatches between database, admin UI, public API, 
 
 The active drift is limited:
 
-- Projects have aligned persisted classification fields, but the public presentation still needs an explicit section/state/modal/label decision.
+- Projects have aligned persisted classification fields and centralized modal ownership, but the public presentation still needs explicit label-display and empty-state decisions.
 - Contact link icon fallbacks remain positional.
 - Education and Certifications are intentionally static until a database/admin/public flow is designed.
 
@@ -28,17 +28,36 @@ Current classification flow:
 - Columns: `featured_rank`, `project_type`, and `labels`.
 - Public read: `src/api/public/projects.js`
 - Domain mapper/defaults: `src/domain/projects/mappers.js`
+- Draft preview mapper: `src/domain/projects/preview.js`
 - Domain grouping helper: `src/domain/projects/viewModel.js`
 - Public UI: `src/components/sections/Projects.jsx`
 - Admin backend: `server/admin/routes/projects.js` and `server/admin/routes/validation.js`
 - Admin UI: `src/admin/projects/editor/ProjectClassificationFields.jsx`
+
+Current admin draft preview flow:
+
+- Project edits remain local unsaved React state until the explicit admin Save action.
+- `mapProjectDraftToPreviewProject` maps the active admin project draft into the public modal-compatible shape.
+- `ProjectsSection.jsx` renders the mapped draft through the shared `ProjectModal` with admin-local open/close state.
+- `src/domain/projects/agentDraft.js` parses agent draft JSON, maps supported fields into a project patch, applies that patch to the active local draft, and serializes safe current project review context.
+- `ProjectPreviewActions.jsx` exposes local-only `Import draft` and `Copy current context` actions. The import and context panels live in `ProjectDraftImportPanel.jsx` and `ProjectDraftContextPanel.jsx`.
+- Newly selected image, video, and architecture files are previewed through temporary object URLs owned by admin UI state and revoked after use.
+- `POST /admin-api/projects/validate` validates the current projects payload without Supabase writes or storage uploads; `validateProjectDraft` is the browser helper.
+
+Agent draft import decision:
+
+- Supported payloads are pasted JSON or the first fenced `json` block with content fields only.
+- Import preserves identity, routing, sort order, media URLs, selected media file objects, and derived `techTags`; unknown keys are ignored with warnings.
+- Missing supported keys preserve the active project draft, while present empty strings or arrays intentionally clear those supported fields.
+- Import does not save, upload, call Supabase, persist drafts, or bypass Validate draft, Preview, or explicit Save.
+- Current project context export separates read-only `projectContext` from importable `draft` content so existing-project agent review has context without creating an identity/media mutation path.
 
 Current public presentation flow:
 
 - `Projects.jsx` fetches once, maps once, and calls `groupProjectsForDisplay`.
 - `FeaturedProjectsGroup.jsx` renders featured projects under the `#Projects` anchor.
 - `StandardProjectsGroup.jsx` renders standard projects under the `#ProjectGallery` anchor.
-- Modal routing still uses one flattened featured-plus-standard list from `Projects.jsx`.
+- Modal routing uses one flattened featured-plus-standard list from `Projects.jsx`, and `ProjectModal` is rendered once from `Projects.jsx`.
 
 Decision:
 
@@ -53,7 +72,6 @@ Next actions:
 - Keep `groupProjectsForDisplay` as the current grouping and sorting source.
 - Move global loading and zero-project empty state decisions back to `Projects.jsx` if per-group empty states are not accepted.
 - Hide empty group headings, or explicitly document that empty groups should remain visible.
-- Prefer rendering `ProjectModal` once in `Projects.jsx` unless group-specific modal placement becomes intentional.
 - Render project labels on cards/details, or keep documenting them as mapped and admin-ready but visually dormant.
 
 ## Contact Links

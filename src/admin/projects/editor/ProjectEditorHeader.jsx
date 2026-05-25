@@ -1,6 +1,8 @@
 import { adminUi } from '../../../styles/recipes';
 
-function ProjectEditorHeader({ permalink, sortOrder, published, handleFieldChange, onRemove }) {
+function ProjectEditorHeader({ permalink, sortOrder, published, title, handleFieldChange, onRemove }) {
+    const projectName = title || 'current project';
+
     return (
         <div className="flex justify-between items-center gap-4">
             <div className="min-w-0">
@@ -27,6 +29,7 @@ function ProjectEditorHeader({ permalink, sortOrder, published, handleFieldChang
                     <input
                         type="checkbox"
                         checked={published !== false}
+                        aria-label={`Published state for ${projectName}`}
                         onChange={(e) => handleFieldChange('published', e.target.checked)}
                         className="h-4 w-4 rounded border-admin-checkbox-border bg-admin-panel"
                     />
@@ -36,6 +39,7 @@ function ProjectEditorHeader({ permalink, sortOrder, published, handleFieldChang
                 <button
                     type="button"
                     onClick={onRemove}
+                    aria-label={`Remove ${projectName}`}
                     className={adminUi.dangerLink}
                 >
                     Remove

@@ -18,10 +18,13 @@ Keep this directory free of raw database queries, row mapping, validation, privi
 - `useAutoTextarea.js`: resizes textarea height from its content and container changes.
 - `useHoverPreviewIntent.js`: manages delayed project-card video previews and releases video resources.
 - `useModalOpenFlag.js`: observes the root `data-modal-open` attribute for components that need modal-aware behavior.
-- `useModalSideEffects.js`: handles modal focus, Escape close, body scroll lock, and the root modal-open flag.
+- `useModalSideEffects.js`: handles modal focus containment, Escape close, body scroll lock, focus restore, and the root modal-open flag.
+- `usePrefersReducedMotion.js`: reads and subscribes to `prefers-reduced-motion: reduce` for runtime motion decisions.
+- `useProjectViewportPreview.js`: bridges touch viewport activation to the existing project preview owner while respecting modal, keyboard, and reduced-motion guardrails.
 - `useProjectModalRouting.js`: syncs project modal open/close state with `/p/:project` routes and public project detail loading.
 - `usePublicResource.js`: runs public async loaders with initial data, optional transform/merge behavior, loading state, and error capture.
 - `useScrollVisibility.js`: shows or hides scroll controls based on distance from the top or bottom of the page.
+- `useViewportActivationGroup.js`: tracks registered card nodes and selects one touch-active item with diagonal viewport scoring and exported pure helpers.
 
 ## Boundary Notes
 

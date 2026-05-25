@@ -4,7 +4,11 @@ import { handleAboutRead, handleAboutWrite } from './routes/about.js';
 import { handleBootstrapRead, handleSaveAllWrite } from './routes/bootstrap.js';
 import { handleContactRead, handleContactWrite } from './routes/contact.js';
 import { handleHealth } from './routes/health.js';
-import { handleProjectsRead, handleProjectsWrite } from './routes/projects.js';
+import {
+  handleProjectsRead,
+  handleProjectsValidate,
+  handleProjectsWrite,
+} from './routes/projects.js';
 import { handleSkillsRead, handleSkillsWrite } from './routes/skills.js';
 import { sendJson } from './routes/responses.js';
 
@@ -70,6 +74,11 @@ function handleRequest(req, res) {
 
   if (req.method === 'POST' && requestUrl.pathname === '/admin-api/projects') {
     handleProjectsWrite(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && requestUrl.pathname === '/admin-api/projects/validate') {
+    handleProjectsValidate(req, res);
     return;
   }
 

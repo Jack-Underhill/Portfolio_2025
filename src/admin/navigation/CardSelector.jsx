@@ -1,7 +1,6 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 
-import FieldLabel from '../forms/FieldLabel';
-
+import Text from '../../components/ui/Text';
 
 function NavItem({
     id,
@@ -12,13 +11,15 @@ function NavItem({
     onSelect,
     ...dragProps
 }) {
+    const label = title || id;
+
     return (
         <button
             type="button"
             {...dragProps}
             className={
                 [
-                    'px-3 py-2 text-sm font-semibold rounded-md select-none',
+                    'px-3 py-2 text-sm font-semibold rounded-md select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text',
                     isActive
                         ? 'bg-admin-accent text-admin-text'
                         : 'bg-admin-panel-hover text-admin-text-muted hover:bg-admin-border',
@@ -26,19 +27,21 @@ function NavItem({
                     isDragging ? 'opacity-60' : '',
                 ].join(' ')
             }
+            aria-pressed={isActive}
+            aria-label={`Edit ${label}`}
             onClick={() => onSelect(id)}
         >
-            {title || id}
+            {label}
         </button>
     );
-};
+}
 
 function CardSelector({
-    cardTypeId, // e.g., "project", "education"
+    cardTypeId,
     cards = [],
     activeId,
     onSelect,
-    onReorder
+    onReorder,
 }) {
     const [dragIndex, setDragIndex] = useState(null);
     const [dragOverIndex, setDragOverIndex] = useState(null);
@@ -47,8 +50,8 @@ function CardSelector({
     const resetDrag = () => {
         setDragIndex(null);
         setDragOverIndex(null);
-        
-        // prevents “drop then click selects” weirdness
+
+        // Prevents drop-then-click selection during drag cleanup.
         setTimeout(() => {
             didDragRef.current = false;
         }, 0);
@@ -81,15 +84,21 @@ function CardSelector({
         resetDrag();
     };
 
-    const getHTMLId = () => {
-        return `card-nav-${cardTypeId.toLowerCase()}`;
-    };
+    const getHTMLId = () => `card-nav-${cardTypeId.toLowerCase()}`;
+    const labelId = `${getHTMLId()}-label`;
 
     return (
         <>
-            <FieldLabel htmlFor={getHTMLId()}>Select {cardTypeId} to Edit</FieldLabel>
+            <Text id={labelId} as="p" variant="adminLabel" className="mb-1">
+                Select {cardTypeId} to Edit
+            </Text>
 
-            <div id={getHTMLId()} className="flex gap-3 flex-wrap">
+            <div
+                id={getHTMLId()}
+                className="flex gap-3 flex-wrap"
+                role="group"
+                aria-labelledby={labelId}
+            >
                 {cards.map((card, index) => (
                     <NavItem
                         key={card.id}
@@ -113,6 +122,6 @@ function CardSelector({
             </div>
         </>
     );
-};
+}
 
 export default CardSelector;

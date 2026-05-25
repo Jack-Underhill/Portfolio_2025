@@ -32,7 +32,7 @@ function ProjectMediaFields({ project, onChange }) {
                     <ImagePreview
                         file={project.imageFile || null}
                         url={project.imageUrl || ''}
-                        alt={project.title || 'Project image'}
+                        alt={`${project.title || 'Project'} image preview`}
                     />
                 </div>
 
@@ -47,7 +47,7 @@ function ProjectMediaFields({ project, onChange }) {
                     <ImagePreview
                         file={project.architectureImageFile || null}
                         url={project.architectureImageUrl || ''}
-                        alt={project.title || 'Architecture image'}
+                        alt={`${project.title || 'Project'} architecture image preview`}
                     />
                 </div>
 

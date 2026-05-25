@@ -7,7 +7,7 @@ Use this directory for reusable tokens, global utility classes, animations, and 
 ## Scope
 
 - Define Tailwind theme colors and global CSS variables.
-- Provide reusable shadow, overlay, scrollbar, marquee, and gradient utility classes.
+- Provide reusable shadow, overlay, focus, reduced-motion, scrollbar, marquee, and gradient utility classes.
 - Keep repeated admin form and admin UI class strings in one place.
 - Provide the `cx` helper for simple conditional class composition.
 
@@ -15,7 +15,7 @@ Keep this directory free of feature-specific layout decisions, component state, 
 
 ## Files
 
-- `theme.css`: imported by `src/index.css`; owns theme tokens, CSS variables, global utility classes, and keyframes.
+- `theme.css`: imported by `src/index.css`; owns theme tokens, CSS variables, global utility classes, focus visibility styles, reduced-motion fallbacks, and keyframes.
 - `recipes.js`: exports shared Tailwind class recipes used primarily by admin forms, panels, buttons, links, labels, and helper text.
 
 ## Boundary Notes

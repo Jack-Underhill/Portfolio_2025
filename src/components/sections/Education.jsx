@@ -1,5 +1,7 @@
 import EducationCard from '../credentials/EducationCard';
 import SectionTitle from '../ui/SectionTitle';
+import usePrefersReducedMotion from '../../hooks/usePrefersReducedMotion';
+import useViewportActivationGroup from '../../hooks/useViewportActivationGroup';
 import WSULogo from '../../assets/logos/wsu.svg';
 import EDCCLogo from '../../assets/logos/edcc.svg';
 
@@ -46,6 +48,11 @@ const DEFAULT_EDUCATION = [
 ];
 
 function Education() {
+    const prefersReducedMotion = usePrefersReducedMotion();
+    const { activeId, registerItem } = useViewportActivationGroup({
+        disabled: prefersReducedMotion,
+    });
+
     return (
         <section id="Education" aria-labelledby="education-heading" className="flex flex-col gap-8">
             <SectionTitle id="education-heading" data-aos="flip-down">
@@ -54,7 +61,12 @@ function Education() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {DEFAULT_EDUCATION.map((edu) => (
-                    <EducationCard key={edu.id} {...edu} />
+                    <EducationCard
+                        key={edu.id}
+                        ref={registerItem(edu.id)}
+                        isActive={activeId === edu.id}
+                        {...edu}
+                    />
                 ))}
             </div>
         </section>

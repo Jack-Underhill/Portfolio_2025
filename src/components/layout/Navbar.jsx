@@ -30,7 +30,7 @@ function Navbar() {
         >
             <button
                 type="button"
-                className='h-full self-end hover:animate-pulse hover:scale-125 focus:animate-pulse focus:scale-125'
+                className='h-full self-end hover:animate-pulse hover:scale-125 focus:animate-pulse focus:scale-125 motion-reduce:hover:scale-100 motion-reduce:focus:scale-100 motion-reduce:hover:animate-none motion-reduce:focus:animate-none'
                 onClick={menuClick}
                 aria-controls="primary-section-navigation"
                 aria-expanded={isOpen}
@@ -40,7 +40,7 @@ function Navbar() {
                     src={menu}
                     alt=""
                     aria-hidden="true"
-                    className='h-full transition-transform duration-300 ease-in-out hover:rotate-360'
+                    className='h-full transition-transform duration-300 ease-in-out hover:rotate-360 motion-reduce:transition-none motion-reduce:hover:rotate-0'
                 />
             </button>
             <div

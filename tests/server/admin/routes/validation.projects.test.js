@@ -87,6 +87,24 @@ describe('admin projects validation', () => {
     })).toThrow('project id 12 appears more than once');
   });
 
+  it('normalizes temporary UUID project IDs as new unsaved projects', () => {
+    expect(validateProjectsState({
+      projectBio: '',
+      projects: [{
+        id: '0c538061-a5c4-4d55-939e-2a84f234cd3b',
+        title: 'New Project',
+        description: 'Imported draft',
+        url: '',
+        imageUrl: '',
+        videoUrl: '',
+        architectureImageUrl: '',
+        sourceUrl: '',
+        writeupUrl: '',
+        videoPageUrl: '',
+      }],
+    }).projects[0].id).toBeNull();
+  });
+
   it('defaults blank classification fields for existing projects', () => {
     expect(validateProjectsState({
       projectBio: '',
