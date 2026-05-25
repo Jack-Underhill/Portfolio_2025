@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const DEFAULT_SLOPE = 0.25;
-const DEFAULT_ACTIVATION_BAND = 140;
+// Negative slope lets multi-column grids activate left-to-right while scrolling down.
+const DEFAULT_SLOPE = -0.35;
+const DEFAULT_ACTIVATION_BAND = 350;
 const DEFAULT_MIN_VISIBLE_RATIO = 0.2;
 const DEFAULT_HYSTERESIS = 24;
 const COARSE_POINTER_QUERY = '(any-pointer: coarse)';
