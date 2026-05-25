@@ -17,6 +17,7 @@ Keep this directory free of raw database queries, row mapping, validation, privi
 
 - `useAutoTextarea.js`: resizes textarea height from its content and container changes.
 - `useHoverPreviewIntent.js`: manages delayed project-card video previews and releases video resources.
+- `useLogoLoopMotion.js`: owns LogoLoop measurement, copy-count calculation, image-load remeasurement, hover speed state, and RAF motion.
 - `useModalOpenFlag.js`: observes the root `data-modal-open` attribute for components that need modal-aware behavior.
 - `useModalSideEffects.js`: handles modal focus containment, Escape close, body scroll lock, focus restore, and the root modal-open flag.
 - `usePrefersReducedMotion.js`: reads and subscribes to `prefers-reduced-motion: reduce` for runtime motion decisions.
