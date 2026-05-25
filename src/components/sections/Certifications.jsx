@@ -1,10 +1,13 @@
 import CertificationCard from '../credentials/CertificationCard';
 import SectionTitle from '../ui/SectionTitle';
+import usePrefersReducedMotion from '../../hooks/usePrefersReducedMotion';
+import useViewportActivationGroup from '../../hooks/useViewportActivationGroup';
 import MicrosoftLogo from '../../assets/logos/microsoft-logo.svg';
 import EDCCLogo from '../../assets/logos/edcc.svg';
 
 const DEFAULT_CERTS = [
     {
+        id: 'microsoft-azure-fundamentals',
         title: 'Azure Fundamentals',
         org: 'Microsoft',
         link: 'https://learn.microsoft.com/en-us/credentials/certifications/azure-fundamentals/',
@@ -15,6 +18,7 @@ const DEFAULT_CERTS = [
         logoSrc: MicrosoftLogo,
         logoScale: 0.62,
     }, {
+        id: 'edmonds-c-cpp-developer',
         title: 'C/C++ Developer',
         org: 'Edmonds College',
         link: 'https://catalog.edmonds.edu/preview_program.php?catoid=63&poid=15850',
@@ -28,6 +32,11 @@ const DEFAULT_CERTS = [
 ];
 
 function Certifications() {
+    const prefersReducedMotion = usePrefersReducedMotion();
+    const { activeId, registerItem } = useViewportActivationGroup({
+        disabled: prefersReducedMotion,
+    });
+
     return (
         <section id="Certifications" aria-labelledby="certifications-heading" className="flex flex-col gap-6">
             <SectionTitle id="certifications-heading" data-aos="flip-down">
@@ -37,7 +46,9 @@ function Certifications() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {DEFAULT_CERTS.map((cert) => (
                     <CertificationCard
-                        key={cert.title}
+                        key={cert.id}
+                        ref={registerItem(cert.id)}
+                        isActive={activeId === cert.id}
                         {...cert}
                     />
                 ))}
