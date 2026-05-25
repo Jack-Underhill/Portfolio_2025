@@ -65,7 +65,7 @@ const LogoLoop = memo(function LogoLoop({
     if (renderItem) {
       return (
         <li key={key} className="logoloop__item" {...itemProps}>
-          <div className="logoloop__node">{renderItem(item, key)}</div>
+          <div className="logoloop__node">{renderItem(item, key, isDuplicate)}</div>
         </li>
       );
     }
