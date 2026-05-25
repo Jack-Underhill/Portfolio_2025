@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-21
+Date: 2026-05-24
 
 ## Purpose
 
@@ -27,6 +27,7 @@ Current baseline test files:
 - `tests/domain/about/mappers.test.js`
 - `tests/domain/contact/mappers.test.js`
 - `tests/domain/skills/mappers.test.js`
+- `tests/hooks/viewportActivationScoring.test.js`
 - `tests/components/projects/viewer/viewerUrl.test.js`
 - `tests/netlify/functions/inline-svg.test.js`
 - `tests/server/admin/utils/storage.test.js`
@@ -49,6 +50,7 @@ Current checks:
 Remaining testing gap:
 
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
+- Add browser smoke only if viewport card activation needs coverage beyond the pure scoring helpers.
 - Keep live Supabase, Redis, and deployed Netlify behavior out of the default gate unless explicitly mocked.
 
 ## Projects
@@ -137,7 +139,12 @@ Future coverage:
 Current status:
 
 - Static component-local data.
+- Touch-capable scroll activation is section-local and uses the shared viewport activation hook.
 - Future candidate for database/admin/public data flow.
+
+Current coverage:
+
+- Shared viewport activation scoring helpers are covered for diagonal selection, visible-ratio filtering, hysteresis, activation-band rejection, single-column center behavior, and multi-column left/right selection.
 
 Future coverage after migration:
 

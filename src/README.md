@@ -56,6 +56,7 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 - Singleton IDs and local admin defaults still live at their owning runtime boundaries.
 - Skills have their own grouped public/admin flow and static grouped fallbacks; Contact owns links only.
 - Project classification fields are data-backed and grouped through `src/domain/projects/viewModel.js`; `Projects.jsx` fetches once, maps once, then renders `FeaturedProjectsGroup` and `StandardProjectsGroup`.
-- Project modal ownership is centralized in `Projects.jsx`; remaining project presentation cleanup is limited to explicit decisions about loading/empty state ownership, peer section structure, and visual label treatment.
+- Project modal ownership is centralized in `Projects.jsx`; project preview ownership still flows through `activePreviewId`, including touch viewport activation from project groups.
+- Touch-capable card effects use `useViewportActivationGroup` for one active item per group, with reduced-motion opt-outs and no card-local viewport math.
 - Public accessibility guardrails now include labeled landmarks/headings, reduced-motion handling, modal focus containment, and a focused Playwright/axe smoke through `cmd /c npm run test:a11y`.
 - Keep detailed architecture status and cleanup notes in `docs/`; this README is the local map for maintainers working inside `src`.

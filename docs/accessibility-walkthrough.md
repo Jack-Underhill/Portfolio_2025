@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-05-21
+Date: 2026-05-24
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last checked on 2026-05-21 with Windows `cmd /c` commands.
+Last checked on 2026-05-24 with Windows `cmd /c` commands.
 
 Passing:
 
@@ -60,6 +60,8 @@ Project flow:
 - `src/components/projects/modal/ProjectModal.jsx`: dialog shell, accessible dialog name, backdrop close, modal content, and focus containment.
 - `src/components/projects/modal/Header.jsx`: modal title, action links, and close button.
 - `src/hooks/useModalSideEffects.js`: modal focus restore, initial focus, Escape close, body scroll lock, and root modal state.
+- `src/hooks/useProjectViewportPreview.js`: touch viewport preview bridge that avoids keyboard, modal, and reduced-motion conflicts.
+- `src/hooks/useViewportActivationGroup.js`: browser-guarded active-card selection for touch-capable card groups.
 
 Architecture viewer:
 
@@ -90,6 +92,8 @@ Project modal and cards:
 
 - Project cards expose project-specific case-study names.
 - Modal rendering has one owner in `Projects.jsx`, so card-open and route-backed modal states share the same dialog behavior.
+- Touch-capable project groups can request one scroll-driven preview through the same `activePreviewId` owner used by hover/focus previews.
+- Viewport-driven project previews are disabled while the modal is open, while reduced motion is active, or while keyboard navigation is the latest input.
 - The modal has an `h2`-backed dialog name, focus containment, Escape close, and invoking-element focus restore when possible.
 - Initial modal focus prefers useful project actions when available.
 - Route-backed project modal behavior is preserved while focus and dialog semantics are handled through shared side effects.
@@ -108,6 +112,8 @@ Motion, contrast, and focus:
 
 - AOS follows `prefers-reduced-motion: reduce`, disabling section animation for reduced-motion users and refreshing when the preference changes.
 - Project-card hover/focus video previews do not request or play video while reduced motion is active.
+- Scroll-driven touch activation is disabled for project previews and credential card effects while reduced motion is active.
+- Education and certification cards keep hover/focus effects for pointer and keyboard users; touch viewport activation does not move focus or trigger navigation.
 - Reduced-motion CSS calms AOS elements, animated gradient text, tag marquee motion, hover-gradient transforms, avatar float/tilt motion, and avatar hover transforms.
 - The public back-to-top button uses instant scrolling when reduced motion is active.
 - Credential/card meta contrast uses the current `--color-text-subtle` value of `#8BA1B6`.
@@ -131,6 +137,7 @@ Admin accessibility:
 ## Accepted Tradeoffs
 
 - Default users keep the portfolio's animated feel; reduced-motion users get calmer behavior for non-essential motion.
+- Touch-capable devices get one scroll-active card per project, education, or certification group. Hybrid devices can still use intentional hover and keyboard focus independently of the scroll-active state.
 - Personal-use admin reorder remains mouse-drag based; the current accessibility state focuses on names, labels, landmarks, status text, and tab behavior rather than adding alternate reorder controls.
 - Plain Vite can show expected Netlify function fallback behavior for visit count and architecture SVG previews. Use `netlify dev` when testing deployed-function behavior locally.
 - Public data fetch failures can leave the page on static fallbacks or empty project states in constrained local environments. Live Supabase-backed content checks remain outside the default local gate unless explicitly mocked.
@@ -143,6 +150,7 @@ Admin accessibility:
 - Run a native screen reader session as a future validation pass.
 - Consider browser accessibility tree snapshots if the installed Playwright API and local setup make them reliable.
 - Add browser reduced-motion or focus-ring smoke coverage only if it catches a stable regression that lint, unit tests, and the current axe smoke cannot catch.
+- Add touch/hybrid browser smoke coverage for viewport card activation only if a stable emulated-pointer test catches regressions beyond the pure scoring tests.
 
 ## Unable To Verify Locally
 

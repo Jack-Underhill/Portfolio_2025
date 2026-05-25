@@ -1,6 +1,6 @@
 # Architecture Cleanup Candidates
 
-Date: 2026-05-19
+Date: 2026-05-24
 
 ## Purpose
 
@@ -20,6 +20,7 @@ The architecture is already directionally correct:
 - Privileged writes live in `server/admin`.
 - Pure row shaping and route helpers live under `src/domain`.
 - Browser lifecycle behavior has been extracted into focused hooks.
+- Viewport-driven card activation is centralized in `src/hooks/useViewportActivationGroup.js`, with project preview bridging kept in `src/hooks/useProjectViewportPreview.js`.
 - Styling tokens and repeated recipes have clearer homes.
 
 The next architecture work should be small and stabilizing.
@@ -62,12 +63,13 @@ Problem:
 
 - Unit tests, lint, build, and schema drift checks pass.
 - Focused browser accessibility smoke coverage exists for stable public/accessibility routes.
-- Modal focus browser smoke coverage and `track-visit` function behavior are still future work.
+- Modal focus browser smoke coverage, touch viewport activation browser smoke coverage, and `track-visit` function behavior are still future work.
 
 Next actions:
 
 - Keep README verification aligned with the active baseline.
 - Add modal focus browser smoke tests and mocked `track-visit` tests when those areas become active work.
+- Keep viewport activation browser coverage optional unless emulated touch/pointer checks prove stable and valuable beyond the pure scoring tests.
 - Keep `cmd /c npm run test:a11y` focused on stable rendered routes unless a new browser smoke adds clear regression value.
 
 ## Definition of Done
