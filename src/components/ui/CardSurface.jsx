@@ -4,6 +4,7 @@ const cx = (...xs) => xs.filter(Boolean).join(" ");
 
 const CardSurface = forwardRef(function CardSurface({
     link,
+    linkTabIndex,
     title,
     isActive = false,
     isPremiumSheenActive = false,
@@ -21,6 +22,7 @@ const CardSurface = forwardRef(function CardSurface({
             rel: "noreferrer noopener",
             title: `${title}`,
             "aria-label": `${title}`,
+            tabIndex: linkTabIndex,
         }
         : {};
 

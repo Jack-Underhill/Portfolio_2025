@@ -27,6 +27,7 @@ const ProjectCard = forwardRef(function ProjectCard({
     tags, 
     onOpenModal, 
     isModalOpen,
+    linkTabIndex,
 }, ref) {
     const safeVideo =
         video === null || video === '' || video === undefined || video === 'NULL' || !canUseNetlifyFunctions()
@@ -92,6 +93,7 @@ const ProjectCard = forwardRef(function ProjectCard({
         <CardSurface
             ref={ref}
             link={link}
+            linkTabIndex={linkTabIndex}
             title={`Open ${title} case study`}
             onClick={handleOnClick}
             onMouseEnter={handleOnMouseEnter}
