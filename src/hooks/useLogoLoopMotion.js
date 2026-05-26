@@ -12,7 +12,7 @@ function canUseDOM() {
 
 function getLoopAxis(direction) {
   const isVertical = direction === 'up' || direction === 'down';
-  const sign = direction === 'left' || direction === 'up' ? -1 : 1;
+  const sign = direction === 'left' || direction === 'up' ? 1 : -1;
 
   return { isVertical, sign };
 }
@@ -22,6 +22,7 @@ function useLogoLoopMotion({
   speed,
   hoverSpeed,
   pauseOnHover,
+  isPaused,
   measurementKey,
 }) {
   const containerRef = useRef(null);
@@ -124,6 +125,12 @@ function useLogoLoopMotion({
     const sequenceSize = isVertical ? seqHeight : seqWidth;
     if (!track || sequenceSize <= 0) return undefined;
 
+    if (isPaused) {
+      velocityRef.current = 0;
+      lastTimestampRef.current = null;
+      return undefined;
+    }
+
     const animate = (timestamp) => {
       if (lastTimestampRef.current === null) {
         lastTimestampRef.current = timestamp;
@@ -156,7 +163,7 @@ function useLogoLoopMotion({
       }
       lastTimestampRef.current = null;
     };
-  }, [isVertical, seqHeight, seqWidth, targetVelocity]);
+  }, [isPaused, isVertical, seqHeight, seqWidth, targetVelocity]);
 
   const handleMouseEnter = useCallback(() => {
     if (effectiveHoverSpeed !== undefined) setIsHovered(true);

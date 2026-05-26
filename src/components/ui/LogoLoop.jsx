@@ -23,8 +23,10 @@ const LogoLoop = memo(function LogoLoop({
   pauseOnHover = false,
   hoverSpeed,
   fadeOut = false,
-  fadeOutColor,
+  fadeOutLeftColor,
+  fadeOutRightColor,
   scaleOnHover = false,
+  isPaused = false,
   renderItem,
   ariaLabel = 'Logo carousel',
   className,
@@ -48,6 +50,7 @@ const LogoLoop = memo(function LogoLoop({
     speed,
     hoverSpeed,
     pauseOnHover,
+    isPaused,
     measurementKey,
   });
 
@@ -55,9 +58,10 @@ const LogoLoop = memo(function LogoLoop({
     width: toCssLength(width),
     '--logoloop-gap': toCssLength(gap),
     '--logoloop-logoHeight': toCssLength(logoHeight),
-    '--logoloop-fadeColor': fadeOutColor,
+    '--logoloop-fadeLeftColor': fadeOutLeftColor,
+    '--logoloop-fadeRightColor': fadeOutRightColor ?? fadeOutLeftColor,
     ...style,
-  }), [fadeOutColor, gap, logoHeight, style, width]);
+  }), [fadeOutLeftColor, fadeOutRightColor, gap, logoHeight, style, width]);
 
   const renderLogoItem = useCallback((item, key, isDuplicate) => {
     const itemProps = isDuplicate ? { 'aria-hidden': 'true', inert: '' } : {};
