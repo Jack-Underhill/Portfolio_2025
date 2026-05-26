@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last checked on 2026-05-21 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
+Last full baseline checked on 2026-05-21 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. A focused public-project marquee verification on 2026-05-25 also passed lint, build, unit tests, and the accessibility smoke.
 
 Passing:
 
@@ -81,6 +81,16 @@ Decision:
 - The public site should use the function path when deployed or when tested through Netlify dev.
 - `netlify/functions/README.md` names `netlify dev` as the local command for function behavior.
 - `cmd /c npm run test:a11y` covers invalid architecture viewer URLs and safe fallback states through a local Vite browser smoke check.
+
+## Public Project Data Local Caveat
+
+The standard project desktop marquee depends on public project rows. In constrained plain-Vite local environments, the project gallery can render empty when live public data is unavailable.
+
+Decision:
+
+- This is a local data availability caveat, not a known marquee rendering error.
+- The duplicate-copy focus strategy is guarded structurally with `aria-hidden` plus boolean `inert`, and `cmd /c npm run test:a11y` still passes.
+- Full desktop keyboard traversal through live standard project cards should be checked with available public project rows or a future mocked browser fixture.
 
 ## Quality Gate Target
 

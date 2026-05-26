@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-24
+Date: 2026-05-25
 
 ## Purpose
 
@@ -50,7 +50,8 @@ Current checks:
 Remaining testing gap:
 
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
-- Add browser smoke only if viewport card activation needs coverage beyond the pure scoring helpers.
+- Add browser smoke only if viewport card activation or desktop standard-card marquee behavior needs coverage beyond the pure scoring helpers and the current axe smoke.
+- Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate loop copies are covered by the component structure using `aria-hidden` plus boolean `inert`.
 - Keep live Supabase, Redis, and deployed Netlify behavior out of the default gate unless explicitly mocked.
 
 ## Projects
@@ -71,6 +72,7 @@ Current coverage:
 - Draft-to-public-modal preview mapping is covered for complete drafts, optional fields, classification normalization, malformed list fallbacks, and challenge preservation.
 - Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
+- Desktop standard-card marquee verification is currently quality-gate plus accessibility-smoke based rather than a dedicated component test; mobile and reduced-motion users still receive the grid path.
 - Admin project validation is covered through pure validation helper tests, and the no-write draft validation route is covered for success and shared validation errors.
 - Project media upload path conventions are covered by focused storage utility tests.
 
