@@ -21,6 +21,7 @@ const LogoLoop = memo(function LogoLoop({
   logoHeight = 28,
   gap = 32,
   pauseOnHover = false,
+  pauseOnFocus = false,
   hoverSpeed,
   fadeOut = false,
   fadeOutLeftColor,
@@ -45,11 +46,14 @@ const LogoLoop = memo(function LogoLoop({
     isVertical,
     handleMouseEnter,
     handleMouseLeave,
+    handleFocusCapture,
+    handleBlurCapture,
   } = useLogoLoopMotion({
     direction,
     speed,
     hoverSpeed,
     pauseOnHover,
+    pauseOnFocus,
     isPaused,
     measurementKey,
   });
@@ -136,6 +140,8 @@ const LogoLoop = memo(function LogoLoop({
       aria-label={ariaLabel}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onFocusCapture={handleFocusCapture}
+      onBlurCapture={handleBlurCapture}
     >
       <div ref={trackRef} className="logoloop__track">
         {lists}

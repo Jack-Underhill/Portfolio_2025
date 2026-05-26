@@ -99,6 +99,7 @@ function StandardProjectsGroup({
             speed={120}
             gap={16}
             pauseOnHover
+            pauseOnFocus
             isPaused={isModalOpen}
             fadeOut
             fadeOutLeftColor="var(--color-page)"

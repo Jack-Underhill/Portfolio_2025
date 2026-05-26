@@ -22,6 +22,7 @@ function useLogoLoopMotion({
   speed,
   hoverSpeed,
   pauseOnHover,
+  pauseOnFocus,
   isPaused,
   measurementKey,
 }) {
@@ -37,10 +38,16 @@ function useLogoLoopMotion({
   const [seqWidth, setSeqWidth] = useState(0);
   const [seqHeight, setSeqHeight] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const { isVertical, sign } = getLoopAxis(direction);
   const effectiveHoverSpeed = pauseOnHover ? 0 : hoverSpeed;
-  const targetVelocity = (isHovered && effectiveHoverSpeed !== undefined ? effectiveHoverSpeed : speed) * sign;
+  const interactionSpeed = isFocused && pauseOnFocus
+    ? 0
+    : isHovered && effectiveHoverSpeed !== undefined
+      ? effectiveHoverSpeed
+      : speed;
+  const targetVelocity = interactionSpeed * sign;
 
   const updateMeasurements = useCallback(() => {
     if (!canUseDOM()) return;
@@ -173,6 +180,19 @@ function useLogoLoopMotion({
     if (effectiveHoverSpeed !== undefined) setIsHovered(false);
   }, [effectiveHoverSpeed]);
 
+  const handleFocusCapture = useCallback(() => {
+    if (pauseOnFocus) setIsFocused(true);
+  }, [pauseOnFocus]);
+
+  const handleBlurCapture = useCallback((event) => {
+    if (!pauseOnFocus) return;
+
+    const nextFocusedElement = event.relatedTarget;
+    if (nextFocusedElement && event.currentTarget.contains(nextFocusedElement)) return;
+
+    setIsFocused(false);
+  }, [pauseOnFocus]);
+
   return {
     containerRef,
     trackRef,
@@ -181,6 +201,8 @@ function useLogoLoopMotion({
     isVertical,
     handleMouseEnter,
     handleMouseLeave,
+    handleFocusCapture,
+    handleBlurCapture,
   };
 }
 
