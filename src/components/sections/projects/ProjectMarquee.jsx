@@ -68,7 +68,7 @@ const ProjectMarquee = memo(function ProjectMarquee({
   }), [fadeOutLeftColor, fadeOutRightColor, gap, itemHeight, style, width]);
 
   const renderMarqueeItem = useCallback((item, key, isDuplicate) => {
-    const itemProps = isDuplicate ? { 'aria-hidden': 'true', inert: true } : {};
+    const itemProps = isDuplicate ? { 'aria-hidden': 'true' } : {};
 
     if (renderItem) {
       return (
@@ -113,7 +113,6 @@ const ProjectMarquee = memo(function ProjectMarquee({
           ref={copyIndex === 0 ? seqRef : undefined}
           className="project-marquee__list"
           aria-hidden={isDuplicate ? 'true' : undefined}
-          inert={isDuplicate ? true : undefined}
         >
           {items.map((item, itemIndex) => renderMarqueeItem(
             item,
