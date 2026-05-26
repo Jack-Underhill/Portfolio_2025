@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 const ANIMATION_CONFIG = {
   SMOOTH_TAU: 0.25,
+  FOCUS_ALIGN_DURATION_MS: 180,
   MIN_COPIES: 2,
   COPY_HEADROOM: 2,
 };
@@ -17,6 +18,28 @@ function getLoopAxis(direction) {
   return { isVertical, sign };
 }
 
+function easeOutCubic(progress) {
+  return 1 - ((1 - progress) ** 3);
+}
+
+function normalizeOffset(offset, sequenceSize) {
+  if (sequenceSize <= 0) return 0;
+
+  const nextOffset = offset % sequenceSize;
+  return nextOffset < 0 ? nextOffset + sequenceSize : nextOffset;
+}
+
+function getCenteredOffsetDelta({ containerRect, itemRect, isVertical }) {
+  const containerCenter = isVertical
+    ? containerRect.top + (containerRect.height / 2)
+    : containerRect.left + (containerRect.width / 2);
+  const itemCenter = isVertical
+    ? itemRect.top + (itemRect.height / 2)
+    : itemRect.left + (itemRect.width / 2);
+
+  return itemCenter - containerCenter;
+}
+
 function useProjectMarqueeMotion({
   direction,
   speed,
@@ -30,6 +53,7 @@ function useProjectMarqueeMotion({
   const trackRef = useRef(null);
   const seqRef = useRef(null);
   const rafRef = useRef(null);
+  const alignmentRafRef = useRef(null);
   const lastTimestampRef = useRef(null);
   const offsetRef = useRef(0);
   const velocityRef = useRef(0);
@@ -48,6 +72,14 @@ function useProjectMarqueeMotion({
       ? effectiveHoverSpeed
       : speed;
   const targetVelocity = interactionSpeed * sign;
+
+  const applyTrackOffset = useCallback((nextOffset) => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const offset = isVertical ? `0, ${-nextOffset}px, 0` : `${-nextOffset}px, 0, 0`;
+    track.style.transform = `translate3d(${offset})`;
+  }, [isVertical]);
 
   const updateMeasurements = useCallback(() => {
     if (!canUseDOM()) return;
@@ -150,14 +182,8 @@ function useProjectMarqueeMotion({
       velocityRef.current += (targetVelocity - velocityRef.current) * smoothing;
 
       const delta = velocityRef.current * deltaSeconds;
-      offsetRef.current = (offsetRef.current + delta) % sequenceSize;
-
-      if (offsetRef.current < 0) {
-        offsetRef.current += sequenceSize;
-      }
-
-      const offset = isVertical ? `0, ${-offsetRef.current}px, 0` : `${-offsetRef.current}px, 0, 0`;
-      track.style.transform = `translate3d(${offset})`;
+      offsetRef.current = normalizeOffset(offsetRef.current + delta, sequenceSize);
+      applyTrackOffset(offsetRef.current);
       rafRef.current = window.requestAnimationFrame(animate);
     };
 
@@ -170,7 +196,76 @@ function useProjectMarqueeMotion({
       }
       lastTimestampRef.current = null;
     };
-  }, [isPaused, isVertical, seqHeight, seqWidth, targetVelocity]);
+  }, [applyTrackOffset, isPaused, isVertical, seqHeight, seqWidth, targetVelocity]);
+
+  const alignItemToViewport = useCallback((itemElement, { alignment = 'center' } = {}) => {
+    if (!canUseDOM() || alignment !== 'center') return;
+
+    const container = containerRef.current;
+    const sequenceSize = isVertical ? seqHeight : seqWidth;
+    if (!container || !itemElement || sequenceSize <= 0) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const itemRect = itemElement.getBoundingClientRect();
+    if (
+      containerRect.width <= 0
+      || containerRect.height <= 0
+      || itemRect.width <= 0
+      || itemRect.height <= 0
+    ) {
+      return;
+    }
+
+    if (alignmentRafRef.current !== null) {
+      window.cancelAnimationFrame(alignmentRafRef.current);
+      alignmentRafRef.current = null;
+    }
+
+    const startOffset = offsetRef.current;
+    const targetOffset = startOffset + getCenteredOffsetDelta({
+      containerRect,
+      itemRect,
+      isVertical,
+    });
+    const startedAt = window.performance.now();
+
+    velocityRef.current = 0;
+    lastTimestampRef.current = null;
+
+    const animateAlignment = (timestamp) => {
+      const elapsed = timestamp - startedAt;
+      const progress = Math.min(1, elapsed / ANIMATION_CONFIG.FOCUS_ALIGN_DURATION_MS);
+      const easedProgress = easeOutCubic(progress);
+      const nextOffset = normalizeOffset(
+        startOffset + ((targetOffset - startOffset) * easedProgress),
+        sequenceSize,
+      );
+
+      offsetRef.current = nextOffset;
+      applyTrackOffset(nextOffset);
+
+      if (progress < 1) {
+        alignmentRafRef.current = window.requestAnimationFrame(animateAlignment);
+        return;
+      }
+
+      offsetRef.current = normalizeOffset(targetOffset, sequenceSize);
+      applyTrackOffset(offsetRef.current);
+      velocityRef.current = 0;
+      lastTimestampRef.current = null;
+      alignmentRafRef.current = null;
+    };
+
+    alignmentRafRef.current = window.requestAnimationFrame(animateAlignment);
+  }, [applyTrackOffset, isVertical, seqHeight, seqWidth]);
+
+  useEffect(() => () => {
+    if (!canUseDOM()) return;
+    if (alignmentRafRef.current !== null) {
+      window.cancelAnimationFrame(alignmentRafRef.current);
+      alignmentRafRef.current = null;
+    }
+  }, []);
 
   const handleMouseEnter = useCallback(() => {
     if (effectiveHoverSpeed !== undefined) setIsHovered(true);
@@ -203,6 +298,7 @@ function useProjectMarqueeMotion({
     handleMouseLeave,
     handleFocusCapture,
     handleBlurCapture,
+    alignItemToViewport,
   };
 }
 

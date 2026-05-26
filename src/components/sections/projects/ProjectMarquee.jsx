@@ -68,7 +68,9 @@ const ProjectMarquee = memo(function ProjectMarquee({
   }), [fadeOutLeftColor, fadeOutRightColor, gap, itemHeight, style, width]);
 
   const renderMarqueeItem = useCallback((item, key, isDuplicate) => {
-    const itemProps = isDuplicate ? { 'aria-hidden': 'true' } : {};
+    const itemProps = isDuplicate
+      ? { 'aria-hidden': 'true', 'data-project-marquee-duplicate': 'true' }
+      : { 'data-project-marquee-primary': 'true' };
 
     if (renderItem) {
       return (
