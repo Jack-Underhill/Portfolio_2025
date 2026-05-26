@@ -51,7 +51,7 @@ Remaining testing gap:
 
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
 - Add browser smoke only if viewport card activation or desktop standard-card marquee behavior needs coverage beyond the pure scoring helpers and the current axe smoke.
-- Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate loop copies are covered by the component structure using `aria-hidden` plus boolean `inert`.
+- Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate marquee copies are covered by the component structure using `aria-hidden` plus boolean `inert`.
 - Keep live Supabase, Redis, and deployed Netlify behavior out of the default gate unless explicitly mocked.
 
 ## Projects

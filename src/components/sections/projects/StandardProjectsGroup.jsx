@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import ProjectCard from '../../projects/ProjectCard';
-import LogoLoop from '../../ui/LogoLoop';
+import ProjectMarquee from './ProjectMarquee';
 import SectionTitle from '../../ui/SectionTitle';
 import Text from '../../ui/Text';
 
@@ -25,7 +25,7 @@ function StandardProjectsGroup({
 }) {
   const isNonMobile = useMediaQuery(NON_MOBILE_QUERY);
   const prefersReducedMotion = usePrefersReducedMotion();
-  const shouldRenderLoop = isNonMobile && !prefersReducedMotion && projects.length > 3;
+  const shouldRenderMarquee = isNonMobile && !prefersReducedMotion && projects.length > 3;
   const measurementKey = useMemo(
     () => projects.map((project) => project.id).join('|'),
     [projects],
@@ -40,10 +40,10 @@ function StandardProjectsGroup({
     clearPreview,
   });
 
-  const renderProjectCard = (p, key, isLoopDuplicate = false) => (
+  const renderProjectCard = (p, key, isMarqueeDuplicate = false) => (
     <ProjectCard
       key={key}
-      ref={isLoopDuplicate ? undefined : registerItem(p.id)}
+      ref={isMarqueeDuplicate ? undefined : registerItem(p.id)}
       id={p.id}
       isActivePreview={Number(activePreviewId) === Number(p.id)}
       requestPreview={requestPreview}
@@ -75,7 +75,7 @@ function StandardProjectsGroup({
 
       <div
         className={
-          shouldRenderLoop
+          shouldRenderMarquee
             ? 'relative -mx-10 sm:-mx-15 md:-mx-20 lg:-mx-30 xl:-mx-40'
             : 'grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
         }
@@ -92,9 +92,9 @@ function StandardProjectsGroup({
           </Text>
         )}
 
-        {shouldRenderLoop ? (
-          <LogoLoop
-            logos={projects}
+        {shouldRenderMarquee ? (
+          <ProjectMarquee
+            items={projects}
             direction="right"
             speed={120}
             gap={16}

@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from 'react';
-import useLogoLoopMotion from '../../hooks/useLogoLoopMotion';
+import useProjectMarqueeMotion from '../../../hooks/useProjectMarqueeMotion';
 
 function toCssLength(value) {
   return typeof value === 'number' ? `${value}px` : (value ?? undefined);
@@ -9,16 +9,16 @@ function cx(...parts) {
   return parts.filter(Boolean).join(' ');
 }
 
-function getLogoTitle(item) {
+function getItemTitle(item) {
   return item.title ?? item.alt ?? item.ariaLabel ?? undefined;
 }
 
-const LogoLoop = memo(function LogoLoop({
-  logos = [],
+const ProjectMarquee = memo(function ProjectMarquee({
+  items = [],
   speed = 120,
   direction = 'left',
   width = '100%',
-  logoHeight = 28,
+  itemHeight = 28,
   gap = 32,
   pauseOnHover = false,
   pauseOnFocus = false,
@@ -29,13 +29,13 @@ const LogoLoop = memo(function LogoLoop({
   scaleOnHover = false,
   isPaused = false,
   renderItem,
-  ariaLabel = 'Logo carousel',
+  ariaLabel = 'Project marquee',
   className,
   style,
 }) {
   const measurementKey = useMemo(
-    () => logos.map((item, index) => item.id ?? item.src ?? item.title ?? index).join('|'),
-    [logos],
+    () => items.map((item, index) => item.id ?? item.src ?? item.title ?? index).join('|'),
+    [items],
   );
 
   const {
@@ -48,7 +48,7 @@ const LogoLoop = memo(function LogoLoop({
     handleMouseLeave,
     handleFocusCapture,
     handleBlurCapture,
-  } = useLogoLoopMotion({
+  } = useProjectMarqueeMotion({
     direction,
     speed,
     hoverSpeed,
@@ -60,26 +60,26 @@ const LogoLoop = memo(function LogoLoop({
 
   const rootStyle = useMemo(() => ({
     width: toCssLength(width),
-    '--logoloop-gap': toCssLength(gap),
-    '--logoloop-logoHeight': toCssLength(logoHeight),
-    '--logoloop-fadeLeftColor': fadeOutLeftColor,
-    '--logoloop-fadeRightColor': fadeOutRightColor ?? fadeOutLeftColor,
+    '--project-marquee-gap': toCssLength(gap),
+    '--project-marquee-itemHeight': toCssLength(itemHeight),
+    '--project-marquee-fadeLeftColor': fadeOutLeftColor,
+    '--project-marquee-fadeRightColor': fadeOutRightColor ?? fadeOutLeftColor,
     ...style,
-  }), [fadeOutLeftColor, fadeOutRightColor, gap, logoHeight, style, width]);
+  }), [fadeOutLeftColor, fadeOutRightColor, gap, itemHeight, style, width]);
 
-  const renderLogoItem = useCallback((item, key, isDuplicate) => {
+  const renderMarqueeItem = useCallback((item, key, isDuplicate) => {
     const itemProps = isDuplicate ? { 'aria-hidden': 'true', inert: true } : {};
 
     if (renderItem) {
       return (
-        <li key={key} className="logoloop__item" {...itemProps}>
-          <div className="logoloop__node">{renderItem(item, key, isDuplicate)}</div>
+        <li key={key} className="project-marquee__item" {...itemProps}>
+          <div className="project-marquee__node">{renderItem(item, key, isDuplicate)}</div>
         </li>
       );
     }
 
     const content = item.node ? (
-      <span className="logoloop__node">{item.node}</span>
+      <span className="project-marquee__node">{item.node}</span>
     ) : (
       <img
         src={item.src}
@@ -94,9 +94,9 @@ const LogoLoop = memo(function LogoLoop({
     );
 
     return (
-      <li key={key} className="logoloop__item" {...itemProps}>
+      <li key={key} className="project-marquee__item" {...itemProps}>
         {item.href && !isDuplicate ? (
-          <a className="logoloop__link" href={item.href} title={getLogoTitle(item)} aria-label={item.ariaLabel}>
+          <a className="project-marquee__link" href={item.href} title={getItemTitle(item)} aria-label={item.ariaLabel}>
             {content}
           </a>
         ) : content}
@@ -111,11 +111,11 @@ const LogoLoop = memo(function LogoLoop({
         <ul
           key={copyIndex}
           ref={copyIndex === 0 ? seqRef : undefined}
-          className="logoloop__list"
+          className="project-marquee__list"
           aria-hidden={isDuplicate ? 'true' : undefined}
           inert={isDuplicate ? true : undefined}
         >
-          {logos.map((item, itemIndex) => renderLogoItem(
+          {items.map((item, itemIndex) => renderMarqueeItem(
             item,
             `${copyIndex}-${item.id ?? item.src ?? item.title ?? itemIndex}`,
             isDuplicate,
@@ -123,16 +123,16 @@ const LogoLoop = memo(function LogoLoop({
         </ul>
       );
     })
-  ), [copyCount, logos, renderLogoItem, seqRef]);
+  ), [copyCount, items, renderMarqueeItem, seqRef]);
 
   return (
     <div
       ref={containerRef}
       className={cx(
-        'logoloop',
-        isVertical && 'logoloop--vertical',
-        fadeOut && 'logoloop--fade',
-        scaleOnHover && 'logoloop--scale-hover',
+        'project-marquee',
+        isVertical && 'project-marquee--vertical',
+        fadeOut && 'project-marquee--fade',
+        scaleOnHover && 'project-marquee--scale-hover',
         className,
       )}
       style={rootStyle}
@@ -143,11 +143,11 @@ const LogoLoop = memo(function LogoLoop({
       onFocusCapture={handleFocusCapture}
       onBlurCapture={handleBlurCapture}
     >
-      <div ref={trackRef} className="logoloop__track">
+      <div ref={trackRef} className="project-marquee__track">
         {lists}
       </div>
     </div>
   );
 });
 
-export default LogoLoop;
+export default ProjectMarquee;

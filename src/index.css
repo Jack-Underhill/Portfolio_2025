@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "./styles/theme.css";
-@import "./styles/logo-loop.css";
+@import "./styles/project-marquee.css";
 
 html, body, #root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

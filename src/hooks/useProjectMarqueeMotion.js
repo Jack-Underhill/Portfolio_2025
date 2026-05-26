@@ -17,7 +17,7 @@ function getLoopAxis(direction) {
   return { isVertical, sign };
 }
 
-function useLogoLoopMotion({
+function useProjectMarqueeMotion({
   direction,
   speed,
   hoverSpeed,
@@ -206,4 +206,4 @@ function useLogoLoopMotion({
   };
 }
 
-export default useLogoLoopMotion;
+export default useProjectMarqueeMotion;

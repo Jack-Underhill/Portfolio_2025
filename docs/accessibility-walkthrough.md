@@ -56,8 +56,8 @@ Project flow:
 - `src/components/sections/Projects.jsx`: project grouping, hover preview coordination, route-backed modal state, and one `ProjectModal` owner.
 - `src/components/sections/projects/FeaturedProjectsGroup.jsx`: featured project card group and section labeling.
 - `src/components/sections/projects/StandardProjectsGroup.jsx`: standard project card group, section labeling, reduced-motion/mobile grid fallback, and desktop marquee selection.
-- `src/components/ui/LogoLoop.jsx`: desktop standard-card marquee rendering, duplicate-copy hiding, and region labeling.
-- `src/hooks/useLogoLoopMotion.js`: browser-guarded marquee measurement, hover/focus pause, modal pause, and transform updates.
+- `src/components/sections/projects/ProjectMarquee.jsx`: desktop standard-card marquee rendering, duplicate-copy hiding, and region labeling.
+- `src/hooks/useProjectMarqueeMotion.js`: browser-guarded marquee measurement, hover/focus pause, modal pause, and transform updates.
 - `src/components/projects/ProjectCard.jsx`: project-specific case-study link names, anchor activation, and hover/focus video preview intent.
 - `src/components/projects/modal/ProjectModal.jsx`: dialog shell, accessible dialog name, backdrop close, modal content, and focus containment.
 - `src/components/projects/modal/Header.jsx`: modal title, action links, and close button.
@@ -116,7 +116,7 @@ Motion, contrast, and focus:
 
 - AOS follows `prefers-reduced-motion: reduce`, disabling section animation for reduced-motion users and refreshing when the preference changes.
 - Reduced-motion users receive the standard project grid instead of a paused marquee.
-- The desktop project marquee pauses on hover, pauses while keyboard focus is inside the loop, and pauses when the project modal is open.
+- The desktop project marquee pauses on hover, pauses while keyboard focus is inside the marquee, and pauses when the project modal is open.
 - Project-card hover/focus video previews do not request or play video while reduced motion is active.
 - Scroll-driven touch activation is disabled for project previews and credential card effects while reduced motion is active.
 - Education and certification cards keep hover/focus effects for pointer and keyboard users; touch viewport activation does not move focus or trigger navigation.
