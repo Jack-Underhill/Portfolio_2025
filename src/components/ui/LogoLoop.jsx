@@ -68,7 +68,7 @@ const LogoLoop = memo(function LogoLoop({
   }), [fadeOutLeftColor, fadeOutRightColor, gap, logoHeight, style, width]);
 
   const renderLogoItem = useCallback((item, key, isDuplicate) => {
-    const itemProps = isDuplicate ? { 'aria-hidden': 'true', inert: '' } : {};
+    const itemProps = isDuplicate ? { 'aria-hidden': 'true', inert: true } : {};
 
     if (renderItem) {
       return (
@@ -113,7 +113,7 @@ const LogoLoop = memo(function LogoLoop({
           ref={copyIndex === 0 ? seqRef : undefined}
           className="logoloop__list"
           aria-hidden={isDuplicate ? 'true' : undefined}
-          inert={isDuplicate ? '' : undefined}
+          inert={isDuplicate ? true : undefined}
         >
           {logos.map((item, itemIndex) => renderLogoItem(
             item,
