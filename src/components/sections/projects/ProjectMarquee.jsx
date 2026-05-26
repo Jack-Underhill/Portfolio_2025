@@ -48,6 +48,7 @@ const ProjectMarquee = memo(function ProjectMarquee({
     handleMouseLeave,
     handleFocusCapture,
     handleBlurCapture,
+    alignItemToViewport,
   } = useProjectMarqueeMotion({
     direction,
     speed,
@@ -66,6 +67,18 @@ const ProjectMarquee = memo(function ProjectMarquee({
     '--project-marquee-fadeRightColor': fadeOutRightColor ?? fadeOutLeftColor,
     ...style,
   }), [fadeOutLeftColor, fadeOutRightColor, gap, itemHeight, style, width]);
+
+  const handleMarqueeFocusCapture = useCallback((event) => {
+    handleFocusCapture();
+
+    const focusedElement = event.target;
+    if (!focusedElement || typeof focusedElement.closest !== 'function') return;
+
+    const primaryItem = focusedElement.closest('[data-project-marquee-primary="true"]');
+    if (!primaryItem || !event.currentTarget.contains(primaryItem)) return;
+
+    alignItemToViewport(primaryItem, { alignment: 'center' });
+  }, [alignItemToViewport, handleFocusCapture]);
 
   const renderMarqueeItem = useCallback((item, key, isDuplicate) => {
     const itemProps = isDuplicate
@@ -141,7 +154,7 @@ const ProjectMarquee = memo(function ProjectMarquee({
       aria-label={ariaLabel}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onFocusCapture={handleFocusCapture}
+      onFocusCapture={handleMarqueeFocusCapture}
       onBlurCapture={handleBlurCapture}
     >
       <div ref={trackRef} className="project-marquee__track">
