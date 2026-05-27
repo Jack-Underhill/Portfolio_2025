@@ -58,8 +58,12 @@ const ProjectCard = forwardRef(function ProjectCard({
         if (isModified) return;
 
         e.preventDefault();
+        const restoreFocusOnClose =
+            lastInputRef?.current === 'keyboard'
+            && e.currentTarget.contains(document.activeElement);
+
         clearPreview?.(id); // release global ownership
-        onOpenModal?.();
+        onOpenModal?.({ restoreFocusOnClose });
     };
 
     const handleOnMouseEnter = (e) => {

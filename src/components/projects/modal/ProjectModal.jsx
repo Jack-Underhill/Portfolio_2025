@@ -19,13 +19,18 @@ export default function ProjectModal({
     isOpen,
     project,
     onClose,
+    shouldRestoreFocusOnClose = true,
     isAdminPreview = false,
 }) {
     const data = useMemo(() => {
         return { ...(project ?? {}) };
     }, [project]);
 
-    const { closeBtnRef, initialFocusRef, modalRef } = useModalSideEffects({ isOpen, onClose });
+    const { closeBtnRef, initialFocusRef, modalRef } = useModalSideEffects({
+        isOpen,
+        onClose,
+        shouldRestoreFocusOnClose,
+    });
 
     if (!isOpen) return null;
 

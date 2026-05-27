@@ -215,6 +215,21 @@ function useProjectMarqueeMotion({
     };
   }, [applyTrackOffset, isPaused, isVertical, seqHeight, seqWidth, targetVelocity]);
 
+  useEffect(() => {
+    if (!canUseDOM() || isPaused) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (effectiveHoverSpeed !== undefined) {
+      setIsHovered(container.matches(':hover'));
+    }
+
+    if (pauseOnFocus) {
+      setIsFocused(container.contains(document.activeElement));
+    }
+  }, [effectiveHoverSpeed, isPaused, pauseOnFocus]);
+
   const alignItemToViewport = useCallback((itemElement, { alignment = 'center' } = {}) => {
     if (!canUseDOM() || alignment !== 'center') return;
 

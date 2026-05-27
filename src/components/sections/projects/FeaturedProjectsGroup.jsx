@@ -62,7 +62,7 @@ function FeaturedProjectsGroup({
             desc={p.description}
             link={p.directUrl}
             tags={p.techTags}
-            onOpenModal={() => openFromCard(p)}
+            onOpenModal={(options) => openFromCard(p, options)}
             isModalOpen={isModalOpen}
           />
         ))}

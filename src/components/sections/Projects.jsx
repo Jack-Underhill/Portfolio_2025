@@ -50,6 +50,7 @@ function Projects() {
   const {
     activeProject,
     isModalOpen,
+    shouldRestoreFocusOnClose,
     openFromCard,
     closeModal,
   } = useProjectModalRouting({ projects: allProjects });
@@ -109,6 +110,7 @@ function Projects() {
           isOpen={isModalOpen}
           project={activeProject}
           onClose={closeModal}
+          shouldRestoreFocusOnClose={shouldRestoreFocusOnClose}
         />
       )}
     </>

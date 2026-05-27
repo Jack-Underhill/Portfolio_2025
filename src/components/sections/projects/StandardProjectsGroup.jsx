@@ -57,7 +57,7 @@ function StandardProjectsGroup({
       link={p.directUrl}
       linkTabIndex={isMarqueeDuplicate ? -1 : undefined}
       tags={p.techTags}
-      onOpenModal={() => openFromCard(p)}
+      onOpenModal={(options) => openFromCard(p, options)}
       isModalOpen={isModalOpen}
     />
   );
