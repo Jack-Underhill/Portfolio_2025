@@ -29,7 +29,24 @@ function normalizeOffset(offset, sequenceSize) {
   return nextOffset < 0 ? nextOffset + sequenceSize : nextOffset;
 }
 
-function getCenteredOffsetDelta({ containerRect, itemRect, isVertical }) {
+export function getProjectMarqueeAlignmentDelta({
+  containerRect,
+  itemRect,
+  isVertical = false,
+  alignment = 'center',
+}) {
+  if (
+    alignment !== 'center'
+    || !containerRect
+    || !itemRect
+    || containerRect.width <= 0
+    || containerRect.height <= 0
+    || itemRect.width <= 0
+    || itemRect.height <= 0
+  ) {
+    return null;
+  }
+
   const containerCenter = isVertical
     ? containerRect.top + (containerRect.height / 2)
     : containerRect.left + (containerRect.width / 2);
@@ -205,16 +222,13 @@ function useProjectMarqueeMotion({
     const sequenceSize = isVertical ? seqHeight : seqWidth;
     if (!container || !itemElement || sequenceSize <= 0) return;
 
-    const containerRect = container.getBoundingClientRect();
-    const itemRect = itemElement.getBoundingClientRect();
-    if (
-      containerRect.width <= 0
-      || containerRect.height <= 0
-      || itemRect.width <= 0
-      || itemRect.height <= 0
-    ) {
-      return;
-    }
+    const alignmentDelta = getProjectMarqueeAlignmentDelta({
+      containerRect: container.getBoundingClientRect(),
+      itemRect: itemElement.getBoundingClientRect(),
+      isVertical,
+      alignment,
+    });
+    if (alignmentDelta === null) return;
 
     if (alignmentRafRef.current !== null) {
       window.cancelAnimationFrame(alignmentRafRef.current);
@@ -222,11 +236,7 @@ function useProjectMarqueeMotion({
     }
 
     const startOffset = offsetRef.current;
-    const targetOffset = startOffset + getCenteredOffsetDelta({
-      containerRect,
-      itemRect,
-      isVertical,
-    });
+    const targetOffset = startOffset + alignmentDelta;
     const startedAt = window.performance.now();
 
     velocityRef.current = 0;
