@@ -1,6 +1,6 @@
 # Current Errors and Warnings
 
-Date: 2026-05-21
+Date: 2026-05-26
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last checked on 2026-05-21 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy.
+Last full baseline checked on 2026-05-26 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. A focused public-project marquee verification on 2026-05-26 also passed lint, build, unit tests, schema drift, and the accessibility smoke.
 
 Passing:
 
@@ -81,6 +81,17 @@ Decision:
 - The public site should use the function path when deployed or when tested through Netlify dev.
 - `netlify/functions/README.md` names `netlify dev` as the local command for function behavior.
 - `cmd /c npm run test:a11y` covers invalid architecture viewer URLs and safe fallback states through a local Vite browser smoke check.
+
+## Public Project Data Local Caveat
+
+The standard project desktop marquee depends on public project rows. In constrained plain-Vite local environments, the project gallery can render empty when live public data is unavailable.
+
+Decision:
+
+- This is a local data availability caveat, not a known marquee rendering error.
+- Duplicate marquee copies are guarded structurally with duplicate-wrapper `aria-hidden` plus duplicate-anchor `tabIndex="-1"`; visible duplicates are intentionally not `inert` so pointer hover and clicks work.
+- `cmd /c npm run test:a11y` still passes.
+- Full desktop keyboard and pointer traversal through live standard project cards should be checked with available public project rows. In the 2026-05-26 verification window, sandboxed live fetches were blocked with `ERR_NETWORK_ACCESS_DENIED`, so rendered interaction checks used mocked Supabase project responses in local Playwright.
 
 ## Quality Gate Target
 

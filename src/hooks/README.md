@@ -17,6 +17,9 @@ Keep this directory free of raw database queries, row mapping, validation, privi
 
 - `useAutoTextarea.js`: resizes textarea height from its content and container changes.
 - `useHoverPreviewIntent.js`: manages delayed project-card video previews and releases video resources.
+- `useProjectMarqueeMotion.js`: owns project marquee measurement, copy-count calculation, image-load remeasurement, hover speed state, and RAF motion.
+- `useMediaQuery.js`: reads and subscribes to a browser media query with SSR-safe defaults.
+- `useMeasuredMaxHeight.js`: observes a set of rendered elements and returns the tallest measured height for equalizing related UI surfaces during resize/content changes.
 - `useModalOpenFlag.js`: observes the root `data-modal-open` attribute for components that need modal-aware behavior.
 - `useModalSideEffects.js`: handles modal focus containment, Escape close, body scroll lock, focus restore, and the root modal-open flag.
 - `usePrefersReducedMotion.js`: reads and subscribes to `prefers-reduced-motion: reduce` for runtime motion decisions.

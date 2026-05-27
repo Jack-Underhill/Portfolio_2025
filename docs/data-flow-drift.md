@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-05-21
+Date: 2026-05-26
 
 ## Purpose
 
@@ -16,7 +16,7 @@ This document records active mismatches between database, admin UI, public API, 
 
 The active drift is limited:
 
-- Projects have aligned persisted classification fields and centralized modal ownership, but the public presentation still needs explicit label-display and empty-state decisions.
+- Projects have aligned persisted classification fields, centralized modal ownership, and a current mobile/reduced-motion grid plus desktop standard-card marquee presentation. The marquee interaction contract is aligned around assistive-hidden duplicate copies, non-sequential duplicate anchors, and hook-owned primary focus alignment. Explicit label-display and empty-state decisions remain open.
 - Contact link icon fallbacks remain positional.
 - Education and Certifications are intentionally static until a database/admin/public flow is designed.
 
@@ -56,7 +56,7 @@ Current public presentation flow:
 
 - `Projects.jsx` fetches once, maps once, and calls `groupProjectsForDisplay`.
 - `FeaturedProjectsGroup.jsx` renders featured projects under the `#Projects` anchor.
-- `StandardProjectsGroup.jsx` renders standard projects under the `#ProjectGallery` anchor.
+- `StandardProjectsGroup.jsx` renders standard projects under the `#ProjectGallery` anchor. Mobile users and reduced-motion users receive the existing responsive grid; non-mobile users without reduced-motion preference receive a horizontal `ProjectMarquee` of full `ProjectCard` cards.
 - Modal routing uses one flattened featured-plus-standard list from `Projects.jsx`, and `ProjectModal` is rendered once from `Projects.jsx`.
 
 Decision:
@@ -73,6 +73,7 @@ Next actions:
 - Move global loading and zero-project empty state decisions back to `Projects.jsx` if per-group empty states are not accepted.
 - Hide empty group headings, or explicitly document that empty groups should remain visible.
 - Render project labels on cards/details, or keep documenting them as mapped and admin-ready but visually dormant.
+- Preserve the standard-card marquee guardrails when refining project cards: duplicate marquee copies stay `aria-hidden`, duplicate card anchors stay out of sequential focus with `tabIndex="-1"`, visible duplicates remain pointer-interactive, primary focus alignment stays owned by `useProjectMarqueeMotion`, reduced-motion stays a grid fallback, and modal ownership stays in `Projects.jsx`.
 
 ## Contact Links
 
