@@ -251,14 +251,14 @@ function Avatar({ avatarLogo }) {
     }, [])
 
     return (
-        <div className="w-full h-full md:w-2/5 flex justify-baseline md:justify-center-safe mb-7 md:mb-0">
+        <div className="mb-7 flex w-full justify-center md:mb-0 md:w-2/5">
             {/* Outer: space float + provides perspective for inner 3D tilt */}
             <div
                 ref={floatRef}
                 style={{ perspective: `${PARALLAX_PERSPECTIVE_PX}px` }}
                 className="
                     avatar-float
-                    h-full w-full max-w-4/5 max-h-4/5 aspect-auto rounded-3xl
+                    aspect-square w-4/5 max-w-72 rounded-4xl sm:max-w-80 md:w-full md:max-w-xs  xl:max-w-sm
                     will-change-transform
                     motion-reduce:transform-none
                 "
@@ -266,13 +266,13 @@ function Avatar({ avatarLogo }) {
                 {/* Inner: mouse tilt/parallax */}
                 <div
                     ref={tiltRef}
-                    className="avatar-tilt h-full w-full rounded-3xl will-change-transform [transform-style:preserve-3d]"
+                    className="avatar-tilt h-full w-full rounded-4xl will-change-transform [transform-style:preserve-3d]"
                 >
                     <a
                         href="https://www.linkedin.com/in/underhill-jack/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group block h-full w-full rounded-3xl"
+                        className="group block h-full w-full rounded-4xl"
                         title="View My LinkedIn"
                         data-aos="flip-up"
                         onMouseEnter={() => {
@@ -298,7 +298,7 @@ function Avatar({ avatarLogo }) {
                             draggable={false}
                             className="
                                 avatar-logo-motion
-                                w-full h-full rounded-3xl
+                                h-full w-full rounded-4xl object-contain
                                 transition-transform duration-700 ease-in-out
                                 group-hover:rotate-8
                                 group-hover:-translate-y-5
