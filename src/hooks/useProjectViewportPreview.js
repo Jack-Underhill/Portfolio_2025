@@ -6,24 +6,26 @@ import useViewportActivationGroup from './useViewportActivationGroup';
 function useProjectViewportPreview({
   projects = [],
   isModalOpen = false,
+  disabled = false,
   lastInputRef,
   requestPreview,
   clearPreview,
 } = {}) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const viewportPreviewIdRef = useRef(null);
+  const isViewportPreviewDisabled = disabled || isModalOpen || prefersReducedMotion || projects.length === 0;
   const { activeId: viewportActiveProjectId, registerItem } = useViewportActivationGroup({
-    disabled: isModalOpen || prefersReducedMotion || projects.length === 0,
+    disabled: isViewportPreviewDisabled,
   });
 
   useEffect(() => {
     const previousViewportPreviewId = viewportPreviewIdRef.current;
     const isKeyboardNavigation = lastInputRef?.current === 'keyboard';
 
-    if (isModalOpen || prefersReducedMotion || viewportActiveProjectId === null) {
+    if (isViewportPreviewDisabled || viewportActiveProjectId === null) {
       if (
         previousViewportPreviewId !== null
-        && (isModalOpen || prefersReducedMotion || !isKeyboardNavigation)
+        && (isViewportPreviewDisabled || !isKeyboardNavigation)
       ) {
         clearPreview?.(previousViewportPreviewId);
         viewportPreviewIdRef.current = null;
@@ -38,9 +40,8 @@ function useProjectViewportPreview({
     requestPreview?.(viewportActiveProjectId);
   }, [
     clearPreview,
-    isModalOpen,
+    isViewportPreviewDisabled,
     lastInputRef,
-    prefersReducedMotion,
     requestPreview,
     viewportActiveProjectId,
   ]);

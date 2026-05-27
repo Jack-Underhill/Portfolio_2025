@@ -35,6 +35,7 @@ function StandardProjectsGroup({
   const { registerItem } = useProjectViewportPreview({
     projects,
     isModalOpen,
+    disabled: shouldRenderMarquee,
     lastInputRef,
     requestPreview,
     clearPreview,
