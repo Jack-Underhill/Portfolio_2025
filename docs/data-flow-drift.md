@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-05-21
+Date: 2026-05-26
 
 ## Purpose
 
@@ -16,7 +16,7 @@ This document records active mismatches between database, admin UI, public API, 
 
 The active drift is limited:
 
-- Projects have aligned persisted classification fields, centralized modal ownership, and a current mobile/reduced-motion grid plus desktop standard-card marquee presentation. Explicit label-display and empty-state decisions remain open.
+- Projects have aligned persisted classification fields, centralized modal ownership, and a current mobile/reduced-motion grid plus desktop standard-card marquee presentation. The marquee interaction contract is aligned around assistive-hidden duplicate copies, non-sequential duplicate anchors, and hook-owned primary focus alignment. Explicit label-display and empty-state decisions remain open.
 - Contact link icon fallbacks remain positional.
 - Education and Certifications are intentionally static until a database/admin/public flow is designed.
 
@@ -73,7 +73,7 @@ Next actions:
 - Move global loading and zero-project empty state decisions back to `Projects.jsx` if per-group empty states are not accepted.
 - Hide empty group headings, or explicitly document that empty groups should remain visible.
 - Render project labels on cards/details, or keep documenting them as mapped and admin-ready but visually dormant.
-- Preserve the standard-card marquee guardrails when refining project cards: duplicate marquee copies stay `aria-hidden` and boolean `inert`, reduced-motion stays a grid fallback, and modal ownership stays in `Projects.jsx`.
+- Preserve the standard-card marquee guardrails when refining project cards: duplicate marquee copies stay `aria-hidden`, duplicate card anchors stay out of sequential focus with `tabIndex="-1"`, visible duplicates remain pointer-interactive, primary focus alignment stays owned by `useProjectMarqueeMotion`, reduced-motion stays a grid fallback, and modal ownership stays in `Projects.jsx`.
 
 ## Contact Links
 

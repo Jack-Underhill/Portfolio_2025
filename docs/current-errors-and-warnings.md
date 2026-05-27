@@ -91,7 +91,7 @@ Decision:
 - This is a local data availability caveat, not a known marquee rendering error.
 - Duplicate marquee copies are guarded structurally with duplicate-wrapper `aria-hidden` plus duplicate-anchor `tabIndex="-1"`; visible duplicates are intentionally not `inert` so pointer hover and clicks work.
 - `cmd /c npm run test:a11y` still passes.
-- Full desktop keyboard and pointer traversal through live standard project cards should be checked with available public project rows. 2026-05-26: the verification window, sandboxed live fetches were blocked with `ERR_NETWORK_ACCESS_DENIED`, so the rendered interaction checks used mocked Supabase project responses in local Playwright.
+- Full desktop keyboard and pointer traversal through live standard project cards should be checked with available public project rows. In the 2026-05-26 verification window, sandboxed live fetches were blocked with `ERR_NETWORK_ACCESS_DENIED`, so rendered interaction checks used mocked Supabase project responses in local Playwright.
 
 ## Quality Gate Target
 

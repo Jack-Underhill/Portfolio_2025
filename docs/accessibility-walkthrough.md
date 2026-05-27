@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-05-24
+Date: 2026-05-26
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last checked on 2026-05-25 with Windows `cmd /c` commands.
+Last checked on 2026-05-26 with Windows `cmd /c` commands.
 
 Passing:
 
@@ -56,8 +56,8 @@ Project flow:
 - `src/components/sections/Projects.jsx`: project grouping, hover preview coordination, route-backed modal state, and one `ProjectModal` owner.
 - `src/components/sections/projects/FeaturedProjectsGroup.jsx`: featured project card group and section labeling.
 - `src/components/sections/projects/StandardProjectsGroup.jsx`: standard project card group, section labeling, reduced-motion/mobile grid fallback, and desktop marquee selection.
-- `src/components/sections/projects/ProjectMarquee.jsx`: desktop standard-card marquee rendering, duplicate-copy hiding, and region labeling.
-- `src/hooks/useProjectMarqueeMotion.js`: browser-guarded marquee measurement, hover/focus pause, modal pause, and transform updates.
+- `src/components/sections/projects/ProjectMarquee.jsx`: desktop standard-card marquee rendering, duplicate-copy hiding, primary-item focus alignment wiring, and region labeling.
+- `src/hooks/useProjectMarqueeMotion.js`: browser-guarded marquee measurement, hover/focus pause, modal pause, focus alignment, and transform updates.
 - `src/components/projects/ProjectCard.jsx`: project-specific case-study link names, anchor activation, and hover/focus video preview intent.
 - `src/components/projects/modal/ProjectModal.jsx`: dialog shell, accessible dialog name, backdrop close, modal content, and focus containment.
 - `src/components/projects/modal/Header.jsx`: modal title, action links, and close button.
@@ -95,7 +95,7 @@ Project modal and cards:
 - Project cards expose project-specific case-study names.
 - Modal rendering has one owner in `Projects.jsx`, so card-open and route-backed modal states share the same dialog behavior.
 - Standard project cards render as the existing grid for mobile and reduced-motion users. Non-mobile users without reduced-motion preference receive the desktop marquee with the same full `ProjectCard` markup and modal handoff.
-- Desktop marquee duplicate copies are visual-only: copied lists and items are `aria-hidden` and receive boolean `inert`, and duplicate cards skip viewport-preview ref registration.
+- Desktop marquee duplicate copies are visual-only for assistive technology: copied lists and items are `aria-hidden`, duplicate card anchors receive `tabIndex="-1"`, and duplicate cards skip viewport-preview ref registration. Visible duplicate cards are not `inert`, so pointer hover and click behavior matches primary cards.
 - Touch-capable project groups can request one scroll-driven preview through the same `activePreviewId` owner used by hover/focus previews.
 - Viewport-driven project previews are disabled while the modal is open, while reduced motion is active, or while keyboard navigation is the latest input.
 - The modal has an `h2`-backed dialog name, focus containment, Escape close, and invoking-element focus restore when possible.
@@ -116,7 +116,7 @@ Motion, contrast, and focus:
 
 - AOS follows `prefers-reduced-motion: reduce`, disabling section animation for reduced-motion users and refreshing when the preference changes.
 - Reduced-motion users receive the standard project grid instead of a paused marquee.
-- The desktop project marquee pauses on hover, pauses while keyboard focus is inside the marquee, and pauses when the project modal is open.
+- The desktop project marquee pauses on hover, pauses while keyboard focus is inside the marquee, centers the focused primary card inside the clipped viewport, and pauses when the project modal is open.
 - Project-card hover/focus video previews do not request or play video while reduced motion is active.
 - Scroll-driven touch activation is disabled for project previews and credential card effects while reduced motion is active.
 - Education and certification cards keep hover/focus effects for pointer and keyboard users; touch viewport activation does not move focus or trigger navigation.
@@ -147,7 +147,7 @@ Admin accessibility:
 - Personal-use admin reorder remains mouse-drag based; the current accessibility state focuses on names, labels, landmarks, status text, and tab behavior rather than adding alternate reorder controls.
 - Plain Vite can show expected Netlify function fallback behavior for visit count and architecture SVG previews. Use `netlify dev` when testing deployed-function behavior locally.
 - Public data fetch failures can leave the page on static fallbacks or empty project states in constrained local environments. Live Supabase-backed content checks remain outside the default local gate unless explicitly mocked.
-- Desktop standard-card marquee keyboard traversal is structurally protected by inert duplicate copies, but a full live traversal check depends on public project rows being available in the local runtime.
+- Desktop standard-card marquee keyboard traversal is structurally protected by duplicate anchors using `tabIndex="-1"` while duplicate wrappers stay `aria-hidden`. A full live traversal check depends on public project rows being available in the local runtime; mocked Playwright verification covered duplicate pointer parity and primary focus centering.
 - Live Redis, live Supabase, and deployed Netlify behavior are not part of the default accessibility gate.
 
 ## Deferred Checks
@@ -163,7 +163,7 @@ Admin accessibility:
 
 - Native screen reader behavior has not been verified in the current local baseline.
 - Live Supabase-backed project cards and route-backed project modal entry are not guaranteed by the default local accessibility smoke.
-- Live Supabase-backed standard-card marquee keyboard traversal is not guaranteed by the default local accessibility smoke.
+- Live Supabase-backed standard-card marquee keyboard traversal is not guaranteed by the default local accessibility smoke; mocked local browser verification covered the marquee interaction contract when live public data was blocked.
 - Deployed Netlify function behavior for `track-visit` and `inline-svg` is not verified by plain Vite.
 
 ## Maintenance Rules
