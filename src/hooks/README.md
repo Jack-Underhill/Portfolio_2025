@@ -21,7 +21,7 @@ Keep this directory free of raw database queries, row mapping, validation, privi
 - `useMediaQuery.js`: reads and subscribes to a browser media query with SSR-safe defaults.
 - `useMeasuredMaxHeight.js`: observes a set of rendered elements and returns the tallest measured height for equalizing related UI surfaces during resize/content changes.
 - `useModalOpenFlag.js`: observes the root `data-modal-open` attribute for components that need modal-aware behavior.
-- `useModalSideEffects.js`: handles modal focus containment, Escape close, body scroll lock, focus restore, and the root modal-open flag.
+- `useModalSideEffects.js`: handles modal focus containment, Escape close, body scroll lock, conditional focus restore, and the root modal-open flag.
 - `usePrefersReducedMotion.js`: reads and subscribes to `prefers-reduced-motion: reduce` for runtime motion decisions.
 - `useProjectViewportPreview.js`: bridges touch viewport activation to the existing project preview owner while respecting modal, keyboard, and reduced-motion guardrails.
 - `useProjectModalRouting.js`: syncs project modal open/close state with `/p/:project` routes and public project detail loading.

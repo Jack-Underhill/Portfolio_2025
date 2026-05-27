@@ -61,7 +61,7 @@ Project flow:
 - `src/components/projects/ProjectCard.jsx`: project-specific case-study link names, anchor activation, and hover/focus video preview intent.
 - `src/components/projects/modal/ProjectModal.jsx`: dialog shell, accessible dialog name, backdrop close, modal content, and focus containment.
 - `src/components/projects/modal/Header.jsx`: modal title, action links, and close button.
-- `src/hooks/useModalSideEffects.js`: modal focus restore, initial focus, Escape close, body scroll lock, and root modal state.
+- `src/hooks/useModalSideEffects.js`: conditional modal focus restore, initial focus, Escape close, body scroll lock, and root modal state.
 - `src/hooks/useProjectViewportPreview.js`: touch viewport preview bridge that avoids keyboard, modal, and reduced-motion conflicts.
 - `src/hooks/useViewportActivationGroup.js`: browser-guarded active-card selection for touch-capable card groups.
 
@@ -98,7 +98,7 @@ Project modal and cards:
 - Desktop marquee duplicate copies are visual-only for assistive technology: copied lists and items are `aria-hidden`, duplicate card anchors receive `tabIndex="-1"`, and duplicate cards skip viewport-preview ref registration. Visible duplicate cards are not `inert`, so pointer hover and click behavior matches primary cards.
 - Touch-capable project groups can request one scroll-driven preview through the same `activePreviewId` owner used by hover/focus previews.
 - Viewport-driven project previews are disabled while the modal is open, while reduced motion is active, or while keyboard navigation is the latest input.
-- The modal has an `h2`-backed dialog name, focus containment, Escape close, and invoking-element focus restore when possible.
+- The modal has an `h2`-backed dialog name, focus containment, Escape close, and focus restore only when the modal was opened from focused card navigation.
 - Initial modal focus prefers useful project actions when available.
 - Route-backed project modal behavior is preserved while focus and dialog semantics are handled through shared side effects.
 
@@ -116,7 +116,7 @@ Motion, contrast, and focus:
 
 - AOS follows `prefers-reduced-motion: reduce`, disabling section animation for reduced-motion users and refreshing when the preference changes.
 - Reduced-motion users receive the standard project grid instead of a paused marquee.
-- The desktop project marquee pauses on hover, pauses while keyboard focus is inside the marquee, centers the focused primary card inside the clipped viewport, and pauses when the project modal is open.
+- The desktop project marquee pauses while actually hovered, while keyboard focus is inside the marquee, and while the project modal is open; closing the modal resumes motion unless hover or restored keyboard focus still applies.
 - Project-card hover/focus video previews do not request or play video while reduced motion is active.
 - Scroll-driven touch activation is disabled for project previews and credential card effects while reduced motion is active.
 - Education and certification cards keep hover/focus effects for pointer and keyboard users; touch viewport activation does not move focus or trigger navigation.
