@@ -1,6 +1,6 @@
 # Current Errors and Warnings
 
-Date: 2026-05-21
+Date: 2026-05-26
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last full baseline checked on 2026-05-21 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. A focused public-project marquee verification on 2026-05-25 also passed lint, build, unit tests, and the accessibility smoke.
+Last full baseline checked on 2026-05-26 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. A focused public-project marquee verification on 2026-05-26 also passed lint, build, unit tests, schema drift, and the accessibility smoke.
 
 Passing:
 
@@ -89,8 +89,9 @@ The standard project desktop marquee depends on public project rows. In constrai
 Decision:
 
 - This is a local data availability caveat, not a known marquee rendering error.
-- The duplicate-copy focus strategy is guarded structurally with `aria-hidden` plus boolean `inert`, and `cmd /c npm run test:a11y` still passes.
-- Full desktop keyboard traversal through live standard project cards should be checked with available public project rows or a future mocked browser fixture.
+- Duplicate marquee copies are guarded structurally with duplicate-wrapper `aria-hidden` plus duplicate-anchor `tabIndex="-1"`; visible duplicates are intentionally not `inert` so pointer hover and clicks work.
+- `cmd /c npm run test:a11y` still passes.
+- Full desktop keyboard and pointer traversal through live standard project cards should be checked with available public project rows. 2026-05-26: the verification window, sandboxed live fetches were blocked with `ERR_NETWORK_ACCESS_DENIED`, so the rendered interaction checks used mocked Supabase project responses in local Playwright.
 
 ## Quality Gate Target
 

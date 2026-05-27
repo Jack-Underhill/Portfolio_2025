@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-25
+Date: 2026-05-26
 
 ## Purpose
 
@@ -51,7 +51,8 @@ Remaining testing gap:
 
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
 - Add browser smoke only if viewport card activation or desktop standard-card marquee behavior needs coverage beyond the pure scoring helpers and the current axe smoke.
-- Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate marquee copies are covered by the component structure using `aria-hidden` plus boolean `inert`.
+- Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate marquee copies are covered by the component structure using `aria-hidden` plus duplicate-anchor `tabIndex="-1"`, with visible duplicates intentionally not `inert`.
+- Desktop marquee interaction verification used mocked Supabase project rows in local Playwright after sandboxed live fetches returned `ERR_NETWORK_ACCESS_DENIED`; it covered duplicate hover preview activation, normal duplicate modal clicks, modified/middle-click preservation, focus centering, and the reduced-motion grid fallback.
 - Keep live Supabase, Redis, and deployed Netlify behavior out of the default gate unless explicitly mocked.
 
 ## Projects
