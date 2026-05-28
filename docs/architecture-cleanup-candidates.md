@@ -63,13 +63,13 @@ Problem:
 
 - Unit tests, lint, build, and schema drift checks pass.
 - Focused browser accessibility smoke coverage exists for stable public/accessibility routes.
-- Modal focus browser smoke coverage, touch viewport activation browser smoke coverage, and `track-visit` function behavior are still future work.
+- Modal focus browser smoke coverage, viewport activation browser smoke coverage, and `track-visit` function behavior are still future work.
 
 Next actions:
 
 - Keep README verification aligned with the active baseline.
 - Add modal focus browser smoke tests and mocked `track-visit` tests when those areas become active work.
-- Keep viewport activation browser coverage optional unless emulated touch/pointer checks prove stable and valuable beyond the pure scoring tests.
+- Keep viewport activation browser coverage optional unless emulated scroll/pointer checks prove stable and valuable beyond the pure scoring tests.
 - Keep `cmd /c npm run test:a11y` focused on stable rendered routes unless a new browser smoke adds clear regression value.
 
 ## Definition of Done

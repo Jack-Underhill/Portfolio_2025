@@ -17,6 +17,7 @@ function StandardProjectsGroup({
   projects = [],
   isLoadingProjects,
   activePreviewId,
+  isInteractionPreviewActive,
   requestPreview,
   clearPreview,
   lastInputRef,
@@ -36,7 +37,7 @@ function StandardProjectsGroup({
     projects,
     isModalOpen,
     disabled: shouldRenderMarquee,
-    lastInputRef,
+    isInteractionPreviewActive,
     requestPreview,
     clearPreview,
   });
@@ -57,7 +58,7 @@ function StandardProjectsGroup({
       link={p.directUrl}
       linkTabIndex={isMarqueeDuplicate ? -1 : undefined}
       tags={p.techTags}
-      onOpenModal={() => openFromCard(p)}
+      onOpenModal={(options) => openFromCard(p, options)}
       isModalOpen={isModalOpen}
     />
   );

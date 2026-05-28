@@ -95,13 +95,13 @@ function useHoverPreviewIntent({
 
   const enablePreview = useCallback(() => {
     if (safeVideo && !isModalOpen && !prefersReducedMotion) {
-      requestPreview?.(id);
+      requestPreview?.(id, 'interaction');
     }
   }, [id, isModalOpen, prefersReducedMotion, requestPreview, safeVideo]);
 
   const disablePreviewAndRelease = useCallback(() => {
     disablePreviewLocal();
-    clearPreview?.(id);
+    clearPreview?.(id, 'interaction');
   }, [clearPreview, disablePreviewLocal, id]);
 
   return {

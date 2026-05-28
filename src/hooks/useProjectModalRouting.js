@@ -10,6 +10,7 @@ import { buildProjectPath, parseProjectPath } from '../domain/projects/routing';
 function useProjectModalRouting({ projects = [] } = {}) {
   const [activeProject, setActiveProject] = useState(null);
   const [activeProjectId, setActiveProjectId] = useState(null);
+  const [shouldRestoreFocusOnClose, setShouldRestoreFocusOnClose] = useState(false);
 
   const openedViaPushRef = useRef(false);
   const detailsCacheRef = useRef(new Map());
@@ -64,10 +65,12 @@ function useProjectModalRouting({ projects = [] } = {}) {
       activeProjectIdRef.current = null;
       setActiveProjectId(null);
       setActiveProject(null);
+      setShouldRestoreFocusOnClose(false);
       return;
     }
 
     openedViaPushRef.current = false;
+    setShouldRestoreFocusOnClose(false);
     openProjectById(parsed.id);
   }, [openProjectById]);
 
@@ -91,11 +94,12 @@ function useProjectModalRouting({ projects = [] } = {}) {
     setActiveProject((prev) => (prev ? mergeProjectViewModels(card, prev) : card));
   }, [projects]);
 
-  const openFromCard = useCallback((card) => {
+  const openFromCard = useCallback((card, options = {}) => {
     const id = Number(card.id);
     if (!Number.isFinite(id) || typeof window === 'undefined') return;
 
     openedViaPushRef.current = true;
+    setShouldRestoreFocusOnClose(Boolean(options.restoreFocusOnClose));
     const path = buildProjectPath(card.permalink || id);
     window.history.pushState(
       { modal: true, projectId: id, permalink: card.permalink || '' },
@@ -118,12 +122,14 @@ function useProjectModalRouting({ projects = [] } = {}) {
     window.history.replaceState({}, '', '/');
     setActiveProjectId(null);
     setActiveProject(null);
+    setShouldRestoreFocusOnClose(false);
   }, [activeProjectId]);
 
   return {
     activeProject,
     activeProjectId,
     isModalOpen,
+    shouldRestoreFocusOnClose,
     openFromCard,
     closeModal,
   };

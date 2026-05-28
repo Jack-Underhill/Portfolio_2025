@@ -405,7 +405,7 @@ Do:
 - Classify findings as `Fix now`, `Defer`, `Accepted tradeoff`, or `Unable to verify locally`.
 - Keep accessibility semantics close to the component that renders the markup.
 - Prefer native HTML structure and names before adding ARIA.
-- Keep shared modal focus, Escape close, focus restore, body scroll lock, and root modal state in existing hooks when behavior is shared.
+- Keep shared modal focus, Escape close, conditional focus restore, body scroll lock, and root modal state in existing hooks when behavior is shared.
 - Preserve route-backed project modal behavior while changing focus or dialog markup.
 - Preserve the current reduced-motion decision: default users keep the portfolio's animated feel, while reduced-motion users get calmer non-essential motion.
 - Add focused tests only for stable rendered routes, pure helpers, or browser states that can run without live Supabase, Redis, or deployed Netlify dependencies.
@@ -417,7 +417,7 @@ Do not:
 - Add broad browser test matrices for live Supabase, Redis, or deployed Netlify behavior.
 - Use ARIA to hide invalid markup that can be fixed with native structure.
 - Remove the site's visual personality for default users while implementing reduced-motion support.
-- Break route-backed modal entry or focus restore while fixing dialog semantics.
+- Break route-backed modal entry or conditional focus restore while fixing dialog semantics.
 - Treat the plain Vite `track-visit` or `inline-svg` function caveats as accessibility regressions unless user-facing fallback behavior changes.
 
 Verification:

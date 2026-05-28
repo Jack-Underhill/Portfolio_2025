@@ -16,6 +16,10 @@ const EMPTY_PROJECT_GROUPS = {
   standardProjects: [],
 };
 
+function isSameProjectId(a, b) {
+  return a != null && b != null && Number(a) === Number(b);
+}
+
 function mergeProjectCards(data, previous) {
   const rows = Array.isArray(data.projects) ? data.projects : [];
   if (!rows.length) return previous;
@@ -44,12 +48,18 @@ function Projects() {
     [featuredProjects, standardProjects],
   );
 
-  // Hover Previews
-  const [activePreviewId, setActivePreviewId] = useState(null);
+  // Project preview ownership
+  const [activePreview, setActivePreview] = useState({
+    id: null,
+    source: null,
+  });
+  const activePreviewId = activePreview.id;
+  const isInteractionPreviewActive = activePreview.source === 'interaction';
   const lastInputRef = useRef('pointer'); // 'pointer' | 'keyboard'
   const {
     activeProject,
     isModalOpen,
+    shouldRestoreFocusOnClose,
     openFromCard,
     closeModal,
   } = useProjectModalRouting({ projects: allProjects });
@@ -72,12 +82,20 @@ function Projects() {
     };
   }, []);
 
-  const requestPreview = useCallback((id) => {
-    setActivePreviewId((prev) => (prev === id ? prev : id));
+  const requestPreview = useCallback((id, source = 'interaction') => {
+    setActivePreview((prev) => (
+      isSameProjectId(prev.id, id) && prev.source === source
+        ? prev
+        : { id, source }
+    ));
   }, []);
 
-  const clearPreview = useCallback((id) => {
-    setActivePreviewId((prev) => (prev === id ? null : prev));
+  const clearPreview = useCallback((id, source) => {
+    setActivePreview((prev) => {
+      if (!isSameProjectId(prev.id, id) || (source && prev.source !== source)) return prev;
+
+      return { id: null, source: null };
+    });
   }, []);
 
   return (
@@ -86,6 +104,7 @@ function Projects() {
         projects={featuredProjects}
         isLoadingProjects={isLoadingProjects}
         activePreviewId={activePreviewId}
+        isInteractionPreviewActive={isInteractionPreviewActive}
         requestPreview={requestPreview}
         clearPreview={clearPreview}
         lastInputRef={lastInputRef}
@@ -97,6 +116,7 @@ function Projects() {
         projects={standardProjects}
         isLoadingProjects={isLoadingProjects}
         activePreviewId={activePreviewId}
+        isInteractionPreviewActive={isInteractionPreviewActive}
         requestPreview={requestPreview}
         clearPreview={clearPreview}
         lastInputRef={lastInputRef}
@@ -109,6 +129,7 @@ function Projects() {
           isOpen={isModalOpen}
           project={activeProject}
           onClose={closeModal}
+          shouldRestoreFocusOnClose={shouldRestoreFocusOnClose}
         />
       )}
     </>

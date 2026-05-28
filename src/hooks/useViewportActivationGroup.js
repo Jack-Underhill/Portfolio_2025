@@ -112,10 +112,12 @@ function useViewportActivationGroup({
 } = {}) {
   const [activeId, setActiveId] = useState(null);
   const [hasCoarsePointer, setHasCoarsePointer] = useState(false);
+  const [scrollMeasurementVersion, setScrollMeasurementVersion] = useState(0);
 
   const activeIdRef = useRef(activeId);
   const nodesRef = useRef(new Map());
   const rafIdRef = useRef(null);
+  const pendingMeasurementReasonRef = useRef('layout');
   const refCallbacksRef = useRef(new Map());
   const optionsRef = useRef({
     enabled: false,
@@ -163,7 +165,10 @@ function useViewportActivationGroup({
   }, [activationBand, disabled, hysteresis, isEnabled, minVisibleRatio, slope]);
 
   const measureItems = useCallback(() => {
+    const measurementReason = pendingMeasurementReasonRef.current;
+
     rafIdRef.current = null;
+    pendingMeasurementReasonRef.current = 'layout';
 
     if (!canUseDOM() || !optionsRef.current.enabled) {
       setActiveId((prev) => (prev === null ? prev : null));
@@ -188,10 +193,20 @@ function useViewportActivationGroup({
     });
 
     setActiveId((prev) => (Object.is(prev, nextActiveId) ? prev : nextActiveId));
+
+    if (measurementReason === 'scroll') {
+      setScrollMeasurementVersion((prev) => prev + 1);
+    }
   }, []);
 
-  const scheduleMeasurement = useCallback(() => {
-    if (!canUseDOM() || rafIdRef.current !== null) return;
+  const scheduleMeasurement = useCallback((reason = 'layout') => {
+    if (!canUseDOM()) return;
+
+    if (reason === 'scroll') {
+      pendingMeasurementReasonRef.current = 'scroll';
+    }
+
+    if (rafIdRef.current !== null) return;
 
     rafIdRef.current = window.requestAnimationFrame(measureItems);
   }, [measureItems]);
@@ -204,16 +219,17 @@ function useViewportActivationGroup({
 
     scheduleMeasurement();
 
-    const onViewportChange = () => scheduleMeasurement();
+    const onScroll = () => scheduleMeasurement('scroll');
+    const onViewportLayoutChange = () => scheduleMeasurement('layout');
 
-    window.addEventListener('scroll', onViewportChange, { passive: true });
-    window.addEventListener('resize', onViewportChange);
-    window.addEventListener('orientationchange', onViewportChange);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onViewportLayoutChange);
+    window.addEventListener('orientationchange', onViewportLayoutChange);
 
     return () => {
-      window.removeEventListener('scroll', onViewportChange);
-      window.removeEventListener('resize', onViewportChange);
-      window.removeEventListener('orientationchange', onViewportChange);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onViewportLayoutChange);
+      window.removeEventListener('orientationchange', onViewportLayoutChange);
     };
   }, [isEnabled, scheduleMeasurement]);
 
@@ -243,6 +259,7 @@ function useViewportActivationGroup({
   return {
     activeId,
     registerItem,
+    scrollMeasurementVersion,
   };
 }
 

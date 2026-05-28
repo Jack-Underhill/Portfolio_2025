@@ -7,6 +7,7 @@ function FeaturedProjectsGroup({
   projects = [],
   isLoadingProjects,
   activePreviewId,
+  isInteractionPreviewActive,
   requestPreview,
   clearPreview,
   lastInputRef,
@@ -16,7 +17,7 @@ function FeaturedProjectsGroup({
   const { registerItem } = useProjectViewportPreview({
     projects,
     isModalOpen,
-    lastInputRef,
+    isInteractionPreviewActive,
     requestPreview,
     clearPreview,
   });
@@ -62,7 +63,7 @@ function FeaturedProjectsGroup({
             desc={p.description}
             link={p.directUrl}
             tags={p.techTags}
-            onOpenModal={() => openFromCard(p)}
+            onOpenModal={(options) => openFromCard(p, options)}
             isModalOpen={isModalOpen}
           />
         ))}

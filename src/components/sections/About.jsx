@@ -18,7 +18,7 @@ function About() {
     });
 
     return (
-        <section id="About" aria-labelledby="about-heading" className="">
+        <section id="About" aria-labelledby="about-heading" className="max-w-5xl">
             <TextBlock titleId="about-heading" title="About Me" desc={aboutProjects} />
         </section>
     );

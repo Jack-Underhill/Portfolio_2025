@@ -21,7 +21,7 @@ function getFocusableElements(root) {
   });
 }
 
-function useModalSideEffects({ isOpen, onClose } = {}) {
+function useModalSideEffects({ isOpen, onClose, shouldRestoreFocusOnClose = true } = {}) {
   const initialFocusRef = useRef(null);
   const closeBtnRef = useRef(null);
   const lastActiveElRef = useRef(null);
@@ -91,12 +91,19 @@ function useModalSideEffects({ isOpen, onClose } = {}) {
 
       // Restore focus
       const el = lastActiveElRef.current;
-      if (el && document.contains(el) && typeof el.focus === "function") el.focus();
+      if (
+        shouldRestoreFocusOnClose
+        && el
+        && document.contains(el)
+        && typeof el.focus === "function"
+      ) {
+        el.focus();
+      }
 
       if (prevModalOpen === null) root.removeAttribute("data-modal-open");
       else root.setAttribute("data-modal-open", prevModalOpen);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, shouldRestoreFocusOnClose]);
 
   return { closeBtnRef, initialFocusRef, modalRef };
 }
