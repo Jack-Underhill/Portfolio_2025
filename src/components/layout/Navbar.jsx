@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import menu from '../../assets/menu.svg';
 import useModalOpenFlag from '../../hooks/useModalOpenFlag';
@@ -11,9 +11,13 @@ const SECTION_LINKS = [
     { href: '#Contact', label: 'Contact' },
 ];
 
-function Navbar() {
+function Navbar({ resetSignal = 0 }) {
     const [isOpen, setIsOpen] = useState(false);
     const isModalOpen = useModalOpenFlag();
+
+    useEffect(() => {
+        setIsOpen(false);
+    }, [resetSignal]);
 
     const menuClick = () => {
         setIsOpen(!isOpen);

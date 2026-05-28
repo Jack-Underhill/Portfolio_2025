@@ -45,10 +45,10 @@ Current verification behavior:
 
 Public app:
 
-- `src/App.jsx`: public layout, AOS initialization, top bar, main section stack, skip link, main landmark, and back-to-top control.
+- `src/App.jsx`: public layout, AOS initialization, top bar, main section stack, main landmark, top focus reset target, and back-to-top control.
 - `src/components/layout/Navbar.jsx`: collapsible section navigation, menu button, collapsed-link tab behavior, and navigation labels.
 - `src/components/layout/VisitCount.jsx`: async visit-count status text and expected local fallback behavior.
-- `src/components/buttons/BackToTopButton.jsx`: floating public back-to-top control and reduced-motion scroll behavior.
+- `src/components/buttons/BackToTopButton.jsx`: floating public back-to-top control, reduced-motion scroll behavior, and top tab-order reset trigger.
 - `src/components/sections/*`: public content sections, section landmarks, heading order, and fallback content.
 
 Project flow:
@@ -84,8 +84,9 @@ Admin:
 
 Public structure:
 
-- The public page has a skip link, one `main` landmark, a semantic top header, one real `h1`, and labeled section landmarks.
+- The public page has one `main` landmark, a semantic top header, one real `h1`, and labeled section landmarks.
 - Public navigation uses valid link-based markup, a labeled navigation landmark, an expanded/collapsed menu button, and collapsed links that leave the tab order.
+- Public back-to-top activation returns programmatic focus to the top header before the navigation menu and closes the section menu, so the next Tab starts again at the menu button without moving pointer users directly onto the menu control.
 - Hidden back-to-top controls leave the tab order until visible.
 - Decorative icons are hidden from assistive technology where the surrounding control or link already provides the name.
 - Public icon and image names favor action-oriented or content-specific text rather than implementation-style file names.

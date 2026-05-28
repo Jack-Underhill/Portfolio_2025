@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -19,6 +19,8 @@ import Contact from './components/sections/Contact'
 
 function App() {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const topFocusRef = useRef(null);
+  const [navigationResetVersion, setNavigationResetVersion] = useState(0);
 
   useEffect(() => {
     AOS.init({
@@ -37,6 +39,16 @@ function App() {
     return () => clearTimeout(timeout);
   }, []);
 
+  const resetTopTabOrder = useCallback(() => {
+    setNavigationResetVersion((version) => version + 1);
+
+    try {
+      topFocusRef.current?.focus({ preventScroll: true });
+    } catch {
+      topFocusRef.current?.focus();
+    }
+  }, []);
+
   return (
     <div className='relative w-full h-full'>
       {/* Background gradient + linen noise */}
@@ -45,9 +57,13 @@ function App() {
       />
 
       {/* Top Bar */}
-      <header className="m-5 sm:m-10 md:mx-15 lg:mx-20 h-12 flex justify-between">
+      <header
+        ref={topFocusRef}
+        tabIndex={-1}
+        className="m-5 sm:m-10 md:mx-15 lg:mx-20 h-12 flex justify-between focus:outline-none"
+      >
         <VisitCount />
-        <Navbar />
+        <Navbar resetSignal={navigationResetVersion} />
       </header>
 
       {/* Layout */}
@@ -65,7 +81,7 @@ function App() {
         <Contact />
       </main>
 
-      <BackToTopButton showAfter={500} />
+      <BackToTopButton showAfter={500} onResetFocus={resetTopTabOrder} />
     </div>
   );
 }
