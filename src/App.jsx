@@ -60,11 +60,12 @@ function App() {
       <header
         ref={topFocusRef}
         tabIndex={-1}
-        className="m-5 sm:m-10 md:mx-15 lg:mx-20 h-12 flex justify-between focus:outline-none"
+        className="m-5 sm:m-10 md:mx-15 lg:mx-20 h-12 flex items-center focus:outline-none"
       >
         <VisitCount />
-        <Navbar resetSignal={navigationResetVersion} />
       </header>
+
+      <Navbar resetSignal={navigationResetVersion} />
 
       {/* Layout */}
       <main

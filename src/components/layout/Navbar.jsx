@@ -29,7 +29,7 @@ function Navbar({ resetSignal = 0 }) {
     return (
         <nav
             aria-label="Primary sections"
-            className="w-fit z-12 h-full flex flex-col sm:flex-row-reverse gap-0 sm:gap-10 items-center"
+            className="fixed right-5 top-5 z-40 h-12 w-fit sm:right-10 sm:top-10 md:right-15 lg:right-20 flex flex-col sm:flex-row-reverse gap-0 sm:gap-10 items-center"
             data-aos="flip-up"
         >
             <button
