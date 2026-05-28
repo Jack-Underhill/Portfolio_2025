@@ -10,6 +10,7 @@ function useHoverPreviewIntent({
   requestPreview,
   clearPreview,
   hoverIntentMs = 250,
+  retainVideoSource = false,
 } = {}) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [isPreviewed, setIsPreviewed] = useState(false);
@@ -32,9 +33,11 @@ function useHoverPreviewIntent({
 
     videoEl.pause();
     videoEl.currentTime = 0;
+    if (retainVideoSource) return;
+
     videoEl.removeAttribute('src');
     videoEl.load();
-  }, []);
+  }, [retainVideoSource]);
 
   useEffect(() => {
     if (!isActivePreview || typeof window === 'undefined') return undefined;

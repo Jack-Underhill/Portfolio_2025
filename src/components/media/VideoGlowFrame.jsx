@@ -6,6 +6,7 @@ const VideoGlowFrame = forwardRef(function VideoGlowFrame({
     src,
     thumbnail = null,
     isPlaying = false,
+    shouldPrefetchVideo = false,
 
     // Outter div styling
     className = "",
@@ -19,6 +20,10 @@ const VideoGlowFrame = forwardRef(function VideoGlowFrame({
     // Any other <video> props
     ...videoProps
 }, ref) {
+    const shouldShowVideo = Boolean(!shouldPrefetchVideo || isPlaying);
+    const shouldShowThumbnail = Boolean(shouldPrefetchVideo && !isPlaying);
+    const shouldOverlayImage = Boolean(shouldPrefetchVideo && thumbnail);
+
     return (
         <div className={cx("relative", className)}>
             {/* Glow wrapper */}
@@ -39,8 +44,26 @@ const VideoGlowFrame = forwardRef(function VideoGlowFrame({
                 src={src}
                 poster={thumbnail}
                 {...videoProps}
-                className={cx("relative z-10 w-full h-auto aspect-video object-cover rounded-xl", videoClassName)}
+                className={cx(
+                    "relative z-10 w-full h-auto aspect-video object-cover rounded-xl",
+                    "pointer-events-none transition-opacity duration-500 ease-in-out",
+                    shouldShowVideo ? "opacity-100" : "opacity-0",
+                    videoClassName,
+                )}
             />
+
+            {shouldOverlayImage ? (
+                <img
+                    src={thumbnail}
+                    alt=""
+                    aria-hidden="true"
+                    className={cx(
+                        "absolute inset-0 z-[11] w-full h-full object-cover rounded-xl",
+                        "pointer-events-none transition-opacity duration-500 ease-in-out",
+                        shouldShowThumbnail ? "opacity-100" : "opacity-0",
+                    )}
+                />
+            ) : null}
 
             {/* Optional overlay content */}
             {children ? (

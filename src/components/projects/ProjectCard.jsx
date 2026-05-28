@@ -50,6 +50,7 @@ const ProjectCard = forwardRef(function ProjectCard({
         requestPreview,
         clearPreview,
         hoverIntentMs: HOVER_INTENT_MS,
+        retainVideoSource: shouldPrefetchVideo,
     });
 
     const handleOnClick = (e) => {
@@ -120,6 +121,7 @@ const ProjectCard = forwardRef(function ProjectCard({
                         muted
                         loop
                         playsInline
+                        shouldPrefetchVideo={shouldPrefetchVideo}
                         preload={shouldPrefetchVideo ? 'auto' : isLoadingVideo ? 'metadata' : 'none'}
                     >
                         {/* Centered overlay title */}
