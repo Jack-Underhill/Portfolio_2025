@@ -17,6 +17,7 @@ function StandardProjectsGroup({
   projects = [],
   isLoadingProjects,
   activePreviewId,
+  isInteractionPreviewActive,
   requestPreview,
   clearPreview,
   lastInputRef,
@@ -36,7 +37,7 @@ function StandardProjectsGroup({
     projects,
     isModalOpen,
     disabled: shouldRenderMarquee,
-    lastInputRef,
+    isInteractionPreviewActive,
     requestPreview,
     clearPreview,
   });

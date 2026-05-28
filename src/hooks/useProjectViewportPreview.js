@@ -7,48 +7,63 @@ function useProjectViewportPreview({
   projects = [],
   isModalOpen = false,
   disabled = false,
-  lastInputRef,
+  isInteractionPreviewActive = false,
   requestPreview,
   clearPreview,
 } = {}) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const viewportPreviewIdRef = useRef(null);
+  const isInteractionPreviewActiveRef = useRef(isInteractionPreviewActive);
   const isViewportPreviewDisabled = disabled || isModalOpen || prefersReducedMotion || projects.length === 0;
-  const { activeId: viewportActiveProjectId, registerItem } = useViewportActivationGroup({
+  const {
+    activeId: viewportActiveProjectId,
+    registerItem,
+    scrollMeasurementVersion,
+  } = useViewportActivationGroup({
+    enabled: true,
     disabled: isViewportPreviewDisabled,
   });
 
   useEffect(() => {
-    const previousViewportPreviewId = viewportPreviewIdRef.current;
-    const isKeyboardNavigation = lastInputRef?.current === 'keyboard';
+    isInteractionPreviewActiveRef.current = isInteractionPreviewActive;
+  }, [isInteractionPreviewActive]);
 
-    if (isViewportPreviewDisabled || viewportActiveProjectId === null) {
-      if (
-        previousViewportPreviewId !== null
-        && (isViewportPreviewDisabled || !isKeyboardNavigation)
-      ) {
-        clearPreview?.(previousViewportPreviewId);
+  useEffect(() => {
+    const previousViewportPreviewId = viewportPreviewIdRef.current;
+
+    if (isViewportPreviewDisabled) {
+      if (previousViewportPreviewId !== null) {
+        clearPreview?.(previousViewportPreviewId, 'viewport');
         viewportPreviewIdRef.current = null;
       }
 
       return;
     }
 
-    if (isKeyboardNavigation) return;
+    if (scrollMeasurementVersion === 0 || isInteractionPreviewActiveRef.current) return;
+
+    if (viewportActiveProjectId === null) {
+      if (previousViewportPreviewId !== null) {
+        clearPreview?.(previousViewportPreviewId, 'viewport');
+        viewportPreviewIdRef.current = null;
+      }
+
+      return;
+    }
 
     viewportPreviewIdRef.current = viewportActiveProjectId;
-    requestPreview?.(viewportActiveProjectId);
+    requestPreview?.(viewportActiveProjectId, 'viewport');
   }, [
     clearPreview,
     isViewportPreviewDisabled,
-    lastInputRef,
     requestPreview,
+    scrollMeasurementVersion,
     viewportActiveProjectId,
   ]);
 
   useEffect(() => () => {
     if (viewportPreviewIdRef.current !== null) {
-      clearPreview?.(viewportPreviewIdRef.current);
+      clearPreview?.(viewportPreviewIdRef.current, 'viewport');
     }
   }, [clearPreview]);
 

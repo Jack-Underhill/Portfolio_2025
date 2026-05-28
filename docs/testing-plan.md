@@ -51,7 +51,7 @@ Current checks:
 Remaining testing gap:
 
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
-- Add browser smoke only if viewport card activation or desktop standard-card marquee behavior needs coverage beyond the pure scoring helpers and the current axe smoke.
+- Add browser smoke only if project viewport card activation or desktop standard-card marquee behavior needs coverage beyond the pure scoring helpers and the current axe smoke.
 - Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate marquee copies are covered by the component structure using `aria-hidden` plus duplicate-anchor `tabIndex="-1"`, with visible duplicates intentionally not `inert`.
 - Desktop marquee interaction verification used mocked Supabase project rows in local Playwright after sandboxed live fetches returned `ERR_NETWORK_ACCESS_DENIED`; it covered duplicate hover preview activation, normal duplicate modal clicks, modified/middle-click preservation, focus centering, and the reduced-motion grid fallback.
 - Focus alignment center-delta math is covered by `tests/hooks/useProjectMarqueeMotion.test.js`; a heavier ProjectCard/CardSurface component test was intentionally deferred because the existing suite does not include a React component harness and the prop path was verified structurally/manually.
@@ -144,7 +144,7 @@ Future coverage:
 Current status:
 
 - Static component-local data.
-- Touch-capable scroll activation is section-local and uses the shared viewport activation hook.
+- Project scroll activation is section-local, enabled outside the marquee path, and uses the shared viewport activation hook. Credential scroll activation remains touch-capability gated.
 - Future candidate for database/admin/public data flow.
 
 Current coverage:

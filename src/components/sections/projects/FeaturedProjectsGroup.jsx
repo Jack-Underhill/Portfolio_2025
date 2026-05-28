@@ -7,6 +7,7 @@ function FeaturedProjectsGroup({
   projects = [],
   isLoadingProjects,
   activePreviewId,
+  isInteractionPreviewActive,
   requestPreview,
   clearPreview,
   lastInputRef,
@@ -16,7 +17,7 @@ function FeaturedProjectsGroup({
   const { registerItem } = useProjectViewportPreview({
     projects,
     isModalOpen,
-    lastInputRef,
+    isInteractionPreviewActive,
     requestPreview,
     clearPreview,
   });
