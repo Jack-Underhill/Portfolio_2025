@@ -34,6 +34,7 @@ const ProjectCard = forwardRef(function ProjectCard({
         video === null || video === '' || video === undefined || video === 'NULL' || !canUseNetlifyFunctions()
             ? placeholderVideo
             : video;
+    const shouldPrefetchVideo = Boolean(prefetchVideo && safeVideo);
 
     const {
         videoRef,
@@ -113,13 +114,13 @@ const ProjectCard = forwardRef(function ProjectCard({
                 {safeVideo && (
                     <VideoGlowFrame
                         ref={videoRef}
-                        src={isLoadingVideo ? safeVideo : undefined}
+                        src={shouldPrefetchVideo || isLoadingVideo ? safeVideo : undefined}
                         thumbnail={image}
                         isPlaying={isPreviewed}
                         muted
                         loop
                         playsInline
-                        preload={isLoadingVideo ? 'metadata' : 'none'}
+                        preload={shouldPrefetchVideo ? 'auto' : isLoadingVideo ? 'metadata' : 'none'}
                     >
                         {/* Centered overlay title */}
                         <div 
