@@ -21,6 +21,7 @@ const ProjectCard = forwardRef(function ProjectCard({
     lastInputRef,
     image, 
     video, 
+    prefetchVideo = false,
     title, 
     desc, 
     link, 
@@ -105,6 +106,7 @@ const ProjectCard = forwardRef(function ProjectCard({
             onFocus={handleOnFocus}
             onBlur={handleOnBlur}
             data-aos="flip-left"
+            data-prefetch-video={prefetchVideo ? "true" : undefined}
             className='h-full p-2 flex flex-col'
         >
             <div className='relative w-full aspect-video rounded-xl group/image [container-type:inline-size]'>

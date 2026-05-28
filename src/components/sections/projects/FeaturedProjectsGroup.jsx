@@ -59,6 +59,7 @@ function FeaturedProjectsGroup({
             lastInputRef={lastInputRef}
             image={p.imageUrl}
             video={p.videoUrl}
+            prefetchVideo
             title={p.title}
             desc={p.description}
             link={p.directUrl}
