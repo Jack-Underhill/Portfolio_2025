@@ -13,15 +13,29 @@ const SECTION_LINKS = [
 
 function Navbar({ resetSignal = 0 }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const isModalOpen = useModalOpenFlag();
 
     useEffect(() => {
         setIsOpen(false);
     }, [resetSignal]);
 
+    useEffect(() => {
+        const updateScrolledState = () => {
+            setIsScrolled(window.scrollY > 24);
+        };
+
+        updateScrolledState();
+        window.addEventListener('scroll', updateScrolledState, { passive: true });
+
+        return () => window.removeEventListener('scroll', updateScrolledState);
+    }, []);
+
     const menuClick = () => {
         setIsOpen(!isOpen);
     }
+
+    const hasElevatedSurface = isOpen || isScrolled;
 
     // Fully remove it from the DOM while modal is open
     if (isModalOpen) return null;
@@ -29,12 +43,22 @@ function Navbar({ resetSignal = 0 }) {
     return (
         <nav
             aria-label="Primary sections"
-            className="fixed right-5 top-5 z-40 h-12 w-fit sm:right-10 sm:top-10 md:right-15 lg:right-20 flex flex-col sm:flex-row-reverse gap-0 sm:gap-10 items-center"
+            className="fixed right-5 top-5 z-40 h-14 w-fit sm:right-10 sm:top-10 md:right-15 lg:right-20 flex flex-col sm:flex-row-reverse gap-0 sm:gap-10 items-center"
             data-aos="flip-up"
         >
             <button
                 type="button"
-                className='h-full self-end hover:animate-pulse hover:scale-125 focus:animate-pulse focus:scale-125 motion-reduce:hover:scale-100 motion-reduce:focus:scale-100 motion-reduce:hover:animate-none motion-reduce:focus:animate-none'
+                className={[
+                    'group grid size-14 place-items-center self-end rounded-2xl border text-text',
+                    'shadow-card-inset backdrop-blur-md',
+                    'transition-[transform,translate,scale,rotate,background-color,border-color,box-shadow,filter] duration-500 ease-in-out',
+                    'hover:scale-105 focus:scale-105 hover:rotate-360 focus:rotate-360',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page',
+                    'motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:focus:scale-100 motion-reduce:hover:rotate-0 motion-reduce:focus:rotate-0',
+                    hasElevatedSurface
+                        ? 'border-button-border/80 bg-card/90 [box-shadow:var(--shadow-card-inset),var(--shadow-accent-ring),var(--shadow-accent-glow-soft)]'
+                        : 'border-button-border/55 bg-card/55 shadow-subtle-highlight hover:border-button-border/80 hover:bg-card/75 hover:[box-shadow:var(--shadow-card-inset),var(--shadow-accent-ring-soft),var(--shadow-accent-glow-soft)]',
+                ].join(' ')}
                 onClick={menuClick}
                 aria-controls="primary-section-navigation"
                 aria-expanded={isOpen}
@@ -44,7 +68,7 @@ function Navbar({ resetSignal = 0 }) {
                     src={menu}
                     alt=""
                     aria-hidden="true"
-                    className='h-full transition-transform duration-300 ease-in-out hover:rotate-360 motion-reduce:transition-none motion-reduce:hover:rotate-0'
+                    className='size-8 object-contain opacity-85 transition-opacity duration-300 ease-in-out group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none'
                 />
             </button>
             <div
