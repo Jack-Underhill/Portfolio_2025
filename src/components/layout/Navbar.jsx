@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import menu from '../../assets/menu.svg';
 import useModalOpenFlag from '../../hooks/useModalOpenFlag';
 
 const SECTION_LINKS = [
@@ -64,12 +63,32 @@ function Navbar({ resetSignal = 0 }) {
                 aria-expanded={isOpen}
                 aria-label={isOpen ? 'Close section navigation' : 'Open section navigation'}
             >
-                <img
-                    src={menu}
-                    alt=""
+                <span
                     aria-hidden="true"
-                    className='size-8 object-contain opacity-85 transition-opacity duration-300 ease-in-out group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none'
-                />
+                    className="relative block h-6 w-8 opacity-85 transition-opacity duration-300 ease-in-out group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                >
+                    <span
+                        className={[
+                            'absolute left-0 top-1/2 h-0.5 rounded-full bg-emerald-50 shadow-subtle-highlight',
+                            'transition-[transform,width,opacity] duration-300 ease-in-out motion-reduce:transition-none',
+                            isOpen ? 'w-8 -translate-y-1/2 rotate-45' : 'w-8 -translate-y-2 rotate-0',
+                        ].join(' ')}
+                    />
+                    <span
+                        className={[
+                            'absolute left-0 top-1/2 h-0.5 rounded-full bg-emerald-50 shadow-subtle-highlight',
+                            'transition-[transform,width,opacity] duration-300 ease-in-out motion-reduce:transition-none',
+                            isOpen ? 'w-0 -translate-y-1/2 opacity-0' : 'w-8 -translate-y-1/2 opacity-100',
+                        ].join(' ')}
+                    />
+                    <span
+                        className={[
+                            'absolute left-0 top-1/2 h-0.5 rounded-full bg-emerald-50 shadow-subtle-highlight',
+                            'transition-[transform,width,opacity] duration-300 ease-in-out motion-reduce:transition-none',
+                            isOpen ? 'w-8 -translate-y-1/2 -rotate-45' : 'w-5 translate-x-3 translate-y-1.5 rotate-0',
+                        ].join(' ')}
+                    />
+                </span>
             </button>
             <div
                 id="primary-section-navigation"
