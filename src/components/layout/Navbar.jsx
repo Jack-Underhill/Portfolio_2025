@@ -31,8 +31,12 @@ function Navbar({ resetSignal = 0 }) {
     }, []);
 
     const menuClick = () => {
-        setIsOpen(!isOpen);
-    }
+        setIsOpen((current) => !current);
+    };
+
+    const closeMenu = () => {
+        setIsOpen(false);
+    };
 
     const hasElevatedSurface = isOpen || isScrolled;
 
@@ -42,7 +46,7 @@ function Navbar({ resetSignal = 0 }) {
     return (
         <nav
             aria-label="Primary sections"
-            className="fixed right-5 top-5 z-40 h-14 w-fit sm:right-10 sm:top-10 md:right-15 lg:right-20 flex flex-col sm:flex-row-reverse gap-0 sm:gap-10 items-center"
+            className="fixed right-5 top-5 z-40 flex w-fit flex-col items-end gap-3 sm:right-10 sm:top-10 md:right-15 md:flex-row-reverse md:items-center md:gap-4 lg:right-20"
             data-aos="flip-up"
         >
             <button
@@ -93,15 +97,22 @@ function Navbar({ resetSignal = 0 }) {
             <div
                 id="primary-section-navigation"
                 aria-hidden={!isOpen}
-                className={`pr-3 sm:pr-0 flex flex-col sm:flex-row gap-5 text-md font-semibold text-emerald-50 transition-all duration-400 ease-in-out items-center ${isOpen ? 'opacity-100 translate-y-10 sm:translate-x-0 sm:translate-y-0' : 'opacity-0 translate-y-0 sm:translate-x-10 pointer-events-none'}`}
+                className={[
+                    'flex min-w-48 origin-top-right flex-col gap-1 rounded-2xl border border-card-border/85 bg-card/85 p-2.5 text-sm font-semibold text-emerald-50',
+                    'shadow-card-inset backdrop-blur-md md:min-w-0 md:origin-right md:flex-row md:items-center md:gap-2 md:rounded-full md:px-3',
+                    'transition-[opacity,transform,visibility] duration-300 ease-in-out motion-reduce:transition-none',
+                    isOpen
+                        ? 'visible translate-y-0 scale-100 opacity-100 md:translate-x-0'
+                        : 'invisible -translate-y-2 scale-95 opacity-0 pointer-events-none md:translate-x-3 md:translate-y-0',
+                ].join(' ')}
             >
                 {SECTION_LINKS.map((link) => (
                     <a
                         key={link.href}
                         href={link.href}
-                        onClick={menuClick}
+                        onClick={closeMenu}
                         tabIndex={isOpen ? undefined : -1}
-                        className="block rounded-sm hover-animated-gradient focus:outline-none focus-visible:ring-1 focus-visible:ring-focus-ring"
+                        className="block min-h-11 rounded-xl px-4 py-2.5 text-center transition-[background-color,color,transform] duration-200 ease-in-out hover:scale-105 hover:bg-accent/10 hover:text-accent-soft focus:outline-none focus-visible:scale-105 focus-visible:ring-1 focus-visible:ring-focus-ring motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:focus-visible:scale-100 md:min-h-0 md:rounded-full md:px-3 md:py-2"
                     >
                         {link.label}
                     </a>
