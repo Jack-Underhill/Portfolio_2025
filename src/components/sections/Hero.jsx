@@ -26,9 +26,9 @@ function Hero() {
         <section
             id="Hero"
             aria-labelledby="hero-heading"
-            className="mt-12 flex w-full flex-col-reverse items-center gap-y-6 gap-x-4 sm:mt-14 md:mt-16 md:flex-row lg:mt-30 2xl:mt-60"
+            className="mt-12 flex w-full scroll-mt-28 flex-col-reverse items-center gap-y-6 gap-x-4 sm:mt-14 md:mt-16 md:flex-row lg:mt-30 2xl:mt-60"
         >
-            <div className="scroll-mt-10 z-100 flex w-full flex-col justify-center gap-y-7 md:w-3/5">
+            <div className="z-100 flex w-full flex-col justify-center gap-y-7 md:w-3/5">
                 <h1 id="hero-heading" className='text-6xl font-bold text-emerald-50' data-aos="fade-up">
                     Jack Underhill
                 </h1>

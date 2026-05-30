@@ -5,7 +5,7 @@ import useModalOpenFlag from '../../hooks/useModalOpenFlag';
 const cx = (...classes) => classes.filter(Boolean).join(' ');
 
 const SECTION_LINKS = [
-    { href: '#Hero', label: 'Home' },
+    { href: '#Hero', label: 'Home', scrollToTop: true },
     { href: '#Projects', label: 'Projects' },
     { href: '#Education', label: 'Education' },
     { href: '#Certifications', label: 'Certifications' },
@@ -15,6 +15,7 @@ const SECTION_LINKS = [
 
 const SECTION_IDS = SECTION_LINKS.map((link) => link.href.slice(1));
 const LG_NAV_QUERY = '(min-width: 1024px)';
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 const NAVBAR_CLASSES = cx(
     'fixed right-5 top-5 z-40',
@@ -251,10 +252,24 @@ function MenuToggle({ hasElevatedSurface, isOpen, onClick }) {
 function NavLink({ isActive, isMenuOpen, link, onSelect }) {
     const sectionId = link.href.slice(1);
 
+    const handleClick = (event) => {
+        if (link.scrollToTop) {
+            const prefersReducedMotion = window.matchMedia(REDUCED_MOTION_QUERY).matches;
+
+            event.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: prefersReducedMotion ? 'auto' : 'smooth',
+            });
+        }
+
+        onSelect(sectionId);
+    };
+
     return (
         <a
             href={link.href}
-            onClick={() => onSelect(sectionId)}
+            onClick={handleClick}
             tabIndex={isMenuOpen ? undefined : -1}
             aria-current={isActive ? 'location' : undefined}
             data-nav-link

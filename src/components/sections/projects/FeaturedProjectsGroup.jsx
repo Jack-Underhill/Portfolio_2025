@@ -27,7 +27,7 @@ function FeaturedProjectsGroup({
       id="Projects"
       aria-labelledby="featured-work-heading"
       className="
-        w-full min-h-fit scroll-mt-10
+        w-full min-h-fit scroll-mt-28
         flex flex-col justify-center
       "
     >

@@ -54,7 +54,7 @@ function Education() {
     });
 
     return (
-        <section id="Education" aria-labelledby="education-heading" className="flex flex-col gap-8">
+        <section id="Education" aria-labelledby="education-heading" className="flex scroll-mt-28 flex-col gap-8">
             <SectionTitle id="education-heading" data-aos="flip-down">
                 Education
             </SectionTitle>

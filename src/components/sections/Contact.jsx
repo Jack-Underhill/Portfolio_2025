@@ -77,7 +77,7 @@ function Contact() {
   });
 
   return (
-    <section id='Contact' aria-labelledby="contact-heading" className='scroll-mt-10 flex flex-col gap-8'>
+    <section id='Contact' aria-labelledby="contact-heading" className='flex scroll-mt-28 flex-col gap-8'>
       {/* Header */}
       <SectionTitle id="contact-heading" data-aos="flip-down">
         Contact Me
