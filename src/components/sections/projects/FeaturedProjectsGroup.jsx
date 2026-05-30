@@ -24,7 +24,6 @@ function FeaturedProjectsGroup({
 
   return (
     <section
-      id="Projects"
       aria-labelledby="featured-work-heading"
       className="
         w-full min-h-fit scroll-mt-28

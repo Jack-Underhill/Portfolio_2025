@@ -100,29 +100,31 @@ function Projects() {
 
   return (
     <>
-      <FeaturedProjectsGroup
-        projects={featuredProjects}
-        isLoadingProjects={isLoadingProjects}
-        activePreviewId={activePreviewId}
-        isInteractionPreviewActive={isInteractionPreviewActive}
-        requestPreview={requestPreview}
-        clearPreview={clearPreview}
-        lastInputRef={lastInputRef}
-        openFromCard={openFromCard}
-        isModalOpen={isModalOpen}
-      />
+      <div id="Projects" className="flex scroll-mt-28 flex-col gap-30 sm:gap-35 lg:gap-35">
+        <FeaturedProjectsGroup
+          projects={featuredProjects}
+          isLoadingProjects={isLoadingProjects}
+          activePreviewId={activePreviewId}
+          isInteractionPreviewActive={isInteractionPreviewActive}
+          requestPreview={requestPreview}
+          clearPreview={clearPreview}
+          lastInputRef={lastInputRef}
+          openFromCard={openFromCard}
+          isModalOpen={isModalOpen}
+        />
 
-      <StandardProjectsGroup
-        projects={standardProjects}
-        isLoadingProjects={isLoadingProjects}
-        activePreviewId={activePreviewId}
-        isInteractionPreviewActive={isInteractionPreviewActive}
-        requestPreview={requestPreview}
-        clearPreview={clearPreview}
-        lastInputRef={lastInputRef}
-        openFromCard={openFromCard}
-        isModalOpen={isModalOpen}
-      />
+        <StandardProjectsGroup
+          projects={standardProjects}
+          isLoadingProjects={isLoadingProjects}
+          activePreviewId={activePreviewId}
+          isInteractionPreviewActive={isInteractionPreviewActive}
+          requestPreview={requestPreview}
+          clearPreview={clearPreview}
+          lastInputRef={lastInputRef}
+          openFromCard={openFromCard}
+          isModalOpen={isModalOpen}
+        />
+      </div>
 
       {isModalOpen && (
         <ProjectModal
