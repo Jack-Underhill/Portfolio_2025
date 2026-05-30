@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-28
+Date: 2026-05-29
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records the testing plan by feature area. It stays high level, wit
 
 ## Current State
 
-Vitest is installed as the default unit-test runner. A focused Playwright/axe smoke runner is available through `cmd /c npm run test:a11y` for stable rendered accessibility checks.
+Vitest is installed as the default unit-test runner. A focused Playwright/axe smoke runner is available through `cmd /c npm run test:a11y` for stable rendered accessibility checks, including the public fixed-navigation baseline.
 
 Current baseline test files:
 
@@ -49,10 +49,17 @@ Current checks:
 - `cmd /c npm run lint` passes.
 - `cmd /c npm run test:a11y` passes.
 
+Current accessibility smoke coverage:
+
+- Public home page main landmark, primary section navigation landmark, and owner `h1`.
+- Desktop fixed navigation default-open tray behavior through the `Close section navigation` button state.
+- Mobile fixed navigation default-closed state, menu opening, exposed section links, and axe scan after opening.
+- Invalid architecture viewer fallback, disabled zoom controls, safe Back link, and axe scan.
+
 Remaining testing gap:
 
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
-- Add browser smoke only if project viewport card activation or desktop standard-card marquee behavior needs coverage beyond the pure scoring helpers and the current axe smoke.
+- Add browser smoke only if project viewport card activation, desktop standard-card marquee behavior, or deeper fixed-nav scrollspy behavior needs coverage beyond the pure scoring helpers, current nav smoke, and axe checks.
 - Featured project video prefetch has focused helper coverage for retained-source cleanup versus default source release in `tests/hooks/useHoverPreviewIntent.test.js`; prop routing and guarded `safeVideo` source/preload behavior remain covered by structural/manual verification rather than a React component harness.
 - Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate marquee copies are covered by the component structure using `aria-hidden` plus duplicate-anchor `tabIndex="-1"`, with visible duplicates intentionally not `inert`.
 - Desktop marquee interaction verification used mocked Supabase project rows in local Playwright after sandboxed live fetches returned `ERR_NETWORK_ACCESS_DENIED`; it covered duplicate hover preview activation, normal duplicate modal clicks, modified/middle-click preservation, focus centering, and the reduced-motion grid fallback.
