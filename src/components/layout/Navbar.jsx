@@ -219,7 +219,7 @@ function MenuIcon({ isOpen }) {
     );
 }
 
-function MenuToggle({ hasElevatedSurface, isOpen, onClick }) {
+function MenuToggle({ buttonRef, hasElevatedSurface, isOpen, onClick }) {
     const { rotation, handlers } = useMenuButtonRotation();
     const label = cx(
         isOpen ? 'Close' : 'Open',
@@ -228,6 +228,7 @@ function MenuToggle({ hasElevatedSurface, isOpen, onClick }) {
 
     return (
         <button
+            ref={buttonRef}
             type="button"
             className={cx(
                 TOGGLE_BASE_CLASSES,
@@ -315,6 +316,8 @@ function NavLinks({ activeSectionId, isOpen, links, onSelect }) {
 
 function Navbar({ resetSignal = 0 }) {
     const isLargeScreen = useMediaQuery(LG_NAV_QUERY);
+    const navRef = useRef(null);
+    const toggleButtonRef = useRef(null);
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [activeSectionId, setActiveSectionId] = useActiveSection(SECTION_IDS);
@@ -335,6 +338,35 @@ function Navbar({ resetSignal = 0 }) {
         return () => window.removeEventListener('scroll', updateScrolledState);
     }, []);
 
+    useEffect(() => {
+        if (isModalOpen) {
+            setIsOpen(false);
+        }
+    }, [isModalOpen]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const closeOnFocusedNavEscape = (event) => {
+            if (
+                event.key !== 'Escape'
+                || !navRef.current?.contains(document.activeElement)
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+            setIsOpen(false);
+            toggleButtonRef.current?.focus();
+        };
+
+        document.addEventListener('keydown', closeOnFocusedNavEscape);
+
+        return () => {
+            document.removeEventListener('keydown', closeOnFocusedNavEscape);
+        };
+    }, [isOpen]);
+
     const toggleMenu = () => {
         setIsOpen((current) => !current);
     };
@@ -353,11 +385,13 @@ function Navbar({ resetSignal = 0 }) {
 
     return (
         <nav
+            ref={navRef}
             aria-label="Primary sections"
             className={NAVBAR_CLASSES}
             // data-aos="flip-up"
         >
             <MenuToggle
+                buttonRef={toggleButtonRef}
                 isOpen={isOpen}
                 hasElevatedSurface={hasElevatedSurface}
                 onClick={toggleMenu}
