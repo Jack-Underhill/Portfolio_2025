@@ -18,6 +18,17 @@ export function releasePreviewVideoElement(videoEl, { retainVideoSource = false 
   videoEl.load();
 }
 
+function enforceInlineMutedPlayback(videoEl) {
+  if (!videoEl) return;
+
+  videoEl.muted = true;
+  videoEl.defaultMuted = true;
+  videoEl.playsInline = true;
+  videoEl.setAttribute('muted', '');
+  videoEl.setAttribute('playsinline', '');
+  videoEl.setAttribute('webkit-playsinline', '');
+}
+
 function useHoverPreviewIntent({
   id,
   safeVideo,
@@ -139,6 +150,7 @@ function useHoverPreviewIntent({
       if (cancelled || playPromise) return;
 
       try {
+        enforceInlineMutedPlayback(videoEl);
         writeProjectVideoDebug({ id, phase: 'play-attempt', detail: reason, videoEl });
         playPromise = videoEl.play();
         await playPromise;
