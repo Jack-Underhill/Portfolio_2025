@@ -17,6 +17,7 @@ const PROJECT_VIDEO_DEBUG_EVENTS = [
   'emptied',
 ];
 const PROJECT_VIDEO_DEBUG_ENDPOINT = '/__project-video-debug';
+let projectVideoDebugSequence = 0;
 
 export function releasePreviewVideoElement(videoEl, { retainVideoSource = false } = {}) {
   if (!videoEl || (!videoEl.currentSrc && !videoEl.getAttribute('src'))) return;
@@ -65,25 +66,40 @@ function sendProjectVideoDebug(payload) {
   }).catch(() => undefined);
 }
 
-function writeProjectVideoDebug({ id, phase, videoEl, error = null }) {
+function writeProjectVideoDebug({ id, phase, videoEl, detail = null, error = null }) {
   if (!isProjectVideoDebugEnabled()) return;
 
   const snapshot = getVideoDebugSnapshot(videoEl);
+  const sequence = ++projectVideoDebugSequence;
+  const timestampMs =
+    typeof performance !== 'undefined' ? Number(performance.now().toFixed(2)) : null;
   const errorText = error
     ? ` error=${error.name || 'Error'}:${error.message || ''}`
     : '';
+  const detailText = detail ? ` detail=${detail}` : '';
   const line = [
     `[project-video] id=${id ?? 'unknown'}`,
+    `seq=${sequence}`,
+    `at=${timestampMs ?? 'n/a'}`,
     `phase=${phase}`,
     `rs=${snapshot.readyState ?? 'n/a'}`,
     `ns=${snapshot.networkState ?? 'n/a'}`,
     `paused=${snapshot.paused ?? 'n/a'}`,
     `t=${snapshot.currentTime ?? 'n/a'}`,
     `src=${snapshot.src}`,
-  ].join(' ') + errorText;
+  ].join(' ') + detailText + errorText;
 
-  console.info(line, { id, phase, ...snapshot, error });
-  sendProjectVideoDebug({ id, phase, snapshot, error: errorText || null, line });
+  console.info(line, { id, sequence, timestampMs, phase, detail, ...snapshot, error });
+  sendProjectVideoDebug({
+    id,
+    sequence,
+    timestampMs,
+    phase,
+    detail,
+    snapshot,
+    error: errorText || null,
+    line,
+  });
 }
 
 function useHoverPreviewIntent({
@@ -201,34 +217,45 @@ function useHoverPreviewIntent({
     if (!videoEl) return undefined;
 
     let cancelled = false;
+    let playPromise = null;
 
-    const tryPlay = async () => {
-      if (cancelled) return;
+    const tryPlay = async (reason) => {
+      if (cancelled || playPromise) return;
 
       try {
-        writeProjectVideoDebug({ id, phase: 'play-attempt', videoEl });
-        await videoEl.play();
-        writeProjectVideoDebug({ id, phase: 'play-resolved', videoEl });
+        writeProjectVideoDebug({ id, phase: 'play-attempt', detail: reason, videoEl });
+        playPromise = videoEl.play();
+        await playPromise;
+        writeProjectVideoDebug({ id, phase: 'play-resolved', detail: reason, videoEl });
       } catch (error) {
-        writeProjectVideoDebug({ id, phase: 'play-rejected', videoEl, error });
+        writeProjectVideoDebug({ id, phase: 'play-rejected', detail: reason, videoEl, error });
         // Browser autoplay decisions can race with focus/hover transitions.
+      } finally {
+        playPromise = null;
       }
     };
 
+    const onLoadedMetadata = () => tryPlay('loadedmetadata');
+    const onLoadedData = () => tryPlay('loadeddata');
+    const onCanPlay = () => tryPlay('canplay');
+
     if (videoEl.readyState >= 2) {
-      tryPlay();
+      tryPlay('ready-state');
       return () => {
         cancelled = true;
       };
     }
 
-    writeProjectVideoDebug({ id, phase: 'waiting-for-canplay', videoEl });
+    tryPlay('immediate');
 
-    const onCanPlay = () => tryPlay();
-    videoEl.addEventListener('canplay', onCanPlay, { once: true });
+    videoEl.addEventListener('loadedmetadata', onLoadedMetadata);
+    videoEl.addEventListener('loadeddata', onLoadedData);
+    videoEl.addEventListener('canplay', onCanPlay);
 
     return () => {
       cancelled = true;
+      videoEl.removeEventListener('loadedmetadata', onLoadedMetadata);
+      videoEl.removeEventListener('loadeddata', onLoadedData);
       videoEl.removeEventListener('canplay', onCanPlay);
     };
   }, [id, isLoadingVideo, isPreviewed]);
