@@ -5,7 +5,8 @@ const cx = (...xs) => xs.filter(Boolean).join(" ");
 const VideoGlowFrame = forwardRef(function VideoGlowFrame({
     src,
     thumbnail = null,
-    isPlaying = false,
+    isVideoVisible = false,
+    isGlowActive = false,
     shouldPrefetchVideo = false,
 
     // Outter div styling
@@ -20,14 +21,14 @@ const VideoGlowFrame = forwardRef(function VideoGlowFrame({
     // Any other <video> props
     ...videoProps
 }, ref) {
-    const shouldShowVideo = Boolean(!shouldPrefetchVideo || isPlaying);
-    const shouldShowThumbnail = Boolean(shouldPrefetchVideo && !isPlaying);
+    const shouldShowVideo = Boolean(!shouldPrefetchVideo || isVideoVisible);
+    const shouldShowThumbnail = Boolean(shouldPrefetchVideo && !isVideoVisible);
     const shouldOverlayImage = Boolean(shouldPrefetchVideo && thumbnail);
 
     return (
         <div className={cx("relative", className)}>
             {/* Glow wrapper */}
-            {isPlaying && (
+            {isGlowActive && (
                 <div
                     className={cx(
                         "absolute z-0 -inset-1 blur",

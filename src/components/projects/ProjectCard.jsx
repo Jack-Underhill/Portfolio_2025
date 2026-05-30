@@ -40,6 +40,7 @@ const ProjectCard = forwardRef(function ProjectCard({
         videoRef,
         isPreviewed,
         isLoadingVideo,
+        isVideoPlaying,
         enablePreview,
         disablePreviewAndRelease,
     } = useHoverPreviewIntent({
@@ -117,7 +118,8 @@ const ProjectCard = forwardRef(function ProjectCard({
                         ref={videoRef}
                         src={shouldPrefetchVideo || isLoadingVideo ? safeVideo : undefined}
                         thumbnail={image}
-                        isPlaying={isPreviewed}
+                        isVideoVisible={isVideoPlaying}
+                        isGlowActive={isPreviewed}
                         muted
                         loop
                         playsInline
