@@ -10,6 +10,7 @@ import { PUBLIC_ROUTES } from './runtime/paths.js'
 const isDev = import.meta.env.DEV;
 const isAdminRoute = window.location.pathname.startsWith(PUBLIC_ROUTES.ADMIN_BASE);
 const isArchitectureViewerRoute = window.location.pathname === PUBLIC_ROUTES.ARCHITECTURE_VIEWER;
+const isNetlifyDev = isDev && import.meta.env.VITE_ENABLE_NETLIFY_FUNCTIONS === 'true';
 
 const RootComponent = isArchitectureViewerRoute
   ? ArchitectureViewer
@@ -20,10 +21,12 @@ const RootComponent = isArchitectureViewerRoute
 document.title = isArchitectureViewerRoute
   ? 'Jack Underhill | Project Architecture'
   : (isDev && isAdminRoute) 
-  ? 'Admin | Portfolio' 
-  : (isDev)
-    ? 'Dev | Portfolio'
-    : 'Jack Underhill | Portfolio';
+    ? 'Admin | Portfolio' 
+    : (isNetlifyDev)
+      ? 'Netlify Dev | Portfolio'
+      : (isDev)
+        ? 'Dev | Portfolio'
+        : 'Jack Underhill | Portfolio';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
