@@ -43,7 +43,7 @@ function Skills() {
         <section
             id="Skills"
             aria-labelledby="skills-heading"
-            className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 md:gap-15 xl:gap-20'
+            className='grid scroll-mt-28 grid-cols-1 gap-10 md:grid-cols-2 md:gap-15 xl:grid-cols-3 xl:gap-20'
         >
             <h2 id="skills-heading" className="sr-only">Skills</h2>
             {skillGroups.map((group) => (

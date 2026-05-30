@@ -10,6 +10,7 @@ function BackToTopButton({
     showAfter = 500,
     bottom = "bottom-6",
     right = "right-6",
+    onResetFocus,
 }) {
     const isModalOpen = useModalOpenFlag();
     const prefersReducedMotion = usePrefersReducedMotion();
@@ -27,6 +28,7 @@ function BackToTopButton({
 
     const scrollToTop = (event) => {
         event.currentTarget.blur();
+        onResetFocus?.();
         window.scrollTo({
             top: 0,
             behavior: prefersReducedMotion ? "auto" : "smooth",

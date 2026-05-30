@@ -157,6 +157,28 @@
   @apply bg-gradient-to-r from-accent-soft via-text to-accent-soft text-transparent bg-clip-text hover:scale-125 hover:pb-2 focus-visible:scale-125 focus-visible:pb-0.5 focus-visible:px-1 focus-visible:mb-1.5 transition duration-200 ease-in-out;
 }
 
+.nav-link-gradient-text {
+  display: inline-block;
+  transition: color 200ms ease-in-out;
+}
+
+[data-nav-link]:hover .nav-link-gradient-text,
+[data-nav-link]:focus-visible .nav-link-gradient-text,
+[data-nav-link][aria-current="location"] .nav-link-gradient-text {
+  color: transparent;
+  background-image: linear-gradient(
+    to right,
+    var(--color-accent-soft),
+    var(--color-text),
+    var(--color-accent-soft)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: moveGradient 3s reverse linear infinite;
+}
+
 @keyframes tech-tag-marquee {
   0% {
     transform: translateX(0);
@@ -208,6 +230,12 @@
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
     transform: none !important;
+  }
+
+  [data-nav-link]:hover .nav-link-gradient-text,
+  [data-nav-link]:focus-visible .nav-link-gradient-text,
+  [data-nav-link][aria-current="location"] .nav-link-gradient-text {
+    animation: none !important;
   }
 
   .avatar-float,

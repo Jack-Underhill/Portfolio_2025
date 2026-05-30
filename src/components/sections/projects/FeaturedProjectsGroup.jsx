@@ -24,10 +24,9 @@ function FeaturedProjectsGroup({
 
   return (
     <section
-      id="Projects"
       aria-labelledby="featured-work-heading"
       className="
-        w-full min-h-fit scroll-mt-10
+        w-full min-h-fit scroll-mt-28
         flex flex-col justify-center
       "
     >
@@ -59,6 +58,7 @@ function FeaturedProjectsGroup({
             lastInputRef={lastInputRef}
             image={p.imageUrl}
             video={p.videoUrl}
+            prefetchVideo
             title={p.title}
             desc={p.description}
             link={p.directUrl}

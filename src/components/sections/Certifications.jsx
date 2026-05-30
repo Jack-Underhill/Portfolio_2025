@@ -38,7 +38,7 @@ function Certifications() {
     });
 
     return (
-        <section id="Certifications" aria-labelledby="certifications-heading" className="flex flex-col gap-6">
+        <section id="Certifications" aria-labelledby="certifications-heading" className="flex scroll-mt-28 flex-col gap-6">
             <SectionTitle id="certifications-heading" data-aos="flip-down">
                 Certifications
             </SectionTitle>

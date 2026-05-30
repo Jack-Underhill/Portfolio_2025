@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-26
+Date: 2026-05-29
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records the testing plan by feature area. It stays high level, wit
 
 ## Current State
 
-Vitest is installed as the default unit-test runner. A focused Playwright/axe smoke runner is available through `cmd /c npm run test:a11y` for stable rendered accessibility checks.
+Vitest is installed as the default unit-test runner. A focused Playwright/axe smoke runner is available through `cmd /c npm run test:a11y` for stable rendered accessibility checks, including the public fixed-navigation baseline.
 
 Current baseline test files:
 
@@ -28,6 +28,7 @@ Current baseline test files:
 - `tests/domain/contact/mappers.test.js`
 - `tests/domain/skills/mappers.test.js`
 - `tests/hooks/useProjectMarqueeMotion.test.js`
+- `tests/hooks/useHoverPreviewIntent.test.js`
 - `tests/hooks/viewportActivationScoring.test.js`
 - `tests/components/projects/viewer/viewerUrl.test.js`
 - `tests/netlify/functions/inline-svg.test.js`
@@ -42,16 +43,24 @@ Current baseline test files:
 
 Current checks:
 
-- `cmd /c npm run test` passes with 21 test files and 107 tests.
+- `cmd /c npm run test` passes with 22 test files and 110 tests.
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run lint` passes.
 - `cmd /c npm run test:a11y` passes.
 
+Current accessibility smoke coverage:
+
+- Public home page main landmark, primary section navigation landmark, and owner `h1`.
+- Desktop fixed navigation default-open tray behavior through the `Close section navigation` button state.
+- Mobile fixed navigation default-closed state, menu opening, exposed section links, and axe scan after opening.
+- Invalid architecture viewer fallback, disabled zoom controls, safe Back link, and axe scan.
+
 Remaining testing gap:
 
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
-- Add browser smoke only if project viewport card activation or desktop standard-card marquee behavior needs coverage beyond the pure scoring helpers and the current axe smoke.
+- Add browser smoke only if project viewport card activation, desktop standard-card marquee behavior, or deeper fixed-nav scrollspy behavior needs coverage beyond the pure scoring helpers, current nav smoke, and axe checks.
+- Featured project video prefetch has focused helper coverage for retained-source cleanup versus default source release in `tests/hooks/useHoverPreviewIntent.test.js`; prop routing and guarded `safeVideo` source/preload behavior remain covered by structural/manual verification rather than a React component harness.
 - Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate marquee copies are covered by the component structure using `aria-hidden` plus duplicate-anchor `tabIndex="-1"`, with visible duplicates intentionally not `inert`.
 - Desktop marquee interaction verification used mocked Supabase project rows in local Playwright after sandboxed live fetches returned `ERR_NETWORK_ACCESS_DENIED`; it covered duplicate hover preview activation, normal duplicate modal clicks, modified/middle-click preservation, focus centering, and the reduced-motion grid fallback.
 - Focus alignment center-delta math is covered by `tests/hooks/useProjectMarqueeMotion.test.js`; a heavier ProjectCard/CardSurface component test was intentionally deferred because the existing suite does not include a React component harness and the prop path was verified structurally/manually.
@@ -76,6 +85,7 @@ Current coverage:
 - Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
 - Desktop standard-card marquee verification is currently pure focus-alignment helper coverage plus quality-gate/accessibility-smoke/manual checks rather than a dedicated component test; mobile and reduced-motion users still receive the grid path.
+- Featured project cards prefetch only their guarded `safeVideo` source with `preload="auto"`; standard project cards keep lazy source attachment. Retained-source cleanup is covered by `tests/hooks/useHoverPreviewIntent.test.js`.
 - Admin project validation is covered through pure validation helper tests, and the no-write draft validation route is covered for success and shared validation errors.
 - Project media upload path conventions are covered by focused storage utility tests.
 

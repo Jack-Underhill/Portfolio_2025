@@ -2,6 +2,17 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import usePrefersReducedMotion from './usePrefersReducedMotion';
 
+export function releasePreviewVideoElement(videoEl, { retainVideoSource = false } = {}) {
+  if (!videoEl || (!videoEl.currentSrc && !videoEl.getAttribute('src'))) return;
+
+  videoEl.pause();
+  videoEl.currentTime = 0;
+  if (retainVideoSource) return;
+
+  videoEl.removeAttribute('src');
+  videoEl.load();
+}
+
 function useHoverPreviewIntent({
   id,
   safeVideo,
@@ -10,6 +21,7 @@ function useHoverPreviewIntent({
   requestPreview,
   clearPreview,
   hoverIntentMs = 250,
+  retainVideoSource = false,
 } = {}) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [isPreviewed, setIsPreviewed] = useState(false);
@@ -28,13 +40,8 @@ function useHoverPreviewIntent({
     setIsLoadingVideo((prev) => (prev ? false : prev));
 
     const videoEl = videoRef.current;
-    if (!videoEl || (!videoEl.currentSrc && !videoEl.getAttribute('src'))) return;
-
-    videoEl.pause();
-    videoEl.currentTime = 0;
-    videoEl.removeAttribute('src');
-    videoEl.load();
-  }, []);
+    releasePreviewVideoElement(videoEl, { retainVideoSource });
+  }, [retainVideoSource]);
 
   useEffect(() => {
     if (!isActivePreview || typeof window === 'undefined') return undefined;

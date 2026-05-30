@@ -31,6 +31,7 @@ async function expectNoAxeViolations(page) {
 }
 
 async function expectVisible(locator, message) {
+  await locator.waitFor({ state: 'visible', timeout: 5000 });
   assert.equal(await locator.isVisible(), true, message);
 }
 
@@ -47,9 +48,27 @@ async function runHomeSmoke(page, baseUrl) {
     'Home page should expose the owner name as the h1.',
   );
 
-  const menuButton = page.getByRole('button', { name: 'Open section navigation' });
-  await expectVisible(menuButton, 'Closed menu button should have an accessible name.');
-  assert.equal(await menuButton.getAttribute('aria-expanded'), 'false');
+  const menuButton = page.getByRole('button', { name: 'Close section navigation' });
+  await expectVisible(menuButton, 'Desktop menu button should expose the open-menu accessible name.');
+  assert.equal(await menuButton.getAttribute('aria-expanded'), 'true');
+
+  await expectNoAxeViolations(page);
+}
+
+async function runMobileNavigationSmoke(page, baseUrl) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(new URL('/', baseUrl).href);
+
+  const closedMenuButton = page.getByRole('button', { name: 'Open section navigation' });
+  await expectVisible(closedMenuButton, 'Mobile menu button should expose the closed-menu accessible name.');
+  assert.equal(await closedMenuButton.getAttribute('aria-expanded'), 'false');
+
+  await closedMenuButton.click();
+
+  const openMenuButton = page.getByRole('button', { name: 'Close section navigation' });
+  await expectVisible(openMenuButton, 'Mobile menu button should expose the open-menu accessible name after opening.');
+  assert.equal(await openMenuButton.getAttribute('aria-expanded'), 'true');
+  await expectVisible(page.getByRole('link', { name: 'Projects' }), 'Opened mobile tray should expose section links.');
 
   await expectNoAxeViolations(page);
 }
@@ -113,6 +132,7 @@ try {
   const page = await context.newPage();
 
   await runHomeSmoke(page, baseUrl);
+  await runMobileNavigationSmoke(page, baseUrl);
   await runArchitectureFallbackSmoke(page, baseUrl);
 
   console.log('Accessibility smoke checks passed.');

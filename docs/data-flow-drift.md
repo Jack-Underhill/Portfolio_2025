@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-05-26
+Date: 2026-05-28
 
 ## Purpose
 
@@ -16,7 +16,7 @@ This document records active mismatches between database, admin UI, public API, 
 
 The active drift is limited:
 
-- Projects have aligned persisted classification fields, centralized modal ownership, and a current mobile/reduced-motion grid plus desktop standard-card marquee presentation. The marquee interaction contract is aligned around assistive-hidden duplicate copies, non-sequential duplicate anchors, and hook-owned primary focus alignment. Explicit label-display and empty-state decisions remain open.
+- Projects have aligned persisted classification fields, centralized modal ownership, featured-card guarded video prefetch, and a current mobile/reduced-motion grid plus desktop standard-card marquee presentation. The marquee interaction contract is aligned around assistive-hidden duplicate copies, non-sequential duplicate anchors, and hook-owned primary focus alignment. Explicit label-display and empty-state decisions remain open.
 - Contact link icon fallbacks remain positional.
 - Education and Certifications are intentionally static until a database/admin/public flow is designed.
 
@@ -55,14 +55,16 @@ Agent draft import decision:
 Current public presentation flow:
 
 - `Projects.jsx` fetches once, maps once, and calls `groupProjectsForDisplay`.
-- `FeaturedProjectsGroup.jsx` renders featured projects under the `#Projects` anchor.
+- `FeaturedProjectsGroup.jsx` renders featured projects under the `#Projects` anchor and is the only project group that opts cards into video prefetch.
 - `StandardProjectsGroup.jsx` renders standard projects under the `#ProjectGallery` anchor. Mobile users and reduced-motion users receive the existing responsive grid; non-mobile users without reduced-motion preference receive a horizontal `ProjectMarquee` of full `ProjectCard` cards.
 - Modal routing uses one flattened featured-plus-standard list from `Projects.jsx`, and `ProjectModal` is rendered once from `Projects.jsx`.
+- `ProjectCard.jsx` remains the source-selection boundary for project videos. Featured prefetch uses the guarded `safeVideo` value, so plain Vite local development warms the bundled placeholder while production-capable environments can warm real project videos.
 
 Decision:
 
 - Featured projects are selected by non-null `featured_rank`, not by hardcoded component IDs.
 - Featured projects sort by `featuredRank`, then `sortOrder`, then `id`; standard projects sort by `sortOrder`, then `id`.
+- Featured project video prefetch uses `preload="auto"` as a browser hint and retains the attached source after preview deactivation. Standard project videos remain lazy and release their source on preview release.
 - `project_type` is constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
 - `labels` stay as optional JSON display labels until labels need analytics, filtering, or cross-project metadata.
 - Decide whether the current two peer page sections are intended, or whether `Projects.jsx` should restore one top-level Projects wrapper with child groups.
