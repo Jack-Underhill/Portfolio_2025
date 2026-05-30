@@ -223,7 +223,7 @@ function MenuToggle({ buttonRef, hasElevatedSurface, isOpen, onClick }) {
     const { rotation, handlers } = useMenuButtonRotation();
     const label = cx(
         isOpen ? 'Close' : 'Open',
-        'navigation',
+        'section navigation',
     );
 
     return (
