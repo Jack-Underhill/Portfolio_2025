@@ -18,6 +18,31 @@ export function releasePreviewVideoElement(videoEl, { retainVideoSource = false 
   videoEl.load();
 }
 
+const PLAYBACK_STATE_EVENTS = ['pause', 'emptied', 'ended', 'error'];
+
+export function bindPreviewVideoPlaybackState(videoEl, setIsVideoPlaying) {
+  if (!videoEl) return () => {};
+
+  const markPlaying = () => {
+    setIsVideoPlaying(true);
+  };
+  const markNotPlaying = () => {
+    setIsVideoPlaying((prev) => (prev ? false : prev));
+  };
+
+  videoEl.addEventListener('playing', markPlaying);
+  PLAYBACK_STATE_EVENTS.forEach((eventName) => {
+    videoEl.addEventListener(eventName, markNotPlaying);
+  });
+
+  return () => {
+    videoEl.removeEventListener('playing', markPlaying);
+    PLAYBACK_STATE_EVENTS.forEach((eventName) => {
+      videoEl.removeEventListener(eventName, markNotPlaying);
+    });
+  };
+}
+
 function enforceInlineMutedPlayback(videoEl) {
   if (!videoEl) return;
 
@@ -92,26 +117,7 @@ function useHoverPreviewIntent({
     const videoEl = videoRef.current;
     if (!videoEl) return undefined;
 
-    const markPlaying = () => {
-      setIsVideoPlaying(true);
-    };
-    const markNotPlaying = () => {
-      setIsVideoPlaying((prev) => (prev ? false : prev));
-    };
-
-    videoEl.addEventListener('playing', markPlaying);
-    videoEl.addEventListener('pause', markNotPlaying);
-    videoEl.addEventListener('emptied', markNotPlaying);
-    videoEl.addEventListener('ended', markNotPlaying);
-    videoEl.addEventListener('error', markNotPlaying);
-
-    return () => {
-      videoEl.removeEventListener('playing', markPlaying);
-      videoEl.removeEventListener('pause', markNotPlaying);
-      videoEl.removeEventListener('emptied', markNotPlaying);
-      videoEl.removeEventListener('ended', markNotPlaying);
-      videoEl.removeEventListener('error', markNotPlaying);
-    };
+    return bindPreviewVideoPlaybackState(videoEl, setIsVideoPlaying);
   }, [safeVideo]);
 
   useEffect(() => {
