@@ -99,6 +99,7 @@ function useHoverPreviewIntent({
   const prefersReducedMotion = usePrefersReducedMotion();
   const [isPreviewed, setIsPreviewed] = useState(false);
   const [isLoadingVideo, setIsLoadingVideo] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   const videoRef = useRef(null);
   const hoverTimerRef = useRef(null);
@@ -111,6 +112,7 @@ function useHoverPreviewIntent({
 
     setIsPreviewed((prev) => (prev ? false : prev));
     setIsLoadingVideo((prev) => (prev ? false : prev));
+    setIsVideoPlaying((prev) => (prev ? false : prev));
 
     const videoEl = videoRef.current;
     releasePreviewVideoElement(videoEl, { retainVideoSource });
@@ -140,6 +142,34 @@ function useHoverPreviewIntent({
       clearPreview?.(id);
     }
   }, [clearPreview, disablePreviewLocal, id, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!safeVideo) return undefined;
+
+    const videoEl = videoRef.current;
+    if (!videoEl) return undefined;
+
+    const markPlaying = () => {
+      setIsVideoPlaying(true);
+    };
+    const markNotPlaying = () => {
+      setIsVideoPlaying((prev) => (prev ? false : prev));
+    };
+
+    videoEl.addEventListener('playing', markPlaying);
+    videoEl.addEventListener('pause', markNotPlaying);
+    videoEl.addEventListener('emptied', markNotPlaying);
+    videoEl.addEventListener('ended', markNotPlaying);
+    videoEl.addEventListener('error', markNotPlaying);
+
+    return () => {
+      videoEl.removeEventListener('playing', markPlaying);
+      videoEl.removeEventListener('pause', markNotPlaying);
+      videoEl.removeEventListener('emptied', markNotPlaying);
+      videoEl.removeEventListener('ended', markNotPlaying);
+      videoEl.removeEventListener('error', markNotPlaying);
+    };
+  }, [safeVideo]);
 
   useEffect(() => {
     if (!safeVideo || !isProjectVideoDebugEnabled()) return undefined;
@@ -218,6 +248,7 @@ function useHoverPreviewIntent({
     videoRef,
     isPreviewed,
     isLoadingVideo,
+    isVideoPlaying,
     enablePreview,
     disablePreviewAndRelease,
     disablePreviewLocal,
