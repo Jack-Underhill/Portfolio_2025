@@ -1,6 +1,6 @@
 # Current Errors and Warnings
 
-Date: 2026-05-29
+Date: 2026-05-30
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last full baseline checked on 2026-05-29 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The fixed navigation refresh verification also passed lint, build, unit tests, schema drift, and the accessibility smoke.
+Last full baseline checked on 2026-05-30 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The iOS project-card preview playback verification also passed lint, build, unit tests, schema drift, and the accessibility smoke.
 
 Passing:
 
@@ -92,6 +92,18 @@ Decision:
 - Duplicate marquee copies are guarded structurally with duplicate-wrapper `aria-hidden` plus duplicate-anchor `tabIndex="-1"`; visible duplicates are intentionally not `inert` so pointer hover and clicks work.
 - `cmd /c npm run test:a11y` still passes.
 - Full desktop keyboard and pointer traversal through live standard project cards should be checked with available public project rows. In the 2026-05-26 verification window, sandboxed live fetches were blocked with `ERR_NETWORK_ACCESS_DENIED`, so rendered interaction checks used mocked Supabase project responses in local Playwright.
+
+## iOS Project Video Autoplay Caveat
+
+Project-card previews request muted inline playback once hover intent completes and retry on media readiness events. Featured cards keep their curated thumbnail visible until the video emits `playing`, so autoplay rejection does not leave a blank card.
+
+Real iPhone verification on 2026-05-30 passed across three fresh Safari sessions with Low Power Mode disabled. With Low Power Mode enabled, iOS Safari can still reject muted inline autoplay with `NotAllowedError`.
+
+Decision:
+
+- This is an iOS power-policy limitation, not a known card media-lifecycle failure.
+- The accepted fallback is the visible project image or thumbnail.
+- Use `?projectVideoDebug=1` during local Vite development only when device playback diagnostics are needed.
 
 ## Quality Gate Target
 

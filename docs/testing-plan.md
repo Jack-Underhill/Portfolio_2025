@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-29
+Date: 2026-05-30
 
 ## Purpose
 
@@ -43,7 +43,7 @@ Current baseline test files:
 
 Current checks:
 
-- `cmd /c npm run test` passes with 22 test files and 110 tests.
+- `cmd /c npm run test` passes with 22 test files and 116 tests.
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run lint` passes.
@@ -60,7 +60,8 @@ Remaining testing gap:
 
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
 - Add browser smoke only if project viewport card activation, desktop standard-card marquee behavior, or deeper fixed-nav scrollspy behavior needs coverage beyond the pure scoring helpers, current nav smoke, and axe checks.
-- Featured project video prefetch has focused helper coverage for retained-source cleanup versus default source release in `tests/hooks/useHoverPreviewIntent.test.js`; prop routing and guarded `safeVideo` source/preload behavior remain covered by structural/manual verification rather than a React component harness.
+- Project-card video preview lifecycle has focused helper coverage in `tests/hooks/useHoverPreviewIntent.test.js`: retained-source cleanup versus default source release, actual playback state from `playing`, clearing state on `pause`/`emptied`/`ended`/`error`, and listener cleanup. Prop routing and guarded `safeVideo` source/preload behavior remain covered by structural/manual verification rather than a React component harness.
+- Real-device iOS Safari autoplay behavior remains a manual verification boundary. The 2026-05-30 pass covered first activation for featured and standard cards across three fresh Safari sessions with Low Power Mode disabled; Low Power Mode still produces an accepted thumbnail fallback when iOS rejects autoplay.
 - Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate marquee copies are covered by the component structure using `aria-hidden` plus duplicate-anchor `tabIndex="-1"`, with visible duplicates intentionally not `inert`.
 - Desktop marquee interaction verification used mocked Supabase project rows in local Playwright after sandboxed live fetches returned `ERR_NETWORK_ACCESS_DENIED`; it covered duplicate hover preview activation, normal duplicate modal clicks, modified/middle-click preservation, focus centering, and the reduced-motion grid fallback.
 - Focus alignment center-delta math is covered by `tests/hooks/useProjectMarqueeMotion.test.js`; a heavier ProjectCard/CardSurface component test was intentionally deferred because the existing suite does not include a React component harness and the prop path was verified structurally/manually.
@@ -85,7 +86,7 @@ Current coverage:
 - Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
 - Desktop standard-card marquee verification is currently pure focus-alignment helper coverage plus quality-gate/accessibility-smoke/manual checks rather than a dedicated component test; mobile and reduced-motion users still receive the grid path.
-- Featured project cards prefetch only their guarded `safeVideo` source with `preload="auto"`; standard project cards keep lazy source attachment. Retained-source cleanup is covered by `tests/hooks/useHoverPreviewIntent.test.js`.
+- Featured project cards prefetch only their guarded `safeVideo` source with `preload="auto"`; standard project cards keep lazy source attachment. The preview hook requests muted inline playback after hover intent, retries on readiness events, and tracks actual `playing` state separately from preview intent. Stable lifecycle branches are covered by `tests/hooks/useHoverPreviewIntent.test.js`; real iOS autoplay policy remains manually verified.
 - Admin project validation is covered through pure validation helper tests, and the no-write draft validation route is covered for success and shared validation errors.
 - Project media upload path conventions are covered by focused storage utility tests.
 
