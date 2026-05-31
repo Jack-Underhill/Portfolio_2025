@@ -28,6 +28,7 @@ const ProjectMarquee = memo(function ProjectMarquee({
   fadeOutRightColor,
   scaleOnHover = false,
   isPaused = false,
+  lastInputRef,
   renderItem,
   ariaLabel = 'Project marquee',
   className,
@@ -76,9 +77,10 @@ const ProjectMarquee = memo(function ProjectMarquee({
 
     const primaryItem = focusedElement.closest('[data-project-marquee-primary="true"]');
     if (!primaryItem || !event.currentTarget.contains(primaryItem)) return;
+    if (lastInputRef?.current !== 'keyboard') return;
 
     alignItemToViewport(primaryItem, { alignment: 'center' });
-  }, [alignItemToViewport, handleFocusCapture]);
+  }, [alignItemToViewport, handleFocusCapture, lastInputRef]);
 
   const renderMarqueeItem = useCallback((item, key, isDuplicate) => {
     const itemProps = isDuplicate

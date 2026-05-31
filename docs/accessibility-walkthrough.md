@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-05-29
+Date: 2026-05-30
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last checked on 2026-05-29 with Windows `cmd /c` commands.
+Last checked on 2026-05-30 with Windows `cmd /c` commands.
 
 Passing:
 
@@ -98,7 +98,7 @@ Public structure:
 Project modal and cards:
 
 - Project cards expose project-specific case-study names.
-- Featured project cards attach their guarded video source early with `preload="auto"` while keeping the curated thumbnail visible until preview playback. Standard project cards keep lazy source attachment.
+- Featured project cards attach their guarded video source early with `preload="auto"` while keeping the curated thumbnail visible until the video emits actual `playing` state. Standard project cards keep lazy source attachment. If iOS rejects autoplay, the visible image fallback remains in place instead of exposing a blank preview.
 - Modal rendering has one owner in `Projects.jsx`, so card-open and route-backed modal states share the same dialog behavior.
 - Standard project cards render as the existing grid for mobile and reduced-motion users. Non-mobile users without reduced-motion preference receive the desktop marquee with the same full `ProjectCard` markup and modal handoff.
 - Desktop marquee duplicate copies are visual-only for assistive technology: copied lists and items are `aria-hidden`, duplicate card anchors receive `tabIndex="-1"`, and duplicate cards skip viewport-preview ref registration. Visible duplicate cards are not `inert`, so pointer hover and click behavior matches primary cards.
@@ -155,6 +155,7 @@ Admin accessibility:
 - Plain Vite can show expected Netlify function fallback behavior for visit count and architecture SVG previews. Use `netlify dev` when testing deployed-function behavior locally.
 - Public data fetch failures can leave the page on static fallbacks or empty project states in constrained local environments. Live Supabase-backed content checks remain outside the default local gate unless explicitly mocked.
 - Desktop standard-card marquee keyboard traversal is structurally protected by duplicate anchors using `tabIndex="-1"` while duplicate wrappers stay `aria-hidden`. A full live traversal check depends on public project rows being available in the local runtime; mocked Playwright verification covered duplicate pointer parity and primary focus centering.
+- Real iPhone Safari verification passed project-card preview first activation with Low Power Mode disabled. When Low Power Mode is enabled, iOS can reject autoplay; keeping the image fallback visible is the accepted behavior.
 - Live Redis, live Supabase, and deployed Netlify behavior are not part of the default accessibility gate.
 
 ## Deferred Checks

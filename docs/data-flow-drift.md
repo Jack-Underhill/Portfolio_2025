@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-05-28
+Date: 2026-05-30
 
 ## Purpose
 
@@ -58,13 +58,13 @@ Current public presentation flow:
 - `FeaturedProjectsGroup.jsx` renders featured projects under the `#Projects` anchor and is the only project group that opts cards into video prefetch.
 - `StandardProjectsGroup.jsx` renders standard projects under the `#ProjectGallery` anchor. Mobile users and reduced-motion users receive the existing responsive grid; non-mobile users without reduced-motion preference receive a horizontal `ProjectMarquee` of full `ProjectCard` cards.
 - Modal routing uses one flattened featured-plus-standard list from `Projects.jsx`, and `ProjectModal` is rendered once from `Projects.jsx`.
-- `ProjectCard.jsx` remains the source-selection boundary for project videos. Featured prefetch uses the guarded `safeVideo` value, so plain Vite local development warms the bundled placeholder while production-capable environments can warm real project videos.
+- `ProjectCard.jsx` remains the source-selection boundary for project videos. Featured prefetch uses the guarded `safeVideo` value, so plain Vite local development warms the bundled placeholder while production-capable environments can warm real project videos. Card-local lifecycle and actual playback state remain owned by `useHoverPreviewIntent.js`; `VideoGlowFrame.jsx` receives explicit video-visibility and glow booleans.
 
 Decision:
 
 - Featured projects are selected by non-null `featured_rank`, not by hardcoded component IDs.
 - Featured projects sort by `featuredRank`, then `sortOrder`, then `id`; standard projects sort by `sortOrder`, then `id`.
-- Featured project video prefetch uses `preload="auto"` as a browser hint and retains the attached source after preview deactivation. Standard project videos remain lazy and release their source on preview release.
+- Featured project video prefetch uses `preload="auto"` as a browser hint and retains the attached source after preview deactivation. Standard project videos remain lazy and release their source on preview release. Preview intent and actual `playing` state stay separate so prefetched thumbnails remain visible until playback begins.
 - `project_type` is constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
 - `labels` stay as optional JSON display labels until labels need analytics, filtering, or cross-project metadata.
 - Decide whether the current two peer page sections are intended, or whether `Projects.jsx` should restore one top-level Projects wrapper with child groups.

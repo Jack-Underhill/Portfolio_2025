@@ -104,6 +104,7 @@ function StandardProjectsGroup({
             pauseOnHover
             pauseOnFocus
             isPaused={isModalOpen}
+            lastInputRef={lastInputRef}
             fadeOut
             fadeOutLeftColor="var(--color-page)"
             fadeOutRightColor="#102732"
