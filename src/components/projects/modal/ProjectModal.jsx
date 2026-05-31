@@ -83,7 +83,7 @@ export default function ProjectModal({
                     {/* Body */}
                     <div className="flex-1 min-h-0 overflow-y-auto scrollbar-modal p-8">
                         {/* top band */}
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                             <div className="flow-root">
                                 {/* Media */}
                                 <div className="mb-10 lg:float-left lg:w-6/10 lg:mr-10 lg:mb-6">
@@ -115,7 +115,7 @@ export default function ProjectModal({
                                 </div>
 
                                 {/* Wraps beside Media at lg+, then resumes full width below it. */}
-                                <div className="space-y-6">
+                                <div className="space-y-8">
                                     <Section title="Overview">
                                         <p>{data.overview}</p>
                                     </Section>
@@ -127,7 +127,7 @@ export default function ProjectModal({
                             </div>
 
                             {/* responsive blocks grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                                 {/* Tech Stack (compact) */}
                                 <Section title="Tech Stack">
                                     <TechStack data={data} />
