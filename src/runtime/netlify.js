@@ -1,3 +1,3 @@
 export function canUseNetlifyFunctions() {
-    return import.meta.env.VITE_ENABLE_NETLIFY_FUNCTIONS !== "false";
+    return import.meta.env.PROD || import.meta.env.VITE_ENABLE_NETLIFY_FUNCTIONS === "true";
 }
