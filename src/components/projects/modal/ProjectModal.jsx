@@ -81,12 +81,12 @@ export default function ProjectModal({
                     />
 
                     {/* Body */}
-                    <div className="flex-1 min-h-0 overflow-y-auto scrollbar-modal p-8">
+                    <div className="flex-1 min-h-0 overflow-y-auto scrollbar-modal pt-5 p-2 sm:p-4 md:p-6 lg:p-8">
                         {/* top band */}
-                        <div className="space-y-8">
+                        <div className="space-y-6 md:space-y-8">
                             <div className="flow-root">
                                 {/* Media */}
-                                <div className="mb-10 lg:float-left lg:w-6/10 lg:mr-10 lg:mb-6">
+                                <div className="mb-10 lg:float-right lg:w-6/10 lg:ml-10 lg:mb-6">
                                     <div className="relative w-full aspect-video rounded-xl border border-card-border bg-scrim/20">
                                         {safeVideo ? (
                                             <VideoGlowFrame
@@ -115,7 +115,7 @@ export default function ProjectModal({
                                 </div>
 
                                 {/* Wraps beside Media at lg+, then resumes full width below it. */}
-                                <div className="space-y-8">
+                                <div className="space-y-6 md:space-y-8">
                                     <Section title="Overview">
                                         <p>{data.overview}</p>
                                     </Section>
@@ -127,7 +127,7 @@ export default function ProjectModal({
                             </div>
 
                             {/* responsive blocks grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-4 lg:gap-8 mb-6">
                                 {/* Tech Stack (compact) */}
                                 <Section title="Tech Stack">
                                     <TechStack data={data} />
