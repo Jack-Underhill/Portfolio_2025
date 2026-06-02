@@ -16,10 +16,10 @@ function TagList({ header, tags, isSmall = false }) {
         : 'px-5 py-1.5 text-xl sm:text-2xl md:text-3xl rounded-lg bg-card-att text-text';
     const HeaderClassName = isSmall
         ? 'text-2xl font-bold text-text'
-        : 'text-4xl font-bold text-text';
+        : 'mb-5 md:mb-6 lg:mb-7 text-4xl font-bold text-text';
 
     return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col">
             <h3 className={HeaderClassName} data-aos="flip-down">
                 <GradientText>{header}</GradientText>
             </h3>

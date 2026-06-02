@@ -30,7 +30,7 @@ function FeaturedProjectsGroup({
         flex flex-col justify-center
       "
     >
-      <SectionTitle id="featured-work-heading" className="mb-8" data-aos="flip-down">
+      <SectionTitle id="featured-work-heading" className="mb-5 md:mb-6 lg:mb-7" data-aos="flip-down">
         Featured Work
       </SectionTitle>
 

@@ -108,7 +108,7 @@ const ProjectCard = forwardRef(function ProjectCard({
             onMouseLeave={handleOnMouseLeave}
             onFocus={handleOnFocus}
             onBlur={handleOnBlur}
-            // data-aos="flip-left"
+            data-aos="flip-left"
             data-prefetch-video={prefetchVideo ? "true" : undefined}
             className='h-full p-2 flex flex-col'
         >
@@ -151,7 +151,7 @@ const ProjectCard = forwardRef(function ProjectCard({
                 )}
             </div>
 
-            <Text as="div" variant="body" className="px-3 pt-4 lg:px-4">
+            <Text as="div" variant="cardBody" className="px-3 pt-4 lg:px-4">
                 {desc}
             </Text>
 
