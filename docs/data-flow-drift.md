@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-05-30
+Date: 2026-06-02
 
 ## Purpose
 
@@ -16,7 +16,7 @@ This document records active mismatches between database, admin UI, public API, 
 
 The active drift is limited:
 
-- Projects have aligned persisted classification fields, centralized modal ownership, featured-card guarded video prefetch, and a current mobile/reduced-motion grid plus desktop standard-card marquee presentation. The marquee interaction contract is aligned around assistive-hidden duplicate copies, non-sequential duplicate anchors, and hook-owned primary focus alignment. Explicit label-display and empty-state decisions remain open.
+- Projects have aligned persisted classification fields, card-only public classification pills, centralized modal ownership, featured-card guarded video prefetch, and a current mobile/reduced-motion grid plus desktop standard-card marquee presentation. The marquee interaction contract is aligned around assistive-hidden duplicate copies, non-sequential duplicate anchors, and hook-owned primary focus alignment. Empty-state decisions remain open.
 - Contact link icon fallbacks remain positional.
 - Education and Certifications are intentionally static until a database/admin/public flow is designed.
 
@@ -57,6 +57,7 @@ Current public presentation flow:
 - `Projects.jsx` fetches once, maps once, and calls `groupProjectsForDisplay`.
 - `FeaturedProjectsGroup.jsx` renders featured projects under the `#Projects` anchor and is the only project group that opts cards into video prefetch.
 - `StandardProjectsGroup.jsx` renders standard projects under the `#ProjectGallery` anchor. Mobile users and reduced-motion users receive the existing responsive grid; non-mobile users without reduced-motion preference receive a horizontal `ProjectMarquee` of full `ProjectCard` cards.
+- `ProjectCard.jsx` renders `ProjectClassificationPills.jsx` immediately below card media and above card descriptions when `projectType`, `labels`, or both are available. The type pill is stable, and the display-label pill cycles through curated labels every four seconds for users without reduced motion.
 - Modal routing uses one flattened featured-plus-standard list from `Projects.jsx`, and `ProjectModal` is rendered once from `Projects.jsx`.
 - `ProjectCard.jsx` remains the source-selection boundary for project videos. Featured prefetch uses the guarded `safeVideo` value, so plain Vite local development warms the bundled placeholder while production-capable environments can warm real project videos. Card-local lifecycle and actual playback state remain owned by `useHoverPreviewIntent.js`; `VideoGlowFrame.jsx` receives explicit video-visibility and glow booleans.
 
@@ -66,7 +67,7 @@ Decision:
 - Featured projects sort by `featuredRank`, then `sortOrder`, then `id`; standard projects sort by `sortOrder`, then `id`.
 - Featured project video prefetch uses `preload="auto"` as a browser hint and retains the attached source after preview deactivation. Standard project videos remain lazy and release their source on preview release. Preview intent and actual `playing` state stay separate so prefetched thumbnails remain visible until playback begins.
 - `project_type` is constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
-- `labels` stay as optional JSON display labels until labels need analytics, filtering, or cross-project metadata.
+- `labels` stay as optional JSON curated card copy. Public cards render one cycling display-label pill, while filters, analytics, modal label sections, and cross-project metadata remain out of scope until a new product decision expands the model.
 - Decide whether the current two peer page sections are intended, or whether `Projects.jsx` should restore one top-level Projects wrapper with child groups.
 
 Next actions:
@@ -74,7 +75,7 @@ Next actions:
 - Keep `groupProjectsForDisplay` as the current grouping and sorting source.
 - Move global loading and zero-project empty state decisions back to `Projects.jsx` if per-group empty states are not accepted.
 - Hide empty group headings, or explicitly document that empty groups should remain visible.
-- Render project labels on cards/details, or keep documenting them as mapped and admin-ready but visually dormant.
+- Keep public label display card-only unless a future phase intentionally adds modal, filter, analytics, search, or metadata behavior.
 - Preserve the standard-card marquee guardrails when refining project cards: duplicate marquee copies stay `aria-hidden`, duplicate card anchors stay out of sequential focus with `tabIndex="-1"`, visible duplicates remain pointer-interactive, primary focus alignment stays owned by `useProjectMarqueeMotion`, reduced-motion stays a grid fallback, and modal ownership stays in `Projects.jsx`.
 
 ## Contact Links

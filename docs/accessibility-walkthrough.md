@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-05-30
+Date: 2026-06-02
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last checked on 2026-05-30 with Windows `cmd /c` commands.
+Last checked on 2026-06-02 with Windows `cmd /c` commands.
 
 Passing:
 
@@ -59,6 +59,7 @@ Project flow:
 - `src/components/sections/projects/ProjectMarquee.jsx`: desktop standard-card marquee rendering, duplicate-copy hiding, primary-item focus alignment wiring, and region labeling.
 - `src/hooks/useProjectMarqueeMotion.js`: browser-guarded marquee measurement, hover/focus pause, modal pause, focus alignment, and transform updates.
 - `src/components/projects/ProjectCard.jsx`: project-specific case-study link names, anchor activation, guarded featured-video prefetch, and hover/focus video preview intent.
+- `src/components/projects/ProjectClassificationPills.jsx`: non-interactive card classification row, type display copy, rotating display-label pill, reduced-motion fallback, and stable screen-reader label summary.
 - `src/components/projects/modal/ProjectModal.jsx`: dialog shell, accessible dialog name, backdrop close, modal content, and focus containment.
 - `src/components/projects/modal/Header.jsx`: modal title, action links, and close button.
 - `src/hooks/useModalSideEffects.js`: conditional modal focus restore, initial focus, Escape close, body scroll lock, and root modal state.
@@ -98,6 +99,7 @@ Public structure:
 Project modal and cards:
 
 - Project cards expose project-specific case-study names.
+- Project cards render a compact classification row below media and above descriptions when mapped classification data exists. The stable type pill is exposed normally. A single display label is exposed normally; multiple cycling visual labels are hidden from assistive technology and expose one stable visually-hidden summary such as `Project labels: ...` without a live region.
 - Featured project cards attach their guarded video source early with `preload="auto"` while keeping the curated thumbnail visible until the video emits actual `playing` state. Standard project cards keep lazy source attachment. If iOS rejects autoplay, the visible image fallback remains in place instead of exposing a blank preview.
 - Modal rendering has one owner in `Projects.jsx`, so card-open and route-backed modal states share the same dialog behavior.
 - Standard project cards render as the existing grid for mobile and reduced-motion users. Non-mobile users without reduced-motion preference receive the desktop marquee with the same full `ProjectCard` markup and modal handoff.
@@ -122,6 +124,7 @@ Motion, contrast, and focus:
 
 - AOS follows `prefers-reduced-motion: reduce`, disabling section animation for reduced-motion users and refreshing when the preference changes.
 - Reduced-motion users receive the standard project grid instead of a paused marquee.
+- Reduced-motion users see only the first project display label; `ProjectClassificationPills.jsx` does not keep the cycling label timer active while reduced motion is enabled.
 - The desktop project marquee pauses while actually hovered, while keyboard focus is inside the marquee, and while the project modal is open; closing the modal resumes motion unless hover or restored keyboard focus still applies.
 - Project-card hover/focus video previews do not request or play video while reduced motion is active. Featured prefetch still follows the card-owned guarded source path; reduced-motion users do not receive preview playback.
 - Scroll-driven viewport activation is disabled for project previews and credential card effects while reduced motion is active.

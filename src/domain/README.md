@@ -37,6 +37,7 @@ Project classification notes:
 
 - `projects/constants.js` owns accepted project types.
 - `projects/mappers.js` maps classification fields into `isFeatured`, `featuredRank`, `projectType`, and `labels`.
+- Public project cards consume mapped `projectType` and `labels` through `ProjectClassificationPills.jsx`; domain code only normalizes the values and does not own the card-local cycling or reduced-motion behavior.
 - `projects/preview.js` maps local admin project drafts into the public modal-compatible preview shape without side effects.
 - `projects/agentDraft.js` parses agent-produced project draft JSON, normalizes supported import fields into local project patches, preserves identity/media fields during apply, and serializes safe current project review context.
 - `projects/viewModel.js` owns the featured/standard grouping and sort rules for public project presentation.

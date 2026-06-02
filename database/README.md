@@ -79,9 +79,9 @@ Architecture SVGs are trusted by the public viewer and `inline-svg` proxy only w
 
 - `featured_rank`: nullable integer. `NULL` means the project is not featured; lower numbers sort first for featured projects.
 - `project_type`: nullable primary classification constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
-- `labels`: nullable JSONB array for display labels available to public card/detail view models.
+- `labels`: nullable JSONB array for curated display labels available to public card/detail view models.
 
-Existing project rows remain valid without classification values. Public mappers and admin validation should treat these fields as optional and normalize display labels before rendering or saving. Labels are mapped and admin-ready, but public card/detail rendering may still defer visual label treatment.
+Existing project rows remain valid without classification values. Public mappers and admin validation should treat these fields as optional and normalize display labels before rendering or saving. Labels remain nullable JSONB display copy, not normalized metadata. Public cards currently render them through one cycling classification pill, while modal label sections, filters, analytics, and cross-project metadata remain out of scope.
 
 Public grouping uses `src/domain/projects/viewModel.js`: featured projects are rows with a valid `featured_rank`, sorted by featured rank, `sort_order`, then `id`; standard projects sort by `sort_order`, then `id`.
 
