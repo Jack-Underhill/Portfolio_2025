@@ -367,6 +367,27 @@ function Navbar({ resetSignal = 0 }) {
         };
     }, [isOpen]);
 
+    useEffect(() => {
+        if (!isOpen || isLargeScreen) return;
+
+        const closeOnOutsideTouch = (event) => {
+            if (
+                event.pointerType !== 'touch'
+                || navRef.current?.contains(event.target)
+            ) {
+                return;
+            }
+
+            setIsOpen(false);
+        };
+
+        document.addEventListener('pointerdown', closeOnOutsideTouch);
+
+        return () => {
+            document.removeEventListener('pointerdown', closeOnOutsideTouch);
+        };
+    }, [isLargeScreen, isOpen]);
+
     const toggleMenu = () => {
         setIsOpen((current) => !current);
     };
@@ -388,7 +409,7 @@ function Navbar({ resetSignal = 0 }) {
             ref={navRef}
             aria-label="Primary sections"
             className={NAVBAR_CLASSES}
-            // data-aos="flip-up"
+            data-aos="flip-up"
         >
             <MenuToggle
                 buttonRef={toggleButtonRef}
