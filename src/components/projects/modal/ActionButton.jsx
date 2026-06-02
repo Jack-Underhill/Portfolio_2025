@@ -12,7 +12,8 @@ const ActionButton = forwardRef(function ActionButton({ href, children, accessib
             target="_blank"
             rel="noopener noreferrer"
             className="
-                px-3 py-1.5 rounded-lg text-sm font-semibold 
+                px-2 md:px-3 py-1 md:py-1.5
+                rounded-lg text-xs md:text-sm font-medium md:font-semibold 
                 bg-card text-text border border-button-border 
                 hover:scale-110 hover:brightness-110
                 focus-visible:scale-110 focus-visible:brightness-110

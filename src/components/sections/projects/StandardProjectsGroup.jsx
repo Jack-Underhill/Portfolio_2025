@@ -72,7 +72,7 @@ function StandardProjectsGroup({
         flex flex-col justify-center
       "
     >
-      <SectionTitle id="project-gallery-heading" className="mb-8" data-aos="flip-down">
+      <SectionTitle id="project-gallery-heading" className="mb-5 md:mb-6 lg:mb-7" data-aos="flip-down">
         Project Gallery
       </SectionTitle>
 

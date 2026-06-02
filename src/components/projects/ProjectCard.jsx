@@ -151,11 +151,11 @@ const ProjectCard = forwardRef(function ProjectCard({
                 )}
             </div>
 
-            <Text as="div" variant="body" className="px-8 pt-6 pb-4">
+            <Text as="div" variant="cardBody" className="px-3 pt-4 lg:px-4">
                 {desc}
             </Text>
 
-            <div className='pb-4 mb-0 mt-auto text-sm md:text-md lg:text-xl'>
+            <div className='py-2 sm:pt-3 mt-auto text-sm md:text-md lg:text-xl'>
                 <TechTagMarquee
                     className='px-3 py-1 font-semibold rounded-lg bg-card-att text-text'
                     tags={tags}

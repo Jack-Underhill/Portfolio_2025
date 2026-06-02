@@ -44,25 +44,25 @@ export default function Header({ data, onClose, closeBtnRef, initialFocusRef, ti
 
     return (
         <div className="sticky top-0 z-10 border-b border-card-border">
-            <div className="px-5 py-4 flex flex-row gap-3">
+            <div className="px-3 md:px-5 py-4 flex flex-row gap-3">
                 <div className="flex-1 flex flex-col md:flex-row items-start gap-3">
                     <div className="min-w-0 flex-1">
                         <GradientText
                             as="h2"
                             id={titleId}
                             className='
-                            py-3 font-extrabold 
-                            text-balance
-                            text-4xl
-                            leading-[1.05] md:leading-[1.1]
-                            drop-shadow-modal-title
-                        '
+                                font-extrabold 
+                                text-balance
+                                text-2xl sm:text-3xl md:text-4xl 
+                                leading-[1.3] md:leading-[1.35]
+                                drop-shadow-modal-title
+                            '
                         >
                             {data.title}
                         </GradientText>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 md:gap-2">
                         {actions.map((action, index) => (
                             <ActionButton
                                 key={action.label}
@@ -79,7 +79,7 @@ export default function Header({ data, onClose, closeBtnRef, initialFocusRef, ti
                 <button
                     ref={closeBtnRef}
                     onClick={onClose}
-                    className="ml-1 size-8 rounded-lg text-text hover:brightness-130 hover:scale-110 focus-visible:brightness-130 focus-visible:scale-110 transition duration-500 ease-out"
+                    className="ml-1 size-7 md:size-8 rounded-lg text-text hover:brightness-130 hover:scale-110 focus-visible:brightness-130 focus-visible:scale-110 transition duration-500 ease-out"
                     aria-label="Close case study"
                     title="Close case study"
                 >

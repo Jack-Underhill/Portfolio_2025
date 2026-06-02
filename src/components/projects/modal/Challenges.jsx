@@ -15,14 +15,14 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
                 title="Toggle More Details"
                 className="
                     list-none cursor-pointer select-none
-                    group/summary flex items-center gap-3 p-4
+                    group/summary flex items-center gap-2 md:gap-3 p-2 md:p-4
                 "
             >
                 {/* Number pill */}
                 <div
                     className="
-                        mt-0.5 shrink-0 w-8 h-8 rounded-xl
-                        grid place-items-center text-sm font-extrabold
+                        shrink-0 size-6 md:size-8 rounded-lg md:rounded-xl
+                        grid place-items-center text-xs md:text-sm font-extrabold
                         bg-card-att text-text border 
                         border-card-border/70 group-hover/summary:border-button-border/40 group-focus/summary:border-button-border/40
                         
@@ -34,7 +34,7 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
                 {/* Title + teaser */}
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-3">
-                        <h4 className="font-bold text-text leading-snug">
+                        <h4 className="text-sm lg:text-base font-semibold md:font-bold text-text leading-snug">
                             {c.challenge}
                         </h4>
 
@@ -54,7 +54,7 @@ function ChallengeItem({ idx, c, isOpen, onToggle }) {
 
                     {/* Skimmable teaser line */}
                     {c.result && (
-                        <p className="mt-1 pr-8 text-sm text-text/70 line-clamp-1">
+                        <p className="mt-1 pr-8 text-xs lg:text-sm text-text/70 line-clamp-1">
                             <span className="font-semibold text-text/80">Result:</span>{" "}
                             {c.result}
                         </p>
@@ -84,7 +84,7 @@ function Row({ label, children }) {
             <div className="text-xs font-bold uppercase tracking-wide text-text/60">
                 {label}
             </div>
-            <div className="mt-1 text-sm leading-relaxed text-text/90">
+            <div className="mt-1 text-sm leading-4.5 lg:leading-5 text-text/90">
                 {children}
             </div>
         </div>

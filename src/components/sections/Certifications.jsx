@@ -38,8 +38,8 @@ function Certifications() {
     });
 
     return (
-        <section id="Certifications" aria-labelledby="certifications-heading" className="flex scroll-mt-28 flex-col gap-6">
-            <SectionTitle id="certifications-heading" data-aos="flip-down">
+        <section id="Certifications" aria-labelledby="certifications-heading" className="flex scroll-mt-28 flex-col">
+            <SectionTitle id="certifications-heading" className="mb-5 md:mb-6 lg:mb-7" data-aos="flip-down">
                 Certifications
             </SectionTitle>
 

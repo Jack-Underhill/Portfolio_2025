@@ -26,7 +26,7 @@ export default function ArchitecturePreview({ data, isAdminPreview = false }) {
             <div
                 role="note"
                 aria-label={`${projectTitle} architecture preview status`}
-                className="w-full h-40 rounded-xl border border-card-border bg-scrim/20 grid place-items-center text-text/60 text-sm"
+                className="w-full h-40 rounded-xl border border-card-border bg-scrim/20 grid place-items-center text-text/60 text-sm text-center"
             >
                 {fallbackText}
             </div>
