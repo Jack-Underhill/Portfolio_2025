@@ -61,6 +61,8 @@ function FeaturedProjectsGroup({
             prefetchVideo
             title={p.title}
             desc={p.description}
+            projectType={p.projectType}
+            labels={p.labels}
             link={p.directUrl}
             tags={p.techTags}
             onOpenModal={(options) => openFromCard(p, options)}

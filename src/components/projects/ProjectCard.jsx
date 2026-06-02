@@ -3,6 +3,7 @@ import { forwardRef } from 'react';
 import CardSurface from '../ui/CardSurface';
 import GradientText from '../ui/GradientText';
 import Text from '../ui/Text';
+import ProjectClassificationPills from './ProjectClassificationPills';
 import TechTagMarquee from './TechTagMarquee';
 import VideoGlowFrame from '../media/VideoGlowFrame';
 import { canUseNetlifyFunctions } from '../../runtime/netlify';
@@ -24,6 +25,8 @@ const ProjectCard = forwardRef(function ProjectCard({
     prefetchVideo = false,
     title, 
     desc, 
+    projectType,
+    labels,
     link, 
     tags, 
     onOpenModal, 
@@ -151,7 +154,9 @@ const ProjectCard = forwardRef(function ProjectCard({
                 )}
             </div>
 
-            <Text as="div" variant="cardBody" className="px-3 pt-4 lg:px-4">
+            <ProjectClassificationPills projectType={projectType} labels={labels} />
+
+            <Text as="div" variant="cardBody" className="px-3 mt-3 lg:px-4">
                 {desc}
             </Text>
 
