@@ -75,15 +75,15 @@ function ProjectClassificationPills({ projectType, labels }) {
     }
 
     return (
-        <div className="flex min-h-6 min-w-0 items-center gap-2 overflow-hidden mt-4 px-3 lg:px-4">
+        <div className="flex min-h-6 min-w-0 items-center gap-2 overflow-hidden mt-4 px-3 lg:px-4 text-xs 2xl:text-sm">
             {typeLabel && (
-                <span className="shrink-0 rounded-full border border-button-border/60 bg-card-att px-2.5 py-0.5 text-xs font-semibold text-text">
+                <span className="shrink-0 rounded-full border border-button-border/60 bg-card-att px-2.5 py-0.5 font-semibold text-text">
                     {typeLabel}
                 </span>
             )}
 
             {displayLabel && (
-                <span className="min-w-0 max-w-full truncate rounded-full border border-card-att/90 bg-page-elevated px-2.5 py-0.5 text-xs font-medium text-text/85">
+                <span className="min-w-0 max-w-full truncate rounded-full border border-card-att/90 bg-page-elevated px-2.5 py-0.5 font-medium text-text/85">
                     <span
                         aria-hidden={shouldCycleLabels || undefined}
                         className="relative block min-w-0 truncate"
