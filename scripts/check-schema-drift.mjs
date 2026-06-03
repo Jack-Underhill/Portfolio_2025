@@ -29,6 +29,7 @@ const requiredTables = [
   'project_section',
   'projects',
   'skills',
+  'credentials',
   'links',
 ];
 
@@ -55,6 +56,24 @@ const requiredProjectColumns = [
   'featured_rank',
   'project_type',
   'labels',
+  'published',
+  'sort_order',
+];
+
+const requiredCredentialColumns = [
+  'id',
+  'credential_kind',
+  'title',
+  'organization',
+  'credential_type',
+  'description',
+  'highlights',
+  'issued_label',
+  'gpa',
+  'credential_url',
+  'logo_url',
+  'logo_key',
+  'logo_scale',
   'published',
   'sort_order',
 ];
@@ -135,6 +154,7 @@ const schema = readFileSync(schemaPath, 'utf8');
 const missingSchemaNames = [
   ...assertSchemaContains(schema, 'table', requiredTables),
   ...assertSchemaContains(schema, 'projects column', requiredProjectColumns),
+  ...assertSchemaContains(schema, 'credentials column', requiredCredentialColumns),
 ];
 
 if (missingSchemaNames.length) {
@@ -153,5 +173,5 @@ if (failures.length) {
   process.exitCode = 1;
 } else {
   console.log('Schema drift check passed.');
-  console.log(`Checked ${requiredTables.length} tables and ${requiredProjectColumns.length} project columns.`);
+  console.log(`Checked ${requiredTables.length} tables, ${requiredProjectColumns.length} project columns, and ${requiredCredentialColumns.length} credential columns.`);
 }
