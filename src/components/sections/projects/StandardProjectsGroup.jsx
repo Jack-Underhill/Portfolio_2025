@@ -55,6 +55,8 @@ function StandardProjectsGroup({
       video={p.videoUrl}
       title={p.title}
       desc={p.description}
+      projectType={p.projectType}
+      labels={p.labels}
       link={p.directUrl}
       linkTabIndex={isMarqueeDuplicate ? -1 : undefined}
       tags={p.techTags}

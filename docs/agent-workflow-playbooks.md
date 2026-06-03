@@ -1,6 +1,6 @@
 # Agent Workflow Playbooks
 
-Date: 2026-05-21
+Date: 2026-06-02
 
 ## Purpose
 
@@ -277,14 +277,15 @@ Do:
 - Keep featured and standard projects on the same mapped project shape.
 - Keep grouping and sorting behavior in `src/domain/projects/viewModel.js`.
 - Keep admin classification inputs aligned with server validation and admin serialization.
+- Keep public label display card-only unless a new product decision expands labels into modal, filter, analytics, search, or cross-project metadata behavior.
+- Treat labels as curated card copy: `ProjectClassificationPills.jsx` shows one stable type pill plus one display-label pill that cycles through all configured labels every four seconds for users without reduced motion.
 - Update mapper, view-model, and admin validation tests if accepted values, label normalization, sorting, or grouping rules change.
-- Make an explicit product decision before rendering labels publicly; labels are currently mapped and admin-ready, but visual display remains an active decision.
 
 Do not:
 
 - Create a normalized label table unless filtering, search, analytics, or cross-project metadata requires it now.
 - Duplicate featured/standard sorting rules in components.
-- Treat labels as visually implemented if they are only mapped and editable in admin.
+- Add project label pills to modal details without a separate product decision.
 - Add a new project type in admin UI without updating constants, validation, mappers, schema expectations, and tests as needed.
 
 Verification:
@@ -301,6 +302,7 @@ Docs update expectations:
 - Update [Data Flow Drift](./data-flow-drift.md) if label display, empty groups, featured grouping, project type semantics, or standard project presentation changes.
 - Update [Testing Plan](./testing-plan.md) if project classification coverage changes.
 - Update [Database README](../database/README.md) if persisted project classification fields or storage/schema expectations change.
+- Update [Accessibility Walkthrough](./accessibility-walkthrough.md) if rotating label behavior, reduced-motion behavior, or stable screen-reader summaries change.
 
 Stop condition for a fresh context window:
 

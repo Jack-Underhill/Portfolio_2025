@@ -1,6 +1,6 @@
 # Current Errors and Warnings
 
-Date: 2026-05-30
+Date: 2026-06-02
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last full baseline checked on 2026-05-30 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The iOS project-card preview playback verification also passed lint, build, unit tests, schema drift, and the accessibility smoke.
+Last full baseline checked on 2026-06-02 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The project-card classification pill verification also passed lint, build, unit tests, schema drift, and the accessibility smoke.
 
 Passing:
 

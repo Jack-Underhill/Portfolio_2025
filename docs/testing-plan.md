@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-05-30
+Date: 2026-06-02
 
 ## Purpose
 
@@ -43,7 +43,7 @@ Current baseline test files:
 
 Current checks:
 
-- `cmd /c npm run test` passes with 22 test files and 116 tests.
+- `cmd /c npm run test` passes with 23 test files and 119 tests.
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run lint` passes.
@@ -65,6 +65,7 @@ Remaining testing gap:
 - Live desktop keyboard traversal through standard project marquee cards remains data-dependent when plain local Vite has no public project rows; duplicate marquee copies are covered by the component structure using `aria-hidden` plus duplicate-anchor `tabIndex="-1"`, with visible duplicates intentionally not `inert`.
 - Desktop marquee interaction verification used mocked Supabase project rows in local Playwright after sandboxed live fetches returned `ERR_NETWORK_ACCESS_DENIED`; it covered duplicate hover preview activation, normal duplicate modal clicks, modified/middle-click preservation, focus centering, and the reduced-motion grid fallback.
 - Focus alignment center-delta math is covered by `tests/hooks/useProjectMarqueeMotion.test.js`; a heavier ProjectCard/CardSurface component test was intentionally deferred because the existing suite does not include a React component harness and the prop path was verified structurally/manually.
+- Project classification pill rendering and label cycling are covered by mapper normalization tests plus structural/manual verification rather than a dedicated React component harness. Manual checks verified card placement, row-height stability during a 4600ms rotation window, no focusable pill descendants, stable card link names, stable `.sr-only` summaries for multi-label cycling, and reduced-motion first-label behavior.
 - Keep live Supabase, Redis, and deployed Netlify behavior out of the default gate unless explicitly mocked.
 
 ## Projects
@@ -85,6 +86,7 @@ Current coverage:
 - Draft-to-public-modal preview mapping is covered for complete drafts, optional fields, classification normalization, malformed list fallbacks, and challenge preservation.
 - Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
+- Public project-card classification pills consume the mapped `projectType` and `labels` fields. The card-local timer, opacity overlap, reduced-motion branch, and assistive-hidden transient layers remain manually verified until the repo gains a lightweight React component test path.
 - Desktop standard-card marquee verification is currently pure focus-alignment helper coverage plus quality-gate/accessibility-smoke/manual checks rather than a dedicated component test; mobile and reduced-motion users still receive the grid path.
 - Featured project cards prefetch only their guarded `safeVideo` source with `preload="auto"`; standard project cards keep lazy source attachment. The preview hook requests muted inline playback after hover intent, retries on readiness events, and tracks actual `playing` state separately from preview intent. Stable lifecycle branches are covered by `tests/hooks/useHoverPreviewIntent.test.js`; real iOS autoplay policy remains manually verified.
 - Admin project validation is covered through pure validation helper tests, and the no-write draft validation route is covered for success and shared validation errors.
