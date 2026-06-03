@@ -87,7 +87,7 @@ function SkillsSection({ state, onChange }) {
             <div className="space-y-4">
                 {groups.map((group, groupIndex) => {
                     const items = Array.isArray(group.items) ? group.items : [];
-                    const groupKey = group.id ?? `${group.sortOrder}-${group.label}-${groupIndex}`;
+                    const groupKey = group.id ?? `${group.sortOrder}-${groupIndex}`;
 
                     return (
                         <div key={groupKey} className={adminUi.editorPanel}>
