@@ -89,7 +89,7 @@ Public grouping uses `src/domain/projects/viewModel.js`: featured projects are r
 
 `migrations/0003_grouped_skills.sql` removes the old `skills.name` and `skills.level` columns after backfilling existing rows into grouped columns. Existing legacy rows become unpublished `Imported Proficient` or `Imported Experiencing` grouped rows, preserving the labels without making them the new public Skills display by accident.
 
-Run `npm run backup:supabase` before applying that migration to a live Supabase project. The current static Skills groups remain the public fallback source until grouped rows are curated and published.
+Run `npm run backup:supabase` before applying that migration to a live Supabase project. Grouped Skills rows and labels are populated in the live database; the static grouped Skills defaults remain only as resilient public fallbacks when the public read is unavailable or returns no usable rows.
 
 ---
 
