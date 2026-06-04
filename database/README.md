@@ -13,6 +13,7 @@ Apply SQL in this order when setting up or refreshing a Supabase project:
 3. `migrations/0003_grouped_skills.sql`
 4. `migrations/0004_project_classification.sql`
 5. `migrations/0005_credentials.sql`
+6. `migrations/0006_project_type_competition.sql`
 
 Use `schema.sql` as the readable snapshot of the desired current schema. Do not apply destructive SQL to a live project without confirming the live schema and backing up data.
 
@@ -82,10 +83,10 @@ Architecture SVGs are trusted by the public viewer and `inline-svg` proxy only w
 `migrations/0004_project_classification.sql` adds optional project classification fields:
 
 - `featured_rank`: nullable integer. `NULL` means the project is not featured; lower numbers sort first for featured projects.
-- `project_type`: nullable primary classification constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
+- `project_type`: nullable primary classification constrained to `school`, `internship`, `competition`, `personal`, `client`, or `open-source`.
 - `labels`: nullable JSONB array for curated display labels available to public card/detail view models.
 
-Existing project rows remain valid without classification values. Public mappers and admin validation should treat these fields as optional and normalize display labels before rendering or saving. Labels remain nullable JSONB display copy, not normalized metadata. Public cards currently render them through one cycling classification pill, while modal label sections, filters, analytics, and cross-project metadata remain out of scope.
+Existing project rows remain valid without classification values. Use `competition` for hackathons, game jams, and similar limited-time competitive work; keep finer context such as `Hackathon`, `Game Jam`, `Club`, event names, or duration in `labels`. Public mappers and admin validation should treat these fields as optional and normalize display labels before rendering or saving. Labels remain nullable JSONB display copy, not normalized metadata. Public cards currently render them through one cycling classification pill, while modal label sections, filters, analytics, and cross-project metadata remain out of scope.
 
 Public grouping uses `src/domain/projects/viewModel.js`: featured projects are rows with a valid `featured_rank`, sorted by featured rank, `sort_order`, then `id`; standard projects sort by `sort_order`, then `id`.
 

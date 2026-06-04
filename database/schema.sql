@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS projects (
     CONSTRAINT projects_project_type_check
         CHECK (
             project_type IS NULL
-            OR project_type IN ('school', 'internship', 'personal', 'client', 'open-source')
+            OR project_type IN ('school', 'internship', 'competition', 'personal', 'client', 'open-source')
         ),
     CONSTRAINT projects_labels_array_check
         CHECK (labels IS NULL OR jsonb_typeof(labels) = 'array')
@@ -87,7 +87,7 @@ COMMENT ON COLUMN projects.improvements IS
 COMMENT ON COLUMN projects.featured_rank IS
     'Nullable integer for featured project ordering. Null means not featured; lower numbers sort first.';
 COMMENT ON COLUMN projects.project_type IS
-    'Optional primary project classification: school, internship, personal, client, or open-source.';
+    'Optional primary project classification: school, internship, competition, personal, client, or open-source.';
 COMMENT ON COLUMN projects.labels IS
     'Optional JSONB string array of display labels for project cards and details.';
 
