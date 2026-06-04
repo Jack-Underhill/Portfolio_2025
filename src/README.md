@@ -55,6 +55,7 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 
 - Singleton IDs and local admin defaults still live at their owning runtime boundaries.
 - Skills have their own grouped public/admin flow and static grouped fallbacks; Contact owns links only.
+- Education and Certifications have their own credentials public/admin flow with static domain fallbacks; bundled logo keys and optional public logo URLs are resolved at the UI boundary.
 - Project classification fields are data-backed and grouped through `src/domain/projects/viewModel.js`; `Projects.jsx` fetches once, maps once, then renders `FeaturedProjectsGroup` and `StandardProjectsGroup`.
 - Project modal ownership is centralized in `Projects.jsx`; project preview ownership still flows through source-aware `activePreviewId` state, including scroll-driven viewport activation from project groups.
 - Project card viewport activation uses `useViewportActivationGroup` for one active item per group, with reduced-motion, modal-open, and marquee opt-outs and no card-local viewport math.

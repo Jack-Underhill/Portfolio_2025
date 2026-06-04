@@ -26,6 +26,7 @@ Current baseline test files:
 - `tests/domain/projects/viewModel.test.js`
 - `tests/domain/about/mappers.test.js`
 - `tests/domain/contact/mappers.test.js`
+- `tests/domain/credentials/mappers.test.js`
 - `tests/domain/skills/mappers.test.js`
 - `tests/hooks/useProjectMarqueeMotion.test.js`
 - `tests/hooks/useHoverPreviewIntent.test.js`
@@ -39,11 +40,12 @@ Current baseline test files:
 - `tests/server/admin/routes/validation.projects.test.js`
 - `tests/server/admin/routes/projects.validate-route.test.js`
 - `tests/server/admin/routes/validation.contact.test.js`
+- `tests/server/admin/routes/validation.credentials.test.js`
 - `tests/server/admin/routes/validation.skills.test.js`
 
 Current checks:
 
-- `cmd /c npm run test` passes with 23 test files and 119 tests.
+- `cmd /c npm run test` passes with 25 test files and 130 tests.
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run lint` passes.
@@ -156,20 +158,21 @@ Future coverage:
 
 Current status:
 
-- Static component-local data.
+- Education and Certifications are data-backed through the shared `credentials` table.
+- Public sections read published credential rows through `src/api/public/credentials.js`, map them through `src/domain/credentials/mappers.js`, and fall back per kind to static domain defaults.
+- Local admin editing lives in `src/admin/sections/CredentialsSection.jsx`, with service-role replacement saves in `server/admin/routes/credentials.js`.
 - Project scroll activation is section-local, enabled outside the marquee path, and uses the shared viewport activation hook. Credential scroll activation remains touch-capability gated.
-- Future candidate for database/admin/public data flow.
 
 Current coverage:
 
+- Credential row mapping, split Education/Certification output, required display field filtering, unpublished filtering, highlight normalization, URL/logo/GPA normalization, logo scale handling, sort order, and fallback-ready empty output.
+- Admin credential validation for required fields, known logo keys, valid URLs, bounded logo scale, bounded highlights, max rows, blank-row dropping, boolean normalization, and derived sort order.
 - Shared viewport activation scoring helpers are covered for diagonal selection, visible-ratio filtering, hysteresis, activation-band rejection, single-column center behavior, and multi-column left/right selection.
 
-Future coverage after migration:
+Remaining gaps:
 
-- Education row mapping.
-- Certification row mapping.
-- Admin validation for dates, links, credential type, logo/icon handling, and sort order.
-- Public rendering from mapped data with static fallbacks.
+- Browser/component smoke for public credential live/fallback rendering and admin credential save behavior remains manual unless a lightweight React/browser harness is added.
+- Live Supabase credential reads and writes remain outside the default automated gate.
 
 ## Architecture Viewer
 

@@ -14,7 +14,7 @@ This document records runtime paths, route constants, storage paths, singleton I
 
 ## Current Verdict
 
-Some runtime, storage, and architecture SVG boundary values have been centralized or clarified. The remaining cleanup is narrow and mostly about documenting local runtime expectations and future data-model work.
+Some runtime, storage, and architecture SVG boundary values have been centralized or clarified. The remaining cleanup is narrow and mostly about documenting local runtime expectations and singleton/admin constants.
 
 Keep the fix small. The goal is one obvious home for important constants, not a broad configuration framework.
 
