@@ -111,6 +111,8 @@ Run `npm run backup:supabase` before applying that migration to a live Supabase 
 
 Anon reads are policy-limited to published rows. Local admin saves should translate card-facing fields to these columns and keep service-role writes inside `server/admin`.
 
+Live credential rows have been populated from the domain fallback defaults. Run `npm run backup:supabase` before changing live credential data; the backup script includes `credentials` alongside the other runtime tables. The one-time guarded population helper is `node --env-file=.env.local scripts/seed-credentials.mjs`; it refuses to overwrite existing rows unless `--replace` is passed after a fresh backup.
+
 ---
 
 When adding or changing a persisted portfolio field, update the matching files in the same scoped change:
