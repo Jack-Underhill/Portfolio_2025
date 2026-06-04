@@ -8,12 +8,19 @@ export async function loadAdminData() {
   return getJson('/bootstrap');
 }
 
-export async function saveAdminData({ aboutState, projectsState, contactState, skillsState }) {
+export async function saveAdminData({
+  aboutState,
+  projectsState,
+  contactState,
+  skillsState,
+  credentialsState,
+}) {
   const data = await postAdminPayload('/save-all', {
     about: aboutState,
     projects: projectsState,
     contact: contactState,
     skills: skillsState,
+    credentials: credentialsState,
   });
 
   return {
@@ -21,6 +28,7 @@ export async function saveAdminData({ aboutState, projectsState, contactState, s
     projects: data.projects,
     contact: data.contact,
     skills: data.skills,
+    credentials: data.credentials,
   };
 }
 
@@ -58,6 +66,14 @@ export async function loadSkills() {
 
 export async function saveSkills(state) {
   return postAdminPayload('/skills', { skills: state });
+}
+
+export async function loadCredentials() {
+  return getJson('/credentials');
+}
+
+export async function saveCredentials(state) {
+  return postAdminPayload('/credentials', { credentials: state });
 }
 
 async function getJson(path) {

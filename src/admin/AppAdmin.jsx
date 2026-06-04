@@ -3,6 +3,7 @@ import AboutSection                   from './sections/AboutSection';
 import ProjectsSection                from './sections/ProjectsSection';
 import ContactSection                 from './sections/ContactSection';
 import SkillsSection                  from './sections/SkillsSection';
+import CredentialsSection             from './sections/CredentialsSection';
 import { loadAdminData, saveAdminData } from './api/adminClient';
 
 import BackToTopButton      from "./navigation/BackToTopButton";
@@ -31,24 +32,31 @@ const initialSkillsState = {
     groups: [],
 };
 
+const initialCredentialsState = {
+    education: [],
+    certifications: [],
+};
+
 function AppAdmin() {
-    const [aboutState, setAboutState]       = useState(initialAboutState);
+    const [aboutState, setAboutState] = useState(initialAboutState);
     const [projectsState, setProjectsState] = useState(initialProjectsState);
-    const [contactState, setContactState]   = useState(initialContactState);
-    const [skillsState, setSkillsState]     = useState(initialSkillsState);
-    const [isSaving, setIsSaving]           = useState(false);
+    const [contactState, setContactState] = useState(initialContactState);
+    const [skillsState, setSkillsState] = useState(initialSkillsState);
+    const [credentialsState, setCredentialsState] = useState(initialCredentialsState);
+    const [isSaving, setIsSaving] = useState(false);
     const [isProjectValidationInFlight, setIsProjectValidationInFlight] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-    const [error, setError]                 = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         (async () => {
             try {
-                const { about, projects, contact, skills } = await loadAdminData();
+                const { about, projects, contact, skills, credentials } = await loadAdminData();
                 setAboutState(about);
                 setProjectsState(projects);
                 setContactState(contact);
                 setSkillsState(skills || initialSkillsState);
+                setCredentialsState(credentials || initialCredentialsState);
                 setHasUnsavedChanges(false);
             } catch (err) {
                 console.error(err);
@@ -69,16 +77,18 @@ function AppAdmin() {
         setIsSaving(true);
         setError(null);
 
-        const { about, projects, contact, skills } = await saveAdminData({
+        const { about, projects, contact, skills, credentials } = await saveAdminData({
             aboutState,
             projectsState,
             contactState,
             skillsState,
+            credentialsState,
         });
         setAboutState(about);
         setProjectsState(projects);
         setContactState(contact);
         setSkillsState(skills || initialSkillsState);
+        setCredentialsState(credentials || initialCredentialsState);
         setHasUnsavedChanges(false);
 
         } catch (err) {
@@ -98,6 +108,7 @@ function AppAdmin() {
                     <nav className="flex gap-4 text-sm" aria-label="Admin sections">
                         <a href="#about">About</a>
                         <a href="#projects">Projects</a>
+                        <a href="#credentials">Credentials</a>
                         <a href="#skills">Skills</a>
                         <a href="#contact">Contact</a>
                     </nav>
@@ -114,6 +125,13 @@ function AppAdmin() {
                             onChange={markDirty(setProjectsState)}
                             isSaveInFlight={isSaving}
                             onValidationBusyChange={setIsProjectValidationInFlight}
+                        />
+                    </section>
+
+                    <section id="credentials" aria-labelledby="admin-credentials-heading">
+                        <CredentialsSection
+                            state={credentialsState}
+                            onChange={markDirty(setCredentialsState)}
                         />
                     </section>
 
