@@ -7,6 +7,7 @@ const TABLES = [
   'project_section',
   'projects',
   'skills',
+  'credentials',
   'links',
 ];
 

@@ -18,6 +18,7 @@ Keep this directory free of React components, browser lifecycle code, API client
 
 - `about/`: maps the singleton About row into the public About shape.
 - `contact/`: maps contact links into the public Contact shape.
+- `credentials/`: maps credential rows into Education and Certification view models and owns fallback defaults in card-facing shape with asset-free logo keys.
 - `projects/`: owns project row mappers, draft preview mapping, agent draft import/context helpers, view-model helpers, project route helpers, editable draft defaults, and project-specific constants.
 - `shared/`: holds generic normalization helpers used by feature folders.
 - `skills/`: owns grouped Skills defaults and row mapping for the public Skills section.

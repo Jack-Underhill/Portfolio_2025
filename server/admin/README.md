@@ -7,7 +7,7 @@ Use this directory for privileged admin reads and writes that require the Supaba
 ## Scope
 
 - Start the local admin HTTP server on loopback only.
-- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Skills, Projects, project draft validation, and save-all flows.
+- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Skills, Credentials, Projects, project draft validation, and save-all flows.
 - Read and write Supabase tables with the service-role client.
 - Validate admin payloads and uploaded files before persistence.
 - Upload admin-managed media into the `portfolio-assets` bucket and return public URLs.
@@ -23,10 +23,11 @@ Keep this directory free of browser code, React components, public anon-key read
 ## Files
 
 - `index.js`: creates the local HTTP server, applies CORS for the Vite dev origin, and routes `/admin-api/*` requests.
-- `routes/bootstrap.js`: loads or saves About, Projects, and Contact data together.
+- `routes/bootstrap.js`: loads or saves About, Projects, Contact, Skills, and Credentials data together.
 - `routes/about.js`: manages the singleton About row and About media uploads.
 - `routes/contact.js`: manages social links and social icon uploads.
 - `routes/skills.js`: manages grouped Skills rows with service-role replacement saves.
+- `routes/credentials.js`: manages Education and Certification rows with service-role replacement saves.
 - `routes/projects.js`: manages project section text, projects, project draft validation, project media uploads, ordering, permalink creation, and deleted-project cleanup.
 - `routes/requestBody.js`: parses JSON and multipart admin requests, enforces body limits, and attaches uploaded files to state objects.
 - `routes/validation.js`: normalizes and validates admin payloads, URLs, arrays, booleans, IDs, and upload file limits.
@@ -44,5 +45,6 @@ Keep this directory free of browser code, React components, public anon-key read
 - `routes/about.js` and `routes/projects.js` each own singleton IDs for their current table shapes.
 - Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
 - Architecture SVG viewer validation and the Netlify inline SVG proxy trust the same project-scoped `projects/:id/architecture.svg` path.
-- Project classification validation accepts optional integer `featuredRank`, optional `projectType` values of `school`, `internship`, `personal`, `client`, or `open-source`, and normalized display `labels`.
+- Project classification validation accepts optional integer `featuredRank`, optional `projectType` values of `school`, `internship`, `competition`, `personal`, `client`, or `open-source`, and normalized display `labels`. Use `competition` for hackathons, game jams, and similar limited-time competitive work; keep event details in `labels`.
 - `POST /admin-api/projects/validate` reuses project state validation for draft feedback without calling service-role write methods or storage upload helpers.
+- Credentials use simple replacement saves because the table is small display content; first-pass logo editing accepts known bundled keys (`wsu`, `edcc`, `microsoft`) or an optional public logo URL.

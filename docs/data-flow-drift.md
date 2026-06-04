@@ -18,7 +18,7 @@ The active drift is limited:
 
 - Projects have aligned persisted classification fields, card-only public classification pills, centralized modal ownership, featured-card guarded video prefetch, and a current mobile/reduced-motion grid plus desktop standard-card marquee presentation. The marquee interaction contract is aligned around assistive-hidden duplicate copies, non-sequential duplicate anchors, and hook-owned primary focus alignment. Empty-state decisions remain open.
 - Contact link icon fallbacks remain positional.
-- Education and Certifications are intentionally static until a database/admin/public flow is designed.
+- Education and Certifications now use the shared credentials data flow with static defaults kept only as resilient fallbacks.
 
 ## Projects
 
@@ -66,8 +66,8 @@ Decision:
 - Featured projects are selected by non-null `featured_rank`, not by hardcoded component IDs.
 - Featured projects sort by `featuredRank`, then `sortOrder`, then `id`; standard projects sort by `sortOrder`, then `id`.
 - Featured project video prefetch uses `preload="auto"` as a browser hint and retains the attached source after preview deactivation. Standard project videos remain lazy and release their source on preview release. Preview intent and actual `playing` state stay separate so prefetched thumbnails remain visible until playback begins.
-- `project_type` is constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
-- `labels` stay as optional JSON curated card copy. Public cards render one cycling display-label pill, while filters, analytics, modal label sections, and cross-project metadata remain out of scope until a new product decision expands the model.
+- `project_type` is constrained to `school`, `internship`, `competition`, `personal`, `client`, or `open-source`. Use `competition` for hackathons, game jams, and similar limited-time competitive work.
+- `labels` stay as optional JSON curated card copy, including finer context such as `Hackathon`, `Game Jam`, `Club`, event names, or duration. Public cards render one cycling display-label pill, while filters, analytics, modal label sections, and cross-project metadata remain out of scope until a new product decision expands the model.
 - Decide whether the current two peer page sections are intended, or whether `Projects.jsx` should restore one top-level Projects wrapper with child groups.
 
 Next actions:
@@ -96,23 +96,27 @@ Next actions:
 - Consider storing a stable platform key if icon fallback accuracy matters.
 - Keep existing contact mapper tests updated if the link fallback strategy changes.
 
-## Static Education and Certifications
+## Credentials
 
-Education and certifications are static by design right now.
+Current flow:
 
-Current shape:
+- Table: `credentials`
+- Public read: `src/api/public/credentials.js`
+- Domain mapper/defaults: `src/domain/credentials`
+- Public UI: `src/components/sections/Education.jsx`, `src/components/sections/Certifications.jsx`, and `src/components/credentials/*`
+- Admin backend: `server/admin/routes/credentials.js` and `server/admin/routes/validation.js`
+- Admin UI: `src/admin/sections/CredentialsSection.jsx`
 
-- `src/components/sections/Education.jsx` owns static education entries.
-- `src/components/sections/Certifications.jsx` owns static certification entries.
-- Public database/admin flow does not currently include these sections.
+Decision:
 
-Future direction:
-
-- Education and certifications should eventually move into the same data flow used by other editable content.
-- That future flow should include database tables, public fetches, pure domain mappers, admin editing, validation, and tests.
+- Education and Certification rows share one credentials table and stay distinct through `credential_kind`.
+- Public rows are mapped into card-facing fields before rendering.
+- Static Education and Certification defaults remain as fallback content when a public read is unavailable or a kind has no usable live rows.
+- Bundled credential logos are selected through stable `logoKey` values; optional `logoUrl` values win at the UI boundary. Logo upload is deferred.
+- Admin saves use small replacement-save behavior because credentials are compact display content.
 
 Next actions:
 
-- Keep static source as the current truth until the data model is designed.
-- Document future tables before implementation.
-- Add tests after mappers exist, not while the data is still static component-local content.
+- Keep mapper and validation tests aligned whenever credential fields change.
+- Keep live Supabase checks out of the default gate unless they are explicitly mocked or manually requested.
+- Add upload UI only if credential logo management becomes more than bundled keys or public URLs.

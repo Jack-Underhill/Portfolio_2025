@@ -38,7 +38,7 @@ try {
   `);
 
   const constraints = await sql.unsafe(`
-    SELECT conname
+    SELECT conname, pg_get_constraintdef(oid) AS definition
     FROM pg_constraint
     WHERE conrelid = 'public.projects'::regclass
       AND conname IN ('projects_project_type_check', 'projects_labels_array_check')
@@ -52,7 +52,7 @@ try {
   });
   console.log('Verified project classification constraints:');
   constraints.forEach((constraint) => {
-    console.log(`- ${constraint.conname}`);
+    console.log(`- ${constraint.conname}: ${constraint.definition}`);
   });
 } finally {
   await sql.end();

@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { handleAboutRead, handleAboutWrite } from './routes/about.js';
 import { handleBootstrapRead, handleSaveAllWrite } from './routes/bootstrap.js';
 import { handleContactRead, handleContactWrite } from './routes/contact.js';
+import { handleCredentialsRead, handleCredentialsWrite } from './routes/credentials.js';
 import { handleHealth } from './routes/health.js';
 import {
   handleProjectsRead,
@@ -89,6 +90,16 @@ function handleRequest(req, res) {
 
   if (req.method === 'POST' && requestUrl.pathname === '/admin-api/contact') {
     handleContactWrite(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && requestUrl.pathname === '/admin-api/credentials') {
+    handleCredentialsRead(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && requestUrl.pathname === '/admin-api/credentials') {
+    handleCredentialsWrite(req, res);
     return;
   }
 

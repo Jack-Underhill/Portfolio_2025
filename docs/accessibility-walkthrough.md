@@ -145,7 +145,7 @@ Admin accessibility:
 - The admin project preview opens the shared project modal from the active unsaved draft and inherits the existing dialog focus containment, Escape close, and focus-restore behavior.
 - The admin project draft import and current-context panels use labeled textareas, alert/status feedback, and disabled states while Save is in flight so pasted draft changes do not race the save response.
 - Repeated list textareas have item-specific accessible names, and remove buttons describe the item they affect.
-- Project, challenge, skill, and social add/remove/reorder controls use specific accessible names where those controls already exist.
+- Project, challenge, skill, credential, and social add/remove/reorder controls use specific accessible names where those controls already exist.
 - Admin preview images use preview-specific alt text.
 - Decorative scroll-button icons are hidden from assistive technology.
 - Hidden admin back-to-top/back-to-bottom controls are removed from the tab order until visible.
@@ -154,7 +154,7 @@ Admin accessibility:
 
 - Default users keep the portfolio's animated feel; reduced-motion users get calmer behavior for non-essential motion.
 - Project groups get one scroll-active card except while the marquee, modal, or reduced-motion guardrails apply. Education and certification groups still limit scroll-active card effects to touch-capable devices. Hybrid devices can still use intentional hover and keyboard focus independently of the scroll-active state.
-- Personal-use admin reorder remains mouse-drag based; the current accessibility state focuses on names, labels, landmarks, status text, and tab behavior rather than adding alternate reorder controls.
+- Some personal-use admin reorder remains mouse-drag based; the current accessibility state focuses on names, labels, landmarks, status text, tab behavior, and explicit controls where they already exist.
 - Plain Vite can show expected Netlify function fallback behavior for visit count and architecture SVG previews. Use `netlify dev` when testing deployed-function behavior locally.
 - Public data fetch failures can leave the page on static fallbacks or empty project states in constrained local environments. Live Supabase-backed content checks remain outside the default local gate unless explicitly mocked.
 - Desktop standard-card marquee keyboard traversal is structurally protected by duplicate anchors using `tabIndex="-1"` while duplicate wrappers stay `aria-hidden`. A full live traversal check depends on public project rows being available in the local runtime; mocked Playwright verification covered duplicate pointer parity and primary focus centering.

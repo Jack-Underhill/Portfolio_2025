@@ -7,7 +7,7 @@ Use this directory for frontend data access that can run with public environment
 ## Scope
 
 - Create the public Supabase client from `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
-- Fetch public About, Contact, Project section, Project card, and Project detail data.
+- Fetch public About, Contact, Credentials, Project section, Project card, and Project detail data.
 - Delegate row shaping to `src/domain` mappers.
 - Return `null` when public data cannot be loaded, so the UI can use local defaults or omit optional sections.
 
@@ -22,6 +22,7 @@ Keep this directory free of privileged writes, service-role keys, admin validati
 
 - Public helpers should only use anon-safe Supabase access and public tables or policies.
 - Keep database row-to-view-model mapping in `src/domain`; API modules should focus on selecting data and handling load failures.
+- Credentials are read from the published `credentials` rows and mapped into separate Education and Certification arrays; each public section keeps its own static fallback when its live kind is empty or unavailable.
 - Keep admin routes and write operations in `server/admin`.
 - Keep Netlify function handlers in `netlify/functions`.
 - Log unexpected fetch errors here, but let callers decide how to present fallbacks.

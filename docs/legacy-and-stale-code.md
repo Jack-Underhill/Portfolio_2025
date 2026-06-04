@@ -23,5 +23,3 @@ Current guardrails:
 - Normal visitors do not see debug UI or send diagnostic events.
 
 Review before extending or shipping additional media work. Remove the logger when the device-specific troubleshooting value no longer justifies the small maintenance surface.
-
-Static Education and Certifications are tracked in `data-flow-drift.md` as a future data-flow candidate, not as stale code.
