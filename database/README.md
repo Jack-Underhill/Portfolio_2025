@@ -80,7 +80,7 @@ Architecture SVGs are trusted by the public viewer and `inline-svg` proxy only w
 
 ### Project Classification
 
-`migrations/0004_project_classification.sql` adds optional project classification fields:
+`migrations/0004_project_classification.sql` adds optional project classification fields. `migrations/0006_project_type_competition.sql` updates the current `project_type` constraint:
 
 - `featured_rank`: nullable integer. `NULL` means the project is not featured; lower numbers sort first for featured projects.
 - `project_type`: nullable primary classification constrained to `school`, `internship`, `competition`, `personal`, `client`, or `open-source`.

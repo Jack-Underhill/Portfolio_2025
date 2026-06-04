@@ -133,6 +133,12 @@ Avoid:
 
 A small project with 4 strong tech pills is better than one padded to 12.
 
+### Project Classification
+
+Use only accepted `projectType` values: `school`, `internship`, `competition`, `personal`, `client`, or `open-source`.
+
+Use `competition` for hackathons, game jams, and similar limited-time competitive work. Keep finer context such as `Hackathon`, `Game Jam`, `Club`, event names, or duration in `labels`.
+
 ## Existing Project Review Mode
 
 Ask for or use current project draft context before revising an existing case study. Prefer the admin `Copy current context` action. A manual copy/export is acceptable only if the UI is unavailable.

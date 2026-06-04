@@ -45,6 +45,6 @@ Keep this directory free of browser code, React components, public anon-key read
 - `routes/about.js` and `routes/projects.js` each own singleton IDs for their current table shapes.
 - Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
 - Architecture SVG viewer validation and the Netlify inline SVG proxy trust the same project-scoped `projects/:id/architecture.svg` path.
-- Project classification validation accepts optional integer `featuredRank`, optional `projectType` values of `school`, `internship`, `personal`, `client`, or `open-source`, and normalized display `labels`.
+- Project classification validation accepts optional integer `featuredRank`, optional `projectType` values of `school`, `internship`, `competition`, `personal`, `client`, or `open-source`, and normalized display `labels`. Use `competition` for hackathons, game jams, and similar limited-time competitive work; keep event details in `labels`.
 - `POST /admin-api/projects/validate` reuses project state validation for draft feedback without calling service-role write methods or storage upload helpers.
 - Credentials use simple replacement saves because the table is small display content; first-pass logo editing accepts known bundled keys (`wsu`, `edcc`, `microsoft`) or an optional public logo URL.

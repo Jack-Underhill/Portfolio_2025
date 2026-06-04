@@ -66,8 +66,8 @@ Decision:
 - Featured projects are selected by non-null `featured_rank`, not by hardcoded component IDs.
 - Featured projects sort by `featuredRank`, then `sortOrder`, then `id`; standard projects sort by `sortOrder`, then `id`.
 - Featured project video prefetch uses `preload="auto"` as a browser hint and retains the attached source after preview deactivation. Standard project videos remain lazy and release their source on preview release. Preview intent and actual `playing` state stay separate so prefetched thumbnails remain visible until playback begins.
-- `project_type` is constrained to `school`, `internship`, `personal`, `client`, or `open-source`.
-- `labels` stay as optional JSON curated card copy. Public cards render one cycling display-label pill, while filters, analytics, modal label sections, and cross-project metadata remain out of scope until a new product decision expands the model.
+- `project_type` is constrained to `school`, `internship`, `competition`, `personal`, `client`, or `open-source`. Use `competition` for hackathons, game jams, and similar limited-time competitive work.
+- `labels` stay as optional JSON curated card copy, including finer context such as `Hackathon`, `Game Jam`, `Club`, event names, or duration. Public cards render one cycling display-label pill, while filters, analytics, modal label sections, and cross-project metadata remain out of scope until a new product decision expands the model.
 - Decide whether the current two peer page sections are intended, or whether `Projects.jsx` should restore one top-level Projects wrapper with child groups.
 
 Next actions:

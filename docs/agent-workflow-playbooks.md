@@ -215,7 +215,8 @@ Agent-assisted draft payloads:
 
 - Use only supported top-level payload fields: `title`, `description`, `overview`, `role`, `features`, `metrics`, `challenges`, `improvements`, `techStack`, `projectType`, `labels`, `url`, `sourceUrl`, `writeupUrl`, `videoPageUrl`, `published`, and `featuredRank`.
 - Use only `techStack.frontend`, `techStack.backend`, `techStack.data`, and `techStack.infrastructure`.
-- Use only accepted project types: `school`, `internship`, `personal`, `client`, or `open-source`.
+- Use only accepted project types: `school`, `internship`, `competition`, `personal`, `client`, or `open-source`.
+- Use `projectType: "competition"` for hackathons, game jams, and similar limited-time competitive work. Keep finer context such as `Hackathon`, `Game Jam`, `Club`, event names, or duration in `labels`.
 - Frame `challenges` as collapsed case-study cards: `challenge` is the bold card headline, `solution` appears under "What I did", and `result` appears both as the collapsed teaser and expanded result. Do not use alternate keys such as `problem` or `impact` in the JSON.
 - Leave optional action URLs as empty strings when there is no public link; do not invent links.
 - Do not use em dashes in drafted case-study copy. Use commas, parentheses, colons, semicolons, or shorter sentences instead.

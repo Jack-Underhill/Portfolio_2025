@@ -35,6 +35,7 @@ describe('admin projects validate route', () => {
             imageUrl: '',
             videoUrl: '',
             architectureImageUrl: '',
+            projectType: 'competition',
             labels: [' Case Study '],
           },
         ],
