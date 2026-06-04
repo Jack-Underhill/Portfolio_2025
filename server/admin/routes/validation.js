@@ -8,6 +8,12 @@ const URL_LIMIT = 2000;
 const PROJECT_LABEL_LIMIT = 12;
 const PROJECT_LABEL_LENGTH_LIMIT = 80;
 const PROJECT_TYPE_SET = new Set(PROJECT_TYPES);
+const CREDENTIAL_KINDS = ['education', 'certification'];
+const CREDENTIAL_KIND_SET = new Set(CREDENTIAL_KINDS);
+const CREDENTIAL_LOGO_KEYS = new Set(['wsu', 'edcc', 'microsoft']);
+const CREDENTIAL_LOGO_SCALE_DEFAULT = 0.7;
+const CREDENTIAL_LOGO_SCALE_MIN = 0.4;
+const CREDENTIAL_LOGO_SCALE_MAX = 1.2;
 
 export const FILE_LIMITS = {
   image: {
@@ -72,6 +78,15 @@ export function validateSkillsState(state) {
 
   return {
     groups: normalizeSkillGroups(state.groups),
+  };
+}
+
+export function validateCredentialsState(state) {
+  assertPlainObject(state, 'credentials payload');
+
+  return {
+    education: normalizeCredentialsForKind(state.education, 'education'),
+    certifications: normalizeCredentialsForKind(state.certifications, 'certification'),
   };
 }
 
@@ -326,6 +341,134 @@ function normalizeSkillItems(items, groupNumber) {
   }
 
   return normalized;
+}
+
+function normalizeCredentialsForKind(credentials, kind) {
+  if (!CREDENTIAL_KIND_SET.has(kind)) {
+    throw new BadRequestError(`credential kind "${kind}" is not supported`);
+  }
+
+  const sectionLabel = kind === 'education' ? 'education credentials' : 'certification credentials';
+  const singularLabel = kind === 'education' ? 'education credential' : 'certification credential';
+  const input = requiredArray(credentials ?? [], sectionLabel, 20);
+  const normalized = [];
+
+  for (let index = 0; index < input.length; index += 1) {
+    const credential = input[index];
+    assertPlainObject(credential, `${singularLabel} ${index + 1}`);
+
+    const explicitKind = optionalString(
+      credential.kind,
+      `${singularLabel} ${index + 1} kind`,
+      SHORT_TEXT_LIMIT,
+    );
+    if (explicitKind && explicitKind !== kind) {
+      if (!CREDENTIAL_KIND_SET.has(explicitKind)) {
+        throw new BadRequestError(`${singularLabel} ${index + 1} kind must be education or certification`);
+      }
+      throw new BadRequestError(`${singularLabel} ${index + 1} kind must be ${kind}`);
+    }
+
+    const title = optionalString(credential.title, `${singularLabel} ${index + 1} title`, SHORT_TEXT_LIMIT);
+    const org = optionalString(credential.org, `${singularLabel} ${index + 1} organization`, SHORT_TEXT_LIMIT);
+    const credentialType = optionalString(
+      credential.credentialType,
+      `${singularLabel} ${index + 1} credential type`,
+      SHORT_TEXT_LIMIT,
+    );
+    const desc = optionalString(credential.desc, `${singularLabel} ${index + 1} description`, LONG_TEXT_LIMIT);
+    const chips = normalizeStringList(credential.chips ?? [], `${singularLabel} ${index + 1} highlights`, {
+      maxItems: 20,
+      maxLength: SHORT_TEXT_LIMIT,
+    });
+    const issued = optionalString(credential.issued, `${singularLabel} ${index + 1} issued label`, SHORT_TEXT_LIMIT);
+    const gpa = optionalString(credential.gpa, `${singularLabel} ${index + 1} GPA`, SHORT_TEXT_LIMIT);
+    const link = optionalHttpUrl(credential.link, `${singularLabel} ${index + 1} credential URL`);
+    const logoUrl = optionalHttpUrl(credential.logoUrl, `${singularLabel} ${index + 1} logo URL`);
+    const logoKey = optionalCredentialLogoKey(credential.logoKey, `${singularLabel} ${index + 1} logo key`);
+    const logoScale = optionalCredentialLogoScale(
+      credential.logoScale,
+      `${singularLabel} ${index + 1} logo scale`,
+    );
+    const published = optionalBoolean(
+      credential.published,
+      `${singularLabel} ${index + 1} published`,
+      true,
+    );
+
+    const hasContent = Boolean(
+      title ||
+      org ||
+      credentialType ||
+      desc ||
+      chips.length ||
+      issued ||
+      gpa ||
+      link ||
+      logoUrl ||
+      logoKey,
+    );
+    if (!hasContent) continue;
+
+    if (!title) {
+      throw new BadRequestError(`${singularLabel} ${index + 1} title is required`);
+    }
+    if (!org) {
+      throw new BadRequestError(`${singularLabel} ${index + 1} organization is required`);
+    }
+
+    normalized.push({
+      id: optionalCredentialId(credential.id, `${singularLabel} ${index + 1} id`),
+      kind,
+      title,
+      org,
+      credentialType,
+      desc,
+      chips,
+      issued,
+      gpa,
+      link,
+      logoUrl,
+      logoKey,
+      logoScale,
+      published,
+      sortOrder: normalized.length,
+    });
+  }
+
+  return normalized;
+}
+
+function optionalCredentialId(value, label) {
+  if (typeof value === 'string' && isUuid(value)) return null;
+
+  return optionalPositiveInteger(value, label);
+}
+
+function optionalCredentialLogoKey(value, label) {
+  const logoKey = optionalString(value, label, SHORT_TEXT_LIMIT).toLowerCase();
+  if (!logoKey) return '';
+  if (!CREDENTIAL_LOGO_KEYS.has(logoKey)) {
+    throw new BadRequestError(`${label} must be one of ${Array.from(CREDENTIAL_LOGO_KEYS).join(', ')}`);
+  }
+
+  return logoKey;
+}
+
+function optionalCredentialLogoScale(value, label) {
+  if (value == null || value === '') return CREDENTIAL_LOGO_SCALE_DEFAULT;
+
+  const number = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(number)) {
+    throw new BadRequestError(`${label} must be a number`);
+  }
+  if (number < CREDENTIAL_LOGO_SCALE_MIN || number > CREDENTIAL_LOGO_SCALE_MAX) {
+    throw new BadRequestError(
+      `${label} must be between ${CREDENTIAL_LOGO_SCALE_MIN} and ${CREDENTIAL_LOGO_SCALE_MAX}`,
+    );
+  }
+
+  return number;
 }
 
 function normalizeTechStack(techStack, label) {

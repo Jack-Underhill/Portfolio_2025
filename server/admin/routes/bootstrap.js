@@ -1,5 +1,6 @@
 import { loadAboutData, saveAboutData } from './about.js';
 import { attachContactFiles, loadContactData, saveContactData } from './contact.js';
+import { loadCredentialsData, saveCredentialsData } from './credentials.js';
 import { attachProjectFiles, loadProjectsData, saveProjectsData } from './projects.js';
 import { loadSkillsData, saveSkillsData } from './skills.js';
 import {
@@ -10,14 +11,15 @@ import {
 import { sendJson, sendRouteError } from './responses.js';
 
 export async function loadBootstrapData() {
-  const [about, projects, contact, skills] = await Promise.all([
+  const [about, projects, contact, skills, credentials] = await Promise.all([
     loadAboutData(),
     loadProjectsData(),
     loadContactData(),
     loadSkillsData(),
+    loadCredentialsData(),
   ]);
 
-  return { about, projects, contact, skills };
+  return { about, projects, contact, skills, credentials };
 }
 
 export async function handleBootstrapRead(_req, res) {
@@ -36,6 +38,9 @@ export async function handleSaveAllWrite(req, res) {
     assertPlainObject(body.projects, 'projects payload');
     assertPlainObject(body.contact, 'contact payload');
     assertPlainObject(body.skills, 'skills payload');
+    if (body.credentials != null) {
+      assertPlainObject(body.credentials, 'credentials payload');
+    }
 
     applyMultipartFiles(body.about, form, [
       {
@@ -54,14 +59,19 @@ export async function handleSaveAllWrite(req, res) {
     attachProjectFiles(body.projects, form);
     attachContactFiles(body.contact, form);
 
-    const [about, projects, contact, skills] = await Promise.all([
+    const credentialsPromise = body.credentials == null
+      ? loadCredentialsData()
+      : saveCredentialsData(body.credentials);
+
+    const [about, projects, contact, skills, credentials] = await Promise.all([
       saveAboutData(body.about),
       saveProjectsData(body.projects),
       saveContactData(body.contact),
       saveSkillsData(body.skills),
+      credentialsPromise,
     ]);
 
-    sendJson(res, 200, { about, projects, contact, skills });
+    sendJson(res, 200, { about, projects, contact, skills, credentials });
   } catch (error) {
     sendRouteError(res, error);
   }
