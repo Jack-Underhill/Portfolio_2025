@@ -251,7 +251,7 @@ function Avatar({ avatarLogo }) {
     }, [])
 
     return (
-        <div className="mb-7 flex w-full justify-center md:mb-0 md:w-2/5">
+        <div className="mb-7 flex w-full justify-center md:mb-0 xl:mb-30 md:w-2/5">
             {/* Outer: space float + provides perspective for inner 3D tilt */}
             <div
                 ref={floatRef}

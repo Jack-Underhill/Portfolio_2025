@@ -35,7 +35,7 @@ function mergeProjectCards(data, previous) {
 /**
  * Projects component.
  */
-function Projects() {
+function Projects({ sectionGapClass }) {
   const { data: projectGroups, isLoading: isLoadingProjects } = usePublicResource({
     load: fetchProjectsPublic,
     initialData: EMPTY_PROJECT_GROUPS,
@@ -100,7 +100,7 @@ function Projects() {
 
   return (
     <>
-      <div id="Projects" className="flex scroll-mt-28 flex-col gap-30 sm:gap-35 lg:gap-35">
+      <div id="Projects" className={`flex scroll-mt-28 flex-col ${sectionGapClass}`}>
         <FeaturedProjectsGroup
           projects={featuredProjects}
           isLoadingProjects={isLoadingProjects}
