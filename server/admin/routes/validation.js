@@ -122,6 +122,32 @@ export function optionalHttpUrl(value, label) {
   return trimmed;
 }
 
+function optionalSocialLinkUrl(value, label) {
+  const trimmed = optionalString(value, label, URL_LIMIT);
+  if (!trimmed) return '';
+
+  let parsed;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    throw new BadRequestError(`${label} must be a valid URL`);
+  }
+
+  if (parsed.protocol === 'mailto:') {
+    const recipient = trimmed.slice('mailto:'.length).split('?')[0].trim();
+    if (!recipient) {
+      throw new BadRequestError(`${label} mailto link must include an email address`);
+    }
+    return trimmed;
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new BadRequestError(`${label} must use http, https, or mailto`);
+  }
+
+  return trimmed;
+}
+
 export function optionalPositiveInteger(value, label) {
   if (value == null || value === '') return null;
 
@@ -248,9 +274,9 @@ function normalizeSocialLinks(links) {
 
     return {
       ...link,
-      id: optionalPositiveInteger(link.id, `social link ${index + 1} id`),
+      id: optionalSocialLinkId(link.id, `social link ${index + 1} id`),
       label: optionalString(link.label, `social link ${index + 1} label`, SHORT_TEXT_LIMIT),
-      url: optionalHttpUrl(link.url, `social link ${index + 1} URL`),
+      url: optionalSocialLinkUrl(link.url, `social link ${index + 1} URL`),
       iconUrl: optionalHttpUrl(link.iconUrl, `social link ${index + 1} icon URL`),
       iconFile: validateUploadFile(
         link.iconFile,
@@ -260,6 +286,12 @@ function normalizeSocialLinks(links) {
       published: optionalBoolean(link.published, `social link ${index + 1} published`, true),
     };
   });
+}
+
+function optionalSocialLinkId(value, label) {
+  if (typeof value === 'string' && isUuid(value)) return null;
+
+  return optionalPositiveInteger(value, label);
 }
 
 function normalizeSkillGroups(groups) {
