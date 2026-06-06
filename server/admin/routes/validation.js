@@ -257,6 +257,7 @@ function normalizeSocialLinks(links) {
         `social link ${index + 1} icon`,
         FILE_LIMITS.image,
       ),
+      published: optionalBoolean(link.published, `social link ${index + 1} published`, true),
     };
   });
 }

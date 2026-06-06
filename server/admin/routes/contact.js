@@ -24,6 +24,7 @@ export async function loadContactData() {
     url: row.url || '',
     iconFile: null,
     iconUrl: row.svg || '',
+    published: row.published !== false,
   }));
 
   return {
@@ -71,6 +72,7 @@ export async function saveContactData(state) {
       label: savedLabel,
       url,
       svg: iconUrl,
+      published: link.published,
     });
 
     savedSocialLinks.push({
