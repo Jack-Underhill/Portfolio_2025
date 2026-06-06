@@ -24,6 +24,7 @@ ALTER TABLE links ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Public can read links" ON links;
 DROP POLICY IF EXISTS "Public can read published links" ON links;
+DROP POLICY IF EXISTS "Enable read access for all users" ON links;
 
 CREATE POLICY "Public can read published links"
     ON links
