@@ -11,7 +11,10 @@ function mapLinkRowToPublic(row) {
 
 export function mapContactRowsToPublic({ links } = {}) {
   const socialLinks = Array.isArray(links)
-    ? links.map(mapLinkRowToPublic).filter((link) => link.url)
+    ? links
+      .filter((row) => row?.published !== false)
+      .map(mapLinkRowToPublic)
+      .filter((link) => link.url)
     : [];
 
   if (!socialLinks.length) return null;

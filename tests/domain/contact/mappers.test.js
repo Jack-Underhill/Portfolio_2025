@@ -11,6 +11,7 @@ describe('contact public mapper', () => {
           label: ' GitHub ',
           url: ' https://github.com/example ',
           svg: ' https://cdn.example.test/github.svg ',
+          published: true,
         },
       ],
     })).toEqual({
@@ -47,6 +48,34 @@ describe('contact public mapper', () => {
         platform: 'Portfolio',
         url: 'https://example.test',
         iconUrl: 'https://cdn.example.test/uploaded-icon.svg',
+      },
+    ]);
+  });
+
+  it('filters unpublished links while preserving published links', () => {
+    expect(mapContactRowsToPublic({
+      links: [
+        {
+          id: 'draft-link',
+          label: 'Draft Link',
+          url: 'https://draft.example.test',
+          svg: 'https://cdn.example.test/draft.svg',
+          published: false,
+        },
+        {
+          id: 'live-link',
+          label: 'Live Link',
+          url: 'https://live.example.test',
+          svg: 'https://cdn.example.test/live.svg',
+          published: true,
+        },
+      ],
+    })?.links).toEqual([
+      {
+        id: 'live-link',
+        platform: 'Live Link',
+        url: 'https://live.example.test',
+        iconUrl: 'https://cdn.example.test/live.svg',
       },
     ]);
   });
