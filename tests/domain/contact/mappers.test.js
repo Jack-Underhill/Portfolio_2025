@@ -102,6 +102,18 @@ describe('contact public mapper', () => {
       ],
     })).toBeNull();
 
+    expect(mapContactRowsToPublic({
+      links: [
+        {
+          id: 'draft',
+          label: 'Draft',
+          url: 'https://draft.example.test',
+          svg: 'https://cdn.example.test/draft.svg',
+          published: false,
+        },
+      ],
+    })).toBeNull();
+
     expect(mapContactRowsToPublic()).toBeNull();
   });
 });
