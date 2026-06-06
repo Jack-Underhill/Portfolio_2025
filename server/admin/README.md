@@ -25,7 +25,7 @@ Keep this directory free of browser code, React components, public anon-key read
 - `index.js`: creates the local HTTP server, applies CORS for the Vite dev origin, and routes `/admin-api/*` requests.
 - `routes/bootstrap.js`: loads or saves About, Projects, Contact, Skills, and Credentials data together.
 - `routes/about.js`: manages the singleton About row and About media uploads.
-- `routes/contact.js`: manages social links and social icon uploads.
+- `routes/contact.js`: manages social links, published state, and social icon uploads.
 - `routes/skills.js`: manages grouped Skills rows with service-role replacement saves.
 - `routes/credentials.js`: manages Education and Certification rows with service-role replacement saves.
 - `routes/projects.js`: manages project section text, projects, project draft validation, project media uploads, ordering, permalink creation, and deleted-project cleanup.
@@ -46,5 +46,6 @@ Keep this directory free of browser code, React components, public anon-key read
 - Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
 - Architecture SVG viewer validation and the Netlify inline SVG proxy trust the same project-scoped `projects/:id/architecture.svg` path.
 - Project classification validation accepts optional integer `featuredRank`, optional `projectType` values of `school`, `internship`, `competition`, `personal`, `client`, or `open-source`, and normalized display `labels`. Use `competition` for hackathons, game jams, and similar limited-time competitive work; keep event details in `labels`.
+- Contact links use `published` for public visibility; service-role admin reads and replacement saves keep unpublished links editable.
 - `POST /admin-api/projects/validate` reuses project state validation for draft feedback without calling service-role write methods or storage upload helpers.
 - Credentials use simple replacement saves because the table is small display content; first-pass logo editing accepts known bundled keys (`wsu`, `edcc`, `microsoft`) or an optional public logo URL.

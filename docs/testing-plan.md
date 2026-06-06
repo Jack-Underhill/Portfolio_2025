@@ -124,16 +124,20 @@ Highest-value coverage:
 
 - Link row mapping.
 - Empty link filtering.
+- Unpublished link filtering.
 - Social link fallback behavior.
 - Uploaded icon URL handling.
+- Admin validation for Contact link published state.
 
 Current coverage:
 
-- Link row mapping, empty URL filtering, uploaded icon URL passthrough, and links-only null behavior are covered.
+- Link row mapping, unpublished filtering, empty URL filtering, uploaded icon URL passthrough, and links-only null behavior are covered.
+- Admin Contact validation covers missing `published` defaulting to `true`, explicit `published: false`, and rejection of non-boolean values.
 
 Why this matters:
 
 - Contact links are public-facing and admin-managed.
+- Public reads and mapper output should expose only published links, while admin keeps unpublished links editable.
 - The current icon fallback is index-based and should be preserved or intentionally replaced.
 
 ## Skills
@@ -227,6 +231,7 @@ Highest-value coverage:
 Current coverage:
 
 - Pure helper primitives, upload file validation, and about/project/contact/skills state validation are covered.
+- Contact validation includes link label/URL/icon checks plus published defaulting, explicit false preservation, and non-boolean rejection.
 - The project draft validation endpoint is covered as a no-write route that reuses project state validation.
 
 Why this matters:

@@ -82,19 +82,21 @@ Next actions:
 
 Current flow:
 
-- Database table `links` stores social/contact rows.
-- Admin contact editor can edit labels, URLs, and uploaded icons.
-- Public contact fetch maps links into `links`.
+- Database table `links` stores social/contact rows with `published` as the public visibility flag.
+- Admin contact editor can edit labels, URLs, uploaded icons, and published state.
+- Admin reads use the service-role path and keep both published and unpublished links editable.
+- Public contact fetch requests published links only, and the Contact mapper defensively drops rows with `published === false`.
+- Public anon RLS for `links` is published-only.
 - `Contact.jsx` merges mapped links with static fallback icons.
 
 Known caveat:
 
-- Link icon fallbacks are positional. If the database order changes or a DB row omits an icon, the public component may use a fallback icon from the same index rather than from a stable platform key.
+- Link icon fallbacks remain positional; this is accepted because admin-managed Contact links are expected to keep icons. If the database order changes or a DB row omits an icon, the public component may use a fallback icon from the same index rather than from a stable platform key.
 
 Next actions:
 
 - Consider storing a stable platform key if icon fallback accuracy matters.
-- Keep existing contact mapper tests updated if the link fallback strategy changes.
+- Keep existing contact mapper and admin validation tests updated if the link visibility or fallback strategy changes.
 
 ## Credentials
 
