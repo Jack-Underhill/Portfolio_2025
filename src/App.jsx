@@ -49,6 +49,8 @@ function App() {
     }
   }, []);
 
+  const sectionGapClass = "gap-15 md:gap-20";
+
   return (
     <div className='relative w-full h-full'>
       {/* Background gradient + linen noise */}
@@ -71,11 +73,11 @@ function App() {
       <main
         id="main-content"
         tabIndex={-1}
-        className='relative z-10 flex flex-col gap-30 sm:gap-35 lg:gap-35 px-10 sm:px-15 md:px-20 lg:px-30 xl:px-40 pb-40'
+        className={`relative z-10 flex flex-col ${sectionGapClass} px-10 sm:px-15 md:px-20 lg:px-30 xl:px-40 pb-40`}
       >
         <Hero />
         <About />
-        <Projects />
+        <Projects sectionGapClass={sectionGapClass} />
         <Education />
         <Certifications />
         <Skills />

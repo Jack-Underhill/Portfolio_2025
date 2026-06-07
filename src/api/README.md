@@ -22,6 +22,7 @@ Keep this directory free of privileged writes, service-role keys, admin validati
 
 - Public helpers should only use anon-safe Supabase access and public tables or policies.
 - Keep database row-to-view-model mapping in `src/domain`; API modules should focus on selecting data and handling load failures.
+- Contact links are read from published `links` rows only; admin-only unpublished links stay outside browser public reads.
 - Credentials are read from the published `credentials` rows and mapped into separate Education and Certification arrays; each public section keeps its own static fallback when its live kind is empty or unavailable.
 - Keep admin routes and write operations in `server/admin`.
 - Keep Netlify function handlers in `netlify/functions`.

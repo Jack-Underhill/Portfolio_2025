@@ -10,7 +10,7 @@ function SocialTag({ name, link, icon, aos = "fade-down-right" }) {
     const onBlur  = useCallback(() => setIsFocused(false), [])
 
     return (
-        <div className="h-20 w-20" data-aos={aos}>
+        <div className="h-14 md:h-16 lg:h-18 2xl:h-20" data-aos={aos}>
             <a
                 className="h-full inline-block"
                 href={link}

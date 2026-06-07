@@ -78,6 +78,14 @@ const requiredCredentialColumns = [
   'sort_order',
 ];
 
+const requiredLinkColumns = [
+  'id',
+  'label',
+  'url',
+  'svg',
+  'published',
+];
+
 function toAbsolute(relativePath) {
   return path.join(root, relativePath);
 }
@@ -155,6 +163,7 @@ const missingSchemaNames = [
   ...assertSchemaContains(schema, 'table', requiredTables),
   ...assertSchemaContains(schema, 'projects column', requiredProjectColumns),
   ...assertSchemaContains(schema, 'credentials column', requiredCredentialColumns),
+  ...assertSchemaContains(schema, 'links column', requiredLinkColumns),
 ];
 
 if (missingSchemaNames.length) {
@@ -173,5 +182,5 @@ if (failures.length) {
   process.exitCode = 1;
 } else {
   console.log('Schema drift check passed.');
-  console.log(`Checked ${requiredTables.length} tables, ${requiredProjectColumns.length} project columns, and ${requiredCredentialColumns.length} credential columns.`);
+  console.log(`Checked ${requiredTables.length} tables, ${requiredProjectColumns.length} project columns, ${requiredCredentialColumns.length} credential columns, and ${requiredLinkColumns.length} link columns.`);
 }

@@ -83,7 +83,7 @@ function Contact() {
         Contact Me
       </SectionTitle>
       {/* List */}
-      <div className='h-20 flex flex-wrap gap-4'>
+      <div className='flex flex-wrap gap-6'>
         {links.map((link) => (
           <SocialTag
             key  = {link.id}

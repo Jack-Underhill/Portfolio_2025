@@ -10,7 +10,8 @@ export async function fetchContactPublic() {
 
     const { data: links, error: linksError } = await supabasePublic
         .from('links')
-        .select('id, label, url, svg')
+        .select('id, label, url, svg, published')
+        .eq('published', true)
         .order('id', { ascending: true });
 
     if (linksError) {

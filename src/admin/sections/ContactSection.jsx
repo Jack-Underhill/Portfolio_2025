@@ -32,6 +32,7 @@ function ContactSection({ state, onChange }) {
                 url: '',
                 iconFile: null,
                 iconUrl: '',
+                published: true,
             },
         ];
         updateField('socialLinks', next);

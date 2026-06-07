@@ -18,7 +18,7 @@ function SocialLinkItem({
         <div
             {...dragProps}
             className={cx(
-                'grid gap-2 md:grid-cols-[auto_minmax(0,120px)_minmax(0,140px)_minmax(0,1fr)_auto] items-start px-3 py-2',
+                'grid gap-2 md:grid-cols-[auto_minmax(0,120px)_minmax(0,140px)_minmax(0,1fr)_auto_auto] items-start px-3 py-2',
                 adminUi.panel,
                 isDragOver && adminUi.panelDragOver,
                 isDragging && 'opacity-70',
@@ -65,6 +65,18 @@ function SocialLinkItem({
                 onChange={(value) => onChange('url', value)}
                 placeholder="https://..."
             />
+
+            {/* published toggle */}
+            <label className="flex items-center gap-2 text-xs text-admin-text-muted select-none mt-6">
+                <input
+                    type="checkbox"
+                    checked={link.published !== false}
+                    aria-label={`Published state for ${linkName}`}
+                    onChange={(event) => onChange('published', event.target.checked)}
+                    className="h-4 w-4 rounded border-admin-checkbox-border bg-admin-panel"
+                />
+                Published
+            </label>
 
             {/* remove button */}
             <button

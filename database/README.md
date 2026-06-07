@@ -14,6 +14,7 @@ Apply SQL in this order when setting up or refreshing a Supabase project:
 4. `migrations/0004_project_classification.sql`
 5. `migrations/0005_credentials.sql`
 6. `migrations/0006_project_type_competition.sql`
+7. `migrations/0007_links_published.sql`
 
 Use `schema.sql` as the readable snapshot of the desired current schema. Do not apply destructive SQL to a live project without confirming the live schema and backing up data.
 
@@ -26,7 +27,7 @@ Current runtime tables:
 - `projects`: project cards and modal details, including media URLs, permalink, publish state, sort order, classification fields, labels, and structured project lists.
 - `skills`: grouped Skills rows with display group labels, item labels, sort order, and publish state.
 - `credentials`: Education and Certification card rows, split by `credential_kind`, with highlight chips, issue labels, optional GPA, logo keys/URLs, publish state, and sort order.
-- `links`: contact/social link rows with optional uploaded icon URL.
+- `links`: contact/social link rows with optional uploaded icon URL, publish state, and stable `id` ordering.
 
 `database/schema.sql` owns the detailed column list.
 
@@ -37,7 +38,7 @@ Public frontend:
 - Runs from `src`.
 - Uses `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 - Reads only portfolio display data through `src/api/public/*`.
-- Filters project cards with `published = true`; RLS policies should enforce the same rule for anon reads.
+- Filters project cards and contact links with `published = true`; RLS policies should enforce the same rule for anon reads.
 
 Local admin backend:
 
@@ -48,8 +49,8 @@ Local admin backend:
 
 RLS expectation:
 
-- `about`, `project_section`, `skills`, and `links` allow anon `SELECT`.
-- `projects` and `credentials` allow anon `SELECT` only when `published IS TRUE`.
+- `about`, `project_section`, and `skills` allow anon `SELECT`.
+- `projects`, `credentials`, and `links` allow anon `SELECT` only when `published IS TRUE`.
 - No anon insert, update, delete, or storage upload policies are expected for this portfolio.
 - Service-role admin operations run from `server/admin` and bypass RLS.
 
