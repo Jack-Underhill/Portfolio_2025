@@ -2,7 +2,7 @@ import GradientText from "../ui/GradientText";
 
 function TechTagMarquee({ tags, className }) {
     // copies so the loop is seamless
-    const duplicateTags = [...tags, ...tags, ...tags, ...tags];
+    const duplicateTags = [...tags, ...tags];
 
     return (
         <div className="w-full overflow-hidden">
