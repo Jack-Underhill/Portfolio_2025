@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { groupProjectsForDisplay } from '../../../src/domain/projects/viewModel.js';
+import {
+  groupProjectsForDisplay,
+  groupProjectsForMarquees,
+} from '../../../src/domain/projects/viewModel.js';
+
+function createProjects(count) {
+  return Array.from({ length: count }, (_, index) => ({ id: index + 1 }));
+}
 
 describe('project display view model helpers', () => {
   it('splits projects into featured and standard groups without changing item shape', () => {
@@ -78,5 +85,29 @@ describe('project display view model helpers', () => {
       featuredProjects: [],
       standardProjects: [],
     });
+  });
+
+  it('groups standard projects into marquees once another full minimum group can be created', () => {
+    expect(groupProjectsForMarquees(createProjects(5), 3).map((group) => group.length)).toEqual([5]);
+    expect(groupProjectsForMarquees(createProjects(6), 3).map((group) => group.length)).toEqual([3, 3]);
+    expect(groupProjectsForMarquees(createProjects(7), 3).map((group) => group.length)).toEqual([3, 4]);
+    expect(groupProjectsForMarquees(createProjects(8), 3).map((group) => group.length)).toEqual([3, 5]);
+    expect(groupProjectsForMarquees(createProjects(10), 3).map((group) => group.length)).toEqual([3, 3, 4]);
+  });
+
+  it('preserves project order and item references when grouping marquee projects', () => {
+    const projects = createProjects(7);
+    const groups = groupProjectsForMarquees(projects, 3);
+
+    expect(groups.flat()).toEqual(projects);
+    expect(groups[0][0]).toBe(projects[0]);
+  });
+
+  it('returns empty marquee groups for non-array input', () => {
+    expect(groupProjectsForMarquees(null)).toEqual([]);
+  });
+
+  it('falls back to one project per marquee for invalid minimum group sizes', () => {
+    expect(groupProjectsForMarquees(createProjects(3), 0).map((group) => group.length)).toEqual([1, 1, 1]);
   });
 });

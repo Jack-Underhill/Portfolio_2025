@@ -9,8 +9,10 @@ import useMediaQuery from '../../../hooks/useMediaQuery';
 import useMeasuredMaxHeight from '../../../hooks/useMeasuredMaxHeight';
 import usePrefersReducedMotion from '../../../hooks/usePrefersReducedMotion';
 import useProjectViewportPreview from '../../../hooks/useProjectViewportPreview';
+ import { groupProjectsForMarquees } from '../../../domain/projects/viewModel';
 
 const NON_MOBILE_QUERY = '(min-width: 768px)';
+const MARQUEE_MINIMUM_PROJECT_COUNT = 3;
 const MARQUEE_CARD_WIDTH_CLASS = 'w-[clamp(18rem,32vw,26rem)]';
 
 function StandardProjectsGroup({
@@ -26,7 +28,11 @@ function StandardProjectsGroup({
 }) {
   const isNonMobile = useMediaQuery(NON_MOBILE_QUERY);
   const prefersReducedMotion = usePrefersReducedMotion();
-  const shouldRenderMarquee = isNonMobile && !prefersReducedMotion && projects.length > 3;
+  const shouldRenderMarquee = isNonMobile && !prefersReducedMotion && projects.length > MARQUEE_MINIMUM_PROJECT_COUNT;
+  const marqueeProjectGroups = useMemo(
+    () => groupProjectsForMarquees(projects, MARQUEE_MINIMUM_PROJECT_COUNT),
+    [projects],
+  );
   const measurementKey = useMemo(
     () => projects.map((project) => project.id).join('|'),
     [projects],
@@ -97,11 +103,12 @@ function StandardProjectsGroup({
           </Text>
         )}
 
-        {shouldRenderMarquee ? (
+        {shouldRenderMarquee ? marqueeProjectGroups.map((projectGroup, index) => (
           <ProjectMarquee
-            items={projects}
-            direction="right"
-            speed={120}
+            key={`${index}-${projectGroup.map((project) => project.id).join('|')}`}
+            items={projectGroup}
+            direction={index % 2 === 0 ? 'right' : 'left'}
+            speed={80}
             gap={16}
             pauseOnHover
             pauseOnFocus
@@ -110,6 +117,7 @@ function StandardProjectsGroup({
             fadeOut
             fadeOutLeftColor="var(--color-page)"
             fadeOutRightColor="#102732"
+            className={index > 0 ? 'mt-6' : undefined}
             renderItem={(project, key, isDuplicate) => (
               <div
                 ref={isDuplicate ? undefined : getMeasuredElementRef(project.id)}
@@ -119,9 +127,9 @@ function StandardProjectsGroup({
                 {renderProjectCard(project, key, isDuplicate)}
               </div>
             )}
-            ariaLabel="Standard project cards"
+            ariaLabel={`Standard project cards ${index + 1} of ${marqueeProjectGroups.length}`}
           />
-        ) : projects.map((p) => renderProjectCard(p, p.id))}
+        )) : projects.map((p) => renderProjectCard(p, p.id))}
       </div>
     </section>
   );
