@@ -46,6 +46,16 @@ describe('admin route helpers', () => {
     expect(normalizeAdminPathname('/admin/not-real')).toBe('/admin/about');
   });
 
+  it('resolves every configured route path to itself without replacement', () => {
+    ADMIN_ROUTES.forEach((route) => {
+      expect(resolveAdminRoute(route.path)).toMatchObject({
+        route: expect.objectContaining({ id: route.id }),
+        canonicalPath: route.path,
+        shouldReplace: false,
+      });
+    });
+  });
+
   it('reports whether a path should be replaced with its canonical route', () => {
     expect(resolveAdminRoute('/admin/projects')).toMatchObject({
       route: expect.objectContaining({ id: ADMIN_ROUTE_IDS.PROJECTS }),
@@ -60,6 +70,12 @@ describe('admin route helpers', () => {
     });
 
     expect(resolveAdminRoute('/admin')).toMatchObject({
+      route: expect.objectContaining({ id: ADMIN_ROUTE_IDS.ABOUT }),
+      canonicalPath: '/admin/about',
+      shouldReplace: true,
+    });
+
+    expect(resolveAdminRoute('/admin/not-real')).toMatchObject({
       route: expect.objectContaining({ id: ADMIN_ROUTE_IDS.ABOUT }),
       canonicalPath: '/admin/about',
       shouldReplace: true,
