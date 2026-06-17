@@ -139,6 +139,14 @@ function AppAdmin() {
         setter(nextState);
     }, []);
 
+    const handleProjectBioChange = useCallback((projectBio) => {
+        setHasUnsavedChanges(true);
+        setProjectsState((currentState) => ({
+            ...currentState,
+            projectBio,
+        }));
+    }, []);
+
     const handleSave = async () => {
         if (isSaving || isProjectValidationInFlight || !hasUnsavedChanges) return;
 
@@ -201,11 +209,13 @@ function AppAdmin() {
 
     const pageProps = {
         aboutState,
+        projectBio: projectsState.projectBio,
         projectsState,
         credentialsState,
         skillsState,
         contactState,
         onAboutChange: markDirty(setAboutState),
+        onProjectBioChange: handleProjectBioChange,
         onProjectsChange: markDirty(setProjectsState),
         onCredentialsChange: markDirty(setCredentialsState),
         onSkillsChange: markDirty(setSkillsState),

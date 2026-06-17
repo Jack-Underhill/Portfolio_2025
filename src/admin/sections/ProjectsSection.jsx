@@ -6,7 +6,6 @@ import ProjectEditor from '../projects/ProjectEditor';
 import ProjectDraftContextPanel from '../projects/ProjectDraftContextPanel';
 import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
 import ProjectPreviewActions from '../projects/ProjectPreviewActions';
-import TextAreaInput from '../forms/TextAreaInput';
 import CardSelector from '../navigation/CardSelector';
 
 import { validateProjectDraft } from '../api/adminClient';
@@ -23,7 +22,7 @@ const PROJECT_DRAFT_IMPORT_PANEL_ID = 'project-agent-draft-import-panel';
 const PROJECT_DRAFT_CONTEXT_PANEL_ID = 'project-agent-draft-context-panel';
 
 function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidationBusyChange }) {
-    const { projectBio, projects } = state;
+    const { projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
     const [isImportPanelOpen, setIsImportPanelOpen] = useState(false);
     const [isContextPanelOpen, setIsContextPanelOpen] = useState(false);
@@ -109,10 +108,6 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
     const updateState = (patch) => {
         clearValidationState();
         onChange({ ...state, ...patch });
-    };
-
-    const setProjectBio = (value) => {
-        updateState({ projectBio: value });
     };
 
     const setProjects = (updater) => {
@@ -246,13 +241,6 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
 
     return (
         <div id="admin-projects" className="space-y-6">
-            <TextAreaInput
-                id="project-bio"
-                label="Projects intro / bio"
-                value={projectBio}
-                onChange={setProjectBio}
-            />
-
             <CardSelector
                 cardTypeId="Project"
                 cards={projects}
