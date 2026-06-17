@@ -1,15 +1,26 @@
 import AdminPageWrapper from '../shell/AdminPageWrapper';
-import CredentialsSection from '../sections/CredentialsSection';
+import CredentialGroupEditor from '../credentials/CredentialGroupEditor';
 
 function CertificationsAdminPage({ credentialsState, onCredentialsChange }) {
+    const certifications = Array.isArray(credentialsState?.certifications)
+        ? credentialsState.certifications
+        : [];
+    const updateCertifications = (nextCertifications) => {
+        onCredentialsChange({
+            ...(credentialsState || {}),
+            certifications: nextCertifications,
+        });
+    };
+
     return (
         <AdminPageWrapper
             name="Certifications"
-            desc="Manage the credential rows used for certification and education content."
+            desc="Manage certification and certificate credential rows while preserving the grouped credentials payload."
             component={
-                <CredentialsSection
-                    state={credentialsState}
-                    onChange={onCredentialsChange}
+                <CredentialGroupEditor
+                    kind="certification"
+                    credentials={certifications}
+                    onCredentialsChange={updateCertifications}
                 />
             }
         />

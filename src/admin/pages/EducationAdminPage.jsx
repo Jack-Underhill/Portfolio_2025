@@ -1,15 +1,26 @@
 import AdminPageWrapper from '../shell/AdminPageWrapper';
-import CredentialsSection from '../sections/CredentialsSection';
+import CredentialGroupEditor from '../credentials/CredentialGroupEditor';
 
 function EducationAdminPage({ credentialsState, onCredentialsChange }) {
+    const education = Array.isArray(credentialsState?.education) 
+        ? credentialsState.education 
+        : [];
+    const updateEducation = (nextEducation) => {
+        onCredentialsChange({
+            ...(credentialsState || {}),
+            education: nextEducation,
+        });
+    };
+
     return (
         <AdminPageWrapper
             name="Education"
-            desc="Manage the credential rows used for education and certification content."
+            desc="Manage degree, minor, and transfer credential rows while preserving the grouped credentials payload."
             component={
-                <CredentialsSection
-                    state={credentialsState}
-                    onChange={onCredentialsChange}
+                <CredentialGroupEditor
+                    kind="education"
+                    credentials={education}
+                    onCredentialsChange={updateEducation}
                 />
             }
         />

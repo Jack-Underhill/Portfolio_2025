@@ -10,16 +10,16 @@ import { adminForm, adminUi } from '../../styles/recipes';
 
 const CREDENTIAL_KINDS = {
     education: {
-        listKey: 'education',
         singular: 'education credential',
         title: 'Education',
         addLabel: '+ Add Education',
+        emptyLabel: 'No education rows.',
     },
     certification: {
-        listKey: 'certifications',
         singular: 'certification',
         title: 'Certifications',
         addLabel: '+ Add Certification',
+        emptyLabel: 'No certification rows.',
     },
 };
 
@@ -70,115 +70,61 @@ function moveItem(list, fromIndex, toIndex) {
     return next;
 }
 
-function CredentialsSection({ state, onChange }) {
-    const education = useMemo(
-        () => (Array.isArray(state?.education) ? state.education : []),
-        [state?.education],
+function CredentialGroupEditor({ kind, credentials, onCredentialsChange }) {
+    const config = CREDENTIAL_KINDS[kind];
+    const credentialList = useMemo(
+        () => (Array.isArray(credentials) ? credentials : []),
+        [credentials],
     );
-    const certifications = useMemo(
-        () => (Array.isArray(state?.certifications) ? state.certifications : []),
-        [state?.certifications],
-    );
-    const [activeIds, setActiveIds] = useState({
-        education: education[0]?.id ?? null,
-        certification: certifications[0]?.id ?? null,
-    });
+    const [activeId, setActiveId] = useState(credentialList[0]?.id ?? null);
 
     useEffect(() => {
-        setActiveIds((current) => ({
-            education: resolveActiveId(education, current.education),
-            certification: resolveActiveId(certifications, current.certification),
-        }));
-    }, [education, certifications]);
+        setActiveId((currentId) => resolveActiveId(credentialList, currentId));
+    }, [credentialList]);
 
-    const setCredentialsForKind = (kind, updater) => {
-        const config = CREDENTIAL_KINDS[kind];
-        const current = config.listKey === 'education' ? education : certifications;
-        const nextRaw = typeof updater === 'function' ? updater(current) : updater;
-        const next = normalizeCredentialOrder(nextRaw, kind);
-
-        onChange({
-            ...(state || {}),
-            [config.listKey]: next,
-        });
+    const setCredentials = (updater) => {
+        const nextRaw = typeof updater === 'function' ? updater(credentialList) : updater;
+        onCredentialsChange(normalizeCredentialOrder(nextRaw, kind));
     };
 
-    const updateCredential = (kind, id, patch) => {
-        setCredentialsForKind(kind, (list) => list.map((credential) => (
+    const updateCredential = (id, patch) => {
+        setCredentials((list) => list.map((credential) => (
             credential.id === id ? { ...credential, ...patch } : credential
         )));
     };
 
-    const addCredential = (kind) => {
-        const config = CREDENTIAL_KINDS[kind];
-        const current = config.listKey === 'education' ? education : certifications;
-        const credential = createEmptyCredential(kind, current.length);
+    const addCredential = () => {
+        const credential = createEmptyCredential(kind, credentialList.length);
 
-        setCredentialsForKind(kind, (list) => [...list, credential]);
-        setActiveIds((ids) => ({ ...ids, [kind]: credential.id }));
+        setCredentials((list) => [...list, credential]);
+        setActiveId(credential.id);
     };
 
-    const removeCredential = (kind, id) => {
-        setCredentialsForKind(kind, (list) => list.filter((credential) => credential.id !== id));
+    const removeCredential = (id) => {
+        setCredentials((list) => list.filter((credential) => credential.id !== id));
     };
 
-    const reorderCredential = (kind, fromIndex, toIndex) => {
-        setCredentialsForKind(kind, (list) => moveItem(list, fromIndex, toIndex));
+    const reorderCredential = (fromIndex, toIndex) => {
+        setCredentials((list) => moveItem(list, fromIndex, toIndex));
     };
 
-    return (
-        <div id="admin-credentials" className="grid gap-6 xl:grid-cols-2">
-            <CredentialPanel
-                kind="education"
-                credentials={education}
-                activeId={activeIds.education}
-                onSelect={(id) => setActiveIds((ids) => ({ ...ids, education: id }))}
-                onAdd={() => addCredential('education')}
-                onChange={updateCredential}
-                onRemove={removeCredential}
-                onReorder={reorderCredential}
-            />
+    if (!config) return null;
 
-            <CredentialPanel
-                kind="certification"
-                credentials={certifications}
-                activeId={activeIds.certification}
-                onSelect={(id) => setActiveIds((ids) => ({ ...ids, certification: id }))}
-                onAdd={() => addCredential('certification')}
-                onChange={updateCredential}
-                onRemove={removeCredential}
-                onReorder={reorderCredential}
-            />
-        </div>
-    );
-}
-
-function CredentialPanel({
-    kind,
-    credentials,
-    activeId,
-    onSelect,
-    onAdd,
-    onChange,
-    onRemove,
-    onReorder,
-}) {
-    const config = CREDENTIAL_KINDS[kind];
-    const activeCredential = credentials.find((credential) => credential.id === activeId) ?? null;
+    const activeCredential = credentialList.find((credential) => credential.id === activeId) ?? null;
 
     return (
         <div className={adminUi.editorPanel}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h3 className="text-lg font-semibold">{config.title}</h3>
+                    <h2 className="text-lg font-semibold">{config.title}</h2>
                     <Text as="p" variant="adminLabel">
-                        {credentials.length} saved draft {credentials.length === 1 ? 'row' : 'rows'}
+                        {credentialList.length} saved draft {credentialList.length === 1 ? 'row' : 'rows'}
                     </Text>
                 </div>
 
                 <button
                     type="button"
-                    onClick={onAdd}
+                    onClick={addCredential}
                     aria-label={config.addLabel.replace('+ ', '')}
                     className={adminUi.secondaryButton}
                 >
@@ -186,30 +132,30 @@ function CredentialPanel({
                 </button>
             </div>
 
-            {credentials.length > 0 ? (
+            {credentialList.length > 0 ? (
                 <>
                     <CardSelector
                         cardTypeId={config.title}
-                        cards={credentials}
+                        cards={credentialList}
                         activeId={activeId}
-                        onSelect={onSelect}
-                        onReorder={(fromIndex, toIndex) => onReorder(kind, fromIndex, toIndex)}
+                        onSelect={setActiveId}
+                        onReorder={reorderCredential}
                     />
 
                     {activeCredential && (
                         <CredentialEditor
                             credential={activeCredential}
                             kind={kind}
-                            index={credentials.findIndex((item) => item.id === activeCredential.id)}
-                            total={credentials.length}
-                            onChange={(patch) => onChange(kind, activeCredential.id, patch)}
-                            onRemove={() => onRemove(kind, activeCredential.id)}
-                            onMove={(fromIndex, toIndex) => onReorder(kind, fromIndex, toIndex)}
+                            index={credentialList.findIndex((item) => item.id === activeCredential.id)}
+                            total={credentialList.length}
+                            onChange={(patch) => updateCredential(activeCredential.id, patch)}
+                            onRemove={() => removeCredential(activeCredential.id)}
+                            onMove={reorderCredential}
                         />
                     )}
                 </>
             ) : (
-                <p className={adminUi.emptyText}>No {config.title.toLowerCase()} rows.</p>
+                <p className={adminUi.emptyText}>{config.emptyLabel}</p>
             )}
         </div>
     );
@@ -412,4 +358,4 @@ function resolveActiveId(credentials, currentId) {
     return credentials[0].id;
 }
 
-export default CredentialsSection;
+export default CredentialGroupEditor;
