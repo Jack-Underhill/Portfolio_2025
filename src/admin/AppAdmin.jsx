@@ -5,9 +5,8 @@ import ContactSection                 from './sections/ContactSection';
 import SkillsSection                  from './sections/SkillsSection';
 import CredentialsSection             from './sections/CredentialsSection';
 import { loadAdminData, saveAdminData } from './api/adminClient';
-
-import BackToTopButton      from "./navigation/BackToTopButton";
-import BackToBottomButton   from './navigation/BackToBottomButton';
+import AdminShell                     from './shell/AdminShell.jsx';
+import useAdminRoute                  from './routing/useAdminRoute.js';
 import { adminUi }          from '../styles/recipes';
 
 const initialAboutState = {
@@ -47,6 +46,7 @@ function AppAdmin() {
     const [isProjectValidationInFlight, setIsProjectValidationInFlight] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [error, setError] = useState(null);
+    const { activeRoute, navigateToRouteId } = useAdminRoute();
 
     useEffect(() => {
         (async () => {
@@ -99,22 +99,40 @@ function AppAdmin() {
         }
     };
 
+    const isSaveDisabled = isSaving || isProjectValidationInFlight || !hasUnsavedChanges;
+    const saveLabel = isSaving
+        ? 'Saving...'
+        : isProjectValidationInFlight
+            ? 'Review pending validation'
+            : hasUnsavedChanges
+                ? 'Save changes'
+                : 'Saved';
+    const saveStatus = isSaving
+        ? 'Saving changes...'
+        : isProjectValidationInFlight
+            ? 'Project draft validation is running.'
+            : hasUnsavedChanges
+                ? 'Unsaved draft changes'
+                : 'All changes saved';
+
     return (
-        <div className='relative w-full h-full'>
-
+        <AdminShell
+            activeRoute={activeRoute}
+            onNavigate={navigateToRouteId}
+            onSave={handleSave}
+            saveLabel={saveLabel}
+            saveStatus={saveStatus}
+            isSaveDisabled={isSaveDisabled}
+            isSaving={isSaving}
+        >
             <div className={adminUi.page}>
-                <header className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold">Portfolio Admin</h1>
-                    <nav className="flex gap-4 text-sm" aria-label="Admin sections">
-                        <a href="#about">About</a>
-                        <a href="#projects">Projects</a>
-                        <a href="#credentials">Credentials</a>
-                        <a href="#skills">Skills</a>
-                        <a href="#contact">Contact</a>
-                    </nav>
-                </header>
+                {error && (
+                    <p className="text-sm text-admin-danger-hover" role="alert">
+                        {error.message || 'Admin request failed'}
+                    </p>
+                )}
 
-                <main className="space-y-16">
+                <div className="space-y-16">
                     <section id="about" aria-labelledby="admin-about-heading">
                         <AboutSection state={aboutState} onChange={markDirty(setAboutState)} />
                     </section>
@@ -148,36 +166,9 @@ function AppAdmin() {
                             onChange={markDirty(setContactState)}
                         />
                     </section>
-                </main>
-
-                <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={isSaving || isProjectValidationInFlight || !hasUnsavedChanges}
-                    aria-busy={isSaving || undefined}
-                    className={adminUi.primaryButton}
-                >
-                    {isSaving ? 'Saving...' : hasUnsavedChanges ? 'Save changes' : 'Saved'}
-                </button>
-                <p className="text-xs text-admin-text-subtle" role="status" aria-live="polite">
-                    {isSaving
-                        ? 'Saving changes...'
-                        : isProjectValidationInFlight
-                            ? 'Draft validation is running.'
-                            : hasUnsavedChanges
-                                ? 'Unsaved draft changes'
-                                : 'All changes saved'}
-                </p>
-                {error && (
-                    <p className="text-sm text-admin-danger-hover" role="alert">
-                        {error.message || 'Admin request failed'}
-                    </p>
-                )}
+                </div>
             </div>
-
-            <BackToTopButton    showAfter={500} />
-            <BackToBottomButton showAfter={500} />
-        </div>
+        </AdminShell>
     );
 }
 

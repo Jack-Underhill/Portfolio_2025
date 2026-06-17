@@ -12,7 +12,7 @@ export const adminForm = {
 };
 
 export const adminUi = {
-  page: "min-h-screen px-5 sm:px-10 md:px-15 lg:px-25 xl:px-35 py-10 bg-admin-page text-admin-text space-y-10",
+  page: "space-y-10",
   primaryButton:
     "rounded-md bg-admin-accent px-4 py-2 text-sm font-medium hover:bg-admin-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-admin-accent",
   secondaryButton:
@@ -32,4 +32,21 @@ export const adminUi = {
   divider: "space-y-3 pt-2 border-t border-admin-border-subtle",
   imageBorder: "border border-admin-border",
   dangerLink: "text-xs text-admin-danger hover:text-admin-danger-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-danger-hover",
+};
+
+export const adminShell = {
+  root: "min-h-screen bg-admin-page text-admin-text lg:pl-47",
+  sidebar:
+    "flex min-h-screen flex-col border-r border-admin-border bg-admin-panel lg:fixed lg:inset-y-0 lg:left-0 lg:h-screen lg:w-47",
+  sidebarHeader: "shrink-0 space-y-2 border-b border-admin-border px-5 py-6",
+  eyebrow: "text-xs uppercase tracking-wide text-admin-text-subtle",
+  nav: "flex-1 flex flex-col overflow-y-auto px-3 py-4 gap-1",
+  navLink:
+    "flex items-center gap-3 rounded-md px-3 py-2.5 text-md font-medium text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+  navLinkActive:
+    "bg-admin-panel-hover text-admin-text ring-1 ring-admin-border",
+  savePanel:
+    "shrink-0 space-y-3 border-t border-admin-border bg-admin-panel px-5 py-5",
+  main: "min-h-screen px-5 py-8 sm:px-8 lg:px-10 xl:px-12",
+  content: "mx-auto max-w-6xl space-y-10",
 };
