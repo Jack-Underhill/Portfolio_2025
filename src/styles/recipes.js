@@ -49,4 +49,15 @@ export const adminShell = {
     "shrink-0 space-y-3 border-t border-admin-border bg-admin-panel px-5 py-5",
   main: "min-h-screen px-5 py-8 sm:px-8 lg:px-10 xl:px-12",
   content: "mx-auto max-w-6xl space-y-10",
+  statusBanner:
+    "flex items-start justify-between gap-4 rounded-md border px-5 py-4 shadow-sm",
+  statusBannerInfo:
+    "border-admin-border bg-admin-panel text-admin-text",
+  statusBannerError:
+    "border-admin-danger/50 bg-admin-danger/10 text-admin-text",
+  statusBannerText: "space-y-1",
+  statusBannerTitle: "text-sm font-semibold",
+  statusBannerDescription: "text-sm text-admin-text-muted",
+  statusBannerClose:
+    "shrink-0 rounded-md border border-admin-border px-3 py-1.5 text-xs font-medium text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
 };

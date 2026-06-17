@@ -36,6 +36,52 @@ const initialCredentialsState = {
     certifications: [],
 };
 
+function getAdminStatusMessage({
+    error,
+    errorVersion,
+    isSaving,
+    isProjectValidationInFlight,
+    hasUnsavedChanges,
+}) {
+    if (error) {
+        return {
+            key: `error:${errorVersion}`,
+            tone: 'error',
+            title: 'Admin request failed',
+            description: error.message || 'Admin request failed. Please try again.',
+        };
+    }
+
+    if (isSaving) {
+        return {
+            key: 'saving',
+            tone: 'info',
+            title: 'Saving changes',
+            description: 'Your portfolio updates are being saved.',
+        };
+    }
+
+    if (isProjectValidationInFlight) {
+        return {
+            key: 'project-validation',
+            tone: 'info',
+            title: 'Save temporarily blocked',
+            description: 'Project draft validation is still running. Save is temporarily blocked until validation completes.',
+        };
+    }
+
+    if (hasUnsavedChanges) {
+        return {
+            key: 'unsaved-changes',
+            tone: 'info',
+            title: 'Unsaved changes',
+            description: 'You have draft edits that have not been saved yet.',
+        };
+    }
+
+    return null;
+}
+
 function AppAdmin() {
     const [aboutState, setAboutState] = useState(initialAboutState);
     const [projectsState, setProjectsState] = useState(initialProjectsState);
@@ -46,6 +92,8 @@ function AppAdmin() {
     const [isProjectValidationInFlight, setIsProjectValidationInFlight] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [error, setError] = useState(null);
+    const [errorVersion, setErrorVersion] = useState(0);
+    const [dismissedStatusKey, setDismissedStatusKey] = useState(null);
     const { activeRoute, navigateToRouteId } = useAdminRoute();
 
     useEffect(() => {
@@ -61,6 +109,7 @@ function AppAdmin() {
             } catch (err) {
                 console.error(err);
                 setError(err);
+                setErrorVersion((version) => version + 1);
             }
         })();
     }, []);
@@ -94,6 +143,7 @@ function AppAdmin() {
         } catch (err) {
             console.error(err);
             setError(err);
+            setErrorVersion((version) => version + 1);
         } finally {
             setIsSaving(false);
         }
@@ -110,10 +160,24 @@ function AppAdmin() {
     const saveStatus = isSaving
         ? 'Saving changes...'
         : isProjectValidationInFlight
-            ? 'Project draft validation is running.'
+            ? 'Save blocked'
             : hasUnsavedChanges
-                ? 'Unsaved draft changes'
+                ? 'Unsaved changes'
                 : 'All changes saved';
+    const currentStatusMessage = getAdminStatusMessage({
+        error,
+        errorVersion,
+        isSaving,
+        isProjectValidationInFlight,
+        hasUnsavedChanges,
+    });
+    const visibleStatusMessage = currentStatusMessage?.key === dismissedStatusKey
+        ? null
+        : currentStatusMessage;
+    const dismissStatusMessage = () => {
+        if (!currentStatusMessage) return;
+        setDismissedStatusKey(currentStatusMessage.key);
+    };
 
     return (
         <AdminShell
@@ -124,14 +188,10 @@ function AppAdmin() {
             saveStatus={saveStatus}
             isSaveDisabled={isSaveDisabled}
             isSaving={isSaving}
+            statusMessage={visibleStatusMessage}
+            onDismissStatus={dismissStatusMessage}
         >
             <div className={adminUi.page}>
-                {error && (
-                    <p className="text-sm text-admin-danger-hover" role="alert">
-                        {error.message || 'Admin request failed'}
-                    </p>
-                )}
-
                 <div className="space-y-16">
                     <section id="about" aria-labelledby="admin-about-heading">
                         <AboutSection state={aboutState} onChange={markDirty(setAboutState)} />

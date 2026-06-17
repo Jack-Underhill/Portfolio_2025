@@ -1,5 +1,6 @@
 import { adminShell } from '../../styles/recipes';
 import AdminSidebar from './AdminSidebar.jsx';
+import AdminStatusBanner from './AdminStatusBanner.jsx';
 
 function AdminShell({
     activeRoute,
@@ -10,6 +11,8 @@ function AdminShell({
     saveStatus,
     isSaveDisabled,
     isSaving,
+    statusMessage,
+    onDismissStatus,
 }) {
     return (
         <div className={adminShell.root}>
@@ -25,6 +28,10 @@ function AdminShell({
 
             <main className={adminShell.main}>
                 <div className={adminShell.content}>
+                    <AdminStatusBanner
+                        message={statusMessage}
+                        onDismiss={onDismissStatus}
+                    />
                     {children}
                 </div>
             </main>
