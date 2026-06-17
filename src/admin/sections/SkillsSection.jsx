@@ -81,9 +81,7 @@ function SkillsSection({ state, onChange }) {
     };
 
     return (
-        <div className="space-y-6">
-            <h2 id="admin-skills-heading" className="text-xl font-semibold">Skills Section</h2>
-
+        <div id="admin-skills">
             <div className="space-y-4">
                 {groups.map((group, groupIndex) => {
                     const items = Array.isArray(group.items) ? group.items : [];

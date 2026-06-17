@@ -127,34 +127,28 @@ function CredentialsSection({ state, onChange }) {
     };
 
     return (
-        <div className="space-y-6">
-            <h2 id="admin-credentials-heading" className="text-xl font-semibold">
-                Credentials Section
-            </h2>
+        <div id="admin-credentials" className="grid gap-6 xl:grid-cols-2">
+            <CredentialPanel
+                kind="education"
+                credentials={education}
+                activeId={activeIds.education}
+                onSelect={(id) => setActiveIds((ids) => ({ ...ids, education: id }))}
+                onAdd={() => addCredential('education')}
+                onChange={updateCredential}
+                onRemove={removeCredential}
+                onReorder={reorderCredential}
+            />
 
-            <div className="grid gap-6 xl:grid-cols-2">
-                <CredentialPanel
-                    kind="education"
-                    credentials={education}
-                    activeId={activeIds.education}
-                    onSelect={(id) => setActiveIds((ids) => ({ ...ids, education: id }))}
-                    onAdd={() => addCredential('education')}
-                    onChange={updateCredential}
-                    onRemove={removeCredential}
-                    onReorder={reorderCredential}
-                />
-
-                <CredentialPanel
-                    kind="certification"
-                    credentials={certifications}
-                    activeId={activeIds.certification}
-                    onSelect={(id) => setActiveIds((ids) => ({ ...ids, certification: id }))}
-                    onAdd={() => addCredential('certification')}
-                    onChange={updateCredential}
-                    onRemove={removeCredential}
-                    onReorder={reorderCredential}
-                />
-            </div>
+            <CredentialPanel
+                kind="certification"
+                credentials={certifications}
+                activeId={activeIds.certification}
+                onSelect={(id) => setActiveIds((ids) => ({ ...ids, certification: id }))}
+                onAdd={() => addCredential('certification')}
+                onChange={updateCredential}
+                onRemove={removeCredential}
+                onReorder={reorderCredential}
+            />
         </div>
     );
 }

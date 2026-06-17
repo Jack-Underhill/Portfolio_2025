@@ -47,7 +47,7 @@ function AdminSidebar({
                 >
                     {saveLabel}
                 </button>
-                <p className="text-xs text-admin-text-subtle" role="status" aria-live="polite">
+                <p className="text-xs text-admin-text-subtle text-center" role="status" aria-live="polite">
                     {saveStatus}
                 </p>
             </div>

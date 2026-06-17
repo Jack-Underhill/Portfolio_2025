@@ -31,14 +31,16 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
     const [previewMediaUrls, setPreviewMediaUrls] = useState({});
     const [validationState, setValidationState] = useState(null);
     const [isValidating, setIsValidating] = useState(false);
+    const isMountedRef = useRef(false);
     const validationRequestId = useRef(0);
 
     useEffect(() => {
-        onValidationBusyChange?.(isValidating);
+        isMountedRef.current = true;
+
         return () => {
-            if (isValidating) onValidationBusyChange?.(false);
+            isMountedRef.current = false;
         };
-    }, [isValidating, onValidationBusyChange]);
+    }, []);
 
     // auto-set activeId to first project if none selected
     useEffect(() => {
@@ -134,7 +136,7 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
     const scrollToProjectsSection = useCallback(() => {
         requestAnimationFrame(() => {
             const target = document.getElementById('projects')
-                ?? document.getElementById('admin-projects-heading');
+                ?? document.getElementById('admin-projects');
             target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
         });
     }, []);
@@ -159,6 +161,7 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
         const requestId = validationRequestId.current + 1;
         validationRequestId.current = requestId;
         setIsValidating(true);
+        onValidationBusyChange?.(true);
         setValidationState({
             state: 'validating',
             type: 'status',
@@ -169,27 +172,34 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
             const result = await validateProjectDraft(state);
             if (validationRequestId.current !== requestId) return;
 
-            const count = result?.projectCount ?? projects.length;
-            setValidationState({
-                state: 'success',
-                type: 'status',
-                message:
-                    count === 1
-                        ? 'Draft validation passed for the project.'
-                        : `Draft validation passed for all ${count} projects.`,
-            });
+            if (isMountedRef.current) {
+                const count = result?.projectCount ?? projects.length;
+                setValidationState({
+                    state: 'success',
+                    type: 'status',
+                    message:
+                        count === 1
+                            ? 'Draft validation passed for the project.'
+                            : `Draft validation passed for all ${count} projects.`,
+                });
+            }
         } catch (error) {
             if (validationRequestId.current !== requestId) return;
 
-            setValidationState({
-                state: 'error',
-                type: 'alert',
-                message: error?.message || 'Draft validation failed',
-            });
+            if (isMountedRef.current) {
+                setValidationState({
+                    state: 'error',
+                    type: 'alert',
+                    message: error?.message || 'Draft validation failed',
+                });
+            }
         } finally {
-            setIsValidating(false);
+            onValidationBusyChange?.(false);
+            if (isMountedRef.current) {
+                setIsValidating(false);
+            }
         }
-    }, [isSaveInFlight, isValidating, projects.length, state]);
+    }, [isSaveInFlight, isValidating, onValidationBusyChange, projects.length, state]);
 
     // --- add / update / remove ---
     const handleAddProject = () => {
@@ -235,9 +245,7 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
     };
 
     return (
-        <div className="space-y-6">
-            <h2 id="admin-projects-heading" className="text-xl font-semibold">Projects Section</h2>
-
+        <div id="admin-projects" className="space-y-6">
             <TextAreaInput
                 id="project-bio"
                 label="Projects intro / bio"

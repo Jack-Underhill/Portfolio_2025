@@ -90,48 +90,43 @@ function ContactSection({ state, onChange }) {
     const handleDragEnd = () => resetDragState();
 
     return (
-        <div className="space-y-6">
-            <h2 id="admin-contact-heading" className="text-xl font-semibold">Contact Section</h2>
+        <div id="admin-contact" className="space-y-2">
+            <Text as="p" variant="adminLabel">
+                Social / professional links
+            </Text>
 
-            {/* Social / professional links */}
             <div className="space-y-2">
-                <Text as="p" variant="adminLabel">
-                    Social / professional links
-                </Text>
-
-                <div className="space-y-2">
-                    {socialLinks.map((link, index) => (
-                        <SocialLinkItem
-                            key={link.id ?? index}
-                            link={link}
-                            index={index}
-                            isDragging={dragIndex === index}
-                            isDragOver={dragOverIndex === index}
-                            onChange={(field, value) =>
-                                handleSocialChange(index, field, value)
-                            }
-                            onRemove={() => handleRemoveLink(index)}
-                            dragProps={{
-                                draggable:      true,
-                                onDragStart:    handleDragStart(index),
-                                onDragEnter:    handleDragEnter(index),
-                                onDragOver:     handleDragOver,
-                                onDrop:         handleDrop(index),
-                                onDragEnd:      handleDragEnd,
-                            }}
-                        />
-                    ))}
-                </div>
-
-                <button
-                    type="button"
-                    onClick={handleAddLink}
-                    aria-label="Add social or professional link"
-                    className={adminUi.addLink}
-                >
-                    + Add link
-                </button>
+                {socialLinks.map((link, index) => (
+                    <SocialLinkItem
+                        key={link.id ?? index}
+                        link={link}
+                        index={index}
+                        isDragging={dragIndex === index}
+                        isDragOver={dragOverIndex === index}
+                        onChange={(field, value) =>
+                            handleSocialChange(index, field, value)
+                        }
+                        onRemove={() => handleRemoveLink(index)}
+                        dragProps={{
+                            draggable:      true,
+                            onDragStart:    handleDragStart(index),
+                            onDragEnter:    handleDragEnter(index),
+                            onDragOver:     handleDragOver,
+                            onDrop:         handleDrop(index),
+                            onDragEnd:      handleDragEnd,
+                        }}
+                    />
+                ))}
             </div>
+
+            <button
+                type="button"
+                onClick={handleAddLink}
+                aria-label="Add social or professional link"
+                className={adminUi.addLink}
+            >
+                + Add link
+            </button>
         </div>
     );
 }

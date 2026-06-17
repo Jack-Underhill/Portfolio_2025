@@ -18,62 +18,58 @@ function AboutSection({ state, onChange }) {
     };
 
     return (
-        <div className="space-y-4">
-            <h2 id="admin-about-heading" className="text-xl font-semibold">About Section</h2>
+        <div id="admin-about" className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-4">
+                <FileInput
+                    id="profileImage"
+                    label="Profile image"
+                    accept="image/*"
+                    onChange={(file) => updateField('profileImageFile', file)}
+                />
+                <ImagePreview
+                    file={profileImageFile}
+                    url={profileImageUrl}
+                    alt="Profile image preview"
+                    isFixedSize={true}
+                />
+            </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-4">
+            <div className="space-y-4">
+                <TextInput
+                    id="professionTitle"
+                    label="Profession title"
+                    value={professionTitle}
+                    onChange={(value) => updateField('professionTitle', value)}
+                />
+
+                <TextAreaInput
+                    id="professionBio"
+                    label="Profession bio"
+                    value={professionBio}
+                    onChange={(value) => updateField('professionBio', value)}
+                />
+
+                <div className="space-y-1">
                     <FileInput
-                        id="profileImage"
-                        label="Profile image"
-                        accept="image/*"
-                        onChange={(file) => updateField('profileImageFile', file)}
-                    />
-                    <ImagePreview
-                        file={profileImageFile}
-                        url={profileImageUrl}
-                        alt="Profile image preview"
-                        isFixedSize={true}
-                    />
-                </div>
-
-                <div className="space-y-4">
-                    <TextInput
-                        id="professionTitle"
-                        label="Profession title"
-                        value={professionTitle}
-                        onChange={(value) => updateField('professionTitle', value)}
+                        id="resumePdf"
+                        label="Resume PDF"
+                        accept="application/pdf"
+                        onChange={(file) => updateField('resumeFile', file)}
                     />
 
-                    <TextAreaInput
-                        id="professionBio"
-                        label="Profession bio"
-                        value={professionBio}
-                        onChange={(value) => updateField('professionBio', value)}
-                    />
-
-                    <div className="space-y-1">
-                        <FileInput
-                            id="resumePdf"
-                            label="Resume PDF"
-                            accept="application/pdf"
-                            onChange={(file) => updateField('resumeFile', file)}
-                        />
-
-                        {resumeUrl && (
-                            <p className={adminUi.helperText}>
-                                Current resume:{' '}
-                                <a 
-                                    href={resumeUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className={adminUi.inlineLink}
-                                >
-                                    Open in new tab
-                                </a>
-                            </p>
-                        )}
-                    </div>
+                    {resumeUrl && (
+                        <p className={adminUi.helperText}>
+                            Current resume:{' '}
+                            <a
+                                href={resumeUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className={adminUi.inlineLink}
+                            >
+                                Open in new tab
+                            </a>
+                        </p>
+                    )}
                 </div>
             </div>
         </div>

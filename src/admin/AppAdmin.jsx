@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import AboutSection                   from './sections/AboutSection';
-import ProjectsSection                from './sections/ProjectsSection';
-import ContactSection                 from './sections/ContactSection';
-import SkillsSection                  from './sections/SkillsSection';
-import CredentialsSection             from './sections/CredentialsSection';
 import { loadAdminData, saveAdminData } from './api/adminClient';
 import AdminShell                     from './shell/AdminShell.jsx';
+import AboutAdminPage                 from './pages/AboutAdminPage.jsx';
+import ProjectsAdminPage              from './pages/ProjectsAdminPage.jsx';
+import EducationAdminPage             from './pages/EducationAdminPage.jsx';
+import CertificationsAdminPage        from './pages/CertificationsAdminPage.jsx';
+import SkillsAdminPage                from './pages/SkillsAdminPage.jsx';
+import ContactAdminPage               from './pages/ContactAdminPage.jsx';
+import { ADMIN_ROUTE_IDS }            from './routing/adminRoutes.js';
 import useAdminRoute                  from './routing/useAdminRoute.js';
 import { adminUi }          from '../styles/recipes';
 
@@ -80,6 +82,24 @@ function getAdminStatusMessage({
     }
 
     return null;
+}
+
+function renderActiveAdminPage(routeId, pageProps) {
+    switch (routeId) {
+        case ADMIN_ROUTE_IDS.PROJECTS:
+            return <ProjectsAdminPage {...pageProps} />;
+        case ADMIN_ROUTE_IDS.EDUCATION:
+            return <EducationAdminPage {...pageProps} />;
+        case ADMIN_ROUTE_IDS.CERTIFICATIONS:
+            return <CertificationsAdminPage {...pageProps} />;
+        case ADMIN_ROUTE_IDS.SKILLS:
+            return <SkillsAdminPage {...pageProps} />;
+        case ADMIN_ROUTE_IDS.CONTACT:
+            return <ContactAdminPage {...pageProps} />;
+        case ADMIN_ROUTE_IDS.ABOUT:
+        default:
+            return <AboutAdminPage {...pageProps} />;
+    }
 }
 
 function AppAdmin() {
@@ -179,6 +199,22 @@ function AppAdmin() {
         setDismissedStatusKey(currentStatusMessage.key);
     };
 
+    const pageProps = {
+        aboutState,
+        projectsState,
+        credentialsState,
+        skillsState,
+        contactState,
+        onAboutChange: markDirty(setAboutState),
+        onProjectsChange: markDirty(setProjectsState),
+        onCredentialsChange: markDirty(setCredentialsState),
+        onSkillsChange: markDirty(setSkillsState),
+        onContactChange: markDirty(setContactState),
+        isSaveInFlight: isSaving,
+        onValidationBusyChange: setIsProjectValidationInFlight,
+    };
+    const activePage = renderActiveAdminPage(activeRoute.id, pageProps);
+
     return (
         <AdminShell
             activeRoute={activeRoute}
@@ -192,41 +228,7 @@ function AppAdmin() {
             onDismissStatus={dismissStatusMessage}
         >
             <div className={adminUi.page}>
-                <div className="space-y-16">
-                    <section id="about" aria-labelledby="admin-about-heading">
-                        <AboutSection state={aboutState} onChange={markDirty(setAboutState)} />
-                    </section>
-
-                    <section id="projects" aria-labelledby="admin-projects-heading">
-                        <ProjectsSection
-                            state={projectsState}
-                            onChange={markDirty(setProjectsState)}
-                            isSaveInFlight={isSaving}
-                            onValidationBusyChange={setIsProjectValidationInFlight}
-                        />
-                    </section>
-
-                    <section id="credentials" aria-labelledby="admin-credentials-heading">
-                        <CredentialsSection
-                            state={credentialsState}
-                            onChange={markDirty(setCredentialsState)}
-                        />
-                    </section>
-
-                    <section id="skills" aria-labelledby="admin-skills-heading">
-                        <SkillsSection
-                            state={skillsState}
-                            onChange={markDirty(setSkillsState)}
-                        />
-                    </section>
-
-                    <section id="contact" aria-labelledby="admin-contact-heading">
-                        <ContactSection
-                            state={contactState}
-                            onChange={markDirty(setContactState)}
-                        />
-                    </section>
-                </div>
+                {activePage}
             </div>
         </AdminShell>
     );
