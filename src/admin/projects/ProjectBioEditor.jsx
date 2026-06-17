@@ -1,5 +1,4 @@
 import TextAreaInput from '../forms/TextAreaInput';
-import { adminUi } from '../../styles/recipes';
 
 function ProjectBioEditor({ value, onChange }) {
     return (

@@ -9,6 +9,7 @@ import SkillsAdminPage                from './pages/SkillsAdminPage.jsx';
 import ContactAdminPage               from './pages/ContactAdminPage.jsx';
 import { ADMIN_ROUTE_IDS }            from './routing/adminRoutes.js';
 import useAdminRoute                  from './routing/useAdminRoute.js';
+import useUnsavedAdminWarning         from './routing/useUnsavedAdminWarning.js';
 import { adminUi }          from '../styles/recipes';
 
 const initialAboutState = {
@@ -115,6 +116,7 @@ function AppAdmin() {
     const [errorVersion, setErrorVersion] = useState(0);
     const [dismissedStatusKey, setDismissedStatusKey] = useState(null);
     const { activeRoute, navigateToRouteId } = useAdminRoute();
+    useUnsavedAdminWarning(hasUnsavedChanges);
 
     useEffect(() => {
         (async () => {
