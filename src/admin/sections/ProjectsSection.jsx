@@ -130,8 +130,7 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
 
     const scrollToProjectsSection = useCallback(() => {
         requestAnimationFrame(() => {
-            const target = document.getElementById('projects')
-                ?? document.getElementById('admin-projects');
+            const target = document.getElementById('projects');
             target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
         });
     }, []);
@@ -240,7 +239,7 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
     };
 
     return (
-        <div id="admin-projects" className="space-y-6">
+        <div className="space-y-6">
             <CardSelector
                 cardTypeId="Project"
                 cards={projects}

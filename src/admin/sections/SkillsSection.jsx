@@ -81,7 +81,7 @@ function SkillsSection({ state, onChange }) {
     };
 
     return (
-        <div id="admin-skills">
+        <div>
             <div className="space-y-4">
                 {groups.map((group, groupIndex) => {
                     const items = Array.isArray(group.items) ? group.items : [];

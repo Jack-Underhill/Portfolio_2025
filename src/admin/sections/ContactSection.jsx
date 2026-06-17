@@ -90,7 +90,7 @@ function ContactSection({ state, onChange }) {
     const handleDragEnd = () => resetDragState();
 
     return (
-        <div id="admin-contact" className="space-y-2">
+        <div className="space-y-2">
             <Text as="p" variant="adminLabel">
                 Social / professional links
             </Text>

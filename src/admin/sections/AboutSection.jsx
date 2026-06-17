@@ -18,7 +18,7 @@ function AboutSection({ state, onChange }) {
     };
 
     return (
-        <div id="admin-about" className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-4">
                 <FileInput
                     id="profileImage"

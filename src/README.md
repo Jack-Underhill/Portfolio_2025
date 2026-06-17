@@ -8,7 +8,7 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 
 - `main.jsx`: selects the root surface from the current route.
 - `App.jsx`: renders the public portfolio page.
-- `admin/AppAdmin.jsx`: renders the admin UI in development on `/admin`.
+- `admin/AppAdmin.jsx`: renders the routed admin CMS shell in development on `/admin`.
 - `components/projects/viewer/ArchitectureViewer.jsx`: renders the standalone `/architecture-viewer` surface.
 - `index.css`: imports Tailwind and shared theme styles.
 
@@ -17,11 +17,12 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 - `/`: public portfolio.
 - `/p/:project`: public portfolio with a project modal opened from route state.
 - `/architecture-viewer`: focused architecture diagram viewer.
-- `/admin`: development-only admin UI; `main.jsx` only mounts it when `import.meta.env.DEV` is true.
+- `/admin`: development-only admin UI; canonicalizes into the routed CMS shell.
+- `/admin/about`, `/admin/projects`, `/admin/education`, `/admin/certifications`, `/admin/skills`, `/admin/contact`: development-only admin editing pages.
 
 ## Folders
 
-- `admin/`: React admin UI, form controls, project editors, admin navigation, and the browser client for the local admin backend.
+- `admin/`: React admin CMS shell, routed editing pages, form controls, project editors, admin navigation, and the browser client for the local admin backend.
 - `api/`: browser-safe public data readers and public Supabase client. See `src/api/README.md`.
 - `assets/`: bundled images, icons, logos, and videos used by the public site.
 - `components/`: public portfolio components, section components, project modal/viewer components, and shared UI primitives.
