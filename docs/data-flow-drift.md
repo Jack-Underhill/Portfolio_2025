@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-06-02
+Date: 2026-06-17
 
 ## Purpose
 
@@ -18,7 +18,7 @@ The active drift is limited:
 
 - Projects have aligned persisted classification fields, card-only public classification pills, centralized modal ownership, featured-card guarded video prefetch, and a current mobile/reduced-motion grid plus desktop standard-card marquee presentation. The marquee interaction contract is aligned around assistive-hidden duplicate copies, non-sequential duplicate anchors, and hook-owned primary focus alignment. Empty-state decisions remain open.
 - Contact link icon fallbacks remain positional.
-- Education and Certifications now use the shared credentials data flow with static defaults kept only as resilient fallbacks.
+- Education and Certifications now use the shared credentials data flow, separate routed admin pages, and static defaults kept only as resilient fallbacks.
 
 ## Projects
 
@@ -107,7 +107,7 @@ Current flow:
 - Domain mapper/defaults: `src/domain/credentials`
 - Public UI: `src/components/sections/Education.jsx`, `src/components/sections/Certifications.jsx`, and `src/components/credentials/*`
 - Admin backend: `server/admin/routes/credentials.js` and `server/admin/routes/validation.js`
-- Admin UI: `src/admin/sections/CredentialsSection.jsx`
+- Admin UI: `/admin/education` and `/admin/certifications`, composed from `src/admin/pages/*AdminPage.jsx` and `src/admin/credentials/CredentialGroupEditor.jsx`
 
 Decision:
 
@@ -116,6 +116,7 @@ Decision:
 - Static Education and Certification defaults remain as fallback content when a public read is unavailable or a kind has no usable live rows.
 - Bundled credential logos are selected through stable `logoKey` values; optional `logoUrl` values win at the UI boundary. Logo upload is deferred.
 - Admin saves use small replacement-save behavior because credentials are compact display content.
+- Admin page separation is presentation-only; `credentialsState` and the save-all payload remain grouped as `{ education, certifications }`.
 
 Next actions:
 

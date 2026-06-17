@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-06-02
+Date: 2026-06-17
 
 ## Purpose
 
@@ -18,6 +18,7 @@ Vitest is installed as the default unit-test runner. A focused Playwright/axe sm
 
 Current baseline test files:
 
+- `tests/admin/routing.test.js`
 - `tests/runtime/paths.test.js`
 - `tests/domain/projects/routing.test.js`
 - `tests/domain/projects/mappers.test.js`
@@ -45,7 +46,7 @@ Current baseline test files:
 
 Current checks:
 
-- `cmd /c npm run test` passes with 25 test files and 130 tests.
+- `cmd /c npm run test` passes with 26 test files and 147 tests.
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run lint` passes.
@@ -60,6 +61,7 @@ Current accessibility smoke coverage:
 
 Remaining testing gap:
 
+- Routed admin route helpers are covered by `tests/admin/routing.test.js`. Browser behavior for the admin shell, sidebar save panel, status banner dismissal, internal route navigation, dirty-state preservation, and `beforeunload` warning remains manual/mocked Playwright verification until the repo adds a stable admin component or browser fixture.
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
 - Add browser smoke only if project viewport card activation, desktop standard-card marquee behavior, or deeper fixed-nav scrollspy behavior needs coverage beyond the pure scoring helpers, current nav smoke, and axe checks.
 - Project-card video preview lifecycle has focused helper coverage in `tests/hooks/useHoverPreviewIntent.test.js`: retained-source cleanup versus default source release, actual playback state from `playing`, clearing state on `pause`/`emptied`/`ended`/`error`, and listener cleanup. Prop routing and guarded `safeVideo` source/preload behavior remain covered by structural/manual verification rather than a React component harness.
@@ -164,7 +166,7 @@ Current status:
 
 - Education and Certifications are data-backed through the shared `credentials` table.
 - Public sections read published credential rows through `src/api/public/credentials.js`, map them through `src/domain/credentials/mappers.js`, and fall back per kind to static domain defaults.
-- Local admin editing lives in `src/admin/sections/CredentialsSection.jsx`, with service-role replacement saves in `server/admin/routes/credentials.js`.
+- Local admin editing uses separate `/admin/education` and `/admin/certifications` pages backed by the shared `src/admin/credentials/CredentialGroupEditor.jsx`; service-role replacement saves still live in `server/admin/routes/credentials.js`.
 - Project scroll activation is section-local, enabled outside the marquee path, and uses the shared viewport activation hook. Credential scroll activation remains touch-capability gated.
 
 Current coverage:
@@ -175,7 +177,7 @@ Current coverage:
 
 Remaining gaps:
 
-- Browser/component smoke for public credential live/fallback rendering and admin credential save behavior remains manual unless a lightweight React/browser harness is added.
+- Browser/component smoke for public credential live/fallback rendering and routed admin credential save behavior remains manual unless a lightweight React/browser harness is added.
 - Live Supabase credential reads and writes remain outside the default automated gate.
 
 ## Architecture Viewer

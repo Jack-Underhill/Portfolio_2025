@@ -1,6 +1,6 @@
 # Current Errors and Warnings
 
-Date: 2026-06-02
+Date: 2026-06-17
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last full baseline checked on 2026-06-02 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The project-card classification pill verification also passed lint, build, unit tests, schema drift, and the accessibility smoke.
+Last full baseline checked on 2026-06-17 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The routed admin shell documentation refresh also passed lint, build, unit tests, schema drift, and the accessibility smoke.
 
 Passing:
 
@@ -81,6 +81,15 @@ Decision:
 - The public site should use the function path when deployed or when tested through Netlify dev.
 - `netlify/functions/README.md` names `netlify dev` as the local command for function behavior.
 - `cmd /c npm run test:a11y` covers invalid architecture viewer URLs and safe fallback states through a local Vite browser smoke check.
+
+## Vite Build Chunk Warning
+
+`cmd /c npm run build` currently passes but can report Vite's post-build warning about chunks larger than 500 kB after minification.
+
+Decision:
+
+- This is an accepted bundle-size warning in the current baseline, not a build failure.
+- Address it only when bundle splitting or dependency loading becomes an explicit performance task.
 
 ## Public Project Data Local Caveat
 

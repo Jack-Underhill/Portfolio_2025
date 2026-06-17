@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-06-02
+Date: 2026-06-17
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last checked on 2026-06-02 with Windows `cmd /c` commands.
+Last checked on 2026-06-17 with Windows `cmd /c` commands.
 
 Passing:
 
@@ -39,6 +39,7 @@ Current verification behavior:
 - `eslint-plugin-jsx-a11y` is wired into the default lint gate through `eslint.config.js`.
 - `cmd /c npm run test:a11y` starts a local Vite server, drives Chromium with Playwright, and runs axe against stable rendered routes.
 - The accessibility smoke currently covers the public home page landmark/menu baseline, the desktop and mobile fixed section navigation contract, and the architecture viewer invalid-source fallback.
+- The routed admin shell was manually smoke-verified with mocked admin API responses after the shell migration; it remains outside the automated axe smoke until the repo adds a stable admin browser fixture.
 - Plain Vite local runtime still has expected Netlify function caveats for visit count and architecture SVG proxy behavior.
 
 ## Accessibility Surface Map
@@ -74,12 +75,15 @@ Architecture viewer:
 
 Admin:
 
-- `src/admin/AppAdmin.jsx`: development-only admin landmarks, navigation, save status, save error announcements, and busy state.
+- `src/admin/AppAdmin.jsx`: development-only admin draft ownership, save state, route selection, status-message derivation, and unsaved-leave warning wiring.
+- `src/admin/shell/*`: fixed sidebar navigation landmark, save panel, top-of-content status/error live region, and page outlet layout.
+- `src/admin/pages/*`: routed admin page wrappers with one visible page heading per route.
 - `src/admin/sections/*`: section editors, named regions, and add/remove/reorder controls where present.
+- `src/admin/credentials/CredentialGroupEditor.jsx`: shared Education/Certification list editor used by separate routed pages.
 - `src/admin/projects/*`: project selector, selected-state controls, draft preview/validation actions, and project editing labels.
 - `src/admin/forms/*`: shared form labels and inputs.
 - `src/admin/lists/*`: repeated list editing controls and item-specific accessible names.
-- `src/admin/navigation/*`: admin back-to-top/back-to-bottom controls and hidden-control tab behavior.
+- `src/admin/navigation/*`: admin selector/navigation support components that remain after the retired scroll-helper controls were removed.
 
 ## Current Implemented Behavior
 
@@ -137,18 +141,18 @@ Motion, contrast, and focus:
 
 Admin accessibility:
 
-- The admin header nav has an explicit label.
-- Each admin section is exposed as a named region through its visible heading.
-- Admin save failures are announced as alerts, and the save button exposes busy state while saving.
-- Admin draft validation feedback uses status or alert roles, and the global save status names saved, unsaved, saving, and draft-validation states.
+- The admin runs as a development-only routed CMS shell on `/admin/about`, `/admin/projects`, `/admin/education`, `/admin/certifications`, `/admin/skills`, and `/admin/contact`, with `/admin` and unknown `/admin/*` paths canonicalized to About.
+- The fixed sidebar exposes a named `Admin pages` navigation landmark, icon-plus-label page links, and `aria-current="page"` on the active route.
+- The sidebar save panel keeps the global save button reachable, exposes busy state while saving, and reports saved, unsaved, saving, and draft-validation save states through a polite status line.
+- The top-of-content admin status banner appears only for active messaging. Errors use `role="alert"`; saving, validation, and unsaved-change messages use `role="status"` with polite live-region behavior and a labeled dismiss button.
+- Each routed admin page has one clear visible page heading through `AdminPageWrapper`; section editors keep local named regions and labels where their controls need them.
+- The old admin back-to-top/back-to-bottom scroll helper controls were retired with the long single-page admin layout.
 - Project selector buttons expose selected state with `aria-pressed` and project-specific names.
 - The admin project preview opens the shared project modal from the active unsaved draft and inherits the existing dialog focus containment, Escape close, and focus-restore behavior.
 - The admin project draft import and current-context panels use labeled textareas, alert/status feedback, and disabled states while Save is in flight so pasted draft changes do not race the save response.
 - Repeated list textareas have item-specific accessible names, and remove buttons describe the item they affect.
 - Project, challenge, skill, credential, and social add/remove/reorder controls use specific accessible names where those controls already exist.
 - Admin preview images use preview-specific alt text.
-- Decorative scroll-button icons are hidden from assistive technology.
-- Hidden admin back-to-top/back-to-bottom controls are removed from the tab order until visible.
 
 ## Accepted Tradeoffs
 
