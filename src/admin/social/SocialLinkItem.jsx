@@ -1,37 +1,20 @@
 import TextInput from '../forms/TextInput';
 import FileInput from '../forms/FileInput';
 import ImagePreview from '../media/ImagePreview';
-import { adminUi, cx } from '../../styles/recipes';
+import { adminUi } from '../../styles/recipes';
 
 function SocialLinkItem({
     link,
     index,
-    isDragging,
-    isDragOver,
     onChange,
     onRemove,
-    dragProps,
 }) {
     const linkName = link.label || `link ${index + 1}`;
 
     return (
         <div
-            {...dragProps}
-            className={cx(
-                'grid gap-2 md:grid-cols-[auto_minmax(0,120px)_minmax(0,140px)_minmax(0,1fr)_auto_auto] items-start px-3 py-2',
-                adminUi.panel,
-                isDragOver && adminUi.panelDragOver,
-                isDragging && 'opacity-70',
-            )}
+            className={`grid gap-2 md:grid-cols-[minmax(0,120px)_minmax(0,140px)_minmax(0,1fr)_auto_auto] items-start px-3 py-2 ${adminUi.panel}`}
         >
-            {/* drag handle */}
-            <span
-                aria-hidden="true"
-                className="cursor-grab select-none text-xs text-admin-text-subtle mt-6"
-            >
-                ☰
-            </span>
-
             {/* icon upload + preview */}
             <div className="space-y-1">
                 <FileInput

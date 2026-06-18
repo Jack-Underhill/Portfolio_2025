@@ -1,20 +1,50 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SocialLinkItem from '../social/SocialLinkItem';
 import Text from '../../components/ui/Text';
+import CardSelector from '../navigation/CardSelector';
 import { adminUi } from '../../styles/recipes';
 
+function moveItem(list, fromIndex, toIndex) {
+    if (toIndex < 0 || toIndex >= list.length) return list;
+
+    const next = [...list];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+    return next;
+}
+
+function getLinkSelectorId(link, index) {
+    return link?.id ?? `contact-link-${index}`;
+}
+
+function resolveActiveLinkId(linkCards, currentId) {
+    if (!linkCards.length) return null;
+    if (linkCards.some((card) => card.id === currentId)) return currentId;
+
+    return linkCards[0].id;
+}
+
 function ContactSection({ state, onChange }) {
-    const { socialLinks } = state;
+    const socialLinks = useMemo(
+        () => (Array.isArray(state?.socialLinks) ? state.socialLinks : []),
+        [state?.socialLinks],
+    );
+    const linkCards = useMemo(() => socialLinks.map((link, index) => ({
+        id: getLinkSelectorId(link, index),
+        title: link.label || `Link ${index + 1}`,
+    })), [socialLinks]);
+    const [activeLinkId, setActiveLinkId] = useState(linkCards[0]?.id ?? null);
 
-    const [dragIndex, setDragIndex] = useState(null);
-    const [dragOverIndex, setDragOverIndex] = useState(null);
+    useEffect(() => {
+        setActiveLinkId((currentId) => resolveActiveLinkId(linkCards, currentId));
+    }, [linkCards]);
 
-    const SCROLL_MARGIN = 80;
-    const SCROLL_SPEED = 12;
+    const activeLinkIndex = linkCards.findIndex((card) => card.id === activeLinkId);
+    const activeLink = activeLinkIndex >= 0 ? socialLinks[activeLinkIndex] : null;
 
     // --- add / update / remove ---
     const updateField = (field, value) => {
-        onChange({ ...state, [field]: value });
+        onChange({ ...(state || {}), [field]: value });
     };
 
     const handleSocialChange = (index, field, value) => {
@@ -24,109 +54,87 @@ function ContactSection({ state, onChange }) {
     };
 
     const handleAddLink = () => {
+        const link = {
+            id: crypto.randomUUID(),
+            label: '',
+            url: '',
+            iconFile: null,
+            iconUrl: '',
+            published: true,
+        };
         const next = [
             ...socialLinks,
-            {
-                id: crypto.randomUUID(),
-                label: '',
-                url: '',
-                iconFile: null,
-                iconUrl: '',
-                published: true,
-            },
+            link,
         ];
         updateField('socialLinks', next);
+        setActiveLinkId(link.id);
     };
 
     const handleRemoveLink = (index) => {
         const next = socialLinks.filter((_, i) => i !== index);
-        updateField('socialLinks', next);
-    };
-
-    // --- drag logic ---
-    const resetDragState = () => {
-        setDragIndex(null);
-        setDragOverIndex(null);
-    };
-
-    const handleDragStart = (index) => (e) => {
-        setDragIndex(index);
-        e.dataTransfer.effectAllowed = 'move';
-    };
-
-    const handleDragEnter = (index) => (e) => {
-        e.preventDefault();
-        if (index !== dragIndex) setDragOverIndex(index);
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-
-        const { clientY } = e;
-        const { innerHeight } = window;
-
-        if (clientY < SCROLL_MARGIN) {
-            window.scrollBy(0, -SCROLL_SPEED);
-        } else if (clientY > innerHeight - SCROLL_MARGIN) {
-            window.scrollBy(0, SCROLL_SPEED);
-        }
-    };
-
-    const handleDrop = (index) => (e) => {
-        e.preventDefault();
-        if (dragIndex === null || dragIndex === index) {
-            resetDragState();
-            return;
-        }
-
-        const next = [...socialLinks];
-        const [moved] = next.splice(dragIndex, 1);
-        next.splice(index, 0, moved);
+        const nextActiveIndex = Math.min(index, next.length - 1);
 
         updateField('socialLinks', next);
-        resetDragState();
+        setActiveLinkId(
+            nextActiveIndex >= 0
+                ? getLinkSelectorId(next[nextActiveIndex], nextActiveIndex)
+                : null,
+        );
     };
 
-    const handleDragEnd = () => resetDragState();
+    const handleReorderLink = (fromIndex, toIndex) => {
+        updateField('socialLinks', moveItem(socialLinks, fromIndex, toIndex));
+    };
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-4">
             <Text as="p" variant="adminLabel">
                 Social / professional links
             </Text>
 
-            <div className="space-y-2">
-                {socialLinks.map((link, index) => (
-                    <SocialLinkItem
-                        key={link.id ?? index}
-                        link={link}
-                        index={index}
-                        isDragging={dragIndex === index}
-                        isDragOver={dragOverIndex === index}
-                        onChange={(field, value) =>
-                            handleSocialChange(index, field, value)
-                        }
-                        onRemove={() => handleRemoveLink(index)}
-                        dragProps={{
-                            draggable:      true,
-                            onDragStart:    handleDragStart(index),
-                            onDragEnter:    handleDragEnter(index),
-                            onDragOver:     handleDragOver,
-                            onDrop:         handleDrop(index),
-                            onDragEnd:      handleDragEnd,
-                        }}
+            {socialLinks.length > 0 ? (
+                <>
+                    <CardSelector
+                        cardTypeId="Contact Link"
+                        cards={linkCards}
+                        activeId={activeLinkId}
+                        onSelect={setActiveLinkId}
+                        onReorder={handleReorderLink}
                     />
-                ))}
-            </div>
 
-            <button
-                type="button"
-                onClick={handleAddLink}
-                aria-label="Add social or professional link"
-                className={adminUi.addLink}
-            >
-                + Add link
-            </button>
+                    <button
+                        type="button"
+                        onClick={handleAddLink}
+                        aria-label="Add social or professional link"
+                        className={adminUi.secondaryButton}
+                    >
+                        + Add link
+                    </button>
+
+                    {activeLink && (
+                        <SocialLinkItem
+                            key={getLinkSelectorId(activeLink, activeLinkIndex)}
+                            link={activeLink}
+                            index={activeLinkIndex}
+                            onChange={(field, value) => handleSocialChange(activeLinkIndex, field, value)}
+                            onRemove={() => handleRemoveLink(activeLinkIndex)}
+                        />
+                    )}
+                </>
+            ) : (
+                <>
+                    <p className={adminUi.emptyText}>No social or professional links.</p>
+
+                    <button
+                        type="button"
+                        onClick={handleAddLink}
+                        aria-label="Add social or professional link"
+                        className={adminUi.secondaryButton}
+                    >
+                        + Add link
+                    </button>
+                </>
+            )}
         </div>
     );
 }

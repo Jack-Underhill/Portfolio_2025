@@ -278,7 +278,18 @@ function SkillsSection({ state, onChange }) {
                     )}
                 </>
             ) : (
-                <p className={adminUi.emptyText}>No skill groups.</p>
+                <>
+                    <p className={adminUi.emptyText}>No skill groups.</p>
+
+                    <button
+                        type="button"
+                        onClick={addGroup}
+                        aria-label="Add skill group"
+                        className={adminUi.secondaryButton}
+                    >
+                        + Add Skill Group
+                    </button>
+                </>
             )}
         </div>
     );
