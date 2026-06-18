@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last full baseline checked on 2026-06-18 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The admin editor selector-flattening verification passed lint, build, unit tests, schema drift, and the accessibility smoke.
+Last full baseline checked on 2026-06-18 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The Projects secondary subsection nav verification passed lint, build, unit tests, schema drift, and the accessibility smoke.
 
 Passing:
 
