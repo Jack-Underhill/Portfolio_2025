@@ -147,10 +147,8 @@ function CredentialGroupEditor({ kind, credentials, onCredentialsChange }) {
                             credential={activeCredential}
                             kind={kind}
                             index={credentialList.findIndex((item) => item.id === activeCredential.id)}
-                            total={credentialList.length}
                             onChange={(patch) => updateCredential(activeCredential.id, patch)}
                             onRemove={() => removeCredential(activeCredential.id)}
-                            onMove={reorderCredential}
                         />
                     )}
                 </>
@@ -165,10 +163,8 @@ function CredentialEditor({
     credential,
     kind,
     index,
-    total,
     onChange,
     onRemove,
-    onMove,
 }) {
     const config = CREDENTIAL_KINDS[kind];
     const credentialName = credential.title || config.singular;
@@ -193,26 +189,6 @@ function CredentialEditor({
                         />
                         Published
                     </label>
-
-                    <button
-                        type="button"
-                        onClick={() => onMove(index, index - 1)}
-                        disabled={index === 0}
-                        aria-label={`Move ${credentialName} up`}
-                        className={adminUi.iconButton}
-                    >
-                        Up
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => onMove(index, index + 1)}
-                        disabled={index === total - 1}
-                        aria-label={`Move ${credentialName} down`}
-                        className={adminUi.iconButton}
-                    >
-                        Down
-                    </button>
 
                     <button
                         type="button"
