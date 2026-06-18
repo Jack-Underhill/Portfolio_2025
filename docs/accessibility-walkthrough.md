@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-06-17
+Date: 2026-06-18
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last checked on 2026-06-17 with Windows `cmd /c` commands.
+Last checked on 2026-06-18 with Windows `cmd /c` commands.
 
 Passing:
 
@@ -39,7 +39,7 @@ Current verification behavior:
 - `eslint-plugin-jsx-a11y` is wired into the default lint gate through `eslint.config.js`.
 - `cmd /c npm run test:a11y` starts a local Vite server, drives Chromium with Playwright, and runs axe against stable rendered routes.
 - The accessibility smoke currently covers the public home page landmark/menu baseline, the desktop and mobile fixed section navigation contract, and the architecture viewer invalid-source fallback.
-- The routed admin shell was manually smoke-verified with mocked admin API responses after the shell migration; it remains outside the automated axe smoke until the repo adds a stable admin browser fixture.
+- The routed admin shell and selector-driven editor flows remain outside the automated axe smoke until the repo adds a stable admin browser fixture.
 - Plain Vite local runtime still has expected Netlify function caveats for visit count and architecture SVG proxy behavior.
 
 ## Accessibility Surface Map
@@ -78,9 +78,9 @@ Admin:
 - `src/admin/AppAdmin.jsx`: development-only admin draft ownership, save state, route selection, status-message derivation, and unsaved-leave warning wiring.
 - `src/admin/shell/*`: fixed sidebar navigation landmark, save panel, top-of-content status/error live region, and page outlet layout.
 - `src/admin/pages/*`: routed admin page wrappers with one visible page heading per route.
-- `src/admin/sections/*`: section editors, named regions, and add/remove/reorder controls where present.
-- `src/admin/credentials/CredentialGroupEditor.jsx`: shared Education/Certification list editor used by separate routed pages.
-- `src/admin/projects/*`: project selector, selected-state controls, draft preview/validation actions, and project editing labels.
+- `src/admin/sections/*`: section editors, named regions, selector-driven repeated-record editing, and add/remove/reorder controls where present.
+- `src/admin/credentials/CredentialGroupEditor.jsx`: shared Education/Certification selector editor used by separate routed pages.
+- `src/admin/projects/*`: project selector, non-reorderable project category selector, challenge item selector, selected-state controls, draft preview/validation actions, and project editing labels.
 - `src/admin/forms/*`: shared form labels and inputs.
 - `src/admin/lists/*`: repeated list editing controls and item-specific accessible names.
 - `src/admin/navigation/*`: admin selector/navigation support components that remain after the retired scroll-helper controls were removed.
@@ -147,18 +147,18 @@ Admin accessibility:
 - The top-of-content admin status banner appears only for active messaging. Errors use `role="alert"`; saving, validation, and unsaved-change messages use `role="status"` with polite live-region behavior and a labeled dismiss button.
 - Each routed admin page has one clear visible page heading through `AdminPageWrapper`; section editors keep local named regions and labels where their controls need them.
 - The old admin back-to-top/back-to-bottom scroll helper controls were retired with the long single-page admin layout.
-- Project selector buttons expose selected state with `aria-pressed` and project-specific names.
+- Admin selector buttons expose selected state with `aria-pressed` and record-specific or category-specific names. Reorderable selectors own mouse-drag ordering for Projects, Credentials, Skills groups, Contact links, and Project challenge items; fixed project editor category selectors do not expose drag behavior.
 - The admin project preview opens the shared project modal from the active unsaved draft and inherits the existing dialog focus containment, Escape close, and focus-restore behavior.
 - The admin project draft import and current-context panels use labeled textareas, alert/status feedback, and disabled states while Save is in flight so pasted draft changes do not race the save response.
 - Repeated list textareas have item-specific accessible names, and remove buttons describe the item they affect.
-- Project, challenge, skill, credential, and social add/remove/reorder controls use specific accessible names where those controls already exist.
+- Project, challenge, skill, credential, and social add/remove/reorder controls use specific accessible names where those controls already exist. Destructive remove controls remain visible in the selected editor instead of moving into selector buttons.
 - Admin preview images use preview-specific alt text.
 
 ## Accepted Tradeoffs
 
 - Default users keep the portfolio's animated feel; reduced-motion users get calmer behavior for non-essential motion.
 - Project groups get one scroll-active card except while the marquee, modal, or reduced-motion guardrails apply. Education and certification groups still limit scroll-active card effects to touch-capable devices. Hybrid devices can still use intentional hover and keyboard focus independently of the scroll-active state.
-- Some personal-use admin reorder remains mouse-drag based; the current accessibility state focuses on names, labels, landmarks, status text, tab behavior, and explicit controls where they already exist.
+- Some personal-use admin reorder remains mouse-drag based through selector drag. The current accessibility state focuses on names, labels, landmarks, status text, tab behavior, selected-state semantics, and explicit controls where they already exist.
 - Plain Vite can show expected Netlify function fallback behavior for visit count and architecture SVG previews. Use `netlify dev` when testing deployed-function behavior locally.
 - Public data fetch failures can leave the page on static fallbacks or empty project states in constrained local environments. Live Supabase-backed content checks remain outside the default local gate unless explicitly mocked.
 - Desktop standard-card marquee keyboard traversal is structurally protected by duplicate anchors using `tabIndex="-1"` while duplicate wrappers stay `aria-hidden`. A full live traversal check depends on public project rows being available in the local runtime; mocked Playwright verification covered duplicate pointer parity and primary focus centering.
