@@ -121,7 +121,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
       />
 
       <CardSelector
-        cardTypeId="Project Section"
+        cardTypeId="Project Subsection"
         cards={PROJECT_EDITOR_SECTIONS}
         activeId={activeSectionId}
         onSelect={setActiveSectionId}

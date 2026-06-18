@@ -91,14 +91,14 @@ function CardSelector({
     const labelId = `${getHTMLId()}-label`;
 
     return (
-        <div className="rounded-md border border-admin-border-subtle bg-admin-panel/40 p-3">
-            <Text id={labelId} as="p" variant="adminLabel" className="mb-1">
+        <div className="rounded-md border border-admin-border-subtle p-3">
+            <Text id={labelId} as="p" variant="adminLabel" className="mb-2">
                 Select {cardTypeId} to Edit
             </Text>
 
             <div
                 id={getHTMLId()}
-                className="flex gap-3 flex-wrap"
+                className="flex flex-wrap gap-2"
                 role="group"
                 aria-labelledby={labelId}
             >
