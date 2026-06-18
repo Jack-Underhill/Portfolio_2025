@@ -6,11 +6,9 @@ import ProjectEditorHeader      from './editor/ProjectEditorHeader';
 import ProjectTechStackFields   from './editor/ProjectTechStackFields';
 import ProjectMediaFields       from './editor/ProjectMediaFields'
 import ProjectIntroFields       from './editor/ProjectIntroFields';
-import CardSelector             from '../navigation/CardSelector';
 import { adminUi }              from '../../styles/recipes';
-import { PROJECT_EDITOR_SECTIONS } from './projectEditorSections';
 
-function ProjectEditor({ project, activeSectionId, onSelectSection, onChange, onRemove }) {
+function ProjectEditor({ project, activeSectionId, onChange, onRemove }) {
   const permalink = (project.permalink || '').trim();
   const challenges = Array.isArray(project.challenges) ? project.challenges : [];
 
@@ -106,14 +104,6 @@ function ProjectEditor({ project, activeSectionId, onSelectSection, onChange, on
         title={project.title}
         handleFieldChange={handleFieldChange}
         onRemove={onRemove}
-      />
-
-      <CardSelector
-        cardTypeId="Project Subsection"
-        cards={PROJECT_EDITOR_SECTIONS}
-        activeId={activeSectionId}
-        onSelect={onSelectSection}
-        reorderable={false}
       />
 
       {renderActiveSection()}

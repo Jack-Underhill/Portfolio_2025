@@ -7,6 +7,8 @@ import EducationAdminPage             from './pages/EducationAdminPage.jsx';
 import CertificationsAdminPage        from './pages/CertificationsAdminPage.jsx';
 import SkillsAdminPage                from './pages/SkillsAdminPage.jsx';
 import ContactAdminPage               from './pages/ContactAdminPage.jsx';
+import ProjectSubsectionNav           from './projects/ProjectSubsectionNav.jsx';
+import { PROJECT_EDITOR_SECTIONS }    from './projects/projectEditorSections.js';
 import { ADMIN_ROUTE_IDS }            from './routing/adminRoutes.js';
 import useAdminRoute                  from './routing/useAdminRoute.js';
 import useUnsavedAdminWarning         from './routing/useUnsavedAdminWarning.js';
@@ -112,11 +114,22 @@ function AppAdmin() {
     const [isSaving, setIsSaving] = useState(false);
     const [isProjectValidationInFlight, setIsProjectValidationInFlight] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [activeProjectSectionId, setActiveProjectSectionId] = useState(PROJECT_EDITOR_SECTIONS[0].id);
     const [error, setError] = useState(null);
     const [errorVersion, setErrorVersion] = useState(0);
     const [dismissedStatusKey, setDismissedStatusKey] = useState(null);
     const { activeRoute, navigateToRouteId } = useAdminRoute();
     useUnsavedAdminWarning(hasUnsavedChanges);
+
+    const resolvedProjectSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeProjectSectionId)
+        ? activeProjectSectionId
+        : PROJECT_EDITOR_SECTIONS[0].id;
+
+    useEffect(() => {
+        if (activeProjectSectionId !== resolvedProjectSectionId) {
+            setActiveProjectSectionId(resolvedProjectSectionId);
+        }
+    }, [activeProjectSectionId, resolvedProjectSectionId]);
 
     useEffect(() => {
         (async () => {
@@ -224,8 +237,18 @@ function AppAdmin() {
         onContactChange: markDirty(setContactState),
         isSaveInFlight: isSaving,
         onValidationBusyChange: setIsProjectValidationInFlight,
+        activeProjectSectionId: resolvedProjectSectionId,
     };
     const activePage = renderActiveAdminPage(activeRoute.id, pageProps);
+    const secondaryNav = activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && projectsState.projects.length > 0
+        ? (
+            <ProjectSubsectionNav
+                sections={PROJECT_EDITOR_SECTIONS}
+                activeSectionId={resolvedProjectSectionId}
+                onSelectSection={setActiveProjectSectionId}
+            />
+        )
+        : null;
 
     return (
         <AdminShell
@@ -238,6 +261,7 @@ function AppAdmin() {
             isSaving={isSaving}
             statusMessage={visibleStatusMessage}
             onDismissStatus={dismissStatusMessage}
+            secondaryNav={secondaryNav}
         >
             <div className={adminUi.page}>
                 {activePage}

@@ -36,8 +36,11 @@ export const adminUi = {
 
 export const adminShell = {
   root: "min-h-screen bg-admin-page text-admin-text md:pl-47",
+  rootWithSecondaryNav: "md:pl-[22.75rem]",
   sidebar:
     "flex md:min-h-screen flex-col border-r border-admin-border bg-admin-panel md:fixed md:inset-y-0 md:left-0 md:h-screen md:w-47",
+  secondarySidebar:
+    "border-b border-admin-border bg-admin-panel px-5 py-4 md:fixed md:inset-y-0 md:left-47 md:z-10 md:h-screen md:w-34 md:border-b-0 md:border-r md:px-3 md:py-6",
   sidebarHeader: "shrink-0 space-y-2 border-b border-admin-border px-5 py-6",
   eyebrow: "text-xs uppercase tracking-wide text-admin-text-subtle",
   nav: "flex-1 flex flex-col overflow-y-auto px-3 py-4 gap-1",

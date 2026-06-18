@@ -6,10 +6,10 @@ function ProjectSubsectionNav({
   onSelectSection,
 }) {
   return (
-    <aside className="rounded-md border border-admin-border bg-admin-panel p-3">
-      <p className={cx(adminShell.eyebrow, 'px-2 pb-3')}>Project subsection</p>
+    <nav className="space-y-3" aria-label="Project subsections">
+      <p className={cx(adminShell.eyebrow, 'px-2')}>Project subsection</p>
 
-      <nav className="flex flex-col gap-1" aria-label="Project subsections">
+      <div className="flex flex-col gap-1">
         {sections.map((section) => {
           const isActive = section.id === activeSectionId;
 
@@ -30,8 +30,8 @@ function ProjectSubsectionNav({
             </button>
           );
         })}
-      </nav>
-    </aside>
+      </div>
+    </nav>
   );
 }
 

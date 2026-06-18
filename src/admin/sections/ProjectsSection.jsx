@@ -22,10 +22,15 @@ import { adminUi } from '../../styles/recipes';
 const PROJECT_DRAFT_IMPORT_PANEL_ID = 'project-agent-draft-import-panel';
 const PROJECT_DRAFT_CONTEXT_PANEL_ID = 'project-agent-draft-context-panel';
 
-function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidationBusyChange }) {
+function ProjectsSection({
+    state,
+    onChange,
+    isSaveInFlight = false,
+    onValidationBusyChange,
+    activeSectionId = PROJECT_EDITOR_SECTIONS[0].id,
+}) {
     const { projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
-    const [activeSectionId, setActiveSectionId] = useState(PROJECT_EDITOR_SECTIONS[0].id);
     const [isImportPanelOpen, setIsImportPanelOpen] = useState(false);
     const [isContextPanelOpen, setIsContextPanelOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -73,12 +78,6 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
         if (!activeProject) return '';
         return stringifyAgentProjectDraftReviewContext(activeProject);
     }, [activeProject]);
-
-    useEffect(() => {
-        if (activeSectionId !== resolvedActiveSectionId) {
-            setActiveSectionId(resolvedActiveSectionId);
-        }
-    }, [activeSectionId, resolvedActiveSectionId]);
 
     useEffect(() => {
         if (!isPreviewOpen || !activeProject) {
@@ -322,7 +321,6 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
                     <ProjectEditor
                         project={activeProject}
                         activeSectionId={resolvedActiveSectionId}
-                        onSelectSection={setActiveSectionId}
                         onChange={(updated) => handleChangeProject(activeProject.id, updated)}
                         onRemove={() => handleRemoveProject(activeProject.id)}
                     />

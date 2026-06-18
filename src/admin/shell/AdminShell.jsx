@@ -1,4 +1,4 @@
-import { adminShell } from '../../styles/recipes';
+import { adminShell, cx } from '../../styles/recipes';
 import AdminSidebar from './AdminSidebar.jsx';
 import AdminStatusBanner from './AdminStatusBanner.jsx';
 
@@ -13,9 +13,12 @@ function AdminShell({
     isSaving,
     statusMessage,
     onDismissStatus,
+    secondaryNav,
 }) {
+    const hasSecondaryNav = Boolean(secondaryNav);
+
     return (
-        <div className={adminShell.root}>
+        <div className={cx(adminShell.root, hasSecondaryNav && adminShell.rootWithSecondaryNav)}>
             <AdminSidebar
                 activeRoute={activeRoute}
                 onNavigate={onNavigate}
@@ -25,6 +28,12 @@ function AdminShell({
                 isSaveDisabled={isSaveDisabled}
                 isSaving={isSaving}
             />
+
+            {hasSecondaryNav && (
+                <aside className={adminShell.secondarySidebar}>
+                    {secondaryNav}
+                </aside>
+            )}
 
             <main className={adminShell.main}>
                 <div className={adminShell.content}>
