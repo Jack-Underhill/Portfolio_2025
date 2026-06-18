@@ -6,6 +6,7 @@ import ProjectEditor from '../projects/ProjectEditor';
 import ProjectDraftContextPanel from '../projects/ProjectDraftContextPanel';
 import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
 import ProjectPreviewActions from '../projects/ProjectPreviewActions';
+import { PROJECT_EDITOR_SECTIONS } from '../projects/projectEditorSections';
 import CardSelector from '../navigation/CardSelector';
 
 import { validateProjectDraft } from '../api/adminClient';
@@ -24,6 +25,7 @@ const PROJECT_DRAFT_CONTEXT_PANEL_ID = 'project-agent-draft-context-panel';
 function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidationBusyChange }) {
     const { projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
+    const [activeSectionId, setActiveSectionId] = useState(PROJECT_EDITOR_SECTIONS[0].id);
     const [isImportPanelOpen, setIsImportPanelOpen] = useState(false);
     const [isContextPanelOpen, setIsContextPanelOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -55,6 +57,9 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
     const resolvedActiveId = projects.some((p) => p.id === activeId)
         ? activeId
         : (projects[0]?.id ?? null);
+    const resolvedActiveSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeSectionId)
+        ? activeSectionId
+        : PROJECT_EDITOR_SECTIONS[0].id;
 
     const activeProject = projects.find((p) => p.id === resolvedActiveId) ?? null;
     const previewProject = useMemo(() => {
@@ -68,6 +73,12 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
         if (!activeProject) return '';
         return stringifyAgentProjectDraftReviewContext(activeProject);
     }, [activeProject]);
+
+    useEffect(() => {
+        if (activeSectionId !== resolvedActiveSectionId) {
+            setActiveSectionId(resolvedActiveSectionId);
+        }
+    }, [activeSectionId, resolvedActiveSectionId]);
 
     useEffect(() => {
         if (!isPreviewOpen || !activeProject) {
@@ -310,6 +321,8 @@ function ProjectsSection({ state, onChange, isSaveInFlight = false, onValidation
 
                     <ProjectEditor
                         project={activeProject}
+                        activeSectionId={resolvedActiveSectionId}
+                        onSelectSection={setActiveSectionId}
                         onChange={(updated) => handleChangeProject(activeProject.id, updated)}
                         onRemove={() => handleRemoveProject(activeProject.id)}
                     />

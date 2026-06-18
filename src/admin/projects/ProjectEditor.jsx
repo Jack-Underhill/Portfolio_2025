@@ -1,5 +1,3 @@
-import { useState }              from 'react';
-
 import ProjectChallengeFields   from './editor/ProjectChallengeFields';
 import ProjectClassificationFields from './editor/ProjectClassificationFields';
 import ProjectListFields        from './editor/ProjectListFields';
@@ -12,8 +10,7 @@ import CardSelector             from '../navigation/CardSelector';
 import { adminUi }              from '../../styles/recipes';
 import { PROJECT_EDITOR_SECTIONS } from './projectEditorSections';
 
-function ProjectEditor({ project, onChange, onRemove }) {
-  const [activeSectionId, setActiveSectionId] = useState(PROJECT_EDITOR_SECTIONS[0].id);
+function ProjectEditor({ project, activeSectionId, onSelectSection, onChange, onRemove }) {
   const permalink = (project.permalink || '').trim();
   const challenges = Array.isArray(project.challenges) ? project.challenges : [];
 
@@ -115,7 +112,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
         cardTypeId="Project Subsection"
         cards={PROJECT_EDITOR_SECTIONS}
         activeId={activeSectionId}
-        onSelect={setActiveSectionId}
+        onSelect={onSelectSection}
         reorderable={false}
       />
 
