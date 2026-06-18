@@ -1,5 +1,8 @@
+import { useEffect, useMemo, useState } from 'react';
+
 import Text from '../../components/ui/Text';
 import TextInput from '../forms/TextInput';
+import CardSelector from '../navigation/CardSelector';
 import { adminUi, cx } from '../../styles/recipes';
 
 function createEmptySkillItem() {
@@ -43,8 +46,35 @@ function moveItem(list, fromIndex, toIndex) {
     return next;
 }
 
+function getGroupSelectorId(group, index) {
+    return group?.id ?? `skill-group-${group?.sortOrder ?? index}-${index}`;
+}
+
+function resolveActiveGroupId(groupCards, currentId) {
+    if (!groupCards.length) return null;
+    if (groupCards.some((card) => card.id === currentId)) return currentId;
+
+    return groupCards[0].id;
+}
+
 function SkillsSection({ state, onChange }) {
-    const groups = Array.isArray(state?.groups) ? state.groups : [];
+    const groups = useMemo(
+        () => (Array.isArray(state?.groups) ? state.groups : []),
+        [state?.groups],
+    );
+    const groupCards = useMemo(() => groups.map((group, index) => ({
+        id: getGroupSelectorId(group, index),
+        title: group.label || `Group ${index + 1}`,
+    })), [groups]);
+    const [activeGroupId, setActiveGroupId] = useState(groupCards[0]?.id ?? null);
+
+    useEffect(() => {
+        setActiveGroupId((currentId) => resolveActiveGroupId(groupCards, currentId));
+    }, [groupCards]);
+
+    const activeGroupIndex = groupCards.findIndex((card) => card.id === activeGroupId);
+    const activeGroup = activeGroupIndex >= 0 ? groups[activeGroupIndex] : null;
+    const activeItems = Array.isArray(activeGroup?.items) ? activeGroup.items : [];
 
     const setGroups = (updater) => {
         const nextRaw = typeof updater === 'function' ? updater(groups) : updater;
@@ -80,64 +110,64 @@ function SkillsSection({ state, onChange }) {
         });
     };
 
-    return (
-        <div>
-            <div className="space-y-4">
-                {groups.map((group, groupIndex) => {
-                    const items = Array.isArray(group.items) ? group.items : [];
-                    const groupKey = group.id ?? `${group.sortOrder}-${groupIndex}`;
+    const addGroup = () => {
+        const group = createEmptySkillGroup();
 
-                    return (
-                        <div key={groupKey} className={adminUi.editorPanel}>
+        setGroups((current) => [...current, group]);
+        setActiveGroupId(group.id);
+    };
+
+    const removeGroup = (groupIndex) => {
+        const nextActiveGroup = groups[groupIndex + 1] ?? groups[groupIndex - 1] ?? null;
+
+        setGroups((current) => current.filter((_, index) => index !== groupIndex));
+        setActiveGroupId(nextActiveGroup?.id ?? null);
+    };
+
+    return (
+        <div className="space-y-4">
+            {groups.length > 0 ? (
+                <>
+                    <CardSelector
+                        cardTypeId="Skill Group"
+                        cards={groupCards}
+                        activeId={activeGroupId}
+                        onSelect={setActiveGroupId}
+                        onReorder={(fromIndex, toIndex) => {
+                            setGroups((current) => moveItem(current, fromIndex, toIndex));
+                        }}
+                    />
+
+                    <button
+                        type="button"
+                        onClick={addGroup}
+                        aria-label="Add skill group"
+                        className={adminUi.secondaryButton}
+                    >
+                        + Add Skill Group
+                    </button>
+
+                    {activeGroup && (
+                        <div className={adminUi.editorPanel}>
                             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                                 <div className="flex-1">
                                     <TextInput
-                                        id={`skill-group-${groupIndex}`}
-                                        label={`Group ${groupIndex + 1}`}
-                                        value={group.label || ''}
-                                        onChange={(label) => updateGroup(groupIndex, { label })}
+                                        id={`skill-group-${activeGroupIndex}`}
+                                        label={`Group ${activeGroupIndex + 1}`}
+                                        value={activeGroup.label || ''}
+                                        onChange={(label) => updateGroup(activeGroupIndex, { label })}
                                     />
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-2">
                                     <Text as="p" variant="adminLabel">
-                                        order: {groupIndex}
+                                        order: {activeGroupIndex}
                                     </Text>
 
                                     <button
                                         type="button"
-                                        onClick={() => setGroups((current) => moveItem(
-                                            current,
-                                            groupIndex,
-                                            groupIndex - 1,
-                                        ))}
-                                        disabled={groupIndex === 0}
-                                        aria-label={`Move skill group ${groupIndex + 1} up`}
-                                        className={adminUi.iconButton}
-                                    >
-                                        Up
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => setGroups((current) => moveItem(
-                                            current,
-                                            groupIndex,
-                                            groupIndex + 1,
-                                        ))}
-                                        disabled={groupIndex === groups.length - 1}
-                                        aria-label={`Move skill group ${groupIndex + 1} down`}
-                                        className={adminUi.iconButton}
-                                    >
-                                        Down
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => setGroups((current) => (
-                                            current.filter((_, index) => index !== groupIndex)
-                                        ))}
-                                        aria-label={`Remove skill group ${groupIndex + 1}`}
+                                        onClick={() => removeGroup(activeGroupIndex)}
+                                        aria-label={`Remove skill group ${activeGroupIndex + 1}`}
                                         className={adminUi.dangerLink}
                                     >
                                         Remove group
@@ -146,8 +176,9 @@ function SkillsSection({ state, onChange }) {
                             </div>
 
                             <div className="space-y-2">
-                                {items.map((item, itemIndex) => {
-                                    const itemKey = item.id ?? `${groupKey}-item-${itemIndex}`;
+                                {activeItems.map((item, itemIndex) => {
+                                    const itemKey = item.id
+                                        ?? `${getGroupSelectorId(activeGroup, activeGroupIndex)}-item-${itemIndex}`;
 
                                     return (
                                         <div
@@ -158,11 +189,11 @@ function SkillsSection({ state, onChange }) {
                                             )}
                                         >
                                             <TextInput
-                                                id={`skill-${groupIndex}-${itemIndex}`}
+                                                id={`skill-${activeGroupIndex}-${itemIndex}`}
                                                 label={`Skill ${itemIndex + 1}`}
                                                 value={item.label || ''}
                                                 onChange={(label) => updateSkillItem(
-                                                    groupIndex,
+                                                    activeGroupIndex,
                                                     itemIndex,
                                                     { label },
                                                 )}
@@ -173,9 +204,9 @@ function SkillsSection({ state, onChange }) {
                                                     <input
                                                         type="checkbox"
                                                         checked={item.published !== false}
-                                                        aria-label={`Published state for skill ${itemIndex + 1} in group ${groupIndex + 1}`}
+                                                        aria-label={`Published state for skill ${itemIndex + 1} in group ${activeGroupIndex + 1}`}
                                                         onChange={(e) => updateSkillItem(
-                                                            groupIndex,
+                                                            activeGroupIndex,
                                                             itemIndex,
                                                             { published: e.target.checked },
                                                         )}
@@ -187,7 +218,7 @@ function SkillsSection({ state, onChange }) {
                                                 <button
                                                     type="button"
                                                     onClick={() => updateGroupItems(
-                                                        groupIndex,
+                                                        activeGroupIndex,
                                                         (current) => moveItem(
                                                             current,
                                                             itemIndex,
@@ -195,7 +226,7 @@ function SkillsSection({ state, onChange }) {
                                                         ),
                                                     )}
                                                     disabled={itemIndex === 0}
-                                                    aria-label={`Move skill ${itemIndex + 1} up in group ${groupIndex + 1}`}
+                                                    aria-label={`Move skill ${itemIndex + 1} up in group ${activeGroupIndex + 1}`}
                                                     className={adminUi.iconButton}
                                                 >
                                                     Up
@@ -204,15 +235,15 @@ function SkillsSection({ state, onChange }) {
                                                 <button
                                                     type="button"
                                                     onClick={() => updateGroupItems(
-                                                        groupIndex,
+                                                        activeGroupIndex,
                                                         (current) => moveItem(
                                                             current,
                                                             itemIndex,
                                                             itemIndex + 1,
                                                         ),
                                                     )}
-                                                    disabled={itemIndex === items.length - 1}
-                                                    aria-label={`Move skill ${itemIndex + 1} down in group ${groupIndex + 1}`}
+                                                    disabled={itemIndex === activeItems.length - 1}
+                                                    aria-label={`Move skill ${itemIndex + 1} down in group ${activeGroupIndex + 1}`}
                                                     className={adminUi.iconButton}
                                                 >
                                                     Down
@@ -220,8 +251,8 @@ function SkillsSection({ state, onChange }) {
 
                                                 <button
                                                     type="button"
-                                                    onClick={() => removeSkillItem(groupIndex, itemIndex)}
-                                                    aria-label={`Remove skill ${itemIndex + 1} from group ${groupIndex + 1}`}
+                                                    onClick={() => removeSkillItem(activeGroupIndex, itemIndex)}
+                                                    aria-label={`Remove skill ${itemIndex + 1} from group ${activeGroupIndex + 1}`}
                                                     className={adminUi.dangerLink}
                                                 >
                                                     Remove
@@ -234,31 +265,21 @@ function SkillsSection({ state, onChange }) {
 
                             <button
                                 type="button"
-                                onClick={() => updateGroupItems(groupIndex, (items) => [
+                                onClick={() => updateGroupItems(activeGroupIndex, (items) => [
                                     ...items,
                                     createEmptySkillItem(),
                                 ])}
-                                aria-label={`Add skill to group ${groupIndex + 1}`}
+                                aria-label={`Add skill to group ${activeGroupIndex + 1}`}
                                 className={adminUi.addLink}
                             >
                                 + Add skill
                             </button>
                         </div>
-                    );
-                })}
-            </div>
-
-            <button
-                type="button"
-                onClick={() => setGroups((current) => [
-                    ...current,
-                    createEmptySkillGroup(),
-                ])}
-                aria-label="Add skill group"
-                className={adminUi.secondaryButton}
-            >
-                + Add Skill Group
-            </button>
+                    )}
+                </>
+            ) : (
+                <p className={adminUi.emptyText}>No skill groups.</p>
+            )}
         </div>
     );
 }
