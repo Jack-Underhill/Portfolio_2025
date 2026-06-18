@@ -10,16 +10,7 @@ import ProjectMediaFields       from './editor/ProjectMediaFields'
 import ProjectIntroFields       from './editor/ProjectIntroFields';
 import CardSelector             from '../navigation/CardSelector';
 import { adminUi }              from '../../styles/recipes';
-
-const PROJECT_EDITOR_SECTIONS = [
-  { id: 'classification', title: 'Classification' },
-  { id: 'intro', title: 'Intro' },
-  { id: 'media', title: 'Media' },
-  { id: 'links', title: 'Links' },
-  { id: 'tech', title: 'Tech' },
-  { id: 'lists', title: 'Lists' },
-  { id: 'challenges', title: 'Challenges' },
-];
+import { PROJECT_EDITOR_SECTIONS } from './projectEditorSections';
 
 function ProjectEditor({ project, onChange, onRemove }) {
   const [activeSectionId, setActiveSectionId] = useState(PROJECT_EDITOR_SECTIONS[0].id);
