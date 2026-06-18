@@ -42,6 +42,7 @@ function CardSelector({
     activeId,
     onSelect,
     onReorder,
+    reorderable = true,
 }) {
     const [dragIndex, setDragIndex] = useState(null);
     const [dragOverIndex, setDragOverIndex] = useState(null);
@@ -80,7 +81,9 @@ function CardSelector({
             return;
         }
 
-        onReorder(dragIndex, index);
+        if (reorderable && onReorder) {
+            onReorder(dragIndex, index);
+        }
         resetDrag();
     };
 
@@ -88,7 +91,7 @@ function CardSelector({
     const labelId = `${getHTMLId()}-label`;
 
     return (
-        <>
+        <div className="rounded-md border border-admin-border-subtle bg-admin-panel/40 p-3">
             <Text id={labelId} as="p" variant="adminLabel" className="mb-1">
                 Select {cardTypeId} to Edit
             </Text>
@@ -99,28 +102,36 @@ function CardSelector({
                 role="group"
                 aria-labelledby={labelId}
             >
-                {cards.map((card, index) => (
-                    <NavItem
-                        key={card.id}
-                        id={card.id}
-                        title={card.title}
-                        isActive={card.id === activeId}
-                        isDragging={dragIndex === index}
-                        isDragOver={dragOverIndex === index}
-                        onSelect={(id) => {
-                            if (didDragRef.current) return;
-                            onSelect(id);
-                        }}
-                        draggable
-                        onDragStart={handleDragStart(index)}
-                        onDragEnter={handleDragEnter(index)}
-                        onDragOver={handleDragOver}
-                        onDrop={handleDrop(index)}
-                        onDragEnd={resetDrag}
-                    />
-                ))}
+                {cards.map((card, index) => {
+                    const dragProps = reorderable
+                        ? {
+                            draggable: true,
+                            onDragStart: handleDragStart(index),
+                            onDragEnter: handleDragEnter(index),
+                            onDragOver: handleDragOver,
+                            onDrop: handleDrop(index),
+                            onDragEnd: resetDrag,
+                        }
+                        : {};
+
+                    return (
+                        <NavItem
+                            key={card.id}
+                            id={card.id}
+                            title={card.title}
+                            isActive={card.id === activeId}
+                            isDragging={reorderable && dragIndex === index}
+                            isDragOver={reorderable && dragOverIndex === index}
+                            onSelect={(id) => {
+                                if (reorderable && didDragRef.current) return;
+                                onSelect(id);
+                            }}
+                            {...dragProps}
+                        />
+                    );
+                })}
             </div>
-        </>
+        </div>
     );
 }
 
