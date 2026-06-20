@@ -13,3 +13,7 @@ export const DEFAULT_PROJECT_EDITOR_SECTION = PROJECT_EDITOR_SECTIONS[0];
 export function findProjectEditorSection(sectionId) {
   return PROJECT_EDITOR_SECTIONS.find((section) => section.id === sectionId) || null;
 }
+
+export function getProjectEditorSectionElementId(sectionId) {
+  return `project-editor-${sectionId}`;
+}
