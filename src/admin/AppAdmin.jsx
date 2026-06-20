@@ -164,6 +164,16 @@ function AppAdmin() {
         scrollToProjectSection(section.id);
     }, [pushAdminRoute, scrollToProjectSection]);
 
+    const handleProjectRecordSelect = useCallback((sectionId) => {
+        const isKnownProjectSection = PROJECT_EDITOR_SECTIONS.some((section) => section.id === sectionId);
+        const nextSectionId = isKnownProjectSection
+            ? sectionId
+            : PROJECT_EDITOR_SECTIONS[0].id;
+
+        setActiveProjectSectionId(nextSectionId);
+        scrollToProjectSection(nextSectionId);
+    }, [scrollToProjectSection]);
+
     useEffect(() => {
         if (routeProjectSectionId) {
             setActiveProjectSectionId((currentSectionId) => (
@@ -308,6 +318,7 @@ function AppAdmin() {
         onValidationBusyChange: setIsProjectValidationInFlight,
         activeProjectSectionId: resolvedProjectSectionId,
         onProjectSectionMount: setProjectSectionRef,
+        onProjectRecordSelect: handleProjectRecordSelect,
     };
     const secondaryNav = activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && projectsState.projects.length > 0
         ? (
