@@ -87,24 +87,6 @@ function getAdminStatusMessage({
     return null;
 }
 
-function renderActiveAdminPage(routeId, pageProps) {
-    switch (routeId) {
-        case ADMIN_ROUTE_IDS.PROJECTS:
-            return <ProjectsAdminPage {...pageProps} />;
-        case ADMIN_ROUTE_IDS.EDUCATION:
-            return <EducationAdminPage {...pageProps} />;
-        case ADMIN_ROUTE_IDS.CERTIFICATIONS:
-            return <CertificationsAdminPage {...pageProps} />;
-        case ADMIN_ROUTE_IDS.SKILLS:
-            return <SkillsAdminPage {...pageProps} />;
-        case ADMIN_ROUTE_IDS.CONTACT:
-            return <ContactAdminPage {...pageProps} />;
-        case ADMIN_ROUTE_IDS.ABOUT:
-        default:
-            return <AboutAdminPage {...pageProps} />;
-    }
-}
-
 function AppAdmin() {
     const [aboutState, setAboutState] = useState(initialAboutState);
     const [projectsState, setProjectsState] = useState(initialProjectsState);
@@ -256,7 +238,6 @@ function AppAdmin() {
         onValidationBusyChange: setIsProjectValidationInFlight,
         activeProjectSectionId: resolvedProjectSectionId,
     };
-    const activePage = renderActiveAdminPage(activeRoute.id, pageProps);
     const secondaryNav = activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && projectsState.projects.length > 0
         ? (
             <ProjectSubsectionNav
@@ -281,7 +262,12 @@ function AppAdmin() {
             secondaryNav={secondaryNav}
         >
             <div className={adminUi.page}>
-                {activePage}
+                <AboutAdminPage {...pageProps} />
+                <ProjectsAdminPage {...pageProps} />
+                <EducationAdminPage {...pageProps} />
+                <CertificationsAdminPage {...pageProps} />
+                <SkillsAdminPage {...pageProps} />
+                <ContactAdminPage {...pageProps} />
             </div>
         </AdminShell>
     );
