@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-06-18
+Date: 2026-06-19
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last checked on 2026-06-18 with Windows `cmd /c` commands.
+Last accessibility-affecting baseline checked on 2026-06-19 with Windows `cmd /c` commands for the admin file input state-text change.
 
 Passing:
 
@@ -81,7 +81,7 @@ Admin:
 - `src/admin/sections/*`: section editors, named regions, selector-driven repeated-record editing, and add/remove/reorder controls where present.
 - `src/admin/credentials/CredentialGroupEditor.jsx`: shared Education/Certification selector editor used by separate routed pages.
 - `src/admin/projects/*`: project record selector, Projects-only secondary subsection nav, challenge item selector, selected-state controls, draft preview/validation actions, and project editing labels.
-- `src/admin/forms/*`: shared form labels and inputs.
+- `src/admin/forms/*`: shared form labels, inputs, and file-input saved/pending helper text.
 - `src/admin/lists/*`: repeated list editing controls and item-specific accessible names.
 - `src/admin/navigation/*`: admin selector/navigation support components that remain after the retired scroll-helper controls were removed.
 
@@ -151,6 +151,7 @@ Admin accessibility:
 - Project editor subsections use a Projects-only secondary navigation rail that appears on the Projects route when project records exist. Its subsection controls are local-state buttons with `aria-pressed`, not page links, and the selected subsection does not use URL or route state.
 - The admin project preview opens the shared project modal from the active unsaved draft and inherits the existing dialog focus containment, Escape close, and focus-restore behavior.
 - The admin project draft import and current-context panels use labeled textareas, alert/status feedback, and disabled states while Save is in flight so pasted draft changes do not race the save response.
+- Shared admin file inputs keep a real native file control associated with `FieldLabel`, visually replace the browser-owned filename text with app-owned `Choose file` or `Replace file` action text, and expose the saved/pending state through nearby helper text referenced by `aria-describedby`. File selection still uses the native control; saved URLs are represented by caller-owned booleans instead of attempting to prefill the input value.
 - Repeated list textareas have item-specific accessible names, and remove buttons describe the item they affect.
 - Project, challenge, skill, credential, and social add/remove/reorder controls use specific accessible names where those controls already exist. Destructive remove controls remain visible in the selected editor instead of moving into selector buttons.
 - Admin preview images use preview-specific alt text.
