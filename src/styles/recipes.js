@@ -6,9 +6,11 @@ export const adminForm = {
   textarea:
     "block w-full resize-none overflow-hidden rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm outline-none focus:border-admin-accent-hover focus-visible:ring-2 focus-visible:ring-admin-accent-text",
   fileShell:
-    "rounded-md border border-admin-border bg-admin-panel px-3 py-2 transition-colors cursor-pointer hover:border-admin-accent-hover hover:bg-admin-panel-hover focus-within:ring-2 focus-within:ring-admin-accent-text",
+    "relative inline-flex min-h-9 w-full items-center rounded-md border border-admin-border bg-admin-panel px-3 py-2 transition-colors cursor-pointer hover:border-admin-accent-hover hover:bg-admin-panel-hover focus-within:ring-2 focus-within:ring-admin-accent-text",
   fileInput:
-    "block w-full text-xs text-admin-text-muted file:mr-2 file:rounded-md file:border-0 file:bg-admin-panel-hover file:px-2 file:py-1 file:text-xs file:text-admin-text cursor-pointer",
+    "absolute inset-0 size-full cursor-pointer opacity-0",
+  fileAction:
+    "pointer-events-none rounded-md bg-admin-panel-hover px-2 py-1 text-xs text-admin-text",
 };
 
 export const adminUi = {
