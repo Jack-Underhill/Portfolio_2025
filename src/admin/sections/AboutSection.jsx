@@ -10,6 +10,7 @@ function AboutSection({ state, onChange }) {
         profileImageUrl,
         professionTitle,
         professionBio,
+        resumeFile,
         resumeUrl,
     } = state;
 
@@ -24,6 +25,8 @@ function AboutSection({ state, onChange }) {
                     id="profileImage"
                     label="Profile image"
                     accept="image/*"
+                    selectedFile={profileImageFile}
+                    hasCurrentFile={Boolean(profileImageUrl)}
                     onChange={(file) => updateField('profileImageFile', file)}
                 />
                 <ImagePreview
@@ -54,6 +57,8 @@ function AboutSection({ state, onChange }) {
                         id="resumePdf"
                         label="Resume PDF"
                         accept="application/pdf"
+                        selectedFile={resumeFile}
+                        hasCurrentFile={Boolean(resumeUrl)}
                         onChange={(file) => updateField('resumeFile', file)}
                     />
 
