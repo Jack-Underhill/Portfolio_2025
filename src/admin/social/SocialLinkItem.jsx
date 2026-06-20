@@ -21,6 +21,8 @@ function SocialLinkItem({
                     id={`social-icon-${index}`}
                     label="Icon"
                     accept="image/*"
+                    selectedFile={link.iconFile || null}
+                    hasCurrentFile={Boolean(link.iconUrl)}
                     onChange={(file) => onChange('iconFile', file)}
                 />
                 <ImagePreview
