@@ -27,7 +27,7 @@ function AdminSidebar({
                             key={route.id}
                             href={route.path}
                             onClick={(event) => onNavigate(event, route)}
-                            aria-current={isActive ? 'page' : undefined}
+                            aria-current={isActive ? 'location' : undefined}
                             className={cx(adminShell.navLink, isActive && adminShell.navLinkActive)}
                         >
                             <AdminNavIcon icon={route.icon} />

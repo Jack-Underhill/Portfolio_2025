@@ -8,6 +8,7 @@ function getFallbackRouteMatch() {
     projectSubsectionId: null,
     canonicalPath: DEFAULT_ADMIN_ROUTE.path,
     shouldReplace: false,
+    navigationAction: 'initial',
   };
 }
 
@@ -33,7 +34,10 @@ function buildAdminHistoryState(routeMatch) {
 }
 
 export function useAdminRoute() {
-  const [routeMatch, setRouteMatch] = useState(readCurrentRoute);
+  const [routeMatch, setRouteMatch] = useState(() => ({
+    ...readCurrentRoute(),
+    navigationAction: 'initial',
+  }));
 
   const writeRoute = useCallback((pathOrRoute, historyMode = 'push') => {
     if (typeof window === 'undefined') return getFallbackRouteMatch();
@@ -63,14 +67,18 @@ export function useAdminRoute() {
       );
     }
 
-    setRouteMatch(nextMatch);
+    setRouteMatch({
+      ...nextMatch,
+      shouldReplace: false,
+      navigationAction: historyMode,
+    });
     return nextMatch;
   }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
 
-    const syncRoute = () => {
+    const syncRoute = (navigationAction = 'popstate') => {
       const match = readCurrentRoute();
 
       if (match.shouldReplace) {
@@ -84,26 +92,28 @@ export function useAdminRoute() {
       setRouteMatch({
         ...match,
         shouldReplace: false,
+        navigationAction,
       });
     };
 
-    syncRoute();
-    window.addEventListener('popstate', syncRoute);
+    syncRoute('initial');
+    const handlePopstate = () => syncRoute('popstate');
+    window.addEventListener('popstate', handlePopstate);
 
-    return () => window.removeEventListener('popstate', syncRoute);
+    return () => window.removeEventListener('popstate', handlePopstate);
   }, []);
 
   const pushAdminRoute = useCallback((pathOrRoute) => {
-    writeRoute(pathOrRoute, 'push');
+    return writeRoute(pathOrRoute, 'push');
   }, [writeRoute]);
 
   const replaceAdminRoute = useCallback((pathOrRoute) => {
-    writeRoute(pathOrRoute, 'replace');
+    return writeRoute(pathOrRoute, 'replace');
   }, [writeRoute]);
 
   const navigateToRouteId = useCallback((event, route) => {
     event?.preventDefault();
-    pushAdminRoute(route);
+    return pushAdminRoute(route);
   }, [pushAdminRoute]);
 
   return {
@@ -114,6 +124,7 @@ export function useAdminRoute() {
     navigateToRouteId,
     pushAdminRoute,
     replaceAdminRoute,
+    routeNavigationAction: routeMatch.navigationAction,
   };
 }
 

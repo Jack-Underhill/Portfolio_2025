@@ -1,9 +1,11 @@
+import { adminUi } from '../../styles/recipes';
+
 function AdminPageWrapper({ name, desc, component }) {
     const pageId = name.toLowerCase().replace(/\s+/g, '-');
     const titleId = `${pageId}-title`;
 
     return (
-        <div className="space-y-8">
+        <section id={pageId} aria-labelledby={titleId} className={adminUi.pageSection}>
             <header className="space-y-2">
                 <h1 id={titleId} className="text-3xl font-semibold">{name} Section</h1>
                 <p className="max-w-3xl text-sm text-admin-text-muted">
@@ -11,10 +13,10 @@ function AdminPageWrapper({ name, desc, component }) {
                 </p>
             </header>
 
-            <section id={pageId} aria-labelledby={titleId}>
+            <div>
                 {component}
-            </section>
-        </div>
+            </div>
+        </section>
     );
 }
 

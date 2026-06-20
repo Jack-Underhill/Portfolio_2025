@@ -9,7 +9,8 @@ import SkillsAdminPage                from './pages/SkillsAdminPage.jsx';
 import ContactAdminPage               from './pages/ContactAdminPage.jsx';
 import ProjectSubsectionNav           from './projects/ProjectSubsectionNav.jsx';
 import { PROJECT_EDITOR_SECTIONS }    from './projects/projectEditorSections.js';
-import { ADMIN_ROUTE_IDS }            from './routing/adminRoutes.js';
+import { ADMIN_ROUTE_IDS, ADMIN_ROUTES } from './routing/adminRoutes.js';
+import useAdminScrollspy             from './routing/useAdminScrollspy.js';
 import useAdminRoute                  from './routing/useAdminRoute.js';
 import useUnsavedAdminWarning         from './routing/useUnsavedAdminWarning.js';
 import { adminUi }          from '../styles/recipes';
@@ -40,6 +41,8 @@ const initialCredentialsState = {
     education: [],
     certifications: [],
 };
+
+const TOP_LEVEL_ADMIN_SECTION_IDS = ADMIN_ROUTES.map((route) => route.id);
 
 function getAdminStatusMessage({
     error,
@@ -103,9 +106,30 @@ function AppAdmin() {
     const {
         activeRoute,
         activeProjectSubsectionId,
-        navigateToRouteId,
+        pushAdminRoute,
+        replaceAdminRoute,
+        routeNavigationAction,
     } = useAdminRoute();
     useUnsavedAdminWarning(hasUnsavedChanges);
+
+    const handleActiveAdminSectionChange = useCallback((sectionId) => {
+        const route = ADMIN_ROUTES.find((adminRoute) => adminRoute.id === sectionId);
+        if (route) {
+            replaceAdminRoute(route);
+        }
+    }, [replaceAdminRoute]);
+
+    const { scrollToSection: scrollToAdminSection } = useAdminScrollspy({
+        activeSectionId: activeRoute.id,
+        onActiveSectionChange: handleActiveAdminSectionChange,
+        sectionIds: TOP_LEVEL_ADMIN_SECTION_IDS,
+    });
+
+    const handleAdminNavigate = useCallback((event, route) => {
+        event?.preventDefault();
+        pushAdminRoute(route);
+        scrollToAdminSection(route.id);
+    }, [pushAdminRoute, scrollToAdminSection]);
 
     const routeProjectSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeProjectSubsectionId)
         ? activeProjectSubsectionId
@@ -129,6 +153,14 @@ function AppAdmin() {
             setActiveProjectSectionId(resolvedProjectSectionId);
         }
     }, [activeProjectSectionId, resolvedProjectSectionId]);
+
+    useEffect(() => {
+        if (routeNavigationAction && !['initial', 'popstate'].includes(routeNavigationAction)) {
+            return;
+        }
+
+        scrollToAdminSection(activeRoute.id);
+    }, [activeRoute.id, routeNavigationAction, scrollToAdminSection]);
 
     useEffect(() => {
         (async () => {
@@ -251,7 +283,7 @@ function AppAdmin() {
     return (
         <AdminShell
             activeRoute={activeRoute}
-            onNavigate={navigateToRouteId}
+            onNavigate={handleAdminNavigate}
             onSave={handleSave}
             saveLabel={saveLabel}
             saveStatus={saveStatus}

@@ -15,6 +15,7 @@ export const adminForm = {
 
 export const adminUi = {
   page: "space-y-10",
+  pageSection: "scroll-mt-8 space-y-8",
   primaryButton:
     "rounded-md bg-admin-accent px-4 py-2 text-sm font-medium hover:bg-admin-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-admin-accent",
   secondaryButton:
