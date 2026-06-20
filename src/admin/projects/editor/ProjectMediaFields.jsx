@@ -27,6 +27,8 @@ function ProjectMediaFields({ project, onChange }) {
                         id={`project-image-${project.id}`}
                         label="Project image"
                         accept="image/*"
+                        selectedFile={project.imageFile || null}
+                        hasCurrentFile={Boolean(project.imageUrl)}
                         onChange={handleImageFileChange}
                     />
                     <ImagePreview
@@ -42,6 +44,8 @@ function ProjectMediaFields({ project, onChange }) {
                         id={`project-arch-${project.id}`}
                         label="Architecture image"
                         accept="image/*"
+                        selectedFile={project.architectureImageFile || null}
+                        hasCurrentFile={Boolean(project.architectureImageUrl)}
                         onChange={handleArchitectureImageFileChange}
                     />
                     <ImagePreview
@@ -57,6 +61,8 @@ function ProjectMediaFields({ project, onChange }) {
                         id={`project-video-${project.id}`}
                         label="Preview video (mp4)"
                         accept="video/*"
+                        selectedFile={project.videoFile || null}
+                        hasCurrentFile={Boolean(project.videoUrl)}
                         onChange={handleVideoFileChange}
                     />
 
