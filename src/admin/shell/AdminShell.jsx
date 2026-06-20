@@ -1,4 +1,4 @@
-import { adminShell, cx } from '../../styles/recipes';
+import { adminShell } from '../../styles/recipes';
 import AdminSidebar from './AdminSidebar.jsx';
 import AdminStatusBanner from './AdminStatusBanner.jsx';
 
@@ -18,7 +18,7 @@ function AdminShell({
     const hasSecondaryNav = Boolean(secondaryNav);
 
     return (
-        <div className={cx(adminShell.root, hasSecondaryNav && adminShell.rootWithSecondaryNav)}>
+        <div className={adminShell.root}>
             <AdminSidebar
                 activeRoute={activeRoute}
                 onNavigate={onNavigate}
