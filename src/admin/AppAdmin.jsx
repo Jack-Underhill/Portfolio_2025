@@ -118,12 +118,29 @@ function AppAdmin() {
     const [error, setError] = useState(null);
     const [errorVersion, setErrorVersion] = useState(0);
     const [dismissedStatusKey, setDismissedStatusKey] = useState(null);
-    const { activeRoute, navigateToRouteId } = useAdminRoute();
+    const {
+        activeRoute,
+        activeProjectSubsectionId,
+        navigateToRouteId,
+    } = useAdminRoute();
     useUnsavedAdminWarning(hasUnsavedChanges);
 
+    const routeProjectSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeProjectSubsectionId)
+        ? activeProjectSubsectionId
+        : null;
     const resolvedProjectSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeProjectSectionId)
         ? activeProjectSectionId
         : PROJECT_EDITOR_SECTIONS[0].id;
+
+    useEffect(() => {
+        if (routeProjectSectionId) {
+            setActiveProjectSectionId((currentSectionId) => (
+                currentSectionId === routeProjectSectionId
+                    ? currentSectionId
+                    : routeProjectSectionId
+            ));
+        }
+    }, [routeProjectSectionId]);
 
     useEffect(() => {
         if (activeProjectSectionId !== resolvedProjectSectionId) {

@@ -2,19 +2,24 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { DEFAULT_ADMIN_ROUTE, resolveAdminRoute } from './adminRoutes.js';
 
+function getFallbackRouteMatch() {
+  return {
+    route: DEFAULT_ADMIN_ROUTE,
+    projectSubsectionId: null,
+    canonicalPath: DEFAULT_ADMIN_ROUTE.path,
+    shouldReplace: false,
+  };
+}
+
 function readCurrentRoute() {
   if (typeof window === 'undefined') {
-    return {
-      route: DEFAULT_ADMIN_ROUTE,
-      canonicalPath: DEFAULT_ADMIN_ROUTE.path,
-      shouldReplace: false,
-    };
+    return getFallbackRouteMatch();
   }
 
   return resolveAdminRoute(window.location.pathname);
 }
 
-function buildAdminHistoryState(route) {
+function buildAdminHistoryState(routeMatch) {
   const currentState = window.history.state;
   const state = currentState && typeof currentState === 'object'
     ? currentState
@@ -22,27 +27,64 @@ function buildAdminHistoryState(route) {
 
   return {
     ...state,
-    adminRouteId: route.id,
+    adminRouteId: routeMatch.route.id,
+    adminProjectSubsectionId: routeMatch.projectSubsectionId,
   };
 }
 
 export function useAdminRoute() {
-  const [activeRoute, setActiveRoute] = useState(() => readCurrentRoute().route);
+  const [routeMatch, setRouteMatch] = useState(readCurrentRoute);
+
+  const writeRoute = useCallback((pathOrRoute, historyMode = 'push') => {
+    if (typeof window === 'undefined') return getFallbackRouteMatch();
+
+    const nextPath = typeof pathOrRoute === 'string'
+      ? pathOrRoute
+      : pathOrRoute?.path;
+
+    if (!nextPath) return readCurrentRoute();
+
+    const nextMatch = resolveAdminRoute(nextPath);
+    const currentPath = window.location.pathname;
+    const shouldWrite = nextMatch.canonicalPath !== currentPath
+      || nextMatch.shouldReplace
+      || historyMode === 'replace';
+
+    if (shouldWrite) {
+      const writer = historyMode === 'replace'
+        ? window.history.replaceState
+        : window.history.pushState;
+
+      writer.call(
+        window.history,
+        buildAdminHistoryState(nextMatch),
+        '',
+        nextMatch.canonicalPath,
+      );
+    }
+
+    setRouteMatch(nextMatch);
+    return nextMatch;
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
 
     const syncRoute = () => {
       const match = readCurrentRoute();
-      setActiveRoute(match.route);
 
       if (match.shouldReplace) {
         window.history.replaceState(
-          buildAdminHistoryState(match.route),
+          buildAdminHistoryState(match),
           '',
           match.canonicalPath,
         );
       }
+
+      setRouteMatch({
+        ...match,
+        shouldReplace: false,
+      });
     };
 
     syncRoute();
@@ -51,23 +93,27 @@ export function useAdminRoute() {
     return () => window.removeEventListener('popstate', syncRoute);
   }, []);
 
-  const navigateToRoute = useCallback((route) => {
-    if (typeof window === 'undefined') return;
-    if (!route || route.path === window.location.pathname) return;
+  const pushAdminRoute = useCallback((pathOrRoute) => {
+    writeRoute(pathOrRoute, 'push');
+  }, [writeRoute]);
 
-    window.history.pushState(buildAdminHistoryState(route), '', route.path);
-    setActiveRoute(route);
-  }, []);
+  const replaceAdminRoute = useCallback((pathOrRoute) => {
+    writeRoute(pathOrRoute, 'replace');
+  }, [writeRoute]);
 
   const navigateToRouteId = useCallback((event, route) => {
     event?.preventDefault();
-    navigateToRoute(route);
-  }, [navigateToRoute]);
+    pushAdminRoute(route);
+  }, [pushAdminRoute]);
 
   return {
-    activeRoute,
-    navigateToRoute,
+    activeRoute: routeMatch.route,
+    activeProjectSubsectionId: routeMatch.projectSubsectionId,
+    canonicalPath: routeMatch.canonicalPath,
+    navigateToRoute: pushAdminRoute,
     navigateToRouteId,
+    pushAdminRoute,
+    replaceAdminRoute,
   };
 }
 
