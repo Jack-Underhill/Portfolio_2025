@@ -28,6 +28,7 @@ function ProjectsSection({
     isSaveInFlight = false,
     onValidationBusyChange,
     activeSectionId = PROJECT_EDITOR_SECTIONS[0].id,
+    onProjectSectionMount,
 }) {
     const { projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
@@ -323,6 +324,7 @@ function ProjectsSection({
                         activeSectionId={resolvedActiveSectionId}
                         onChange={(updated) => handleChangeProject(activeProject.id, updated)}
                         onRemove={() => handleRemoveProject(activeProject.id)}
+                        onSectionMount={onProjectSectionMount}
                     />
 
                     <ProjectModal

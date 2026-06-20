@@ -9,7 +9,7 @@ import SkillsAdminPage                from './pages/SkillsAdminPage.jsx';
 import ContactAdminPage               from './pages/ContactAdminPage.jsx';
 import ProjectSubsectionNav           from './projects/ProjectSubsectionNav.jsx';
 import { PROJECT_EDITOR_SECTIONS }    from './projects/projectEditorSections.js';
-import { ADMIN_ROUTE_IDS, ADMIN_ROUTES } from './routing/adminRoutes.js';
+import { ADMIN_ROUTE_IDS, ADMIN_ROUTES, getProjectSubsectionPath } from './routing/adminRoutes.js';
 import useAdminScrollspy             from './routing/useAdminScrollspy.js';
 import useAdminRoute                  from './routing/useAdminRoute.js';
 import useUnsavedAdminWarning         from './routing/useUnsavedAdminWarning.js';
@@ -43,6 +43,7 @@ const initialCredentialsState = {
 };
 
 const TOP_LEVEL_ADMIN_SECTION_IDS = ADMIN_ROUTES.map((route) => route.id);
+const PROJECT_EDITOR_SECTION_IDS = PROJECT_EDITOR_SECTIONS.map((section) => section.id);
 
 function getAdminStatusMessage({
     error,
@@ -112,6 +113,13 @@ function AppAdmin() {
     } = useAdminRoute();
     useUnsavedAdminWarning(hasUnsavedChanges);
 
+    const routeProjectSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeProjectSubsectionId)
+        ? activeProjectSubsectionId
+        : null;
+    const resolvedProjectSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeProjectSectionId)
+        ? activeProjectSectionId
+        : PROJECT_EDITOR_SECTIONS[0].id;
+
     const handleActiveAdminSectionChange = useCallback((sectionId) => {
         const route = ADMIN_ROUTES.find((adminRoute) => adminRoute.id === sectionId);
         if (route) {
@@ -125,18 +133,36 @@ function AppAdmin() {
         sectionIds: TOP_LEVEL_ADMIN_SECTION_IDS,
     });
 
+    const handleActiveProjectSectionChange = useCallback((sectionId) => {
+        const isKnownProjectSection = PROJECT_EDITOR_SECTIONS.some((section) => section.id === sectionId);
+        if (!isKnownProjectSection) return;
+
+        setActiveProjectSectionId(sectionId);
+        replaceAdminRoute(getProjectSubsectionPath(sectionId));
+    }, [replaceAdminRoute]);
+
+    const {
+        scrollToSection: scrollToProjectSection,
+        setSectionRef: setProjectSectionRef,
+    } = useAdminScrollspy({
+        activeSectionId: resolvedProjectSectionId,
+        enabled: activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && projectsState.projects.length > 0,
+        onActiveSectionChange: handleActiveProjectSectionChange,
+        sectionIds: PROJECT_EDITOR_SECTION_IDS,
+    });
+
     const handleAdminNavigate = useCallback((event, route) => {
         event?.preventDefault();
         pushAdminRoute(route);
         scrollToAdminSection(route.id);
     }, [pushAdminRoute, scrollToAdminSection]);
 
-    const routeProjectSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeProjectSubsectionId)
-        ? activeProjectSubsectionId
-        : null;
-    const resolvedProjectSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeProjectSectionId)
-        ? activeProjectSectionId
-        : PROJECT_EDITOR_SECTIONS[0].id;
+    const handleProjectSubsectionNavigate = useCallback((event, section) => {
+        event?.preventDefault();
+        setActiveProjectSectionId(section.id);
+        pushAdminRoute(getProjectSubsectionPath(section.id));
+        scrollToProjectSection(section.id);
+    }, [pushAdminRoute, scrollToProjectSection]);
 
     useEffect(() => {
         if (routeProjectSectionId) {
@@ -159,8 +185,20 @@ function AppAdmin() {
             return;
         }
 
+        if (activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && routeProjectSectionId) {
+            const didScrollToProjectSection = scrollToProjectSection(routeProjectSectionId);
+            if (didScrollToProjectSection) return;
+        }
+
         scrollToAdminSection(activeRoute.id);
-    }, [activeRoute.id, routeNavigationAction, scrollToAdminSection]);
+    }, [
+        activeRoute.id,
+        projectsState.projects.length,
+        routeNavigationAction,
+        routeProjectSectionId,
+        scrollToAdminSection,
+        scrollToProjectSection,
+    ]);
 
     useEffect(() => {
         (async () => {
@@ -269,13 +307,14 @@ function AppAdmin() {
         isSaveInFlight: isSaving,
         onValidationBusyChange: setIsProjectValidationInFlight,
         activeProjectSectionId: resolvedProjectSectionId,
+        onProjectSectionMount: setProjectSectionRef,
     };
     const secondaryNav = activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && projectsState.projects.length > 0
         ? (
             <ProjectSubsectionNav
                 sections={PROJECT_EDITOR_SECTIONS}
                 activeSectionId={resolvedProjectSectionId}
-                onSelectSection={setActiveProjectSectionId}
+                onNavigate={handleProjectSubsectionNavigate}
             />
         )
         : null;

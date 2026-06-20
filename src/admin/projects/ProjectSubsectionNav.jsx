@@ -1,9 +1,10 @@
 import { adminShell, cx } from '../../styles/recipes';
+import { getProjectSubsectionPath } from '../routing/adminRoutes.js';
 
 function ProjectSubsectionNav({
   sections = [],
   activeSectionId,
-  onSelectSection,
+  onNavigate,
 }) {
   return (
     <nav className="space-y-3" aria-label="Project subsections">
@@ -14,11 +15,11 @@ function ProjectSubsectionNav({
           const isActive = section.id === activeSectionId;
 
           return (
-            <button
+            <a
               key={section.id}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => onSelectSection(section.id)}
+              href={getProjectSubsectionPath(section.id)}
+              aria-current={isActive ? 'location' : undefined}
+              onClick={(event) => onNavigate(event, section)}
               className={cx(
                 'rounded-md px-3 py-2 text-left text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text',
                 isActive
@@ -27,7 +28,7 @@ function ProjectSubsectionNav({
               )}
             >
               {section.title}
-            </button>
+            </a>
           );
         })}
       </div>

@@ -1,11 +1,23 @@
 const TOP_EDGE_BAND_START = 0.2;
 const TOP_EDGE_BAND_END = 0.4;
+const ACTIVE_LINE_RATIO = 0.25;
+const ACTIVE_LINE_MIN = 48;
+const ACTIVE_LINE_MAX = 96;
 const EDGE_EPSILON = 4;
 
 export function getVisibleArea(rect, viewport) {
   const visibleTop = Math.max(rect.top, viewport.top);
   const visibleBottom = Math.min(rect.bottom, viewport.bottom);
   return Math.max(0, visibleBottom - visibleTop);
+}
+
+function getActiveLine(viewportTop, viewportHeight) {
+  const offset = Math.min(
+    Math.max(viewportHeight * ACTIVE_LINE_RATIO, ACTIVE_LINE_MIN),
+    ACTIVE_LINE_MAX,
+  );
+
+  return viewportTop + offset;
 }
 
 export function getActiveScrollSection(sectionRects, {
@@ -23,6 +35,20 @@ export function getActiveScrollSection(sectionRects, {
   if (scrollTop <= EDGE_EPSILON) return sectionRects[0].id;
   if (scrollBottom >= scrollHeight - EDGE_EPSILON) return sectionRects[sectionRects.length - 1].id;
   if (visibleSections.length === 0) return currentSectionId || sectionRects[0].id;
+
+  const activeLine = getActiveLine(viewportTop, viewportHeight);
+  const activeLineSection = visibleSections.find(({ rect }) => (
+    rect.top <= activeLine && rect.bottom > activeLine
+  ));
+
+  if (activeLineSection) {
+    return activeLineSection.id;
+  }
+
+  const crossedActiveLineSections = visibleSections.filter(({ rect }) => rect.top <= activeLine);
+  if (crossedActiveLineSections.length > 0) {
+    return crossedActiveLineSections[crossedActiveLineSections.length - 1].id;
+  }
 
   const bandTop = viewportTop + (viewportHeight * TOP_EDGE_BAND_START);
   const bandBottom = viewportTop + (viewportHeight * TOP_EDGE_BAND_END);

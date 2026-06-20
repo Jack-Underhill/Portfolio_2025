@@ -9,12 +9,16 @@ import ProjectIntroFields       from './editor/ProjectIntroFields';
 import { getProjectEditorSectionElementId } from './projectEditorSections';
 import { adminUi }              from '../../styles/recipes';
 
-function ProjectEditor({ project, onChange, onRemove }) {
+function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
   const permalink = (project.permalink || '').trim();
   const challenges = Array.isArray(project.challenges) ? project.challenges : [];
 
   const handleFieldChange = (field, value) => {
     onChange({ ...project, [field]: value });
+  };
+
+  const getSectionRef = (sectionId) => (element) => {
+    onSectionMount?.(sectionId, element);
   };
 
   return (
@@ -31,6 +35,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
       <div className="space-y-6">
         <section
           id={getProjectEditorSectionElementId('classification')}
+          ref={getSectionRef('classification')}
           aria-label="Classification project fields"
           className="scroll-mt-8"
         >
@@ -45,6 +50,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
 
         <section
           id={getProjectEditorSectionElementId('intro')}
+          ref={getSectionRef('intro')}
           aria-label="Intro project fields"
           className="scroll-mt-8"
         >
@@ -60,6 +66,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
 
         <section
           id={getProjectEditorSectionElementId('media')}
+          ref={getSectionRef('media')}
           aria-label="Media project fields"
           className="scroll-mt-8"
         >
@@ -71,6 +78,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
 
         <section
           id={getProjectEditorSectionElementId('links')}
+          ref={getSectionRef('links')}
           aria-label="Links project fields"
           className="scroll-mt-8"
         >
@@ -86,6 +94,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
 
         <section
           id={getProjectEditorSectionElementId('tech')}
+          ref={getSectionRef('tech')}
           aria-label="Tech project fields"
           className="scroll-mt-8"
         >
@@ -98,6 +107,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
 
         <section
           id={getProjectEditorSectionElementId('lists')}
+          ref={getSectionRef('lists')}
           aria-label="Lists project fields"
           className="scroll-mt-8"
         >
@@ -112,6 +122,7 @@ function ProjectEditor({ project, onChange, onRemove }) {
 
         <section
           id={getProjectEditorSectionElementId('challenges')}
+          ref={getSectionRef('challenges')}
           aria-label="Challenges project fields"
           className="scroll-mt-8"
         >

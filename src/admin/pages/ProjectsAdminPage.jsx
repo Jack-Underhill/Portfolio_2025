@@ -7,6 +7,7 @@ function ProjectsAdminPage({
     isSaveInFlight,
     onValidationBusyChange,
     activeProjectSectionId,
+    onProjectSectionMount,
 }) {
     return (
         <AdminPageWrapper
@@ -19,6 +20,7 @@ function ProjectsAdminPage({
                     isSaveInFlight={isSaveInFlight}
                     onValidationBusyChange={onValidationBusyChange}
                     activeSectionId={activeProjectSectionId}
+                    onProjectSectionMount={onProjectSectionMount}
                 />
             }
         />
