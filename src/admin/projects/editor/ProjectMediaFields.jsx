@@ -3,7 +3,7 @@ import ImagePreview from '../../media/ImagePreview';
 import { adminUi } from '../../../styles/recipes';
 
 
-function ProjectMediaFields({ project, onChange }) {
+function ProjectMediaFields({ project, headingId, onChange }) {
     const handleImageFileChange = (file) => {
         onChange({ ...project, imageFile: file });
     };
@@ -18,7 +18,7 @@ function ProjectMediaFields({ project, onChange }) {
 
     return (
         <div className={adminUi.divider}>
-            <p className={adminUi.sectionLabel}>Media</p>
+            <h2 id={headingId} className={adminUi.sectionLabel}>Media</h2>
 
             <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
                 {/* Project image */}

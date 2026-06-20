@@ -24,7 +24,7 @@ const getMovedIndex = (activeIndex, fromIndex, toIndex) => {
     return activeIndex;
 };
 
-function ProjectChallengeFields({ projectId, challenges, handleFieldChange }) {
+function ProjectChallengeFields({ projectId, challenges, headingId, handleFieldChange }) {
     const [activeChallengeIndex, setActiveChallengeIndex] = useState(0);
     const normalizedChallenges = Array.isArray(challenges) ? challenges : [];
     const resolvedActiveIndex = clampIndex(activeChallengeIndex, normalizedChallenges.length);
@@ -83,7 +83,7 @@ function ProjectChallengeFields({ projectId, challenges, handleFieldChange }) {
     return (
         <div className={adminUi.divider}>
             <div className="flex items-center justify-between">
-                <p className={adminUi.sectionLabel}>Challenges</p>
+                <h2 id={headingId} className={adminUi.sectionLabel}>Challenges</h2>
                 <button
                     type="button"
                     onClick={addChallenge}

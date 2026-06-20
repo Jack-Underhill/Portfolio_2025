@@ -9,11 +9,12 @@ function ProjectClassificationFields({
   featuredRank,
   projectType,
   labels,
+  headingId,
   handleFieldChange,
 }) {
   return (
     <div className={adminUi.divider}>
-      <p className={adminUi.sectionLabel}>Classification</p>
+      <h2 id={headingId} className={adminUi.sectionLabel}>Classification</h2>
 
       <div className="grid gap-4 md:grid-cols-2">
         <TextInput

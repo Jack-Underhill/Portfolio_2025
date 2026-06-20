@@ -2,10 +2,10 @@ import TechListEditor from "../../lists/TechListEditor";
 import { adminUi } from '../../../styles/recipes';
 
 
-function ProjectListFields({ projectId, features, metrics, improvements, handleFieldChange }) {
+function ProjectListFields({ projectId, features, metrics, improvements, headingId, handleFieldChange }) {
     return (
         <div className={adminUi.divider}>
-            <p className={adminUi.sectionLabel}>Lists</p>
+            <h2 id={headingId} className={adminUi.sectionLabel}>Lists</h2>
             
             <TechListEditor
                 idPrefix={`project-features-${projectId}`}

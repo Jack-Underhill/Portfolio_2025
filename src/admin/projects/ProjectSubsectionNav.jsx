@@ -21,7 +21,7 @@ function ProjectSubsectionNav({
               aria-current={isActive ? 'location' : undefined}
               onClick={(event) => onNavigate(event, section)}
               className={cx(
-                'rounded-md px-3 py-2 text-left text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text',
+                'block min-w-0 rounded-md px-3 py-2 text-left text-sm font-medium break-words transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text',
                 isActive
                   ? 'bg-admin-panel-hover text-admin-text ring-1 ring-admin-border'
                   : 'text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text',

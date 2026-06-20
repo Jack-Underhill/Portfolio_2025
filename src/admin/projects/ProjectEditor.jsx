@@ -21,6 +21,8 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
     onSectionMount?.(sectionId, element);
   };
 
+  const getSectionHeadingId = (sectionId) => `${getProjectEditorSectionElementId(sectionId)}-title`;
+
   return (
     <div className={adminUi.editorPanel}>
       <ProjectEditorHeader
@@ -36,7 +38,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
         <section
           id={getProjectEditorSectionElementId('classification')}
           ref={getSectionRef('classification')}
-          aria-label="Classification project fields"
+          aria-labelledby={getSectionHeadingId('classification')}
           className="scroll-mt-8"
         >
           <ProjectClassificationFields
@@ -44,6 +46,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             featuredRank={project.featuredRank}
             projectType={project.projectType}
             labels={project.labels}
+            headingId={getSectionHeadingId('classification')}
             handleFieldChange={handleFieldChange}
           />
         </section>
@@ -51,7 +54,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
         <section
           id={getProjectEditorSectionElementId('intro')}
           ref={getSectionRef('intro')}
-          aria-label="Intro project fields"
+          aria-labelledby={getSectionHeadingId('intro')}
           className="scroll-mt-8"
         >
           <ProjectIntroFields
@@ -60,6 +63,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             description={project.description}
             overview={project.overview}
             role={project.role}
+            headingId={getSectionHeadingId('intro')}
             handleFieldChange={handleFieldChange}
           />
         </section>
@@ -67,11 +71,12 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
         <section
           id={getProjectEditorSectionElementId('media')}
           ref={getSectionRef('media')}
-          aria-label="Media project fields"
+          aria-labelledby={getSectionHeadingId('media')}
           className="scroll-mt-8"
         >
           <ProjectMediaFields
             project={project}
+            headingId={getSectionHeadingId('media')}
             onChange={onChange}
           />
         </section>
@@ -79,7 +84,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
         <section
           id={getProjectEditorSectionElementId('links')}
           ref={getSectionRef('links')}
-          aria-label="Links project fields"
+          aria-labelledby={getSectionHeadingId('links')}
           className="scroll-mt-8"
         >
           <ProjectLinkFields
@@ -88,6 +93,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             source={project.sourceUrl}
             writeup={project.writeupUrl}
             video={project.videoPageUrl}
+            headingId={getSectionHeadingId('links')}
             handleFieldChange={handleFieldChange}
           />
         </section>
@@ -95,12 +101,13 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
         <section
           id={getProjectEditorSectionElementId('tech')}
           ref={getSectionRef('tech')}
-          aria-label="Tech project fields"
+          aria-labelledby={getSectionHeadingId('tech')}
           className="scroll-mt-8"
         >
           <ProjectTechStackFields
             projectId={project.id}
             stack={project.techStack}
+            headingId={getSectionHeadingId('tech')}
             handleFieldChange={handleFieldChange}
           />
         </section>
@@ -108,7 +115,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
         <section
           id={getProjectEditorSectionElementId('lists')}
           ref={getSectionRef('lists')}
-          aria-label="Lists project fields"
+          aria-labelledby={getSectionHeadingId('lists')}
           className="scroll-mt-8"
         >
           <ProjectListFields
@@ -116,6 +123,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             features={project.features}
             metrics={project.metrics}
             improvements={project.improvements}
+            headingId={getSectionHeadingId('lists')}
             handleFieldChange={handleFieldChange}
           />
         </section>
@@ -123,12 +131,13 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
         <section
           id={getProjectEditorSectionElementId('challenges')}
           ref={getSectionRef('challenges')}
-          aria-label="Challenges project fields"
+          aria-labelledby={getSectionHeadingId('challenges')}
           className="scroll-mt-8"
         >
           <ProjectChallengeFields
             projectId={project.id}
             challenges={challenges}
+            headingId={getSectionHeadingId('challenges')}
             handleFieldChange={handleFieldChange}
           />
         </section>

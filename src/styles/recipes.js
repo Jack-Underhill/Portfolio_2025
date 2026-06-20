@@ -43,12 +43,12 @@ export const adminShell = {
   sidebar:
     "flex md:min-h-screen flex-col border-r border-admin-border bg-admin-panel md:fixed md:inset-y-0 md:left-0 md:h-screen md:w-47",
   secondarySidebar:
-    "border-b border-admin-border bg-admin-panel px-5 py-4 md:fixed md:inset-y-0 md:left-47 md:z-10 md:h-screen md:w-34 md:border-b-0 md:border-r md:px-3 md:py-6",
+    "border-b border-admin-border bg-admin-panel px-5 py-4 md:fixed md:inset-y-0 md:left-47 md:z-10 md:h-screen md:w-34 md:overflow-y-auto md:border-b-0 md:border-r md:px-3 md:py-6",
   sidebarHeader: "shrink-0 space-y-2 border-b border-admin-border px-5 py-6",
   eyebrow: "text-xs uppercase tracking-wide text-admin-text-subtle",
   nav: "flex-1 flex flex-col overflow-y-auto px-3 py-4 gap-1",
   navLink:
-    "flex items-center gap-3 rounded-md px-3 py-2.5 text-md font-medium text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "flex min-w-0 items-center gap-3 rounded-md px-3 py-2.5 text-md font-medium text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
   navLinkActive:
     "bg-admin-panel-hover text-admin-text ring-1 ring-admin-border",
   savePanel:

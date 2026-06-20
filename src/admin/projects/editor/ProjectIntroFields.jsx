@@ -3,10 +3,10 @@ import TextAreaInput from "../../forms/TextAreaInput";
 import { adminUi } from '../../../styles/recipes';
 
 
-function ProjectIntroFields({ projectId, title, description, overview, role, handleFieldChange }) {
+function ProjectIntroFields({ projectId, title, description, overview, role, headingId, handleFieldChange }) {
     return (
         <div className={adminUi.divider}>
-            <p className={adminUi.sectionLabel}>Intro</p>
+            <h2 id={headingId} className={adminUi.sectionLabel}>Intro</h2>
 
             <div className="grid gap-4 md:grid-cols-2">
                 <TextInput

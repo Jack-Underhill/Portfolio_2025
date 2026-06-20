@@ -2,7 +2,7 @@ import TechListEditor from '../../lists/TechListEditor';
 import { adminUi } from '../../../styles/recipes';
 
 
-function ProjectTechStackFields({ projectId, stack, handleFieldChange }) {
+function ProjectTechStackFields({ projectId, stack, headingId, handleFieldChange }) {
     const setTechStackCategory = (category, nextValues) => {
         const nextStack = { ...(stack || {}) };
         nextStack[category] = nextValues;
@@ -11,7 +11,7 @@ function ProjectTechStackFields({ projectId, stack, handleFieldChange }) {
 
     return (
         <div className={adminUi.divider}>
-            <p className={adminUi.sectionLabel}>Tech (categorized)</p>
+            <h2 id={headingId} className={adminUi.sectionLabel}>Tech (categorized)</h2>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <TechListEditor

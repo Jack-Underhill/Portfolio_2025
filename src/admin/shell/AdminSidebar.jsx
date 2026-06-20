@@ -31,7 +31,7 @@ function AdminSidebar({
                             className={cx(adminShell.navLink, isActive && adminShell.navLinkActive)}
                         >
                             <AdminNavIcon icon={route.icon} />
-                            <span>{route.label}</span>
+                            <span className="min-w-0 break-words">{route.label}</span>
                         </a>
                     );
                 })}

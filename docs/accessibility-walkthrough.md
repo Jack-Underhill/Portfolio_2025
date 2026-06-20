@@ -75,9 +75,9 @@ Architecture viewer:
 
 Admin:
 
-- `src/admin/AppAdmin.jsx`: development-only admin draft ownership, save state, route selection, status-message derivation, and unsaved-leave warning wiring.
-- `src/admin/shell/*`: fixed sidebar navigation landmark, save panel, top-of-content status/error live region, and page outlet layout.
-- `src/admin/pages/*`: routed admin page wrappers with one visible page heading per route.
+- `src/admin/AppAdmin.jsx`: development-only admin draft ownership, save state, route-addressable scroll navigation, status-message derivation, and unsaved-leave warning wiring.
+- `src/admin/shell/*`: fixed sidebar navigation landmark, appended Projects subsection nav slot, save panel, top-of-content status/error live region, and scroll-continuous main layout.
+- `src/admin/pages/*`: admin page wrappers with one visible section heading per top-level admin section.
 - `src/admin/sections/*`: section editors, named regions, selector-driven repeated-record editing, and add/remove/reorder controls where present.
 - `src/admin/credentials/CredentialGroupEditor.jsx`: shared Education/Certification selector editor used by separate routed pages.
 - `src/admin/projects/*`: project record selector, Projects-only secondary subsection nav, challenge item selector, selected-state controls, draft preview/validation actions, and project editing labels.
@@ -141,14 +141,16 @@ Motion, contrast, and focus:
 
 Admin accessibility:
 
-- The admin runs as a development-only routed CMS shell on `/admin/about`, `/admin/projects`, `/admin/education`, `/admin/certifications`, `/admin/skills`, and `/admin/contact`, with `/admin` and unknown `/admin/*` paths canonicalized to About.
-- The fixed sidebar exposes a named `Admin pages` navigation landmark, icon-plus-label page links, and `aria-current="page"` on the active route.
+- The admin runs as a development-only routed CMS shell with all fixed top-level admin sections rendered in one scroll-continuous stack. `/admin` and unknown `/admin/*` paths canonicalize to About, while `/admin/projects` canonicalizes to `/admin/projects/classification`.
+- Top-level admin routes remain addressable at `/admin/about`, `/admin/projects/classification`, `/admin/education`, `/admin/certifications`, `/admin/skills`, and `/admin/contact`. Project subsections are also addressable at `/admin/projects/intro`, `/admin/projects/media`, `/admin/projects/links`, `/admin/projects/tech`, `/admin/projects/lists`, and `/admin/projects/challenges`.
+- The fixed sidebar exposes a named `Admin pages` navigation landmark, icon-plus-label page links, and `aria-current="location"` on the active scroll location.
 - The sidebar save panel keeps the global save button reachable, exposes busy state while saving, and reports saved, unsaved, saving, and draft-validation save states through a polite status line.
 - The top-of-content admin status banner appears only for active messaging. Errors use `role="alert"`; saving, validation, and unsaved-change messages use `role="status"` with polite live-region behavior and a labeled dismiss button.
-- Each routed admin page has one clear visible page heading through `AdminPageWrapper`; section editors keep local named regions and labels where their controls need them.
-- The old admin back-to-top/back-to-bottom scroll helper controls were retired with the long single-page admin layout.
+- Each top-level admin section has one clear visible heading through `AdminPageWrapper`; section editors keep local named regions and labels where their controls need them.
+- Admin primary and Projects subsection navigation use smooth scroll by default and instant scroll when `prefers-reduced-motion: reduce` is active.
 - Admin selector buttons expose selected state with `aria-pressed` and record-specific names. Reorderable selectors own mouse-drag ordering for Projects, Credentials, Skills groups, Contact links, and Project challenge items.
-- Project editor subsections use a Projects-only secondary navigation rail that appears on the Projects route when project records exist. Its subsection controls are local-state buttons with `aria-pressed`, not page links, and the selected subsection does not use URL or route state.
+- Project editor subsections use a Projects-only secondary navigation rail that appears while Projects is the active top-level section and project records exist. Its subsection controls are nested route links with `aria-current="location"`.
+- The active project editor renders all fixed project subsection regions for the selected project. Each subsection has a visible heading associated with the region, while project records and challenge items remain selector-driven.
 - The admin project preview opens the shared project modal from the active unsaved draft and inherits the existing dialog focus containment, Escape close, and focus-restore behavior.
 - The admin project draft import and current-context panels use labeled textareas, alert/status feedback, and disabled states while Save is in flight so pasted draft changes do not race the save response.
 - Shared admin file inputs keep a real native file control associated with `FieldLabel`, visually replace the browser-owned filename text with app-owned `Choose file` or `Replace file` action text, and expose the saved/pending state through nearby helper text referenced by `aria-describedby`. File selection still uses the native control; saved URLs are represented by caller-owned booleans instead of attempting to prefill the input value.
