@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { getActiveScrollSection } from '../../src/admin/routing/scrollspyUtils.js';
+import {
+  getActiveScrollSection,
+  isScrollSectionAcceptablyVisible,
+} from '../../src/admin/routing/scrollspyUtils.js';
 
 const DEFAULT_VIEWPORT = {
   scrollTop: 400,
@@ -108,5 +111,33 @@ describe('admin scrollspy utilities', () => {
     });
 
     expect(activeSectionId).toBe('intro');
+  });
+
+  it('treats a sticky-offset section as visible when it covers the active reading line', () => {
+    expect(isScrollSectionAcceptablyVisible(
+      { top: 120, bottom: 640 },
+      { viewportTop: 208, viewportHeight: 900 },
+    )).toBe(true);
+  });
+
+  it('treats a section starting near the sticky top as already aligned', () => {
+    expect(isScrollSectionAcceptablyVisible(
+      { top: 224, bottom: 520 },
+      { viewportTop: 208, viewportHeight: 900 },
+    )).toBe(true);
+  });
+
+  it('requires scrolling when the section is clipped above the sticky controls', () => {
+    expect(isScrollSectionAcceptablyVisible(
+      { top: -120, bottom: 220 },
+      { viewportTop: 208, viewportHeight: 900 },
+    )).toBe(false);
+  });
+
+  it('requires scrolling when the section is below the current viewport', () => {
+    expect(isScrollSectionAcceptablyVisible(
+      { top: 1200, bottom: 1500 },
+      { viewportTop: 208, viewportHeight: 900 },
+    )).toBe(false);
   });
 });

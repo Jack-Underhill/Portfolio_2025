@@ -20,6 +20,24 @@ function getActiveLine(viewportTop, viewportHeight) {
   return viewportTop + offset;
 }
 
+export function isScrollSectionAcceptablyVisible(rect, {
+  alignmentTolerance = 24,
+  viewportTop = 0,
+  viewportHeight = 0,
+} = {}) {
+  if (!rect || viewportHeight <= 0) return false;
+
+  const viewportBottom = viewportTop + viewportHeight;
+  if (rect.bottom <= viewportTop || rect.top >= viewportBottom) return false;
+
+  const activeLine = getActiveLine(viewportTop, viewportHeight);
+  const coversActiveLine = rect.top <= activeLine && rect.bottom > activeLine;
+  const startsNearStickyTop = Math.abs(rect.top - viewportTop) <= alignmentTolerance;
+  const startsInComfortBand = rect.top >= viewportTop && rect.top <= activeLine;
+
+  return coversActiveLine || startsNearStickyTop || startsInComfortBand;
+}
+
 export function getActiveScrollSection(sectionRects, {
   currentSectionId = null,
   scrollTop = 0,

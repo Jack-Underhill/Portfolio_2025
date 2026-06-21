@@ -173,7 +173,7 @@ function AppAdmin() {
             : PROJECT_EDITOR_SECTIONS[0].id;
 
         setActiveProjectSectionId(nextSectionId);
-        scrollToProjectSection(nextSectionId);
+        scrollToProjectSection(nextSectionId, { skipIfVisible: true });
     }, [scrollToProjectSection]);
 
     useEffect(() => {

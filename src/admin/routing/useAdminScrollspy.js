@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { getActiveScrollSection } from './scrollspyUtils.js';
+import {
+  getActiveScrollSection,
+  isScrollSectionAcceptablyVisible,
+} from './scrollspyUtils.js';
 
 const PROGRAMMATIC_SCROLL_TIMEOUT_MS = 1200;
 const INSTANT_SCROLL_TIMEOUT_MS = 80;
@@ -101,9 +104,16 @@ export function useAdminScrollspy({
     window.requestAnimationFrame(updateActiveSection);
   }, [updateActiveSection]);
 
-  const scrollToSection = useCallback((sectionId) => {
+  const scrollToSection = useCallback((sectionId, options = {}) => {
     const element = getSectionElement(sectionId);
     if (!element || typeof window === 'undefined') return false;
+
+    if (options.skipIfVisible && isScrollSectionAcceptablyVisible(element.getBoundingClientRect(), {
+      ...getScrollMetrics(),
+      viewportTop: viewportTopOffset,
+    })) {
+      return true;
+    }
 
     const shouldReduceMotion = prefersReducedMotion();
     const behavior = shouldReduceMotion ? 'auto' : 'smooth';
@@ -128,7 +138,7 @@ export function useAdminScrollspy({
     );
 
     return true;
-  }, [getSectionElement, releaseProgrammaticScroll]);
+  }, [getSectionElement, releaseProgrammaticScroll, viewportTopOffset]);
 
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return undefined;
