@@ -3,18 +3,33 @@ import FieldLabel from '../../forms/FieldLabel';
 import TextInput from '../../forms/TextInput';
 import TechListEditor from '../../lists/TechListEditor';
 import { adminForm, adminUi } from '../../../styles/recipes';
+import ProjectEditorHeader from './ProjectEditorHeader';
 
 function ProjectClassificationFields({
   projectId,
+  permalink,
+  sortOrder,
+  published,
+  title,
   featuredRank,
   projectType,
   labels,
   headingId,
   handleFieldChange,
+  onRemove,
 }) {
   return (
-    <div className={adminUi.divider}>
+    <div className="space-y-3">
       <h2 id={headingId} className={adminUi.sectionLabel}>Classification</h2>
+
+      <ProjectEditorHeader
+        permalink={permalink}
+        sortOrder={sortOrder}
+        published={published}
+        title={title}
+        handleFieldChange={handleFieldChange}
+        onRemove={onRemove}
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
         <TextInput

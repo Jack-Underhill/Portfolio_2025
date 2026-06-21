@@ -2,7 +2,6 @@ import ProjectChallengeFields   from './editor/ProjectChallengeFields';
 import ProjectClassificationFields from './editor/ProjectClassificationFields';
 import ProjectListFields        from './editor/ProjectListFields';
 import ProjectLinkFields        from './editor/ProjectLinkFields';
-import ProjectEditorHeader      from './editor/ProjectEditorHeader';
 import ProjectTechStackFields   from './editor/ProjectTechStackFields';
 import ProjectMediaFields       from './editor/ProjectMediaFields'
 import ProjectIntroFields       from './editor/ProjectIntroFields';
@@ -25,15 +24,6 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
 
   return (
     <div className={adminUi.editorPanel}>
-      <ProjectEditorHeader
-        permalink={permalink}
-        sortOrder={project.sortOrder}
-        published={project.published}
-        title={project.title}
-        handleFieldChange={handleFieldChange}
-        onRemove={onRemove}
-      />
-
       <div className="space-y-6">
         <section
           id={getProjectEditorSectionElementId('classification')}
@@ -43,11 +33,16 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
         >
           <ProjectClassificationFields
             projectId={project.id}
+            permalink={permalink}
+            sortOrder={project.sortOrder}
+            published={project.published}
+            title={project.title}
             featuredRank={project.featuredRank}
             projectType={project.projectType}
             labels={project.labels}
             headingId={getSectionHeadingId('classification')}
             handleFieldChange={handleFieldChange}
+            onRemove={onRemove}
           />
         </section>
 
