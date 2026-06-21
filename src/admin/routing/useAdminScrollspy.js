@@ -32,6 +32,7 @@ export function useAdminScrollspy({
   enabled = true,
   onActiveSectionChange,
   sectionIds,
+  viewportTopOffset = 0,
 }) {
   const sectionElementsRef = useRef(new Map());
   const activeSectionIdRef = useRef(activeSectionId);
@@ -83,13 +84,14 @@ export function useAdminScrollspy({
     const nextSectionId = getActiveScrollSection(sectionRects, {
       ...getScrollMetrics(),
       currentSectionId: activeSectionIdRef.current,
+      viewportTop: viewportTopOffset,
     });
 
     if (nextSectionId && nextSectionId !== activeSectionIdRef.current) {
       activeSectionIdRef.current = nextSectionId;
       onActiveSectionChangeRef.current?.(nextSectionId);
     }
-  }, [enabled, getSectionElement, sectionIds]);
+  }, [enabled, getSectionElement, sectionIds, viewportTopOffset]);
 
   const releaseProgrammaticScroll = useCallback(() => {
     window.clearTimeout(programmaticScrollTimeoutRef.current);

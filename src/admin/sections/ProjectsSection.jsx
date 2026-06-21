@@ -8,6 +8,7 @@ import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
 import ProjectPreviewActions from '../projects/ProjectPreviewActions';
 import { PROJECT_EDITOR_SECTIONS } from '../projects/projectEditorSections';
 import CardSelector from '../navigation/CardSelector';
+import AdminSectionToolbar from '../shell/AdminSectionToolbar';
 
 import { validateProjectDraft } from '../api/adminClient';
 import {
@@ -268,13 +269,15 @@ function ProjectsSection({
 
     return (
         <div className="space-y-4">
-            <CardSelector
-                cardTypeId="Project"
-                cards={projects}
-                activeId={activeId}
-                onSelect={handleSelectProject}
-                onReorder={handleReorderProjects}
-            />
+            <AdminSectionToolbar>
+                <CardSelector
+                    cardTypeId="Project"
+                    cards={projects}
+                    activeId={activeId}
+                    onSelect={handleSelectProject}
+                    onReorder={handleReorderProjects}
+                />
+            </AdminSectionToolbar>
 
             <button
                 type="button"

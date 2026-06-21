@@ -34,6 +34,7 @@ export const adminUi = {
   panel: "rounded-md border border-admin-border bg-admin-panel",
   panelDragOver: "ring-1 ring-admin-accent-hover bg-admin-panel/70",
   editorPanel: "border border-admin-border rounded-lg p-4 space-y-4",
+  projectEditorSection: "scroll-mt-[14rem] lg:scroll-mt-[13rem]",
   divider: "space-y-3 pt-2 border-t border-admin-border-subtle",
   imageBorder: "border border-admin-border",
   dangerLink: "text-xs text-admin-danger hover:text-admin-danger-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-danger-hover",
@@ -80,7 +81,7 @@ export const adminMasthead = {
 
 export const adminSectionToolbar = {
   shell:
-    "sticky top-0 z-20 rounded-md border border-admin-border bg-admin-page/95 p-3 shadow-subtle-highlight backdrop-blur",
+    "sticky top-0 z-20 isolate rounded-md bg-admin-panel/95 shadow-[0_1px_0_rgba(34,211,238,0.34),0_18px_30px_-22px_rgba(0,0,0,0.95)] ring-1 ring-admin-border-subtle backdrop-blur-md after:pointer-events-none after:absolute after:inset-x-1 after:bottom-0 after:h-px after:rounded-b-md after:bg-cyan-300/45 after:content-['']",
   body: "space-y-3",
   primary: "min-w-0",
   actions:

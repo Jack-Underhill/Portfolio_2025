@@ -29,7 +29,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
           id={getProjectEditorSectionElementId('classification')}
           ref={getSectionRef('classification')}
           aria-labelledby={getSectionHeadingId('classification')}
-          className="scroll-mt-8"
+          className={adminUi.projectEditorSection}
         >
           <ProjectClassificationFields
             projectId={project.id}
@@ -50,7 +50,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
           id={getProjectEditorSectionElementId('intro')}
           ref={getSectionRef('intro')}
           aria-labelledby={getSectionHeadingId('intro')}
-          className="scroll-mt-8"
+          className={adminUi.projectEditorSection}
         >
           <ProjectIntroFields
             projectId={project.id}
@@ -67,7 +67,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
           id={getProjectEditorSectionElementId('media')}
           ref={getSectionRef('media')}
           aria-labelledby={getSectionHeadingId('media')}
-          className="scroll-mt-8"
+          className={adminUi.projectEditorSection}
         >
           <ProjectMediaFields
             project={project}
@@ -80,7 +80,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
           id={getProjectEditorSectionElementId('links')}
           ref={getSectionRef('links')}
           aria-labelledby={getSectionHeadingId('links')}
-          className="scroll-mt-8"
+          className={adminUi.projectEditorSection}
         >
           <ProjectLinkFields
             projectId={project.id}
@@ -97,7 +97,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
           id={getProjectEditorSectionElementId('tech')}
           ref={getSectionRef('tech')}
           aria-labelledby={getSectionHeadingId('tech')}
-          className="scroll-mt-8"
+          className={adminUi.projectEditorSection}
         >
           <ProjectTechStackFields
             projectId={project.id}
@@ -111,7 +111,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
           id={getProjectEditorSectionElementId('lists')}
           ref={getSectionRef('lists')}
           aria-labelledby={getSectionHeadingId('lists')}
-          className="scroll-mt-8"
+          className={adminUi.projectEditorSection}
         >
           <ProjectListFields
             projectId={project.id}
@@ -127,7 +127,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
           id={getProjectEditorSectionElementId('challenges')}
           ref={getSectionRef('challenges')}
           aria-labelledby={getSectionHeadingId('challenges')}
-          className="scroll-mt-8"
+          className={adminUi.projectEditorSection}
         >
           <ProjectChallengeFields
             projectId={project.id}

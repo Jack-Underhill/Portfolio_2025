@@ -75,6 +75,20 @@ describe('admin scrollspy utilities', () => {
     expect(activeSectionId).toBe('tech');
   });
 
+  it('uses a viewport top offset when sticky controls cover the visual top edge', () => {
+    const activeSectionId = getActiveScrollSection([
+      { id: 'classification', rect: { top: -480, bottom: 180 } },
+      { id: 'intro', rect: { top: 208, bottom: 720 } },
+      { id: 'media', rect: { top: 760, bottom: 1200 } },
+    ], {
+      ...DEFAULT_VIEWPORT,
+      currentSectionId: 'classification',
+      viewportTop: 208,
+    });
+
+    expect(activeSectionId).toBe('intro');
+  });
+
   it('uses largest visible area when no section owns the activation band', () => {
     const activeSectionId = getActiveScrollSection([
       { id: 'intro', rect: { top: 520, bottom: 760 } },

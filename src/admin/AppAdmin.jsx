@@ -44,6 +44,7 @@ const initialCredentialsState = {
 
 const TOP_LEVEL_ADMIN_SECTION_IDS = ADMIN_ROUTES.map((route) => route.id);
 const PROJECT_EDITOR_SECTION_IDS = PROJECT_EDITOR_SECTIONS.map((section) => section.id);
+const PROJECT_SCROLLSPY_TOP_OFFSET_PX = 208;
 
 function getAdminStatusMessage({
     error,
@@ -149,6 +150,7 @@ function AppAdmin() {
         enabled: activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && projectsState.projects.length > 0,
         onActiveSectionChange: handleActiveProjectSectionChange,
         sectionIds: PROJECT_EDITOR_SECTION_IDS,
+        viewportTopOffset: PROJECT_SCROLLSPY_TOP_OFFSET_PX,
     });
 
     const handleAdminNavigate = useCallback((event, route) => {
