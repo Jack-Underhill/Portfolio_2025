@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-06-20
+Date: 2026-06-21
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last accessibility-affecting baseline checked on 2026-06-20 with Windows `cmd /c` commands for the route-addressable, scroll-continuous admin shell.
+Last accessibility-affecting baseline checked on 2026-06-21 with Windows `cmd /c` commands for the route-addressable, scroll-continuous admin shell with section mastheads and selector-only sticky toolbars.
 
 Passing:
 

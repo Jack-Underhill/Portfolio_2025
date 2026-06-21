@@ -62,6 +62,6 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 - Project classification fields are data-backed and grouped through `src/domain/projects/viewModel.js`; `Projects.jsx` fetches once, maps once, then renders `FeaturedProjectsGroup` and `StandardProjectsGroup`.
 - Project modal ownership is centralized in `Projects.jsx`; project preview ownership still flows through source-aware `activePreviewId` state, including scroll-driven viewport activation from project groups.
 - Project card viewport activation uses `useViewportActivationGroup` for one active item per group, with reduced-motion, modal-open, and marquee opt-outs and no card-local viewport math.
-- The development-only admin renders fixed top-level sections in one route-addressable scroll stack; Projects renders all fixed subsection fields for the selected record while repeated records stay selector-driven.
+- The development-only admin renders fixed top-level sections in one route-addressable scroll stack; each top-level section has an admin masthead, selector-backed sections use selector-only sticky toolbars, and Projects renders all fixed subsection fields for the selected record while repeated records stay selector-driven.
 - Public accessibility guardrails now include labeled landmarks/headings, reduced-motion handling, modal focus containment, and a focused Playwright/axe smoke through `cmd /c npm run test:a11y`.
 - Keep detailed architecture status and cleanup notes in `docs/`; this README is the local map for maintainers working inside `src`.
