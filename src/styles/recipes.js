@@ -78,6 +78,15 @@ export const adminMasthead = {
   },
 };
 
+export const adminSectionToolbar = {
+  shell:
+    "sticky top-0 z-20 rounded-md border border-admin-border bg-admin-page/95 p-3 shadow-subtle-highlight backdrop-blur",
+  body: "space-y-3",
+  primary: "min-w-0",
+  actions:
+    "flex flex-wrap items-center gap-2 border-t border-admin-border-subtle pt-3",
+};
+
 export const adminShell = {
   root:
     "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:11.75rem] md:[--admin-secondary-sidebar-width:8.5rem] md:pl-[calc(var(--admin-primary-sidebar-width)+var(--admin-secondary-sidebar-width))]",
