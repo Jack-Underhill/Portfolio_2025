@@ -37,6 +37,44 @@ export const adminUi = {
   dangerLink: "text-xs text-admin-danger hover:text-admin-danger-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-danger-hover",
 };
 
+export const adminMasthead = {
+  surface:
+    "relative overflow-hidden rounded-md border border-admin-border-subtle bg-admin-panel/60 px-4 py-5 shadow-sm sm:px-5 sm:py-6",
+  inner: "flex min-w-0 items-start gap-4",
+  iconBadge:
+    "flex h-12 w-12 shrink-0 items-center justify-center rounded-md border",
+  copy: "min-w-0 space-y-2",
+  title: "text-3xl font-semibold text-admin-text",
+  description: "max-w-3xl text-sm leading-6 text-admin-text-muted",
+  accentRule: "mt-5 h-px w-full",
+  accents: {
+    sky: {
+      badge: "border-sky-400/30 bg-sky-400/10 text-sky-200",
+      rule: "bg-sky-400/35",
+    },
+    cyan: {
+      badge: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200",
+      rule: "bg-cyan-400/35",
+    },
+    indigo: {
+      badge: "border-indigo-300/30 bg-indigo-400/10 text-indigo-200",
+      rule: "bg-indigo-300/35",
+    },
+    violet: {
+      badge: "border-violet-300/30 bg-violet-400/10 text-violet-200",
+      rule: "bg-violet-300/35",
+    },
+    teal: {
+      badge: "border-teal-300/30 bg-teal-400/10 text-teal-200",
+      rule: "bg-teal-300/35",
+    },
+    blue: {
+      badge: "border-blue-300/30 bg-blue-400/10 text-blue-200",
+      rule: "bg-blue-300/35",
+    },
+  },
+};
+
 export const adminShell = {
   root:
     "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:11.75rem] md:[--admin-secondary-sidebar-width:8.5rem] md:pl-[calc(var(--admin-primary-sidebar-width)+var(--admin-secondary-sidebar-width))]",

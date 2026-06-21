@@ -1,17 +1,21 @@
 import { adminUi } from '../../styles/recipes';
+import { findAdminRouteById } from '../routing/adminRoutes.js';
+import AdminSectionMasthead from './AdminSectionMasthead.jsx';
 
 function AdminPageWrapper({ name, desc, component }) {
     const pageId = name.toLowerCase().replace(/\s+/g, '-');
     const titleId = `${pageId}-title`;
+    const route = findAdminRouteById(pageId);
 
     return (
         <section id={pageId} aria-labelledby={titleId} className={adminUi.pageSection}>
-            <header className="space-y-2">
-                <h1 id={titleId} className="text-3xl font-semibold">{name} Section</h1>
-                <p className="max-w-3xl text-sm text-admin-text-muted">
-                    {desc}
-                </p>
-            </header>
+            <AdminSectionMasthead
+                titleId={titleId}
+                title={name}
+                description={desc}
+                icon={route?.icon}
+                accent={route?.accent}
+            />
 
             <div>
                 {component}

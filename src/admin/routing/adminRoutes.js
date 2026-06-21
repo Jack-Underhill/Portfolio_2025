@@ -34,36 +34,42 @@ export const ADMIN_ROUTES = Object.freeze([
     path: `${PUBLIC_ROUTES.ADMIN_BASE}/about`,
     label: 'About',
     icon: 'user',
+    accent: 'sky',
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.PROJECTS,
     path: getProjectSubsectionPath(),
     label: 'Projects',
     icon: 'folder',
+    accent: 'cyan',
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.EDUCATION,
     path: `${PUBLIC_ROUTES.ADMIN_BASE}/education`,
     label: 'Education',
     icon: 'graduation',
+    accent: 'indigo',
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.CERTIFICATIONS,
     path: `${PUBLIC_ROUTES.ADMIN_BASE}/certifications`,
     label: 'Certifications',
     icon: 'badge',
+    accent: 'violet',
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.SKILLS,
     path: `${PUBLIC_ROUTES.ADMIN_BASE}/skills`,
     label: 'Skills',
     icon: 'spark',
+    accent: 'teal',
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.CONTACT,
     path: `${PUBLIC_ROUTES.ADMIN_BASE}/contact`,
     label: 'Contact',
     icon: 'mail',
+    accent: 'blue',
   }),
 ]);
 
