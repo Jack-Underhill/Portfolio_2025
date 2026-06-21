@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Text from '../../components/ui/Text';
 import TextInput from '../forms/TextInput';
 import CardSelector from '../navigation/CardSelector';
+import AdminSectionToolbar from '../shell/AdminSectionToolbar';
 import { adminUi, cx } from '../../styles/recipes';
 
 function createEmptySkillItem() {
@@ -128,15 +129,17 @@ function SkillsSection({ state, onChange }) {
         <div className="space-y-4">
             {groups.length > 0 ? (
                 <>
-                    <CardSelector
-                        cardTypeId="Skill Group"
-                        cards={groupCards}
-                        activeId={activeGroupId}
-                        onSelect={setActiveGroupId}
-                        onReorder={(fromIndex, toIndex) => {
-                            setGroups((current) => moveItem(current, fromIndex, toIndex));
-                        }}
-                    />
+                    <AdminSectionToolbar>
+                        <CardSelector
+                            cardTypeId="Skill Group"
+                            cards={groupCards}
+                            activeId={activeGroupId}
+                            onSelect={setActiveGroupId}
+                            onReorder={(fromIndex, toIndex) => {
+                                setGroups((current) => moveItem(current, fromIndex, toIndex));
+                            }}
+                        />
+                    </AdminSectionToolbar>
 
                     <button
                         type="button"

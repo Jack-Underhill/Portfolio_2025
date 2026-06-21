@@ -6,6 +6,7 @@ import TextAreaInput from '../forms/TextAreaInput';
 import FieldLabel from '../forms/FieldLabel';
 import TechListEditor from '../lists/TechListEditor';
 import CardSelector from '../navigation/CardSelector';
+import AdminSectionToolbar from '../shell/AdminSectionToolbar';
 import { adminForm, adminUi } from '../../styles/recipes';
 
 const CREDENTIAL_KINDS = {
@@ -116,13 +117,15 @@ function CredentialGroupEditor({ kind, credentials, onCredentialsChange }) {
         <div className="space-y-4">
             {credentialList.length > 0 ? (
                 <>
-                    <CardSelector
-                        cardTypeId={config.title}
-                        cards={credentialList}
-                        activeId={activeId}
-                        onSelect={setActiveId}
-                        onReorder={reorderCredential}
-                    />
+                    <AdminSectionToolbar>
+                        <CardSelector
+                            cardTypeId={config.title}
+                            cards={credentialList}
+                            activeId={activeId}
+                            onSelect={setActiveId}
+                            onReorder={reorderCredential}
+                        />
+                    </AdminSectionToolbar>
 
                     <button
                         type="button"

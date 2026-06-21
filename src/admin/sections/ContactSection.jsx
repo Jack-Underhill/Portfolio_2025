@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import SocialLinkItem from '../social/SocialLinkItem';
 import Text from '../../components/ui/Text';
 import CardSelector from '../navigation/CardSelector';
+import AdminSectionToolbar from '../shell/AdminSectionToolbar';
 import { adminUi } from '../../styles/recipes';
 
 function moveItem(list, fromIndex, toIndex) {
@@ -90,13 +91,15 @@ function ContactSection({ state, onChange }) {
         <div className="space-y-4">
             {socialLinks.length > 0 ? (
                 <>
-                    <CardSelector
-                        cardTypeId="Contact Link"
-                        cards={linkCards}
-                        activeId={activeLinkId}
-                        onSelect={setActiveLinkId}
-                        onReorder={handleReorderLink}
-                    />
+                    <AdminSectionToolbar>
+                        <CardSelector
+                            cardTypeId="Contact Link"
+                            cards={linkCards}
+                            activeId={activeLinkId}
+                            onSelect={setActiveLinkId}
+                            onReorder={handleReorderLink}
+                        />
+                    </AdminSectionToolbar>
 
                     <button
                         type="button"
