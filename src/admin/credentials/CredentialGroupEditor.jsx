@@ -113,25 +113,7 @@ function CredentialGroupEditor({ kind, credentials, onCredentialsChange }) {
     const activeCredential = credentialList.find((credential) => credential.id === activeId) ?? null;
 
     return (
-        <div className={adminUi.editorPanel}>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h2 className="text-lg font-semibold">{config.title}</h2>
-                    <Text as="p" variant="adminLabel">
-                        {credentialList.length} saved draft {credentialList.length === 1 ? 'row' : 'rows'}
-                    </Text>
-                </div>
-
-                <button
-                    type="button"
-                    onClick={addCredential}
-                    aria-label={config.addLabel.replace('+ ', '')}
-                    className={adminUi.secondaryButton}
-                >
-                    {config.addLabel}
-                </button>
-            </div>
-
+        <div className="space-y-4">
             {credentialList.length > 0 ? (
                 <>
                     <CardSelector
@@ -141,6 +123,15 @@ function CredentialGroupEditor({ kind, credentials, onCredentialsChange }) {
                         onSelect={setActiveId}
                         onReorder={reorderCredential}
                     />
+
+                    <button
+                        type="button"
+                        onClick={addCredential}
+                        aria-label={config.addLabel.replace('+ ', '')}
+                        className={adminUi.secondaryButton}
+                    >
+                        {config.addLabel}
+                    </button>
 
                     {activeCredential && (
                         <CredentialEditor
@@ -171,7 +162,7 @@ function CredentialEditor({
     const idPrefix = `credential-${kind}-${credential.id}`;
 
     return (
-        <div className={adminUi.divider}>
+        <div className={adminUi.editorPanel}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <p className={adminUi.helperText}>sortOrder: {index}</p>

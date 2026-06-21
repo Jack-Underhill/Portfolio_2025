@@ -267,7 +267,7 @@ function ProjectsSection({
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <CardSelector
                 cardTypeId="Project"
                 cards={projects}
@@ -276,16 +276,14 @@ function ProjectsSection({
                 onReorder={handleReorderProjects}
             />
 
-            <div className="flex gap-3">
-                <button
-                    type="button"
-                    onClick={handleAddProject}
-                    aria-label="Add project"
-                    className={adminUi.secondaryButton}
-                >
-                    + Add Project
-                </button>
-            </div>
+            <button
+                type="button"
+                onClick={handleAddProject}
+                aria-label="Add project"
+                className={adminUi.secondaryButton}
+            >
+                + Add Project
+            </button>
 
             {activeProject && (
                 <>
