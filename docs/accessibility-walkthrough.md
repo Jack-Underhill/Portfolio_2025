@@ -77,7 +77,7 @@ Admin:
 
 - `src/admin/AppAdmin.jsx`: development-only admin draft ownership, save state, route-addressable scroll navigation, status-message derivation, and unsaved-leave warning wiring.
 - `src/admin/shell/*`: fixed sidebar navigation landmark, appended Projects subsection nav slot, save panel, top-of-content status/error live region, and scroll-continuous main layout.
-- `src/admin/pages/*`: admin page wrappers with one visible section heading per top-level admin section.
+- `src/admin/pages/*`: admin page wrappers with one visible masthead heading per top-level admin section.
 - `src/admin/sections/*`: section editors, named regions, selector-driven repeated-record editing, and add/remove/reorder controls where present.
 - `src/admin/credentials/CredentialGroupEditor.jsx`: shared Education/Certification selector editor used by separate routed pages.
 - `src/admin/projects/*`: project record selector, Projects-only secondary subsection nav, challenge item selector, selected-state controls, draft preview/validation actions, and project editing labels.
@@ -146,7 +146,10 @@ Admin accessibility:
 - The fixed sidebar exposes a named `Admin pages` navigation landmark, icon-plus-label page links, and `aria-current="location"` on the active scroll location.
 - The sidebar save panel keeps the global save button reachable, exposes busy state while saving, and reports saved, unsaved, saving, and draft-validation save states through a polite status line.
 - The top-of-content admin status banner appears only for active messaging. Errors use `role="alert"`; saving, validation, and unsaved-change messages use `role="status"` with polite live-region behavior and a labeled dismiss button.
-- Each top-level admin section has one clear visible heading through `AdminPageWrapper`; section editors keep local named regions and labels where their controls need them.
+- Each top-level admin section has one clear visible masthead heading through `AdminPageWrapper`. Masthead icons are decorative, and section editors keep local named regions and labels where their controls need them.
+- Selector-backed admin workspaces use a section-scoped sticky toolbar directly after the masthead. The toolbar is intentionally selector-only, keeps selector labels visible, and stays in normal DOM order before section actions and editor fields.
+- Add, draft, validation, preview, and remove actions remain in normal section content/editor flow so the sticky surface stays compact and related edit/remove controls stay near each other.
+- Empty Education and Certification record states use plain empty text without rendering an empty sticky selector toolbar. Empty Skills and Contact states use plain empty text plus their Add action.
 - Admin primary and Projects subsection navigation use smooth scroll by default and instant scroll when `prefers-reduced-motion: reduce` is active.
 - Admin selector buttons expose selected state with `aria-pressed` and record-specific names. Reorderable selectors own mouse-drag ordering for Projects, Credentials, Skills groups, Contact links, and Project challenge items.
 - Project editor subsections use a Projects-only secondary navigation rail that appears while Projects is the active top-level section and project records exist. Its subsection controls are nested route links with `aria-current="location"`.

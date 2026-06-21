@@ -18,7 +18,11 @@ function AdminSectionToolbar({
                 ) : null}
 
                 {actions ? (
-                    <div className={cx(adminSectionToolbar.actions, actionsClassName)}>
+                    <div className={cx(
+                        adminSectionToolbar.actions,
+                        !children && adminSectionToolbar.actionsOnly,
+                        actionsClassName,
+                    )}>
                         {actions}
                     </div>
                 ) : null}

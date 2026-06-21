@@ -86,11 +86,14 @@ export const adminSectionToolbar = {
   primary: "min-w-0",
   actions:
     "flex flex-wrap items-center gap-2 border-t border-admin-border-subtle pt-3",
+  actionsOnly: "border-t-0 pt-0",
 };
 
 export const adminShell = {
   root:
-    "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:11.75rem] md:[--admin-secondary-sidebar-width:8.5rem] md:pl-[calc(var(--admin-primary-sidebar-width)+var(--admin-secondary-sidebar-width))]",
+    "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:11.75rem] md:[--admin-secondary-sidebar-width:8.5rem] md:pl-[var(--admin-primary-sidebar-width)]",
+  rootWithSecondary:
+    "md:pl-[calc(var(--admin-primary-sidebar-width)+var(--admin-secondary-sidebar-width))]",
   sidebar:
     "flex md:min-h-screen flex-col border-r border-admin-border bg-admin-panel md:fixed md:inset-y-0 md:left-0 md:h-screen md:w-[var(--admin-primary-sidebar-width)]",
   secondarySidebar:
