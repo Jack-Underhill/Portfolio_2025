@@ -17,7 +17,7 @@ function AdminPageWrapper({ name, desc, component }) {
                 accent={route?.accent}
             />
 
-            <div>
+            <div className={adminUi.sectionContent}>
                 {component}
             </div>
         </section>

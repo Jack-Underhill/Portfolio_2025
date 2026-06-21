@@ -15,7 +15,9 @@ export const adminForm = {
 
 export const adminUi = {
   page: "space-y-10",
-  pageSection: "scroll-mt-8 space-y-8",
+  pageSection: "scroll-mt-8 space-y-7",
+  sectionContent:
+    "mx-auto w-[calc(100%_-_2.5rem)] max-w-6xl sm:w-[calc(100%_-_4rem)] lg:w-[calc(100%_-_5rem)] xl:w-[calc(100%_-_6rem)]",
   primaryButton:
     "rounded-md bg-admin-accent px-4 py-2 text-sm font-medium hover:bg-admin-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-admin-accent",
   secondaryButton:
@@ -39,14 +41,15 @@ export const adminUi = {
 
 export const adminMasthead = {
   surface:
-    "relative overflow-hidden rounded-md border border-admin-border-subtle bg-admin-panel/60 px-4 py-5 shadow-sm sm:px-5 sm:py-6",
-  inner: "flex min-w-0 items-start gap-4",
+    "relative isolate overflow-hidden border-y border-admin-border-subtle bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.68)_58%,rgba(30,41,59,0.5))] py-4 shadow-subtle-highlight sm:py-5",
+  inner:
+    "mx-auto flex w-[calc(100%_-_2.5rem)] max-w-6xl min-w-0 flex-col gap-4 sm:w-[calc(100%_-_4rem)] sm:flex-row sm:items-start lg:w-[calc(100%_-_5rem)] xl:w-[calc(100%_-_6rem)]",
   iconBadge:
-    "flex h-12 w-12 shrink-0 items-center justify-center rounded-md border",
-  copy: "min-w-0 space-y-2",
-  title: "text-3xl font-semibold text-admin-text",
+    "flex h-11 w-11 shrink-0 items-center justify-center rounded-md border shadow-subtle-highlight",
+  copy: "min-w-0 space-y-1.5",
+  title: "text-2xl font-semibold leading-tight tracking-normal text-admin-text sm:text-3xl",
   description: "max-w-3xl text-sm leading-6 text-admin-text-muted",
-  accentRule: "mt-5 h-px w-full",
+  accentRule: "mt-5 h-0.5 w-full",
   accents: {
     sky: {
       badge: "border-sky-400/30 bg-sky-400/10 text-sky-200",
@@ -91,10 +94,10 @@ export const adminShell = {
     "bg-admin-panel-hover text-admin-text ring-1 ring-admin-border",
   savePanel:
     "shrink-0 space-y-3 border-t border-admin-border bg-admin-panel px-5 py-5",
-  main: "min-h-screen px-5 py-8 sm:px-8 lg:px-10 xl:px-12",
-  content: "mx-auto max-w-6xl space-y-10",
+  main: "min-h-screen py-8",
+  content: "w-full space-y-10",
   statusBanner:
-    "flex items-start justify-between gap-4 rounded-md border px-5 py-4 shadow-sm",
+    "mx-auto flex w-[calc(100%_-_2.5rem)] max-w-6xl items-start justify-between gap-4 rounded-md border px-5 py-4 shadow-sm sm:w-[calc(100%_-_4rem)] lg:w-[calc(100%_-_5rem)] xl:w-[calc(100%_-_6rem)]",
   statusBannerInfo:
     "border-admin-border bg-admin-panel text-admin-text",
   statusBannerError:

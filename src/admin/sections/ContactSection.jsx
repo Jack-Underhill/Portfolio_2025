@@ -88,10 +88,6 @@ function ContactSection({ state, onChange }) {
 
     return (
         <div className="space-y-4">
-            <Text as="p" variant="adminLabel">
-                Social / professional links
-            </Text>
-
             {socialLinks.length > 0 ? (
                 <>
                     <CardSelector
