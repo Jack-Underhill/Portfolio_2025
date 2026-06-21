@@ -1,6 +1,6 @@
 # Architecture Cleanup Candidates
 
-Date: 2026-06-17
+Date: 2026-06-20
 
 ## Purpose
 
@@ -19,7 +19,7 @@ The architecture is already directionally correct:
 - Browser-safe public reads live under `src/api/public`.
 - Privileged writes live in `server/admin`.
 - Pure row shaping and route helpers live under `src/domain`.
-- Development-only admin page routing lives under `src/admin/routing` and stays local to the admin shell instead of introducing an app-wide router.
+- Development-only admin route parsing, history writes, and scrollspy helpers live under `src/admin/routing` and stay local to the admin shell instead of introducing an app-wide router.
 - Browser lifecycle behavior has been extracted into focused hooks.
 - Viewport-driven card activation is centralized in `src/hooks/useViewportActivationGroup.js`, with project preview bridging kept in `src/hooks/useProjectViewportPreview.js`.
 - Styling tokens and repeated recipes have clearer homes.

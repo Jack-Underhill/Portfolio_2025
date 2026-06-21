@@ -17,12 +17,14 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 - `/`: public portfolio.
 - `/p/:project`: public portfolio with a project modal opened from route state.
 - `/architecture-viewer`: focused architecture diagram viewer.
-- `/admin`: development-only admin UI; canonicalizes into the routed CMS shell.
-- `/admin/about`, `/admin/projects`, `/admin/education`, `/admin/certifications`, `/admin/skills`, `/admin/contact`: development-only admin editing pages.
+- `/admin`: development-only admin UI; canonicalizes to `/admin/about` in the routed, scroll-continuous CMS shell.
+- `/admin/about`, `/admin/education`, `/admin/certifications`, `/admin/skills`, `/admin/contact`: route-addressable top-level admin sections in one scroll stack.
+- `/admin/projects`: canonicalizes to `/admin/projects/classification`.
+- `/admin/projects/classification`, `/admin/projects/intro`, `/admin/projects/media`, `/admin/projects/links`, `/admin/projects/tech`, `/admin/projects/lists`, `/admin/projects/challenges`: route-addressable Projects subsection scroll targets for the selected project record.
 
 ## Folders
 
-- `admin/`: React admin CMS shell, routed editing pages, form controls, project editors, admin navigation, and the browser client for the local admin backend.
+- `admin/`: React admin CMS shell, route-addressable scroll-stack editing sections, form controls, project editors, admin navigation, and the browser client for the local admin backend.
 - `api/`: browser-safe public data readers and public Supabase client. See `src/api/README.md`.
 - `assets/`: bundled images, icons, logos, and videos used by the public site.
 - `components/`: public portfolio components, section components, project modal/viewer components, and shared UI primitives.
@@ -60,5 +62,6 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 - Project classification fields are data-backed and grouped through `src/domain/projects/viewModel.js`; `Projects.jsx` fetches once, maps once, then renders `FeaturedProjectsGroup` and `StandardProjectsGroup`.
 - Project modal ownership is centralized in `Projects.jsx`; project preview ownership still flows through source-aware `activePreviewId` state, including scroll-driven viewport activation from project groups.
 - Project card viewport activation uses `useViewportActivationGroup` for one active item per group, with reduced-motion, modal-open, and marquee opt-outs and no card-local viewport math.
+- The development-only admin renders fixed top-level sections in one route-addressable scroll stack; Projects renders all fixed subsection fields for the selected record while repeated records stay selector-driven.
 - Public accessibility guardrails now include labeled landmarks/headings, reduced-motion handling, modal focus containment, and a focused Playwright/axe smoke through `cmd /c npm run test:a11y`.
 - Keep detailed architecture status and cleanup notes in `docs/`; this README is the local map for maintainers working inside `src`.
