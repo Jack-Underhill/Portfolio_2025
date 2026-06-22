@@ -55,33 +55,57 @@ export const adminMasthead = {
     sky: {
       badge: "border-sky-400/30 bg-sky-400/10 text-sky-200",
       rule: "bg-sky-400/35",
+      vars: {
+        "--admin-section-toolbar-rule": "rgb(56 189 248 / 0.45)",
+        "--admin-section-toolbar-shadow": "rgb(56 189 248 / 0.34)",
+      },
     },
     cyan: {
       badge: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200",
       rule: "bg-cyan-400/35",
+      vars: {
+        "--admin-section-toolbar-rule": "rgb(103 232 249 / 0.45)",
+        "--admin-section-toolbar-shadow": "rgb(34 211 238 / 0.34)",
+      },
     },
     indigo: {
       badge: "border-indigo-300/30 bg-indigo-400/10 text-indigo-200",
       rule: "bg-indigo-300/35",
+      vars: {
+        "--admin-section-toolbar-rule": "rgb(165 180 252 / 0.45)",
+        "--admin-section-toolbar-shadow": "rgb(129 140 248 / 0.34)",
+      },
     },
     violet: {
       badge: "border-violet-300/30 bg-violet-400/10 text-violet-200",
       rule: "bg-violet-300/35",
+      vars: {
+        "--admin-section-toolbar-rule": "rgb(196 181 253 / 0.45)",
+        "--admin-section-toolbar-shadow": "rgb(167 139 250 / 0.34)",
+      },
     },
     teal: {
       badge: "border-teal-300/30 bg-teal-400/10 text-teal-200",
       rule: "bg-teal-300/35",
+      vars: {
+        "--admin-section-toolbar-rule": "rgb(94 234 212 / 0.45)",
+        "--admin-section-toolbar-shadow": "rgb(45 212 191 / 0.34)",
+      },
     },
     blue: {
       badge: "border-blue-300/30 bg-blue-400/10 text-blue-200",
       rule: "bg-blue-300/35",
+      vars: {
+        "--admin-section-toolbar-rule": "rgb(147 197 253 / 0.45)",
+        "--admin-section-toolbar-shadow": "rgb(96 165 250 / 0.34)",
+      },
     },
   },
 };
 
 export const adminSectionToolbar = {
   shell:
-    "sticky top-0 z-20 isolate rounded-md bg-admin-panel/95 shadow-[0_1px_0_rgba(34,211,238,0.34),0_18px_30px_-22px_rgba(0,0,0,0.95)] ring-1 ring-admin-border-subtle backdrop-blur-md after:pointer-events-none after:absolute after:inset-x-1 after:bottom-0 after:h-px after:rounded-b-md after:bg-cyan-300/45 after:content-['']",
+    "sticky top-0 z-20 isolate rounded-md bg-admin-panel/95 shadow-[0_1px_0_var(--admin-section-toolbar-shadow),0_18px_30px_-22px_rgba(0,0,0,0.95)] ring-1 ring-admin-border-subtle backdrop-blur-md after:pointer-events-none after:absolute after:inset-x-1 after:bottom-0 after:h-px after:rounded-b-md after:bg-[var(--admin-section-toolbar-rule)] after:content-['']",
   body: "space-y-3",
   primary: "min-w-0",
   actions:

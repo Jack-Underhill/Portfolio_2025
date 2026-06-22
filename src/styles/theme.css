@@ -68,6 +68,8 @@
   --scrollbar-modal-track: rgba(15, 23, 42, 0.25);
   --scrollbar-modal-thumb: rgba(148, 163, 184, 0.45);
   --scrollbar-modal-thumb-hover: rgba(148, 163, 184, 0.70);
+  --admin-section-toolbar-rule: rgb(103 232 249 / 0.45);
+  --admin-section-toolbar-shadow: rgb(34 211 238 / 0.34);
 }
 
 .shadow-card-inset {
