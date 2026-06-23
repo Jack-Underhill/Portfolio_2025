@@ -42,6 +42,7 @@ export const ADMIN_ROUTES = Object.freeze([
     label: 'Projects',
     icon: 'folder',
     accent: 'cyan',
+    children: PROJECT_SUBSECTION_ROUTES,
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.EDUCATION,

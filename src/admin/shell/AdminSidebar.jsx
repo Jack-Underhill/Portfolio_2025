@@ -1,5 +1,6 @@
 import { ADMIN_ROUTES } from '../routing/adminRoutes.js';
 import { adminShell, adminUi, cx } from '../../styles/recipes';
+import AdminNavChevron from './AdminNavChevron.jsx';
 import AdminNavIcon from './AdminNavIcon.jsx';
 
 function AdminSidebar({
@@ -21,18 +22,39 @@ function AdminSidebar({
             <nav className={adminShell.nav} aria-label="Admin pages">
                 {ADMIN_ROUTES.map((route) => {
                     const isActive = activeRoute?.id === route.id;
+                    const childRoutes = route.children || [];
+                    const isExpandable = childRoutes.length > 0;
+                    const childListId = isExpandable ? `admin-nav-${route.id}-children` : undefined;
 
                     return (
-                        <a
-                            key={route.id}
-                            href={route.path}
-                            onClick={(event) => onNavigate(event, route)}
-                            aria-current={isActive ? 'location' : undefined}
-                            className={cx(adminShell.navLink, isActive && adminShell.navLinkActive)}
-                        >
-                            <AdminNavIcon icon={route.icon} />
-                            <span className="min-w-0 break-words">{route.label}</span>
-                        </a>
+                        <div key={route.id} className={isExpandable ? adminShell.navGroup : undefined}>
+                            <a
+                                href={route.path}
+                                onClick={(event) => onNavigate(event, route)}
+                                aria-current={isActive ? 'location' : undefined}
+                                aria-expanded={isExpandable ? isActive : undefined}
+                                aria-controls={isExpandable ? childListId : undefined}
+                                className={cx(adminShell.navLink, isActive && adminShell.navLinkActive)}
+                            >
+                                <AdminNavIcon icon={route.icon} />
+                                <span className={adminShell.navLinkLabel}>{route.label}</span>
+                                {isExpandable && <AdminNavChevron isExpanded={isActive} />}
+                            </a>
+
+                            {isExpandable && isActive && (
+                                <div id={childListId} className={adminShell.navChildList}>
+                                    {childRoutes.map((childRoute) => (
+                                        <a
+                                            key={childRoute.id}
+                                            href={childRoute.path}
+                                            className={adminShell.navChildLink}
+                                        >
+                                            {childRoute.title}
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     );
                 })}
             </nav>
