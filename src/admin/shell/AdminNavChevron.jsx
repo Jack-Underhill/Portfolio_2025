@@ -4,7 +4,7 @@ function AdminNavChevron({ isExpanded }) {
     return (
         <svg
             aria-hidden="true"
-            className="h-4 w-4 shrink-0"
+            className="h-4 w-4 shrink-0 text-admin-text-muted"
             fill="none"
             stroke="currentColor"
             strokeLinecap="round"

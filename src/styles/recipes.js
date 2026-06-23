@@ -115,23 +115,25 @@ export const adminSectionToolbar = {
 
 export const adminShell = {
   root:
-    "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:11.75rem] md:pl-[var(--admin-primary-sidebar-width)]",
+    "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:12.8rem] md:pl-[var(--admin-primary-sidebar-width)]",
   sidebar:
     "flex md:min-h-screen flex-col border-r border-admin-border bg-admin-panel md:fixed md:inset-y-0 md:left-0 md:h-screen md:w-[var(--admin-primary-sidebar-width)]",
   sidebarHeader: "shrink-0 space-y-2 border-b border-admin-border px-5 py-6",
   eyebrow: "text-xs uppercase tracking-wide text-admin-text-subtle",
   nav: "flex-1 flex flex-col overflow-y-auto px-3 py-4 gap-1",
   navLink:
-    "flex min-w-0 items-center gap-3 rounded-md px-3 py-2.5 text-md font-medium text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "flex min-w-0 items-center gap-3 rounded-md px-1.5 py-2.5 text-md font-medium leading-snug text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+  navDisclosureSlot:
+    "flex h-4 w-4 shrink-0 items-center justify-center text-admin-text-subtle",
   navLinkLabel: "min-w-0 flex-1 break-words",
   navLinkActive:
     "bg-admin-panel-hover text-admin-text ring-1 ring-admin-border",
-  navGroup: "space-y-1",
-  navChildList: "ml-7 space-y-0.5 border-l border-admin-border-subtle pl-3",
+  navGroup: "space-y-1.5",
+  navChildList: "ml-[2.8rem] space-y-0.5 border-l border-admin-border-subtle pl-3",
   navChildLink:
-    "block rounded-md px-2.5 py-1.5 text-sm text-admin-text-subtle hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "block min-w-0 rounded-md px-2.5 py-1.5 text-sm font-medium leading-snug text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
   navChildLinkActive:
-    "bg-admin-panel-hover text-admin-text",
+    "bg-admin-panel-hover text-admin-text shadow-[inset_2px_0_0_var(--color-admin-accent-text)]",
   savePanel:
     "shrink-0 space-y-3 border-t border-admin-border bg-admin-panel px-5 py-5",
   main: "min-h-screen py-8",

@@ -38,9 +38,11 @@ function AdminSidebar({
                                 aria-controls={isExpandable ? childListId : undefined}
                                 className={cx(adminShell.navLink, isActive && adminShell.navLinkActive)}
                             >
+                                <span className={adminShell.navDisclosureSlot}>
+                                    {isExpandable && <AdminNavChevron isExpanded={isActive} />}
+                                </span>
                                 <AdminNavIcon icon={route.icon} />
                                 <span className={adminShell.navLinkLabel}>{route.label}</span>
-                                {isExpandable && <AdminNavChevron isExpanded={isActive} />}
                             </a>
 
                             {isExpandable && isActive && (
