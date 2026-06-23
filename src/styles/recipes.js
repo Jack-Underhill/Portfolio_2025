@@ -115,13 +115,9 @@ export const adminSectionToolbar = {
 
 export const adminShell = {
   root:
-    "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:11.75rem] md:[--admin-secondary-sidebar-width:8.5rem] md:pl-[var(--admin-primary-sidebar-width)]",
-  rootWithSecondary:
-    "md:pl-[calc(var(--admin-primary-sidebar-width)+var(--admin-secondary-sidebar-width))]",
+    "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:11.75rem] md:pl-[var(--admin-primary-sidebar-width)]",
   sidebar:
     "flex md:min-h-screen flex-col border-r border-admin-border bg-admin-panel md:fixed md:inset-y-0 md:left-0 md:h-screen md:w-[var(--admin-primary-sidebar-width)]",
-  secondarySidebar:
-    "border-b border-admin-border bg-admin-panel px-5 py-4 md:fixed md:inset-y-0 md:left-[var(--admin-primary-sidebar-width)] md:z-10 md:h-screen md:w-[var(--admin-secondary-sidebar-width)] md:overflow-y-auto md:border-b-0 md:border-r md:px-3 md:py-6",
   sidebarHeader: "shrink-0 space-y-2 border-b border-admin-border px-5 py-6",
   eyebrow: "text-xs uppercase tracking-wide text-admin-text-subtle",
   nav: "flex-1 flex flex-col overflow-y-auto px-3 py-4 gap-1",

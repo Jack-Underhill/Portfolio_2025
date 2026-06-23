@@ -7,7 +7,6 @@ import EducationAdminPage             from './pages/EducationAdminPage.jsx';
 import CertificationsAdminPage        from './pages/CertificationsAdminPage.jsx';
 import SkillsAdminPage                from './pages/SkillsAdminPage.jsx';
 import ContactAdminPage               from './pages/ContactAdminPage.jsx';
-import ProjectSubsectionNav           from './projects/ProjectSubsectionNav.jsx';
 import { PROJECT_EDITOR_SECTIONS }    from './projects/projectEditorSections.js';
 import { ADMIN_ROUTE_IDS, ADMIN_ROUTES, getProjectSubsectionPath } from './routing/adminRoutes.js';
 import useAdminScrollspy             from './routing/useAdminScrollspy.js';
@@ -322,15 +321,6 @@ function AppAdmin() {
         onProjectSectionMount: setProjectSectionRef,
         onProjectRecordSelect: handleProjectRecordSelect,
     };
-    const secondaryNav = activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && projectsState.projects.length > 0
-        ? (
-            <ProjectSubsectionNav
-                sections={PROJECT_EDITOR_SECTIONS}
-                activeSectionId={resolvedProjectSectionId}
-                onNavigate={handleProjectSubsectionNavigate}
-            />
-        )
-        : null;
 
     return (
         <AdminShell
@@ -345,7 +335,6 @@ function AppAdmin() {
             isSaving={isSaving}
             statusMessage={visibleStatusMessage}
             onDismissStatus={dismissStatusMessage}
-            secondaryNav={secondaryNav}
         >
             <div className={adminUi.page}>
                 <AboutAdminPage {...pageProps} />
