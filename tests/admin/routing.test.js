@@ -48,6 +48,12 @@ describe('admin route helpers', () => {
     expect(getProjectSubsectionPath('media')).toBe('/admin/projects/media');
   });
 
+  it('exposes Projects subsection routes as child nav metadata', () => {
+    const projectsRoute = findAdminRouteById(ADMIN_ROUTE_IDS.PROJECTS);
+
+    expect(projectsRoute?.children).toBe(PROJECT_SUBSECTION_ROUTES);
+  });
+
   it('finds routes by id and canonical pathname', () => {
     expect(findAdminRouteById(ADMIN_ROUTE_IDS.PROJECTS)?.path).toBe('/admin/projects/classification');
     expect(findAdminRouteByPathname('/admin/contact')?.id).toBe(ADMIN_ROUTE_IDS.CONTACT);
