@@ -4,8 +4,10 @@ import AdminStatusBanner from './AdminStatusBanner.jsx';
 
 function AdminShell({
     activeRoute,
+    activeProjectSubsectionId,
     children,
     onNavigate,
+    onProjectSubsectionNavigate,
     onSave,
     saveLabel,
     saveStatus,
@@ -21,7 +23,9 @@ function AdminShell({
         <div className={cx(adminShell.root, hasSecondaryNav && adminShell.rootWithSecondary)}>
             <AdminSidebar
                 activeRoute={activeRoute}
+                activeProjectSubsectionId={activeProjectSubsectionId}
                 onNavigate={onNavigate}
+                onProjectSubsectionNavigate={onProjectSubsectionNavigate}
                 onSave={onSave}
                 saveLabel={saveLabel}
                 saveStatus={saveStatus}

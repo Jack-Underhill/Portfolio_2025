@@ -335,7 +335,9 @@ function AppAdmin() {
     return (
         <AdminShell
             activeRoute={activeRoute}
+            activeProjectSubsectionId={resolvedProjectSectionId}
             onNavigate={handleAdminNavigate}
+            onProjectSubsectionNavigate={handleProjectSubsectionNavigate}
             onSave={handleSave}
             saveLabel={saveLabel}
             saveStatus={saveStatus}

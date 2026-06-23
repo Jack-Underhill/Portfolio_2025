@@ -5,7 +5,9 @@ import AdminNavIcon from './AdminNavIcon.jsx';
 
 function AdminSidebar({
     activeRoute,
+    activeProjectSubsectionId,
     onNavigate,
+    onProjectSubsectionNavigate,
     onSave,
     saveLabel,
     saveStatus,
@@ -43,15 +45,24 @@ function AdminSidebar({
 
                             {isExpandable && isActive && (
                                 <div id={childListId} className={adminShell.navChildList}>
-                                    {childRoutes.map((childRoute) => (
-                                        <a
-                                            key={childRoute.id}
-                                            href={childRoute.path}
-                                            className={adminShell.navChildLink}
-                                        >
-                                            {childRoute.title}
-                                        </a>
-                                    ))}
+                                    {childRoutes.map((childRoute) => {
+                                        const isChildActive = childRoute.id === activeProjectSubsectionId;
+
+                                        return (
+                                            <a
+                                                key={childRoute.id}
+                                                href={childRoute.path}
+                                                aria-current={isChildActive ? 'location' : undefined}
+                                                onClick={(event) => onProjectSubsectionNavigate?.(event, childRoute)}
+                                                className={cx(
+                                                    adminShell.navChildLink,
+                                                    isChildActive && adminShell.navChildLinkActive,
+                                                )}
+                                            >
+                                                {childRoute.title}
+                                            </a>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
