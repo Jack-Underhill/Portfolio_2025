@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-06-21
+Date: 2026-06-23
 
 ## Purpose
 
@@ -47,7 +47,7 @@ Current baseline test files:
 
 Current checks:
 
-- `cmd /c npm run test` passes with 27 test files and 162 tests.
+- `cmd /c npm run test` passes with 27 test files and 163 tests.
 - `cmd /c npm run build` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run lint` passes.
@@ -62,7 +62,8 @@ Current accessibility smoke coverage:
 
 Remaining testing gap:
 
-- Routed admin route helpers are covered by `tests/admin/routing.test.js`. Admin scrollspy helper behavior is covered by `tests/admin/scrollspyUtils.test.js`, including edge forcing, short-section ownership, largest-visible fallback, current-section hysteresis, sticky viewport offsets, and already-visible scroll guards. Browser behavior for the admin shell, section mastheads, sticky selector toolbars, sidebar save panel, Projects secondary subsection nav, file-input saved/pending helper text, status banner dismissal, internal route navigation, dirty-state preservation, and `beforeunload` warning remains manual/mocked Playwright verification until the repo adds a stable admin component or browser fixture.
+- Routed admin route helpers are covered by `tests/admin/routing.test.js`, including the contract that the Projects root route exposes the existing project subsection routes as child navigation metadata. Admin scrollspy helper behavior is covered by `tests/admin/scrollspyUtils.test.js`, including edge forcing, short-section ownership, largest-visible fallback, current-section hysteresis, sticky viewport offsets, and already-visible scroll guards.
+- Expandable admin sidebar behavior remains a browser/manual coverage boundary until the repo adds a stable admin component or browser fixture. The current browser probe verifies Projects expansion and collapse, active child updates after child navigation, nested URL pushes, removal of the secondary Projects aside, and a stable main-content left offset across root navigation. Dirty-state preservation, Browser Back/Forward, file-input helper text, status dismissal, save behavior, and `beforeunload` remain manual checks.
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
 - Add browser smoke only if project viewport card activation, desktop standard-card marquee behavior, or deeper fixed-nav scrollspy behavior needs coverage beyond the pure scoring helpers, current nav smoke, and axe checks.
 - Project-card video preview lifecycle has focused helper coverage in `tests/hooks/useHoverPreviewIntent.test.js`: retained-source cleanup versus default source release, actual playback state from `playing`, clearing state on `pause`/`emptied`/`ended`/`error`, and listener cleanup. Prop routing and guarded `safeVideo` source/preload behavior remain covered by structural/manual verification rather than a React component harness.

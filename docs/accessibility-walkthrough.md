@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-06-21
+Date: 2026-06-23
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last accessibility-affecting baseline checked on 2026-06-21 with Windows `cmd /c` commands for the route-addressable, scroll-continuous admin shell with section mastheads and selector-only sticky toolbars.
+Last accessibility-affecting baseline checked on 2026-06-23 with Windows `cmd /c` commands for the route-addressable, scroll-continuous admin shell with an expandable Projects group in the primary sidebar.
 
 Passing:
 
@@ -76,11 +76,11 @@ Architecture viewer:
 Admin:
 
 - `src/admin/AppAdmin.jsx`: development-only admin draft ownership, save state, route-addressable scroll navigation, status-message derivation, and unsaved-leave warning wiring.
-- `src/admin/shell/*`: fixed sidebar navigation landmark, appended Projects subsection nav slot, save panel, top-of-content status/error live region, and scroll-continuous main layout.
+- `src/admin/shell/*`: fixed primary sidebar navigation landmark, expandable route groups, decorative disclosure chevrons, save panel, top-of-content status/error live region, and scroll-continuous main layout.
 - `src/admin/pages/*`: admin page wrappers with one visible masthead heading per top-level admin section.
 - `src/admin/sections/*`: section editors, named regions, selector-driven repeated-record editing, and add/remove/reorder controls where present.
 - `src/admin/credentials/CredentialGroupEditor.jsx`: shared Education/Certification selector editor used by separate routed pages.
-- `src/admin/projects/*`: project record selector, Projects-only secondary subsection nav, challenge item selector, selected-state controls, draft preview/validation actions, and project editing labels.
+- `src/admin/projects/*`: project record selector, fixed subsection definitions, challenge item selector, selected-state controls, draft preview/validation actions, and project editing labels.
 - `src/admin/forms/*`: shared form labels, inputs, and file-input saved/pending helper text.
 - `src/admin/lists/*`: repeated list editing controls and item-specific accessible names.
 - `src/admin/navigation/*`: admin selector/navigation support components that remain after the retired scroll-helper controls were removed.
@@ -143,16 +143,18 @@ Admin accessibility:
 
 - The admin runs as a development-only routed CMS shell with all fixed top-level admin sections rendered in one scroll-continuous stack. `/admin` and unknown `/admin/*` paths canonicalize to About, while `/admin/projects` canonicalizes to `/admin/projects/classification`.
 - Top-level admin routes remain addressable at `/admin/about`, `/admin/projects/classification`, `/admin/education`, `/admin/certifications`, `/admin/skills`, and `/admin/contact`. Project subsections are also addressable at `/admin/projects/intro`, `/admin/projects/media`, `/admin/projects/links`, `/admin/projects/tech`, `/admin/projects/lists`, and `/admin/projects/challenges`.
-- The fixed sidebar exposes a named `Admin pages` navigation landmark, icon-plus-label page links, and `aria-current="location"` on the active scroll location.
+- The fixed sidebar is the only admin navigation surface. It exposes a named `Admin pages` navigation landmark, icon-plus-label root links, and `aria-current="location"` on the active top-level scroll location.
+- Projects is an expandable root link whose `aria-expanded` state follows whether Projects is active and whose `aria-controls` references the in-flow child link group. Its right/down chevron is decorative with `aria-hidden="true"` and is not a separate control.
+- Visible Projects subsection links follow the root link in keyboard order and expose `aria-current="location"` on the active subsection. Activating the Projects parent does not manually assign a child; route and scrollspy state determine the precise subsection location.
 - The sidebar save panel keeps the global save button reachable, exposes busy state while saving, and reports saved, unsaved, saving, and draft-validation save states through a polite status line.
 - The top-of-content admin status banner appears only for active messaging. Errors use `role="alert"`; saving, validation, and unsaved-change messages use `role="status"` with polite live-region behavior and a labeled dismiss button.
 - Each top-level admin section has one clear visible masthead heading through `AdminPageWrapper`. Masthead icons are decorative, and section editors keep local named regions and labels where their controls need them.
 - Selector-backed admin workspaces use a section-scoped sticky toolbar directly after the masthead. The toolbar is intentionally selector-only, keeps selector labels visible, and stays in normal DOM order before section actions and editor fields.
 - Add, draft, validation, preview, and remove actions remain in normal section content/editor flow so the sticky surface stays compact and related edit/remove controls stay near each other.
 - Empty Education and Certification record states use plain empty text without rendering an empty sticky selector toolbar. Empty Skills and Contact states use plain empty text plus their Add action.
-- Admin primary and Projects subsection navigation use smooth scroll by default and instant scroll when `prefers-reduced-motion: reduce` is active.
+- Admin root and nested Projects navigation use smooth scroll by default and instant scroll when `prefers-reduced-motion: reduce` is active.
 - Admin selector buttons expose selected state with `aria-pressed` and record-specific names. Reorderable selectors own mouse-drag ordering for Projects, Credentials, Skills groups, Contact links, and Project challenge items.
-- Project editor subsections use a Projects-only secondary navigation rail that appears while Projects is the active top-level section and project records exist. Its subsection controls are nested route links with `aria-current="location"`.
+- Project editor subsection links render directly beneath Projects in the primary sidebar while Projects is active. No separate Projects secondary sidebar or conditional content gutter remains.
 - The active project editor renders all fixed project subsection regions for the selected project. Each subsection has a visible heading associated with the region, while project records and challenge items remain selector-driven.
 - The admin project preview opens the shared project modal from the active unsaved draft and inherits the existing dialog focus containment, Escape close, and focus-restore behavior.
 - The admin project draft import and current-context panels use labeled textareas, alert/status feedback, and disabled states while Save is in flight so pasted draft changes do not race the save response.
