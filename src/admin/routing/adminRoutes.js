@@ -14,10 +14,27 @@ export const ADMIN_ROUTE_IDS = Object.freeze({
   CONTACT: 'contact',
 });
 
-const ADMIN_PROJECTS_BASE_PATH = `${PUBLIC_ROUTES.ADMIN_BASE}/projects`;
+export const ADMIN_PROJECTS_PATH = `${PUBLIC_ROUTES.ADMIN_BASE}/projects`;
+
+export const ADMIN_SCROLL_TARGET_TYPES = Object.freeze({
+  ROOT_SECTION: 'root-section',
+  PROJECT_SUBSECTION: 'project-subsection',
+});
+
+function createScrollTarget(type, id) {
+  return Object.freeze({ type, id });
+}
+
+function createRootScrollTarget(routeId) {
+  return createScrollTarget(ADMIN_SCROLL_TARGET_TYPES.ROOT_SECTION, routeId);
+}
+
+function createProjectSubsectionScrollTarget(sectionId) {
+  return createScrollTarget(ADMIN_SCROLL_TARGET_TYPES.PROJECT_SUBSECTION, sectionId);
+}
 
 export function getProjectSubsectionPath(sectionId = DEFAULT_PROJECT_EDITOR_SECTION.id) {
-  return `${ADMIN_PROJECTS_BASE_PATH}/${sectionId}`;
+  return `${ADMIN_PROJECTS_PATH}/${sectionId}`;
 }
 
 export const PROJECT_SUBSECTION_ROUTES = Object.freeze(
@@ -25,6 +42,7 @@ export const PROJECT_SUBSECTION_ROUTES = Object.freeze(
     id: section.id,
     title: section.title,
     path: getProjectSubsectionPath(section.id),
+    scrollTarget: createProjectSubsectionScrollTarget(section.id),
   })),
 );
 
@@ -35,13 +53,15 @@ export const ADMIN_ROUTES = Object.freeze([
     label: 'About',
     icon: 'user',
     accent: 'sky',
+    scrollTarget: createRootScrollTarget(ADMIN_ROUTE_IDS.ABOUT),
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.PROJECTS,
-    path: getProjectSubsectionPath(),
+    path: ADMIN_PROJECTS_PATH,
     label: 'Projects',
     icon: 'folder',
     accent: 'cyan',
+    scrollTarget: createRootScrollTarget(ADMIN_ROUTE_IDS.PROJECTS),
     children: PROJECT_SUBSECTION_ROUTES,
   }),
   Object.freeze({
@@ -50,6 +70,7 @@ export const ADMIN_ROUTES = Object.freeze([
     label: 'Education',
     icon: 'graduation',
     accent: 'indigo',
+    scrollTarget: createRootScrollTarget(ADMIN_ROUTE_IDS.EDUCATION),
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.CERTIFICATIONS,
@@ -57,6 +78,7 @@ export const ADMIN_ROUTES = Object.freeze([
     label: 'Certifications',
     icon: 'badge',
     accent: 'violet',
+    scrollTarget: createRootScrollTarget(ADMIN_ROUTE_IDS.CERTIFICATIONS),
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.SKILLS,
@@ -64,6 +86,7 @@ export const ADMIN_ROUTES = Object.freeze([
     label: 'Skills',
     icon: 'spark',
     accent: 'teal',
+    scrollTarget: createRootScrollTarget(ADMIN_ROUTE_IDS.SKILLS),
   }),
   Object.freeze({
     id: ADMIN_ROUTE_IDS.CONTACT,
@@ -71,11 +94,40 @@ export const ADMIN_ROUTES = Object.freeze([
     label: 'Contact',
     icon: 'mail',
     accent: 'blue',
+    scrollTarget: createRootScrollTarget(ADMIN_ROUTE_IDS.CONTACT),
   }),
 ]);
 
 export const DEFAULT_ADMIN_ROUTE = ADMIN_ROUTES[0];
 export const DEFAULT_PROJECT_SUBSECTION_ROUTE = PROJECT_SUBSECTION_ROUTES[0];
+
+export const ADMIN_OBSERVED_LEAVES = Object.freeze(
+  ADMIN_ROUTES.flatMap((route) => {
+    if (route.id !== ADMIN_ROUTE_IDS.PROJECTS) {
+      return [Object.freeze({
+        id: route.id,
+        routeId: route.id,
+        projectSubsectionId: null,
+        path: route.path,
+        title: route.label,
+        scrollTarget: route.scrollTarget,
+        observationTarget: route.scrollTarget,
+      })];
+    }
+
+    return route.children.map((childRoute, index) => Object.freeze({
+      id: `${route.id}/${childRoute.id}`,
+      routeId: route.id,
+      projectSubsectionId: childRoute.id,
+      path: childRoute.path,
+      title: childRoute.title,
+      scrollTarget: childRoute.scrollTarget,
+      observationTarget: index === 0
+        ? route.scrollTarget
+        : childRoute.scrollTarget,
+    }));
+  }),
+);
 
 function trimTrailingSlash(pathname) {
   if (pathname === '/') return pathname;
@@ -83,12 +135,8 @@ function trimTrailingSlash(pathname) {
 }
 
 function resolveProjectSubsectionPath(cleanPathname) {
-  if (cleanPathname === ADMIN_PROJECTS_BASE_PATH) {
-    return DEFAULT_PROJECT_SUBSECTION_ROUTE;
-  }
-
-  const sectionId = cleanPathname.startsWith(`${ADMIN_PROJECTS_BASE_PATH}/`)
-    ? cleanPathname.slice(`${ADMIN_PROJECTS_BASE_PATH}/`.length)
+  const sectionId = cleanPathname.startsWith(`${ADMIN_PROJECTS_PATH}/`)
+    ? cleanPathname.slice(`${ADMIN_PROJECTS_PATH}/`.length)
     : '';
   const section = findProjectEditorSection(sectionId);
 
@@ -106,12 +154,12 @@ export function normalizeAdminPathname(pathname = '') {
     return DEFAULT_ADMIN_ROUTE.path;
   }
 
-  if (cleanPathname === ADMIN_PROJECTS_BASE_PATH) {
-    return DEFAULT_PROJECT_SUBSECTION_ROUTE.path;
+  if (cleanPathname === ADMIN_PROJECTS_PATH) {
+    return ADMIN_PROJECTS_PATH;
   }
 
-  if (cleanPathname.startsWith(`${ADMIN_PROJECTS_BASE_PATH}/`)) {
-    return resolveProjectSubsectionPath(cleanPathname)?.path || DEFAULT_PROJECT_SUBSECTION_ROUTE.path;
+  if (cleanPathname.startsWith(`${ADMIN_PROJECTS_PATH}/`)) {
+    return resolveProjectSubsectionPath(cleanPathname)?.path || ADMIN_PROJECTS_PATH;
   }
 
   const route = findAdminRouteByPathname(cleanPathname);
