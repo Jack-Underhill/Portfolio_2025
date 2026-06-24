@@ -10,8 +10,10 @@ import ContactAdminPage               from './pages/ContactAdminPage.jsx';
 import { PROJECT_EDITOR_SECTIONS }    from './projects/projectEditorSections.js';
 import {
     ADMIN_OBSERVED_LEAVES,
+    ADMIN_PROJECTS_PATH,
     ADMIN_ROUTE_IDS,
     ADMIN_SCROLL_TARGET_TYPES,
+    DEFAULT_PROJECT_SUBSECTION_ROUTE,
     getProjectSubsectionPath,
 } from './routing/adminRoutes.js';
 import useAdminScrollspy, {
@@ -61,10 +63,14 @@ function getRouteObservedLeafId(routeId, projectSubsectionId = null) {
             : ADMIN_OBSERVED_LEAVES[0].id;
     }
 
-    const projectLeafId = `${ADMIN_ROUTE_IDS.PROJECTS}/${projectSubsectionId || PROJECT_EDITOR_SECTIONS[0].id}`;
+    if (!projectSubsectionId) {
+        return ADMIN_OBSERVED_LEAVES[0].id;
+    }
+
+    const projectLeafId = `${ADMIN_ROUTE_IDS.PROJECTS}/${projectSubsectionId}`;
     return OBSERVED_LEAVES_BY_ID.has(projectLeafId)
         ? projectLeafId
-        : `${ADMIN_ROUTE_IDS.PROJECTS}/${PROJECT_EDITOR_SECTIONS[0].id}`;
+        : ADMIN_OBSERVED_LEAVES[0].id;
 }
 
 function getObservedLeafViewportTopOffset(leafId) {
@@ -194,8 +200,35 @@ function AppAdmin() {
         const leaf = OBSERVED_LEAVES_BY_ID.get(leafId);
         if (!leaf) return;
 
+        if (
+            leaf.routeId === ADMIN_ROUTE_IDS.PROJECTS
+            && projectsState.projects.length === 0
+        ) {
+            replaceAdminRoute(ADMIN_PROJECTS_PATH);
+            return;
+        }
+
         replaceAdminRoute(leaf.path);
-    }, [replaceAdminRoute]);
+    }, [projectsState.projects.length, replaceAdminRoute]);
+
+    const handleNavigationSettled = useCallback(({ observedLeafId, target }) => {
+        if (
+            target?.destinationId !== ADMIN_ROUTE_IDS.PROJECTS
+            || !isAdminDataReady
+            || projectsState.projects.length === 0
+        ) {
+            return;
+        }
+
+        const observedLeaf = OBSERVED_LEAVES_BY_ID.get(observedLeafId);
+        if (observedLeaf?.projectSubsectionId === DEFAULT_PROJECT_SUBSECTION_ROUTE.id) {
+            replaceAdminRoute(observedLeaf.path);
+        }
+    }, [
+        isAdminDataReady,
+        projectsState.projects.length,
+        replaceAdminRoute,
+    ]);
 
     const {
         handleObservedLeafChange,
@@ -207,6 +240,7 @@ function AppAdmin() {
         getTargetElement,
         initialObservedLeafId: observedActiveLeafId,
         onNavigateRoute: pushAdminRoute,
+        onNavigationSettled: handleNavigationSettled,
         onObservedLeafChange: handleObservedActiveLeafVisualChange,
         onObservedRouteReplace: handleObservedRouteReplace,
         onRouteTargetFallback: replaceAdminRoute,

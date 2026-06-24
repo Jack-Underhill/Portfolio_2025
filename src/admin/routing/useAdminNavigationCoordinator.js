@@ -94,6 +94,7 @@ export function useAdminNavigationCoordinator({
   getTargetElement,
   initialObservedLeafId = null,
   onNavigateRoute,
+  onNavigationSettled,
   onObservedLeafChange,
   onObservedRouteReplace,
   onRouteTargetFallback,
@@ -106,6 +107,7 @@ export function useAdminNavigationCoordinator({
   const settleTimeoutRef = useRef(null);
   const removeScrollEndListenerRef = useRef(null);
   const onNavigateRouteRef = useRef(onNavigateRoute);
+  const onNavigationSettledRef = useRef(onNavigationSettled);
   const onObservedLeafChangeRef = useRef(onObservedLeafChange);
   const onObservedRouteReplaceRef = useRef(onObservedRouteReplace);
   const onRouteTargetFallbackRef = useRef(onRouteTargetFallback);
@@ -113,6 +115,10 @@ export function useAdminNavigationCoordinator({
   useEffect(() => {
     onNavigateRouteRef.current = onNavigateRoute;
   }, [onNavigateRoute]);
+
+  useEffect(() => {
+    onNavigationSettledRef.current = onNavigationSettled;
+  }, [onNavigationSettled]);
 
   useEffect(() => {
     onObservedLeafChangeRef.current = onObservedLeafChange;
@@ -140,14 +146,19 @@ export function useAdminNavigationCoordinator({
   }, []);
 
   const releaseNavigation = useCallback((reason = 'settled') => {
-    const hadNavigationTarget = Boolean(navigationTargetRef.current);
+    const releasedTarget = navigationTargetRef.current;
     clearSettleLifecycle();
     navigationTargetRef.current = null;
     setNavigationTarget(null);
     setNavigationPhase(NAVIGATION_PHASES.IDLE);
 
-    if (hadNavigationTarget && reason === 'interrupted' && observedLeafIdRef.current) {
+    if (releasedTarget && reason === 'interrupted' && observedLeafIdRef.current) {
       onObservedRouteReplaceRef.current?.(observedLeafIdRef.current);
+    } else if (releasedTarget && reason === 'settled') {
+      onNavigationSettledRef.current?.({
+        observedLeafId: observedLeafIdRef.current,
+        target: releasedTarget,
+      });
     }
   }, [clearSettleLifecycle]);
 

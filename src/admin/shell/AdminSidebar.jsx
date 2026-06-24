@@ -29,13 +29,14 @@ function AdminSidebar({
                     const isExpandable = childRoutes.length > 0;
                     const isExpanded = isExpandable && isProjectsExpanded;
                     const childListId = isExpandable ? `admin-nav-${route.id}-children` : undefined;
+                    const isPreciseRootLocation = isActive && !activeProjectSubsectionId;
 
                     return (
                         <div key={route.id} className={isExpandable ? adminShell.navGroup : undefined}>
                             <a
                                 href={route.path}
                                 onClick={(event) => onNavigate(event, route)}
-                                aria-current={isActive ? 'location' : undefined}
+                                aria-current={isPreciseRootLocation ? 'location' : undefined}
                                 aria-expanded={isExpandable ? isExpanded : undefined}
                                 aria-controls={isExpandable ? childListId : undefined}
                                 className={cx(adminShell.navLink, isActive && adminShell.navLinkActive)}
