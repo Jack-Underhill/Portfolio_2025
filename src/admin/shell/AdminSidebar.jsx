@@ -4,8 +4,9 @@ import AdminNavChevron from './AdminNavChevron.jsx';
 import AdminNavIcon from './AdminNavIcon.jsx';
 
 function AdminSidebar({
-    activeRoute,
+    activeRouteId,
     activeProjectSubsectionId,
+    isProjectsExpanded,
     onNavigate,
     onProjectSubsectionNavigate,
     onSave,
@@ -23,9 +24,10 @@ function AdminSidebar({
 
             <nav className={adminShell.nav} aria-label="Admin pages">
                 {ADMIN_ROUTES.map((route) => {
-                    const isActive = activeRoute?.id === route.id;
+                    const isActive = activeRouteId === route.id;
                     const childRoutes = route.children || [];
                     const isExpandable = childRoutes.length > 0;
+                    const isExpanded = isExpandable && isProjectsExpanded;
                     const childListId = isExpandable ? `admin-nav-${route.id}-children` : undefined;
 
                     return (
@@ -34,18 +36,18 @@ function AdminSidebar({
                                 href={route.path}
                                 onClick={(event) => onNavigate(event, route)}
                                 aria-current={isActive ? 'location' : undefined}
-                                aria-expanded={isExpandable ? isActive : undefined}
+                                aria-expanded={isExpandable ? isExpanded : undefined}
                                 aria-controls={isExpandable ? childListId : undefined}
                                 className={cx(adminShell.navLink, isActive && adminShell.navLinkActive)}
                             >
                                 <span className={adminShell.navDisclosureSlot}>
-                                    {isExpandable && <AdminNavChevron isExpanded={isActive} />}
+                                    {isExpandable && <AdminNavChevron isExpanded={isExpanded} />}
                                 </span>
                                 <AdminNavIcon icon={route.icon} />
                                 <span className={adminShell.navLinkLabel}>{route.label}</span>
                             </a>
 
-                            {isExpandable && isActive && (
+                            {isExpanded && (
                                 <div id={childListId} className={adminShell.navChildList}>
                                     {childRoutes.map((childRoute) => {
                                         const isChildActive = childRoute.id === activeProjectSubsectionId;

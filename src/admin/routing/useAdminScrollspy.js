@@ -32,6 +32,12 @@ function getScrollMetrics() {
   };
 }
 
+function resolveViewportTopOffset(viewportTopOffset, activeSectionId) {
+  return typeof viewportTopOffset === 'function'
+    ? viewportTopOffset(activeSectionId)
+    : viewportTopOffset;
+}
+
 export function useAdminScrollspy({
   activeSectionId,
   enabled = true,
@@ -59,11 +65,15 @@ export function useAdminScrollspy({
     if (programmaticScrollRef.current) return;
 
     const sectionRects = getObservedScrollLocationRects(locations, getTargetElement);
+    const resolvedViewportTopOffset = resolveViewportTopOffset(
+      viewportTopOffset,
+      activeSectionIdRef.current,
+    );
 
     const nextSectionId = getActiveScrollSection(sectionRects, {
       ...getScrollMetrics(),
       currentSectionId: activeSectionIdRef.current,
-      viewportTop: viewportTopOffset,
+      viewportTop: resolvedViewportTopOffset,
     });
 
     if (nextSectionId && nextSectionId !== activeSectionIdRef.current) {
@@ -80,14 +90,16 @@ export function useAdminScrollspy({
     window.requestAnimationFrame(updateActiveSection);
   }, [updateActiveSection]);
 
-  const scrollToSection = useCallback((sectionId, options = {}) => {
-    const location = locations.find(({ id }) => id === sectionId);
-    const element = location ? getTargetElement(location.scrollTarget) : null;
+  const scrollToTarget = useCallback((scrollTarget, options = {}) => {
+    const element = getTargetElement(scrollTarget);
     if (!element || typeof window === 'undefined') return false;
+
+    const resolvedViewportTopOffset = options.viewportTopOffset
+      ?? resolveViewportTopOffset(viewportTopOffset, activeSectionIdRef.current);
 
     if (options.skipIfVisible && isScrollSectionAcceptablyVisible(element.getBoundingClientRect(), {
       ...getScrollMetrics(),
-      viewportTop: viewportTopOffset,
+      viewportTop: resolvedViewportTopOffset,
     })) {
       return true;
     }
@@ -115,7 +127,14 @@ export function useAdminScrollspy({
     );
 
     return true;
-  }, [getTargetElement, locations, releaseProgrammaticScroll, viewportTopOffset]);
+  }, [getTargetElement, releaseProgrammaticScroll, viewportTopOffset]);
+
+  const scrollToSection = useCallback((sectionId, options = {}) => {
+    const location = locations.find(({ id }) => id === sectionId);
+    return location
+      ? scrollToTarget(location.scrollTarget, options)
+      : false;
+  }, [locations, scrollToTarget]);
 
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return undefined;
@@ -148,6 +167,7 @@ export function useAdminScrollspy({
 
   return {
     scrollToSection,
+    scrollToTarget,
   };
 }
 
