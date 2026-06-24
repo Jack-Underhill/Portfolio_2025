@@ -4,12 +4,16 @@ import { isScrollSectionAcceptablyVisible } from './scrollspyUtils.js';
 
 const NAVIGATION_PHASES = Object.freeze({
   IDLE: 'idle',
+  LOADING: 'loading',
   NAVIGATING: 'navigating',
 });
 
 const NAVIGATION_SETTLE_TOLERANCE_PX = 24;
 const NAVIGATION_FALLBACK_TIMEOUT_MS = 1600;
 const REDUCED_MOTION_SETTLE_FRAMES = 2;
+const ROUTE_TARGET_STABLE_FRAMES = 2;
+const ROUTE_TARGET_MAX_MEASURE_FRAMES = 24;
+const ROUTE_TARGET_POSITION_TOLERANCE_PX = 1;
 const SCROLL_INTERRUPTION_KEYS = new Set([
   'ArrowDown',
   'ArrowLeft',
@@ -79,12 +83,20 @@ function isNavigationTargetSettled(element) {
   );
 }
 
+function getElementDocumentTop(element) {
+  const rect = element?.getBoundingClientRect();
+  if (!rect || !Number.isFinite(rect.top)) return null;
+
+  return rect.top + (window.scrollY || document.documentElement.scrollTop || 0);
+}
+
 export function useAdminNavigationCoordinator({
   getTargetElement,
   initialObservedLeafId = null,
   onNavigateRoute,
   onObservedLeafChange,
   onObservedRouteReplace,
+  onRouteTargetFallback,
 }) {
   const [navigationPhase, setNavigationPhase] = useState(NAVIGATION_PHASES.IDLE);
   const [navigationTarget, setNavigationTarget] = useState(null);
@@ -96,6 +108,7 @@ export function useAdminNavigationCoordinator({
   const onNavigateRouteRef = useRef(onNavigateRoute);
   const onObservedLeafChangeRef = useRef(onObservedLeafChange);
   const onObservedRouteReplaceRef = useRef(onObservedRouteReplace);
+  const onRouteTargetFallbackRef = useRef(onRouteTargetFallback);
 
   useEffect(() => {
     onNavigateRouteRef.current = onNavigateRoute;
@@ -108,6 +121,10 @@ export function useAdminNavigationCoordinator({
   useEffect(() => {
     onObservedRouteReplaceRef.current = onObservedRouteReplace;
   }, [onObservedRouteReplace]);
+
+  useEffect(() => {
+    onRouteTargetFallbackRef.current = onRouteTargetFallback;
+  }, [onRouteTargetFallback]);
 
   const clearSettleLifecycle = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -172,6 +189,16 @@ export function useAdminNavigationCoordinator({
     }
   }, [releaseNavigation]);
 
+  const startProgrammaticScroll = useCallback((element) => {
+    const shouldReduceMotion = prefersReducedMotion();
+    setNavigationPhase(NAVIGATION_PHASES.NAVIGATING);
+    element.scrollIntoView({
+      block: 'start',
+      behavior: shouldReduceMotion ? 'auto' : 'smooth',
+    });
+    monitorNavigationSettlement(element, shouldReduceMotion);
+  }, [monitorNavigationSettlement]);
+
   const scrollToTarget = useCallback((scrollTarget, options = {}) => {
     if (typeof window === 'undefined') return false;
 
@@ -206,18 +233,95 @@ export function useAdminNavigationCoordinator({
       return false;
     }
 
-    const shouldReduceMotion = prefersReducedMotion();
-    element.scrollIntoView({
-      block: 'start',
-      behavior: shouldReduceMotion ? 'auto' : 'smooth',
-    });
-    monitorNavigationSettlement(element, shouldReduceMotion);
+    startProgrammaticScroll(element);
     return true;
   }, [
     clearSettleLifecycle,
     getTargetElement,
-    monitorNavigationSettlement,
     releaseNavigation,
+    startProgrammaticScroll,
+  ]);
+
+  const navigateToRouteTarget = useCallback((target, options = {}) => {
+    if (!target?.path || !target?.scrollTarget) return false;
+
+    clearSettleLifecycle();
+    navigationTargetRef.current = target;
+    setNavigationTarget(target);
+    setNavigationPhase(NAVIGATION_PHASES.LOADING);
+
+    if (!options.isReady || typeof window === 'undefined') {
+      return true;
+    }
+
+    let activeTarget = target;
+    if (options.shouldUseFallback && options.fallbackTarget) {
+      activeTarget = options.fallbackTarget;
+      navigationTargetRef.current = activeTarget;
+      setNavigationTarget(activeTarget);
+      onRouteTargetFallbackRef.current?.(activeTarget.path);
+    }
+
+    let measuredFrames = 0;
+    let stableFrames = 0;
+    let previousDocumentTop = null;
+
+    const measureTarget = () => {
+      if (navigationTargetRef.current !== activeTarget) return;
+
+      const element = getTargetElement(activeTarget.scrollTarget);
+      const documentTop = getElementDocumentTop(element);
+      measuredFrames += 1;
+
+      if (documentTop !== null) {
+        stableFrames = previousDocumentTop !== null
+          && Math.abs(documentTop - previousDocumentTop) <= ROUTE_TARGET_POSITION_TOLERANCE_PX
+          ? stableFrames + 1
+          : 1;
+        previousDocumentTop = documentTop;
+
+        if (stableFrames >= ROUTE_TARGET_STABLE_FRAMES) {
+          settleFrameRef.current = null;
+          startProgrammaticScroll(element);
+          return;
+        }
+      } else {
+        stableFrames = 0;
+        previousDocumentTop = null;
+      }
+
+      if (measuredFrames >= ROUTE_TARGET_MAX_MEASURE_FRAMES) {
+        const fallbackTarget = options.fallbackTarget;
+        if (
+          fallbackTarget?.path
+          && fallbackTarget?.scrollTarget
+          && activeTarget !== fallbackTarget
+        ) {
+          activeTarget = fallbackTarget;
+          measuredFrames = 0;
+          stableFrames = 0;
+          previousDocumentTop = null;
+          navigationTargetRef.current = fallbackTarget;
+          setNavigationTarget(fallbackTarget);
+          onRouteTargetFallbackRef.current?.(fallbackTarget.path);
+          settleFrameRef.current = window.requestAnimationFrame(measureTarget);
+          return;
+        }
+
+        releaseNavigation();
+        return;
+      }
+
+      settleFrameRef.current = window.requestAnimationFrame(measureTarget);
+    };
+
+    settleFrameRef.current = window.requestAnimationFrame(measureTarget);
+    return true;
+  }, [
+    clearSettleLifecycle,
+    getTargetElement,
+    releaseNavigation,
+    startProgrammaticScroll,
   ]);
 
   const handleObservedLeafChange = useCallback((leafId) => {
@@ -270,6 +374,7 @@ export function useAdminNavigationCoordinator({
   return {
     handleObservedLeafChange,
     navigateToTarget,
+    navigateToRouteTarget,
     navigationPhase,
     navigationTarget,
     releaseNavigation,
