@@ -8,8 +8,16 @@ import CertificationsAdminPage        from './pages/CertificationsAdminPage.jsx'
 import SkillsAdminPage                from './pages/SkillsAdminPage.jsx';
 import ContactAdminPage               from './pages/ContactAdminPage.jsx';
 import { PROJECT_EDITOR_SECTIONS }    from './projects/projectEditorSections.js';
-import { ADMIN_ROUTE_IDS, ADMIN_ROUTES, getProjectSubsectionPath } from './routing/adminRoutes.js';
-import useAdminScrollspy             from './routing/useAdminScrollspy.js';
+import {
+    ADMIN_OBSERVED_LEAVES,
+    ADMIN_ROUTE_IDS,
+    ADMIN_ROUTES,
+    ADMIN_SCROLL_TARGET_TYPES,
+    getProjectSubsectionPath,
+} from './routing/adminRoutes.js';
+import useAdminScrollspy, {
+    useAdminScrollTargetRegistry,
+} from './routing/useAdminScrollspy.js';
 import useAdminRoute                  from './routing/useAdminRoute.js';
 import useUnsavedAdminWarning         from './routing/useUnsavedAdminWarning.js';
 import { adminUi }          from '../styles/recipes';
@@ -41,9 +49,19 @@ const initialCredentialsState = {
     certifications: [],
 };
 
-const TOP_LEVEL_ADMIN_SECTION_IDS = ADMIN_ROUTES.map((route) => route.id);
-const PROJECT_EDITOR_SECTION_IDS = PROJECT_EDITOR_SECTIONS.map((section) => section.id);
 const PROJECT_SCROLLSPY_TOP_OFFSET_PX = 208;
+const TOP_LEVEL_ADMIN_SCROLL_LOCATIONS = ADMIN_ROUTES.map((route) => ({
+    id: route.id,
+    observationTarget: route.scrollTarget,
+    scrollTarget: route.scrollTarget,
+}));
+const PROJECT_SCROLL_LOCATIONS = ADMIN_OBSERVED_LEAVES
+    .filter((leaf) => leaf.routeId === ADMIN_ROUTE_IDS.PROJECTS)
+    .map((leaf) => ({
+        id: leaf.projectSubsectionId,
+        observationTarget: leaf.observationTarget,
+        scrollTarget: leaf.scrollTarget,
+    }));
 
 function getAdminStatusMessage({
     error,
@@ -112,6 +130,10 @@ function AppAdmin() {
         routeNavigationAction,
     } = useAdminRoute();
     useUnsavedAdminWarning(hasUnsavedChanges);
+    const {
+        getTargetElement,
+        setTargetRef,
+    } = useAdminScrollTargetRegistry();
 
     const routeProjectSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeProjectSubsectionId)
         ? activeProjectSubsectionId
@@ -129,8 +151,9 @@ function AppAdmin() {
 
     const { scrollToSection: scrollToAdminSection } = useAdminScrollspy({
         activeSectionId: activeRoute.id,
+        getTargetElement,
+        locations: TOP_LEVEL_ADMIN_SCROLL_LOCATIONS,
         onActiveSectionChange: handleActiveAdminSectionChange,
-        sectionIds: TOP_LEVEL_ADMIN_SECTION_IDS,
     });
 
     const handleActiveProjectSectionChange = useCallback((sectionId) => {
@@ -143,14 +166,28 @@ function AppAdmin() {
 
     const {
         scrollToSection: scrollToProjectSection,
-        setSectionRef: setProjectSectionRef,
     } = useAdminScrollspy({
         activeSectionId: resolvedProjectSectionId,
         enabled: activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && projectsState.projects.length > 0,
+        getTargetElement,
+        locations: PROJECT_SCROLL_LOCATIONS,
         onActiveSectionChange: handleActiveProjectSectionChange,
-        sectionIds: PROJECT_EDITOR_SECTION_IDS,
         viewportTopOffset: PROJECT_SCROLLSPY_TOP_OFFSET_PX,
     });
+
+    const setAdminSectionRef = useCallback((sectionId, element) => {
+        setTargetRef({
+            type: ADMIN_SCROLL_TARGET_TYPES.ROOT_SECTION,
+            id: sectionId,
+        }, element);
+    }, [setTargetRef]);
+
+    const setProjectSectionRef = useCallback((sectionId, element) => {
+        setTargetRef({
+            type: ADMIN_SCROLL_TARGET_TYPES.PROJECT_SUBSECTION,
+            id: sectionId,
+        }, element);
+    }, [setTargetRef]);
 
     const handleAdminNavigate = useCallback((event, route) => {
         event?.preventDefault();
@@ -318,6 +355,7 @@ function AppAdmin() {
         isSaveInFlight: isSaving,
         onValidationBusyChange: setIsProjectValidationInFlight,
         activeProjectSectionId: resolvedProjectSectionId,
+        onAdminSectionMount: setAdminSectionRef,
         onProjectSectionMount: setProjectSectionRef,
         onProjectRecordSelect: handleProjectRecordSelect,
     };

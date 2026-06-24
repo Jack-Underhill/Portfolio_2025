@@ -1,7 +1,7 @@
 import AdminPageWrapper from '../shell/AdminPageWrapper';
 import CredentialGroupEditor from '../credentials/CredentialGroupEditor';
 
-function EducationAdminPage({ credentialsState, onCredentialsChange }) {
+function EducationAdminPage({ credentialsState, onCredentialsChange, onAdminSectionMount }) {
     const education = Array.isArray(credentialsState?.education) 
         ? credentialsState.education 
         : [];
@@ -16,6 +16,7 @@ function EducationAdminPage({ credentialsState, onCredentialsChange }) {
         <AdminPageWrapper
             name="Education"
             desc="Manage degree, minor, and transfer credential rows while preserving the grouped credentials payload."
+            onSectionMount={onAdminSectionMount}
             component={
                 <CredentialGroupEditor
                     kind="education"

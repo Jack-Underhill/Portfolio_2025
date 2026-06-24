@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import {
   getActiveScrollSection,
+  getObservedScrollLocationRects,
+  getScrollTargetKey,
   isScrollSectionAcceptablyVisible,
 } from '../../src/admin/routing/scrollspyUtils.js';
+import {
+  ADMIN_OBSERVED_LEAVES,
+  ADMIN_SCROLL_TARGET_TYPES,
+} from '../../src/admin/routing/adminRoutes.js';
 
 const DEFAULT_VIEWPORT = {
   scrollTop: 400,
@@ -14,6 +20,78 @@ const DEFAULT_VIEWPORT = {
 };
 
 describe('admin scrollspy utilities', () => {
+  it('creates stable keys for typed scroll targets', () => {
+    expect(getScrollTargetKey({
+      type: ADMIN_SCROLL_TARGET_TYPES.ROOT_SECTION,
+      id: 'projects',
+    })).toBe('root-section:projects');
+    expect(getScrollTargetKey(null)).toBeNull();
+  });
+
+  it('builds ordered observation geometry from the flattened leaf metadata', () => {
+    const observationTargets = ADMIN_OBSERVED_LEAVES.map((leaf) => leaf.observationTarget);
+    const uniqueTargetKeys = [...new Set(observationTargets.map(getScrollTargetKey))];
+    const classificationRect = { top: 240, bottom: 520 };
+    const elementsByTarget = new Map(uniqueTargetKeys.map((targetKey, index) => [
+      targetKey,
+      {
+        getBoundingClientRect: () => ({
+          top: index * 100,
+          bottom: (index + 1) * 100,
+        }),
+      },
+    ]));
+    elementsByTarget.set('project-subsection:classification', {
+      getBoundingClientRect: () => classificationRect,
+    });
+    elementsByTarget.set('root-section:projects', {
+      getBoundingClientRect: () => ({ top: 100, bottom: 800 }),
+    });
+    elementsByTarget.set('project-subsection:intro', {
+      getBoundingClientRect: () => ({ top: 200, bottom: 300 }),
+    });
+
+    const rects = getObservedScrollLocationRects(
+      ADMIN_OBSERVED_LEAVES,
+      (target) => elementsByTarget.get(getScrollTargetKey(target)) || null,
+    );
+
+    expect(rects.map(({ id }) => id)).toEqual(
+      ADMIN_OBSERVED_LEAVES.map(({ id }) => id),
+    );
+    expect(rects.slice(0, 3)).toEqual([
+      { id: 'about', rect: { top: 0, bottom: 100 } },
+      { id: 'projects/classification', rect: { top: 100, bottom: 200 } },
+      { id: 'projects/intro', rect: { top: 200, bottom: 300 } },
+    ]);
+    expect(rects[1].rect.top).not.toBe(classificationRect.top);
+    expect(rects.at(-1)).toEqual({
+      id: 'contact',
+      rect: { top: 1100, bottom: 1200 },
+    });
+  });
+
+  it('skips unavailable targets without changing the remaining location order', () => {
+    const elementsByTarget = new Map([
+      ['root-section:about', {
+        getBoundingClientRect: () => ({ top: -500, bottom: 80 }),
+      }],
+      ['project-subsection:intro', {
+        getBoundingClientRect: () => ({ top: 540, bottom: 900 }),
+      }],
+    ]);
+
+    const rects = getObservedScrollLocationRects(
+      ADMIN_OBSERVED_LEAVES.slice(0, 3),
+      (target) => elementsByTarget.get(getScrollTargetKey(target)) || null,
+    );
+
+    expect(rects).toEqual([
+      { id: 'about', rect: { top: -500, bottom: 540 } },
+      { id: 'projects/intro', rect: { top: 540, bottom: 900 } },
+    ]);
+  });
+
   it('returns no active section when no section rects are available', () => {
     expect(getActiveScrollSection([], DEFAULT_VIEWPORT)).toBeNull();
   });

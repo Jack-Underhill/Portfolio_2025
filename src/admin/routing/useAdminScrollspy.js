@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import {
   getActiveScrollSection,
+  getObservedScrollLocationRects,
+  getScrollTargetKey,
   isScrollSectionAcceptablyVisible,
 } from './scrollspyUtils.js';
 
@@ -33,11 +35,11 @@ function getScrollMetrics() {
 export function useAdminScrollspy({
   activeSectionId,
   enabled = true,
+  getTargetElement,
+  locations,
   onActiveSectionChange,
-  sectionIds,
   viewportTopOffset = 0,
 }) {
-  const sectionElementsRef = useRef(new Map());
   const activeSectionIdRef = useRef(activeSectionId);
   const onActiveSectionChangeRef = useRef(onActiveSectionChange);
   const programmaticScrollRef = useRef(false);
@@ -52,37 +54,11 @@ export function useAdminScrollspy({
     onActiveSectionChangeRef.current = onActiveSectionChange;
   }, [onActiveSectionChange]);
 
-  const setSectionRef = useCallback((sectionId, element) => {
-    if (!sectionId) return;
-
-    if (element) {
-      sectionElementsRef.current.set(sectionId, element);
-    } else {
-      sectionElementsRef.current.delete(sectionId);
-    }
-  }, []);
-
-  const getSectionElement = useCallback((sectionId) => {
-    if (sectionElementsRef.current.has(sectionId)) {
-      return sectionElementsRef.current.get(sectionId);
-    }
-
-    if (typeof document === 'undefined') return null;
-    return document.getElementById(sectionId);
-  }, []);
-
   const updateActiveSection = useCallback(() => {
     if (!enabled || typeof window === 'undefined' || typeof document === 'undefined') return;
     if (programmaticScrollRef.current) return;
 
-    const sectionRects = sectionIds
-      .map((id) => {
-        const element = getSectionElement(id);
-        return element
-          ? { id, rect: element.getBoundingClientRect() }
-          : null;
-      })
-      .filter(Boolean);
+    const sectionRects = getObservedScrollLocationRects(locations, getTargetElement);
 
     const nextSectionId = getActiveScrollSection(sectionRects, {
       ...getScrollMetrics(),
@@ -94,7 +70,7 @@ export function useAdminScrollspy({
       activeSectionIdRef.current = nextSectionId;
       onActiveSectionChangeRef.current?.(nextSectionId);
     }
-  }, [enabled, getSectionElement, sectionIds, viewportTopOffset]);
+  }, [enabled, getTargetElement, locations, viewportTopOffset]);
 
   const releaseProgrammaticScroll = useCallback(() => {
     window.clearTimeout(programmaticScrollTimeoutRef.current);
@@ -105,7 +81,8 @@ export function useAdminScrollspy({
   }, [updateActiveSection]);
 
   const scrollToSection = useCallback((sectionId, options = {}) => {
-    const element = getSectionElement(sectionId);
+    const location = locations.find(({ id }) => id === sectionId);
+    const element = location ? getTargetElement(location.scrollTarget) : null;
     if (!element || typeof window === 'undefined') return false;
 
     if (options.skipIfVisible && isScrollSectionAcceptablyVisible(element.getBoundingClientRect(), {
@@ -138,7 +115,7 @@ export function useAdminScrollspy({
     );
 
     return true;
-  }, [getSectionElement, releaseProgrammaticScroll, viewportTopOffset]);
+  }, [getTargetElement, locations, releaseProgrammaticScroll, viewportTopOffset]);
 
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return undefined;
@@ -171,7 +148,38 @@ export function useAdminScrollspy({
 
   return {
     scrollToSection,
-    setSectionRef,
+  };
+}
+
+export function useAdminScrollTargetRegistry() {
+  const targetElementsRef = useRef(new Map());
+
+  const setTargetRef = useCallback((target, element) => {
+    const targetKey = getScrollTargetKey(target);
+    if (!targetKey) return;
+
+    if (element) {
+      targetElementsRef.current.set(targetKey, element);
+    } else {
+      targetElementsRef.current.delete(targetKey);
+    }
+  }, []);
+
+  const getTargetElement = useCallback((target) => {
+    const targetKey = getScrollTargetKey(target);
+    return targetKey
+      ? targetElementsRef.current.get(targetKey) || null
+      : null;
+  }, []);
+
+  const getObservationRects = useCallback((locations) => (
+    getObservedScrollLocationRects(locations, getTargetElement)
+  ), [getTargetElement]);
+
+  return {
+    getObservationRects,
+    getTargetElement,
+    setTargetRef,
   };
 }
 

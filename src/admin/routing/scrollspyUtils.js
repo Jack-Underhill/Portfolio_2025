@@ -5,6 +5,40 @@ const ACTIVE_LINE_MIN = 48;
 const ACTIVE_LINE_MAX = 96;
 const EDGE_EPSILON = 4;
 
+export function getScrollTargetKey(target) {
+  if (!target?.type || !target?.id) return null;
+  return `${target.type}:${target.id}`;
+}
+
+export function getObservedScrollLocationRects(locations, getTargetElement) {
+  if (!Array.isArray(locations) || typeof getTargetElement !== 'function') {
+    return [];
+  }
+
+  const observedLocations = locations
+    .map((location) => {
+      const element = getTargetElement(location.observationTarget);
+      return element
+        ? {
+            id: location.id,
+            elementRect: element.getBoundingClientRect(),
+          }
+        : null;
+    })
+    .filter(Boolean);
+
+  return observedLocations.map((location, index) => {
+    const nextLocation = observedLocations[index + 1];
+    return {
+      id: location.id,
+      rect: {
+        top: location.elementRect.top,
+        bottom: nextLocation?.elementRect.top ?? location.elementRect.bottom,
+      },
+    };
+  });
+}
+
 export function getVisibleArea(rect, viewport) {
   const visibleTop = Math.max(rect.top, viewport.top);
   const visibleBottom = Math.min(rect.bottom, viewport.bottom);

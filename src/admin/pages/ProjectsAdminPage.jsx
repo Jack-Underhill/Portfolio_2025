@@ -7,6 +7,7 @@ function ProjectsAdminPage({
     isSaveInFlight,
     onValidationBusyChange,
     activeProjectSectionId,
+    onAdminSectionMount,
     onProjectSectionMount,
     onProjectRecordSelect,
 }) {
@@ -14,6 +15,7 @@ function ProjectsAdminPage({
         <AdminPageWrapper
             name="Projects"
             desc="Edit project cards, media, links, draft context, and validation before publishing changes."
+            onSectionMount={onAdminSectionMount}
             component={
                 <ProjectsSection
                     state={projectsState}

@@ -1,7 +1,7 @@
 import AdminPageWrapper from '../shell/AdminPageWrapper';
 import CredentialGroupEditor from '../credentials/CredentialGroupEditor';
 
-function CertificationsAdminPage({ credentialsState, onCredentialsChange }) {
+function CertificationsAdminPage({ credentialsState, onCredentialsChange, onAdminSectionMount }) {
     const certifications = Array.isArray(credentialsState?.certifications)
         ? credentialsState.certifications
         : [];
@@ -16,6 +16,7 @@ function CertificationsAdminPage({ credentialsState, onCredentialsChange }) {
         <AdminPageWrapper
             name="Certifications"
             desc="Manage certification and certificate credential rows while preserving the grouped credentials payload."
+            onSectionMount={onAdminSectionMount}
             component={
                 <CredentialGroupEditor
                     kind="certification"
