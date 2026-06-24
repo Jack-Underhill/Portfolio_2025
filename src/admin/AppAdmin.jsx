@@ -17,6 +17,7 @@ import {
 import useAdminScrollspy, {
     useAdminScrollTargetRegistry,
 } from './routing/useAdminScrollspy.js';
+import useAdminNavigationCoordinator from './routing/useAdminNavigationCoordinator.js';
 import useAdminRoute                  from './routing/useAdminRoute.js';
 import useUnsavedAdminWarning         from './routing/useUnsavedAdminWarning.js';
 import { adminUi }          from '../styles/recipes';
@@ -156,7 +157,7 @@ function AppAdmin() {
     const observedActiveLeaf = OBSERVED_LEAVES_BY_ID.get(observedActiveLeafId)
         || ADMIN_OBSERVED_LEAVES[0];
 
-    const handleObservedActiveLeafChange = useCallback((leafId) => {
+    const handleObservedActiveLeafVisualChange = useCallback((leafId) => {
         const leaf = OBSERVED_LEAVES_BY_ID.get(leafId);
         if (!leaf) return;
 
@@ -164,17 +165,33 @@ function AppAdmin() {
         if (leaf.projectSubsectionId) {
             setActiveProjectSectionId(leaf.projectSubsectionId);
         }
+    }, []);
+
+    const handleObservedRouteReplace = useCallback((leafId) => {
+        const leaf = OBSERVED_LEAVES_BY_ID.get(leafId);
+        if (!leaf) return;
+
         replaceAdminRoute(leaf.path);
     }, [replaceAdminRoute]);
 
     const {
-        scrollToSection: scrollToObservedLeaf,
+        handleObservedLeafChange,
+        navigateToTarget,
+        navigationTarget,
         scrollToTarget,
-    } = useAdminScrollspy({
+    } = useAdminNavigationCoordinator({
+        getTargetElement,
+        initialObservedLeafId: observedActiveLeafId,
+        onNavigateRoute: pushAdminRoute,
+        onObservedLeafChange: handleObservedActiveLeafVisualChange,
+        onObservedRouteReplace: handleObservedRouteReplace,
+    });
+
+    useAdminScrollspy({
         activeSectionId: observedActiveLeafId,
         getTargetElement,
         locations: ADMIN_OBSERVED_LEAVES,
-        onActiveSectionChange: handleObservedActiveLeafChange,
+        onActiveSectionChange: handleObservedLeafChange,
         viewportTopOffset: getObservedLeafViewportTopOffset,
     });
 
@@ -194,16 +211,24 @@ function AppAdmin() {
 
     const handleAdminNavigate = useCallback((event, route) => {
         event?.preventDefault();
-        pushAdminRoute(route);
-        scrollToTarget(route.scrollTarget);
-    }, [pushAdminRoute, scrollToTarget]);
+        navigateToTarget({
+            source: 'root-click',
+            path: route.path,
+            destinationId: route.id,
+            scrollTarget: route.scrollTarget,
+        });
+    }, [navigateToTarget]);
 
     const handleProjectSubsectionNavigate = useCallback((event, section) => {
         event?.preventDefault();
         setActiveProjectSectionId(section.id);
-        pushAdminRoute(getProjectSubsectionPath(section.id));
-        scrollToTarget(section.scrollTarget);
-    }, [pushAdminRoute, scrollToTarget]);
+        navigateToTarget({
+            source: 'child-click',
+            path: getProjectSubsectionPath(section.id),
+            destinationId: `${ADMIN_ROUTE_IDS.PROJECTS}/${section.id}`,
+            scrollTarget: section.scrollTarget,
+        });
+    }, [navigateToTarget]);
 
     const handleProjectRecordSelect = useCallback((sectionId) => {
         const isKnownProjectSection = PROJECT_EDITOR_SECTIONS.some((section) => section.id === sectionId);
@@ -212,11 +237,11 @@ function AppAdmin() {
             : PROJECT_EDITOR_SECTIONS[0].id;
 
         setActiveProjectSectionId(nextSectionId);
-        scrollToObservedLeaf(
-            `${ADMIN_ROUTE_IDS.PROJECTS}/${nextSectionId}`,
-            { skipIfVisible: true },
-        );
-    }, [scrollToObservedLeaf]);
+        const leaf = OBSERVED_LEAVES_BY_ID.get(`${ADMIN_ROUTE_IDS.PROJECTS}/${nextSectionId}`);
+        if (leaf) {
+            scrollToTarget(leaf.scrollTarget, { skipIfVisible: true });
+        }
+    }, [scrollToTarget]);
 
     useEffect(() => {
         if (routeProjectSectionId) {
@@ -240,9 +265,12 @@ function AppAdmin() {
         }
 
         if (activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS && routeProjectSectionId) {
-            const didScrollToProjectSection = scrollToObservedLeaf(
+            const projectLeaf = OBSERVED_LEAVES_BY_ID.get(
                 `${ADMIN_ROUTE_IDS.PROJECTS}/${routeProjectSectionId}`,
             );
+            const didScrollToProjectSection = projectLeaf
+                ? scrollToTarget(projectLeaf.scrollTarget)
+                : false;
             if (didScrollToProjectSection) return;
         }
 
@@ -253,7 +281,6 @@ function AppAdmin() {
         projectsState.projects.length,
         routeNavigationAction,
         routeProjectSectionId,
-        scrollToObservedLeaf,
         scrollToTarget,
     ]);
 
@@ -376,6 +403,8 @@ function AppAdmin() {
             isProjectsExpanded={
                 observedActiveLeaf.routeId === ADMIN_ROUTE_IDS.PROJECTS
                 || activeRoute.id === ADMIN_ROUTE_IDS.PROJECTS
+                || navigationTarget?.destinationId === ADMIN_ROUTE_IDS.PROJECTS
+                || navigationTarget?.destinationId?.startsWith(`${ADMIN_ROUTE_IDS.PROJECTS}/`)
             }
             onNavigate={handleAdminNavigate}
             onProjectSubsectionNavigate={handleProjectSubsectionNavigate}

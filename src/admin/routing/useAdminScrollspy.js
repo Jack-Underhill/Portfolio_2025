@@ -4,19 +4,7 @@ import {
   getActiveScrollSection,
   getObservedScrollLocationRects,
   getScrollTargetKey,
-  isScrollSectionAcceptablyVisible,
 } from './scrollspyUtils.js';
-
-const PROGRAMMATIC_SCROLL_TIMEOUT_MS = 1200;
-const INSTANT_SCROLL_TIMEOUT_MS = 80;
-
-function prefersReducedMotion() {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return false;
-  }
-
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 function getScrollMetrics() {
   const documentElement = document.documentElement;
@@ -48,9 +36,6 @@ export function useAdminScrollspy({
 }) {
   const activeSectionIdRef = useRef(activeSectionId);
   const onActiveSectionChangeRef = useRef(onActiveSectionChange);
-  const programmaticScrollRef = useRef(false);
-  const programmaticScrollTimeoutRef = useRef(null);
-  const removeScrollEndListenerRef = useRef(null);
 
   useEffect(() => {
     activeSectionIdRef.current = activeSectionId;
@@ -62,7 +47,6 @@ export function useAdminScrollspy({
 
   const updateActiveSection = useCallback(() => {
     if (!enabled || typeof window === 'undefined' || typeof document === 'undefined') return;
-    if (programmaticScrollRef.current) return;
 
     const sectionRects = getObservedScrollLocationRects(locations, getTargetElement);
     const resolvedViewportTopOffset = resolveViewportTopOffset(
@@ -81,60 +65,6 @@ export function useAdminScrollspy({
       onActiveSectionChangeRef.current?.(nextSectionId);
     }
   }, [enabled, getTargetElement, locations, viewportTopOffset]);
-
-  const releaseProgrammaticScroll = useCallback(() => {
-    window.clearTimeout(programmaticScrollTimeoutRef.current);
-    removeScrollEndListenerRef.current?.();
-    removeScrollEndListenerRef.current = null;
-    programmaticScrollRef.current = false;
-    window.requestAnimationFrame(updateActiveSection);
-  }, [updateActiveSection]);
-
-  const scrollToTarget = useCallback((scrollTarget, options = {}) => {
-    const element = getTargetElement(scrollTarget);
-    if (!element || typeof window === 'undefined') return false;
-
-    const resolvedViewportTopOffset = options.viewportTopOffset
-      ?? resolveViewportTopOffset(viewportTopOffset, activeSectionIdRef.current);
-
-    if (options.skipIfVisible && isScrollSectionAcceptablyVisible(element.getBoundingClientRect(), {
-      ...getScrollMetrics(),
-      viewportTop: resolvedViewportTopOffset,
-    })) {
-      return true;
-    }
-
-    const shouldReduceMotion = prefersReducedMotion();
-    const behavior = shouldReduceMotion ? 'auto' : 'smooth';
-
-    programmaticScrollRef.current = true;
-    window.clearTimeout(programmaticScrollTimeoutRef.current);
-    removeScrollEndListenerRef.current?.();
-    removeScrollEndListenerRef.current = null;
-    element.scrollIntoView({ block: 'start', behavior });
-
-    if (!shouldReduceMotion && 'onscrollend' in window) {
-      const handleScrollEnd = () => releaseProgrammaticScroll();
-      window.addEventListener('scrollend', handleScrollEnd, { once: true });
-      removeScrollEndListenerRef.current = () => {
-        window.removeEventListener('scrollend', handleScrollEnd);
-      };
-    }
-
-    programmaticScrollTimeoutRef.current = window.setTimeout(
-      releaseProgrammaticScroll,
-      shouldReduceMotion ? INSTANT_SCROLL_TIMEOUT_MS : PROGRAMMATIC_SCROLL_TIMEOUT_MS,
-    );
-
-    return true;
-  }, [getTargetElement, releaseProgrammaticScroll, viewportTopOffset]);
-
-  const scrollToSection = useCallback((sectionId, options = {}) => {
-    const location = locations.find(({ id }) => id === sectionId);
-    return location
-      ? scrollToTarget(location.scrollTarget, options)
-      : false;
-  }, [locations, scrollToTarget]);
 
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return undefined;
@@ -156,19 +86,13 @@ export function useAdminScrollspy({
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
-      window.clearTimeout(programmaticScrollTimeoutRef.current);
-      removeScrollEndListenerRef.current?.();
-      removeScrollEndListenerRef.current = null;
       if (animationFrame !== null) {
         window.cancelAnimationFrame(animationFrame);
       }
     };
   }, [enabled, updateActiveSection]);
 
-  return {
-    scrollToSection,
-    scrollToTarget,
-  };
+  return { updateActiveSection };
 }
 
 export function useAdminScrollTargetRegistry() {
