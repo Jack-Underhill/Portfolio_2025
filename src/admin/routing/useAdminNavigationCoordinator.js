@@ -119,30 +119,12 @@ export function useAdminNavigationCoordinator({
   const onObservedRouteReplaceRef = useRef(onObservedRouteReplace);
   const onProjectStabilizationSettledRef = useRef(onProjectStabilizationSettled);
   const onRouteTargetFallbackRef = useRef(onRouteTargetFallback);
-
-  useEffect(() => {
-    onNavigateRouteRef.current = onNavigateRoute;
-  }, [onNavigateRoute]);
-
-  useEffect(() => {
-    onNavigationSettledRef.current = onNavigationSettled;
-  }, [onNavigationSettled]);
-
-  useEffect(() => {
-    onObservedLeafChangeRef.current = onObservedLeafChange;
-  }, [onObservedLeafChange]);
-
-  useEffect(() => {
-    onObservedRouteReplaceRef.current = onObservedRouteReplace;
-  }, [onObservedRouteReplace]);
-
-  useEffect(() => {
-    onProjectStabilizationSettledRef.current = onProjectStabilizationSettled;
-  }, [onProjectStabilizationSettled]);
-
-  useEffect(() => {
-    onRouteTargetFallbackRef.current = onRouteTargetFallback;
-  }, [onRouteTargetFallback]);
+  onNavigateRouteRef.current = onNavigateRoute;
+  onNavigationSettledRef.current = onNavigationSettled;
+  onObservedLeafChangeRef.current = onObservedLeafChange;
+  onObservedRouteReplaceRef.current = onObservedRouteReplace;
+  onProjectStabilizationSettledRef.current = onProjectStabilizationSettled;
+  onRouteTargetFallbackRef.current = onRouteTargetFallback;
 
   const clearSettleLifecycle = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -239,25 +221,6 @@ export function useAdminNavigationCoordinator({
     });
     monitorNavigationSettlement(element, shouldReduceMotion);
   }, [monitorNavigationSettlement]);
-
-  const scrollToTarget = useCallback((scrollTarget, options = {}) => {
-    if (typeof window === 'undefined') return false;
-
-    const element = getTargetElement(scrollTarget);
-    if (!element) return false;
-
-    if (options.skipIfVisible && isScrollSectionAcceptablyVisible(element.getBoundingClientRect(), {
-      ...getScrollMetrics(),
-      viewportTop: options.viewportTopOffset ?? getElementScrollMarginTop(element),
-    })) {
-      return true;
-    }
-
-    const behavior = options.behavior
-      || (prefersReducedMotion() ? 'auto' : 'smooth');
-    element.scrollIntoView({ block: 'start', behavior });
-    return true;
-  }, [getTargetElement]);
 
   const beginProjectRecordStabilization = useCallback((scrollTarget) => {
     if (
@@ -491,7 +454,6 @@ export function useAdminNavigationCoordinator({
     navigationPhase,
     navigationTarget,
     releaseNavigation,
-    scrollToTarget,
   };
 }
 

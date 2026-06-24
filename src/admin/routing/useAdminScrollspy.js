@@ -20,30 +20,24 @@ function getScrollMetrics() {
   };
 }
 
-function resolveViewportTopOffset(viewportTopOffset, activeSectionId) {
+function resolveViewportTopOffset(viewportTopOffset, observedLeafId) {
   return typeof viewportTopOffset === 'function'
-    ? viewportTopOffset(activeSectionId)
+    ? viewportTopOffset(observedLeafId)
     : viewportTopOffset;
 }
 
 export function useAdminScrollspy({
-  activeSectionId,
+  observedLeafId,
   enabled = true,
   getTargetElement,
   locations,
-  onActiveSectionChange,
+  onObservedLeafChange,
   viewportTopOffset = 0,
 }) {
-  const activeSectionIdRef = useRef(activeSectionId);
-  const onActiveSectionChangeRef = useRef(onActiveSectionChange);
-
-  useEffect(() => {
-    activeSectionIdRef.current = activeSectionId;
-  }, [activeSectionId]);
-
-  useEffect(() => {
-    onActiveSectionChangeRef.current = onActiveSectionChange;
-  }, [onActiveSectionChange]);
+  const observedLeafIdRef = useRef(observedLeafId);
+  const onObservedLeafChangeRef = useRef(onObservedLeafChange);
+  observedLeafIdRef.current = observedLeafId;
+  onObservedLeafChangeRef.current = onObservedLeafChange;
 
   const updateActiveSection = useCallback(() => {
     if (!enabled || typeof window === 'undefined' || typeof document === 'undefined') return;
@@ -51,18 +45,18 @@ export function useAdminScrollspy({
     const sectionRects = getObservedScrollLocationRects(locations, getTargetElement);
     const resolvedViewportTopOffset = resolveViewportTopOffset(
       viewportTopOffset,
-      activeSectionIdRef.current,
+      observedLeafIdRef.current,
     );
 
     const nextSectionId = getActiveScrollSection(sectionRects, {
       ...getScrollMetrics(),
-      currentSectionId: activeSectionIdRef.current,
+      currentSectionId: observedLeafIdRef.current,
       viewportTop: resolvedViewportTopOffset,
     });
 
-    if (nextSectionId && nextSectionId !== activeSectionIdRef.current) {
-      activeSectionIdRef.current = nextSectionId;
-      onActiveSectionChangeRef.current?.(nextSectionId);
+    if (nextSectionId && nextSectionId !== observedLeafIdRef.current) {
+      observedLeafIdRef.current = nextSectionId;
+      onObservedLeafChangeRef.current?.(nextSectionId);
     }
   }, [enabled, getTargetElement, locations, viewportTopOffset]);
 
@@ -116,12 +110,7 @@ export function useAdminScrollTargetRegistry() {
       : null;
   }, []);
 
-  const getObservationRects = useCallback((locations) => (
-    getObservedScrollLocationRects(locations, getTargetElement)
-  ), [getTargetElement]);
-
   return {
-    getObservationRects,
     getTargetElement,
     setTargetRef,
   };

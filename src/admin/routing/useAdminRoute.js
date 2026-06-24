@@ -111,17 +111,10 @@ export function useAdminRoute() {
     return writeRoute(pathOrRoute, 'replace');
   }, [writeRoute]);
 
-  const navigateToRouteId = useCallback((event, route) => {
-    event?.preventDefault();
-    return pushAdminRoute(route);
-  }, [pushAdminRoute]);
-
   return {
     activeRoute: routeMatch.route,
     activeProjectSubsectionId: routeMatch.projectSubsectionId,
     canonicalPath: routeMatch.canonicalPath,
-    navigateToRoute: pushAdminRoute,
-    navigateToRouteId,
     pushAdminRoute,
     replaceAdminRoute,
     routeNavigationAction: routeMatch.navigationAction,

@@ -6,7 +6,6 @@ import ProjectEditor from '../projects/ProjectEditor';
 import ProjectDraftContextPanel from '../projects/ProjectDraftContextPanel';
 import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
 import ProjectPreviewActions from '../projects/ProjectPreviewActions';
-import { PROJECT_EDITOR_SECTIONS } from '../projects/projectEditorSections';
 import CardSelector from '../navigation/CardSelector';
 import AdminSectionToolbar from '../shell/AdminSectionToolbar';
 
@@ -28,9 +27,9 @@ function ProjectsSection({
     onChange,
     isSaveInFlight = false,
     onValidationBusyChange,
-    activeSectionId = PROJECT_EDITOR_SECTIONS[0].id,
     onProjectSectionMount,
     onProjectRecordChangeStart,
+    onProjectWorkspaceReturn,
 }) {
     const { projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
@@ -65,9 +64,6 @@ function ProjectsSection({
     const resolvedActiveId = projects.some((p) => p.id === activeId)
         ? activeId
         : (projects[0]?.id ?? null);
-    const resolvedActiveSectionId = PROJECT_EDITOR_SECTIONS.some((section) => section.id === activeSectionId)
-        ? activeSectionId
-        : PROJECT_EDITOR_SECTIONS[0].id;
 
     const activeProject = projects.find((p) => p.id === resolvedActiveId) ?? null;
 
@@ -142,22 +138,15 @@ function ProjectsSection({
         setIsContextPanelOpen((isOpen) => !isOpen);
     }, []);
 
-    const scrollToProjectsSection = useCallback(() => {
-        requestAnimationFrame(() => {
-            const target = document.getElementById('projects');
-            target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
-        });
-    }, []);
-
     const handleContextCopied = useCallback(() => {
         setIsContextPanelOpen(false);
-        scrollToProjectsSection();
-    }, [scrollToProjectsSection]);
+        onProjectWorkspaceReturn?.();
+    }, [onProjectWorkspaceReturn]);
 
     const handleAgentDraftApplied = useCallback(() => {
         setIsImportPanelOpen(false);
-        scrollToProjectsSection();
-    }, [scrollToProjectsSection]);
+        onProjectWorkspaceReturn?.();
+    }, [onProjectWorkspaceReturn]);
 
     const handleSelectProject = useCallback((projectId) => {
         if (projectId === resolvedActiveId) return;
@@ -331,7 +320,6 @@ function ProjectsSection({
 
                     <ProjectEditor
                         project={activeProject}
-                        activeSectionId={resolvedActiveSectionId}
                         onChange={(updated) => handleChangeProject(activeProject.id, updated)}
                         onRemove={() => handleRemoveProject(activeProject.id)}
                         onSectionMount={onProjectSectionMount}
