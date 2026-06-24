@@ -108,7 +108,7 @@ function StandardProjectsGroup({
             key={`${index}-${projectGroup.map((project) => project.id).join('|')}`}
             items={projectGroup}
             direction={index % 2 === 0 ? 'right' : 'left'}
-            speed={80}
+            speed={60}
             gap={16}
             pauseOnHover
             pauseOnFocus

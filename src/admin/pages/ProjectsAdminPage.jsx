@@ -9,7 +9,7 @@ function ProjectsAdminPage({
     activeProjectSectionId,
     onAdminSectionMount,
     onProjectSectionMount,
-    onProjectRecordSelect,
+    onProjectRecordChangeStart,
 }) {
     return (
         <AdminPageWrapper
@@ -24,7 +24,7 @@ function ProjectsAdminPage({
                     onValidationBusyChange={onValidationBusyChange}
                     activeSectionId={activeProjectSectionId}
                     onProjectSectionMount={onProjectSectionMount}
-                    onProjectRecordSelect={onProjectRecordSelect}
+                    onProjectRecordChangeStart={onProjectRecordChangeStart}
                 />
             }
         />

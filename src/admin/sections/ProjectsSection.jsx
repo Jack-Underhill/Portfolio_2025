@@ -30,7 +30,7 @@ function ProjectsSection({
     onValidationBusyChange,
     activeSectionId = PROJECT_EDITOR_SECTIONS[0].id,
     onProjectSectionMount,
-    onProjectRecordSelect,
+    onProjectRecordChangeStart,
 }) {
     const { projects } = state;
     const [activeId, setActiveId] = useState(projects[0]?.id ?? null);
@@ -41,7 +41,6 @@ function ProjectsSection({
     const [validationState, setValidationState] = useState(null);
     const [isValidating, setIsValidating] = useState(false);
     const isMountedRef = useRef(false);
-    const shouldScrollToActiveSectionRef = useRef(false);
     const validationRequestId = useRef(0);
 
     useEffect(() => {
@@ -71,13 +70,6 @@ function ProjectsSection({
         : PROJECT_EDITOR_SECTIONS[0].id;
 
     const activeProject = projects.find((p) => p.id === resolvedActiveId) ?? null;
-
-    useEffect(() => {
-        if (!shouldScrollToActiveSectionRef.current || !activeProject) return;
-
-        shouldScrollToActiveSectionRef.current = false;
-        onProjectRecordSelect?.(resolvedActiveSectionId);
-    }, [activeProject, onProjectRecordSelect, resolvedActiveSectionId]);
 
     const previewProject = useMemo(() => {
         if (!activeProject) return null;
@@ -170,9 +162,9 @@ function ProjectsSection({
     const handleSelectProject = useCallback((projectId) => {
         if (projectId === resolvedActiveId) return;
 
-        shouldScrollToActiveSectionRef.current = true;
+        onProjectRecordChangeStart?.();
         setActiveId(projectId);
-    }, [resolvedActiveId]);
+    }, [onProjectRecordChangeStart, resolvedActiveId]);
 
     const handleClosePreview = useCallback(() => {
         setIsPreviewOpen(false);

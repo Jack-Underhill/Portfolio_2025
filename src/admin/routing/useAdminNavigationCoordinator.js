@@ -6,10 +6,14 @@ const NAVIGATION_PHASES = Object.freeze({
   IDLE: 'idle',
   LOADING: 'loading',
   NAVIGATING: 'navigating',
+  STABILIZING: 'stabilizing',
 });
 
 const NAVIGATION_SETTLE_TOLERANCE_PX = 24;
 const NAVIGATION_FALLBACK_TIMEOUT_MS = 1600;
+const PROJECT_STABILIZATION_MAX_FRAMES = 12;
+const PROJECT_STABILIZATION_STABLE_FRAMES = 2;
+const PROJECT_STABILIZATION_TOLERANCE_PX = 1;
 const REDUCED_MOTION_SETTLE_FRAMES = 2;
 const ROUTE_TARGET_STABLE_FRAMES = 2;
 const ROUTE_TARGET_MAX_MEASURE_FRAMES = 24;
@@ -97,6 +101,7 @@ export function useAdminNavigationCoordinator({
   onNavigationSettled,
   onObservedLeafChange,
   onObservedRouteReplace,
+  onProjectStabilizationSettled,
   onRouteTargetFallback,
 }) {
   const [navigationPhase, setNavigationPhase] = useState(NAVIGATION_PHASES.IDLE);
@@ -105,11 +110,14 @@ export function useAdminNavigationCoordinator({
   const observedLeafIdRef = useRef(initialObservedLeafId);
   const settleFrameRef = useRef(null);
   const settleTimeoutRef = useRef(null);
+  const stabilizationFrameRef = useRef(null);
+  const stabilizationRef = useRef(null);
   const removeScrollEndListenerRef = useRef(null);
   const onNavigateRouteRef = useRef(onNavigateRoute);
   const onNavigationSettledRef = useRef(onNavigationSettled);
   const onObservedLeafChangeRef = useRef(onObservedLeafChange);
   const onObservedRouteReplaceRef = useRef(onObservedRouteReplace);
+  const onProjectStabilizationSettledRef = useRef(onProjectStabilizationSettled);
   const onRouteTargetFallbackRef = useRef(onRouteTargetFallback);
 
   useEffect(() => {
@@ -129,6 +137,10 @@ export function useAdminNavigationCoordinator({
   }, [onObservedRouteReplace]);
 
   useEffect(() => {
+    onProjectStabilizationSettledRef.current = onProjectStabilizationSettled;
+  }, [onProjectStabilizationSettled]);
+
+  useEffect(() => {
     onRouteTargetFallbackRef.current = onRouteTargetFallback;
   }, [onRouteTargetFallback]);
 
@@ -144,6 +156,24 @@ export function useAdminNavigationCoordinator({
     removeScrollEndListenerRef.current?.();
     removeScrollEndListenerRef.current = null;
   }, []);
+
+  const clearStabilizationLifecycle = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    if (stabilizationFrameRef.current !== null) {
+      window.cancelAnimationFrame(stabilizationFrameRef.current);
+      stabilizationFrameRef.current = null;
+    }
+    stabilizationRef.current = null;
+  }, []);
+
+  const releaseProjectStabilization = useCallback(() => {
+    if (!stabilizationRef.current) return;
+
+    clearStabilizationLifecycle();
+    setNavigationPhase(NAVIGATION_PHASES.IDLE);
+    onProjectStabilizationSettledRef.current?.();
+  }, [clearStabilizationLifecycle]);
 
   const releaseNavigation = useCallback((reason = 'settled') => {
     const releasedTarget = navigationTargetRef.current;
@@ -229,10 +259,75 @@ export function useAdminNavigationCoordinator({
     return true;
   }, [getTargetElement]);
 
+  const beginProjectRecordStabilization = useCallback((scrollTarget) => {
+    if (
+      typeof window === 'undefined'
+      || navigationTargetRef.current
+      || !scrollTarget
+    ) {
+      return false;
+    }
+
+    const element = getTargetElement(scrollTarget);
+    const initialRect = element?.getBoundingClientRect();
+    if (!initialRect || !Number.isFinite(initialRect.top)) return false;
+
+    clearStabilizationLifecycle();
+    stabilizationRef.current = {
+      scrollTarget,
+      viewportTop: initialRect.top,
+    };
+    setNavigationPhase(NAVIGATION_PHASES.STABILIZING);
+
+    let measuredFrames = 0;
+    let stableFrames = 0;
+
+    const restoreAnchor = () => {
+      const stabilization = stabilizationRef.current;
+      if (!stabilization) return;
+
+      measuredFrames += 1;
+      const currentElement = getTargetElement(stabilization.scrollTarget);
+      const currentRect = currentElement?.getBoundingClientRect();
+
+      if (currentRect && Number.isFinite(currentRect.top)) {
+        const offset = currentRect.top - stabilization.viewportTop;
+        if (Math.abs(offset) <= PROJECT_STABILIZATION_TOLERANCE_PX) {
+          stableFrames += 1;
+        } else {
+          stableFrames = 0;
+          window.scrollBy({ top: offset, left: 0, behavior: 'auto' });
+        }
+
+        if (stableFrames >= PROJECT_STABILIZATION_STABLE_FRAMES) {
+          releaseProjectStabilization();
+          return;
+        }
+      } else {
+        stableFrames = 0;
+      }
+
+      if (measuredFrames >= PROJECT_STABILIZATION_MAX_FRAMES) {
+        releaseProjectStabilization();
+        return;
+      }
+
+      stabilizationFrameRef.current = window.requestAnimationFrame(restoreAnchor);
+    };
+
+    stabilizationFrameRef.current = window.requestAnimationFrame(restoreAnchor);
+    return true;
+  }, [
+    clearStabilizationLifecycle,
+    getTargetElement,
+    releaseProjectStabilization,
+  ]);
+
   const navigateToTarget = useCallback((target) => {
     if (!target?.path || !target?.scrollTarget) return false;
 
     clearSettleLifecycle();
+    clearStabilizationLifecycle();
     navigationTargetRef.current = target;
     setNavigationTarget(target);
     setNavigationPhase(NAVIGATION_PHASES.NAVIGATING);
@@ -248,6 +343,7 @@ export function useAdminNavigationCoordinator({
     return true;
   }, [
     clearSettleLifecycle,
+    clearStabilizationLifecycle,
     getTargetElement,
     releaseNavigation,
     startProgrammaticScroll,
@@ -257,6 +353,7 @@ export function useAdminNavigationCoordinator({
     if (!target?.path || !target?.scrollTarget) return false;
 
     clearSettleLifecycle();
+    clearStabilizationLifecycle();
     navigationTargetRef.current = target;
     setNavigationTarget(target);
     setNavigationPhase(NAVIGATION_PHASES.LOADING);
@@ -330,12 +427,15 @@ export function useAdminNavigationCoordinator({
     return true;
   }, [
     clearSettleLifecycle,
+    clearStabilizationLifecycle,
     getTargetElement,
     releaseNavigation,
     startProgrammaticScroll,
   ]);
 
   const handleObservedLeafChange = useCallback((leafId) => {
+    if (stabilizationRef.current) return;
+
     observedLeafIdRef.current = leafId;
     onObservedLeafChangeRef.current?.(leafId);
 
@@ -379,10 +479,12 @@ export function useAdminNavigationCoordinator({
       window.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('keydown', handleKeyDown);
       clearSettleLifecycle();
+      clearStabilizationLifecycle();
     };
-  }, [clearSettleLifecycle, releaseNavigation]);
+  }, [clearSettleLifecycle, clearStabilizationLifecycle, releaseNavigation]);
 
   return {
+    beginProjectRecordStabilization,
     handleObservedLeafChange,
     navigateToTarget,
     navigateToRouteTarget,

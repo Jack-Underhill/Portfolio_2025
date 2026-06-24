@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { loadAdminData, saveAdminData } from './api/adminClient';
 import AdminShell                     from './shell/AdminShell.jsx';
 import AboutAdminPage                 from './pages/AboutAdminPage.jsx';
@@ -171,6 +171,7 @@ function AppAdmin() {
     const [observedActiveLeafId, setObservedActiveLeafId] = useState(() => (
         getRouteObservedLeafId(activeRoute.id, activeProjectSubsectionId)
     ));
+    const updateObservedActiveLeafRef = useRef(null);
     useUnsavedAdminWarning(hasUnsavedChanges);
     const {
         getTargetElement,
@@ -231,11 +232,11 @@ function AppAdmin() {
     ]);
 
     const {
+        beginProjectRecordStabilization,
         handleObservedLeafChange,
         navigateToTarget,
         navigateToRouteTarget,
         navigationTarget,
-        scrollToTarget,
     } = useAdminNavigationCoordinator({
         getTargetElement,
         initialObservedLeafId: observedActiveLeafId,
@@ -243,16 +244,23 @@ function AppAdmin() {
         onNavigationSettled: handleNavigationSettled,
         onObservedLeafChange: handleObservedActiveLeafVisualChange,
         onObservedRouteReplace: handleObservedRouteReplace,
+        onProjectStabilizationSettled: () => {
+            updateObservedActiveLeafRef.current?.();
+        },
         onRouteTargetFallback: replaceAdminRoute,
     });
 
-    useAdminScrollspy({
+    const { updateActiveSection: updateObservedActiveLeaf } = useAdminScrollspy({
         activeSectionId: observedActiveLeafId,
         getTargetElement,
         locations: ADMIN_OBSERVED_LEAVES,
         onActiveSectionChange: handleObservedLeafChange,
         viewportTopOffset: getObservedLeafViewportTopOffset,
     });
+
+    useEffect(() => {
+        updateObservedActiveLeafRef.current = updateObservedActiveLeaf;
+    }, [updateObservedActiveLeaf]);
 
     const setAdminSectionRef = useCallback((sectionId, element) => {
         setTargetRef({
@@ -289,18 +297,11 @@ function AppAdmin() {
         });
     }, [navigateToTarget]);
 
-    const handleProjectRecordSelect = useCallback((sectionId) => {
-        const isKnownProjectSection = PROJECT_EDITOR_SECTIONS.some((section) => section.id === sectionId);
-        const nextSectionId = isKnownProjectSection
-            ? sectionId
-            : PROJECT_EDITOR_SECTIONS[0].id;
+    const handleProjectRecordChangeStart = useCallback(() => {
+        if (observedActiveLeaf.routeId !== ADMIN_ROUTE_IDS.PROJECTS) return;
 
-        setActiveProjectSectionId(nextSectionId);
-        const leaf = OBSERVED_LEAVES_BY_ID.get(`${ADMIN_ROUTE_IDS.PROJECTS}/${nextSectionId}`);
-        if (leaf) {
-            scrollToTarget(leaf.scrollTarget, { skipIfVisible: true });
-        }
-    }, [scrollToTarget]);
+        beginProjectRecordStabilization(observedActiveLeaf.scrollTarget);
+    }, [beginProjectRecordStabilization, observedActiveLeaf]);
 
     useEffect(() => {
         if (routeProjectSectionId) {
@@ -463,7 +464,7 @@ function AppAdmin() {
         activeProjectSectionId: resolvedProjectSectionId,
         onAdminSectionMount: setAdminSectionRef,
         onProjectSectionMount: setProjectSectionRef,
-        onProjectRecordSelect: handleProjectRecordSelect,
+        onProjectRecordChangeStart: handleProjectRecordChangeStart,
     };
 
     return (
