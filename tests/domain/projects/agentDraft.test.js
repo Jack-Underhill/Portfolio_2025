@@ -161,6 +161,25 @@ describe('agent project draft import helpers', () => {
         'published',
         'featuredRank',
       ],
+      changedFields: [
+        'title',
+        'description',
+        'overview',
+        'role',
+        'url',
+        'sourceUrl',
+        'writeupUrl',
+        'videoPageUrl',
+        'features',
+        'metrics',
+        'improvements',
+        'challenges',
+        'techStack',
+        'projectType',
+        'labels',
+        'published',
+        'featuredRank',
+      ],
       warnings: [],
     });
   });
@@ -245,6 +264,7 @@ describe('agent project draft import helpers', () => {
     expect(result.project).toEqual(activeProject);
     expect(result.patch).toEqual({});
     expect(result.appliedFields).toEqual([]);
+    expect(result.changedFields).toEqual([]);
     expect(result.warnings).toEqual([
       'Ignored unsupported project draft field "id".',
       'Ignored unsupported project draft field "permalink".',
@@ -347,6 +367,25 @@ describe('agent project draft import helpers', () => {
       projectType: '',
       labels: [],
     });
+  });
+
+  it('reports only fields whose normalized imported values actually changed', () => {
+    const result = applyAgentProjectDraftPatch(createActiveProject(), {
+      title: ' Current title ',
+      description: 'Updated card copy',
+      techStack: {
+        frontend: ['React'],
+      },
+      labels: ['Current'],
+    });
+
+    expect(result.appliedFields).toEqual([
+      'title',
+      'description',
+      'techStack',
+      'labels',
+    ]);
+    expect(result.changedFields).toEqual(['description']);
   });
 
   it('serializes safe current project context for existing-project review', () => {

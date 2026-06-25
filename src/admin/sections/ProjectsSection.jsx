@@ -6,6 +6,11 @@ import ProjectEditor from '../projects/ProjectEditor';
 import ProjectDraftContextPanel from '../projects/ProjectDraftContextPanel';
 import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
 import ProjectPreviewActions from '../projects/ProjectPreviewActions';
+import {
+    getProjectFieldWorkflowLocationIds,
+    getProjectWorkflowLocationId,
+    PROJECTS_WORKFLOW_LOCATION_ID,
+} from '../projects/projectEditorSections';
 import CardSelector from '../navigation/CardSelector';
 import AdminSectionToolbar from '../shell/AdminSectionToolbar';
 
@@ -115,15 +120,15 @@ function ProjectsSection({
         setValidationState(null);
     }, []);
 
-    const updateState = (patch) => {
+    const updateState = (patch, ownerLocationIds) => {
         clearValidationState();
-        onChange({ ...state, ...patch });
+        onChange({ ...state, ...patch }, ownerLocationIds);
     };
 
-    const setProjects = (updater) => {
+    const setProjects = (updater, ownerLocationIds) => {
         const nextRaw = typeof updater === 'function' ? updater(projects) : updater;
         const next = normalizeProjectSortOrder(nextRaw);
-        updateState({ projects: next });
+        updateState({ projects: next }, ownerLocationIds);
     };
 
     const handleOpenPreview = useCallback(() => {
@@ -210,7 +215,7 @@ function ProjectsSection({
         setProjects((prev) => [
             ...prev,
             createEmptyProjectDraft({ id: crypto.randomUUID(), sortOrder: prev.length }),
-        ]);
+        ], [PROJECTS_WORKFLOW_LOCATION_ID]);
     };
 
     const handleReorderProjects = (fromIndex, toIndex) => {
@@ -219,12 +224,21 @@ function ProjectsSection({
             const [moved] = next.splice(fromIndex, 1);
             next.splice(toIndex, 0, moved);
             return next;
-        });
+        }, [PROJECTS_WORKFLOW_LOCATION_ID]);
     };
 
-    const handleChangeProject = (id, updatedProject) => {
-        setProjects((prev) =>
-            prev.map((p) => (p.id === id ? updatedProject : p))
+    const handleChangeProject = (id, updatedProject, ownerLocationIds) => {
+        setProjects(
+            (prev) => prev.map((p) => (p.id === id ? updatedProject : p)),
+            ownerLocationIds,
+        );
+    };
+
+    const handleProjectSectionChange = (sectionId, updatedProject) => {
+        handleChangeProject(
+            activeProject.id,
+            updatedProject,
+            [getProjectWorkflowLocationId(sectionId)],
         );
     };
 
@@ -233,18 +247,23 @@ function ProjectsSection({
             project: null,
             patch: {},
             appliedFields: [],
+            changedFields: [],
             warnings: ['No active project is selected.'],
         };
 
         const result = applyAgentProjectDraftPatch(activeProject, payloadText);
-        if (result.appliedFields.length > 0) {
-            handleChangeProject(activeProject.id, result.project);
+        const ownerLocationIds = getProjectFieldWorkflowLocationIds(result.changedFields);
+        if (ownerLocationIds.length > 0) {
+            handleChangeProject(activeProject.id, result.project, ownerLocationIds);
         }
         return result;
     };
 
     const handleRemoveProject = (id) => {
-        setProjects((prev) => prev.filter((p) => p.id !== id));
+        setProjects(
+            (prev) => prev.filter((p) => p.id !== id),
+            [PROJECTS_WORKFLOW_LOCATION_ID],
+        );
         setIsPreviewOpen(false);
     };
 
@@ -320,7 +339,7 @@ function ProjectsSection({
 
                     <ProjectEditor
                         project={activeProject}
-                        onChange={(updated) => handleChangeProject(activeProject.id, updated)}
+                        onSectionChange={handleProjectSectionChange}
                         onRemove={() => handleRemoveProject(activeProject.id)}
                         onSectionMount={onProjectSectionMount}
                     />

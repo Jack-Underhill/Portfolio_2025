@@ -5,6 +5,10 @@ import {
   getAdminWorkflowBranchLocationIds,
 } from '../../src/admin/routing/adminRoutes.js';
 import {
+  getProjectFieldWorkflowLocationIds,
+  getProjectWorkflowLocationId,
+} from '../../src/admin/projects/projectEditorSections.js';
+import {
   ADMIN_WORKFLOW_VALIDATION,
   ADMIN_WORKFLOW_VISUAL_STATE,
   beginAdminWorkflowValidation,
@@ -55,6 +59,20 @@ describe('admin workflow state', () => {
       'projects/lists',
       'projects/challenges',
     ]);
+  });
+
+  it('maps project fields and collection operations to explicit workflow owners', () => {
+    expect(getProjectWorkflowLocationId('links')).toBe('projects/links');
+    expect(getProjectFieldWorkflowLocationIds([
+      'url',
+      'sourceUrl',
+      'techStack',
+      'url',
+    ])).toEqual([
+      'projects/links',
+      'projects/tech',
+    ]);
+    expect(getProjectFieldWorkflowLocationIds(['unsupportedField'])).toEqual([]);
   });
 
   it('keeps Links and Tech dirty when edited in sequence', () => {

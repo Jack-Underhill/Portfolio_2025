@@ -3,17 +3,17 @@ import ImagePreview from '../../media/ImagePreview';
 import { adminUi } from '../../../styles/recipes';
 
 
-function ProjectMediaFields({ project, headingId, onChange }) {
+function ProjectMediaFields({ project, headingId, handleFieldChange }) {
     const handleImageFileChange = (file) => {
-        onChange({ ...project, imageFile: file });
+        handleFieldChange('imageFile', file);
     };
 
     const handleArchitectureImageFileChange = (file) => {
-        onChange({ ...project, architectureImageFile: file });
+        handleFieldChange('architectureImageFile', file);
     };
 
     const handleVideoFileChange = (file) => {
-        onChange({ ...project, videoFile: file });
+        handleFieldChange('videoFile', file);
     };
 
     return (

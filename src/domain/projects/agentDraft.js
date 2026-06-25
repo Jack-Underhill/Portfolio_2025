@@ -60,6 +60,18 @@ function hasOwnValue(object, field) {
   return Object.prototype.hasOwnProperty.call(object, field);
 }
 
+function areDraftFieldValuesEqual(currentValue, nextValue) {
+  if (Object.is(currentValue, nextValue)) return true;
+  if (
+    (Array.isArray(currentValue) || isPlainObject(currentValue))
+    && (Array.isArray(nextValue) || isPlainObject(nextValue))
+  ) {
+    return JSON.stringify(currentValue) === JSON.stringify(nextValue);
+  }
+
+  return false;
+}
+
 function extractJsonSource(source) {
   const text = String(source ?? '').trim();
   const fencedJsonMatch = text.match(/```json\s*([\s\S]*?)```/i);
@@ -353,10 +365,15 @@ export function applyAgentProjectDraftPatch(activeProject, source) {
     if (hasOwnValue(currentProject, field)) nextProject[field] = currentProject[field];
   });
 
+  const changedFields = mapped.appliedFields.filter((field) => (
+    !areDraftFieldValuesEqual(currentProject[field], nextProject[field])
+  ));
+
   return {
     project: nextProject,
     patch: mapped.patch,
     appliedFields: mapped.appliedFields,
+    changedFields,
     warnings: [...parsed.warnings, ...mapped.warnings],
   };
 }

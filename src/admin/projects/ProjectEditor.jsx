@@ -8,12 +8,12 @@ import ProjectIntroFields       from './editor/ProjectIntroFields';
 import { getProjectEditorSectionElementId } from './projectEditorSections';
 import { adminUi }              from '../../styles/recipes';
 
-function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
+function ProjectEditor({ project, onSectionChange, onRemove, onSectionMount }) {
   const permalink = (project.permalink || '').trim();
   const challenges = Array.isArray(project.challenges) ? project.challenges : [];
 
-  const handleFieldChange = (field, value) => {
-    onChange({ ...project, [field]: value });
+  const createSectionFieldChangeHandler = (sectionId) => (field, value) => {
+    onSectionChange(sectionId, { ...project, [field]: value });
   };
 
   const getSectionRef = (sectionId) => (element) => {
@@ -41,7 +41,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             projectType={project.projectType}
             labels={project.labels}
             headingId={getSectionHeadingId('classification')}
-            handleFieldChange={handleFieldChange}
+            handleFieldChange={createSectionFieldChangeHandler('classification')}
             onRemove={onRemove}
           />
         </section>
@@ -59,7 +59,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             overview={project.overview}
             role={project.role}
             headingId={getSectionHeadingId('intro')}
-            handleFieldChange={handleFieldChange}
+            handleFieldChange={createSectionFieldChangeHandler('intro')}
           />
         </section>
 
@@ -72,7 +72,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
           <ProjectMediaFields
             project={project}
             headingId={getSectionHeadingId('media')}
-            onChange={onChange}
+            handleFieldChange={createSectionFieldChangeHandler('media')}
           />
         </section>
 
@@ -89,7 +89,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             writeup={project.writeupUrl}
             video={project.videoPageUrl}
             headingId={getSectionHeadingId('links')}
-            handleFieldChange={handleFieldChange}
+            handleFieldChange={createSectionFieldChangeHandler('links')}
           />
         </section>
 
@@ -103,7 +103,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             projectId={project.id}
             stack={project.techStack}
             headingId={getSectionHeadingId('tech')}
-            handleFieldChange={handleFieldChange}
+            handleFieldChange={createSectionFieldChangeHandler('tech')}
           />
         </section>
 
@@ -119,7 +119,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             metrics={project.metrics}
             improvements={project.improvements}
             headingId={getSectionHeadingId('lists')}
-            handleFieldChange={handleFieldChange}
+            handleFieldChange={createSectionFieldChangeHandler('lists')}
           />
         </section>
 
@@ -133,7 +133,7 @@ function ProjectEditor({ project, onChange, onRemove, onSectionMount }) {
             projectId={project.id}
             challenges={challenges}
             headingId={getSectionHeadingId('challenges')}
-            handleFieldChange={handleFieldChange}
+            handleFieldChange={createSectionFieldChangeHandler('challenges')}
           />
         </section>
       </div>
