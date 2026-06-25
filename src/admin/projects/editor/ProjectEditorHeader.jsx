@@ -31,7 +31,7 @@ function ProjectEditorHeader({ permalink, sortOrder, published, title, handleFie
                         checked={published !== false}
                         aria-label={`Published state for ${projectName}`}
                         onChange={(e) => handleFieldChange('published', e.target.checked)}
-                        className="h-4 w-4 rounded border-admin-checkbox-border bg-admin-panel"
+                        className="h-4 w-4 rounded border-admin-checkbox-border bg-admin-control"
                     />
                     Published
                 </label>

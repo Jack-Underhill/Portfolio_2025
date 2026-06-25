@@ -188,7 +188,7 @@ function SkillsSection({ state, onChange }) {
                                             key={itemKey}
                                             className={cx(
                                                 'grid gap-3 p-3 md:grid-cols-[1fr_auto] md:items-end',
-                                                adminUi.panel,
+                                                adminUi.editorRow,
                                             )}
                                         >
                                             <TextInput
@@ -213,7 +213,7 @@ function SkillsSection({ state, onChange }) {
                                                             itemIndex,
                                                             { published: e.target.checked },
                                                         )}
-                                                        className="h-4 w-4 rounded border-admin-checkbox-border bg-admin-panel"
+                                                        className="h-4 w-4 rounded border-admin-checkbox-border bg-admin-control"
                                                     />
                                                     Published
                                                 </label>

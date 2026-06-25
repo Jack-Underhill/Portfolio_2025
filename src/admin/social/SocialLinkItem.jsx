@@ -13,7 +13,7 @@ function SocialLinkItem({
 
     return (
         <div
-            className={`grid gap-2 md:grid-cols-[minmax(0,120px)_minmax(0,140px)_minmax(0,1fr)_auto_auto] items-start px-3 py-2 ${adminUi.panel}`}
+            className={`grid items-start gap-2 md:grid-cols-[minmax(0,120px)_minmax(0,140px)_minmax(0,1fr)_auto_auto] ${adminUi.editorPanel}`}
         >
             {/* icon upload + preview */}
             <div className="space-y-1">
@@ -58,7 +58,7 @@ function SocialLinkItem({
                     checked={link.published !== false}
                     aria-label={`Published state for ${linkName}`}
                     onChange={(event) => onChange('published', event.target.checked)}
-                    className="h-4 w-4 rounded border-admin-checkbox-border bg-admin-panel"
+                    className="h-4 w-4 rounded border-admin-checkbox-border bg-admin-control"
                 />
                 Published
             </label>

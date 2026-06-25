@@ -106,7 +106,7 @@ function ProjectChallengeFields({ projectId, challenges, headingId, handleFieldC
                         onReorder={reorderChallenges}
                     />
 
-                    <div className="rounded-md border border-admin-border-subtle p-3 space-y-2">
+                    <div className={`${adminUi.editorRow} space-y-2 p-3`}>
                         <div className="flex items-center justify-between">
                             <p className={adminUi.helperText}>Item {resolvedActiveIndex + 1}</p>
                             <button

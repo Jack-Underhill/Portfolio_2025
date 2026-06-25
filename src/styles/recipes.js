@@ -2,11 +2,11 @@ export const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 export const adminForm = {
   input:
-    "w-full rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm outline-none focus:border-admin-accent-hover focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "w-full rounded-md border border-admin-border bg-admin-control px-3 py-2 text-sm outline-none focus:border-admin-accent-hover focus-visible:ring-2 focus-visible:ring-admin-accent-text",
   textarea:
-    "block w-full resize-none overflow-hidden rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm outline-none focus:border-admin-accent-hover focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "block w-full resize-none overflow-hidden rounded-md border border-admin-border bg-admin-control px-3 py-2 text-sm outline-none focus:border-admin-accent-hover focus-visible:ring-2 focus-visible:ring-admin-accent-text",
   fileShell:
-    "relative inline-flex min-h-9 w-full items-center rounded-md border border-admin-border bg-admin-panel px-3 py-2 transition-colors cursor-pointer hover:border-admin-accent-hover hover:bg-admin-panel-hover focus-within:ring-2 focus-within:ring-admin-accent-text",
+    "relative inline-flex min-h-9 w-full items-center rounded-md border border-admin-border bg-admin-control px-3 py-2 transition-colors cursor-pointer hover:border-admin-accent-hover hover:bg-admin-panel-hover focus-within:ring-2 focus-within:ring-admin-accent-text",
   fileInput:
     "absolute inset-0 size-full cursor-pointer opacity-0",
   fileAction:
@@ -33,7 +33,9 @@ export const adminUi = {
   emptyText: "text-xs text-admin-text-faint",
   panel: "rounded-md border border-admin-border bg-admin-panel",
   panelDragOver: "ring-1 ring-admin-accent-hover bg-admin-panel/70",
-  editorPanel: "border border-admin-border rounded-lg p-4 space-y-4",
+  editorPanel:
+    "space-y-4 rounded-lg border border-admin-border-subtle bg-admin-panel p-4 shadow-subtle-highlight",
+  editorRow: "rounded-md bg-admin-row",
   projectEditorSection: "scroll-mt-[14rem] lg:scroll-mt-[13rem]",
   divider: "space-y-3 pt-2 border-t border-admin-border-subtle",
   imageBorder: "border border-admin-border",

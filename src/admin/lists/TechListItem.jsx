@@ -17,7 +17,7 @@ function TechListItem({
             {...dragProps}
             className={cx(
                 'flex gap-2 items-center px-2 py-1',
-                adminUi.panel,
+                adminUi.editorRow,
                 isDragOver && 'bg-admin-panel-hover/70',
                 isDragging && 'opacity-70',
             )}

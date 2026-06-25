@@ -20,15 +20,17 @@
 
   --color-success-code: #2FBE0D;
 
-  --color-admin-page: #020617;
+  --color-admin-page: #08111E;
+  --color-admin-row: #0B1423;
   --color-admin-panel: #0F172A;
+  --color-admin-control: #111C31;
   --color-admin-panel-hover: #1E293B;
   --color-admin-border: #334155;
   --color-admin-border-subtle: #1E293B;
   --color-admin-text: #F8FAFC;
   --color-admin-text-muted: #CBD5E1;
-  --color-admin-text-subtle: #94A3B8;
-  --color-admin-text-faint: #64748B;
+  --color-admin-text-subtle: #A3B2C5;
+  --color-admin-text-faint: #7F8FA4;
   --color-admin-accent: #0284C7;
   --color-admin-accent-hover: #0EA5E9;
   --color-admin-accent-text: #7DD3FC;
