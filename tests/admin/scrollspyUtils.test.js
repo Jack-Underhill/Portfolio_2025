@@ -71,6 +71,42 @@ describe('admin scrollspy utilities', () => {
     });
   });
 
+  it('ends the final Projects leaf at the Education observation boundary', () => {
+    const challengesIndex = ADMIN_OBSERVED_LEAVES.findIndex(
+      ({ id }) => id === 'projects/challenges',
+    );
+    const educationIndex = ADMIN_OBSERVED_LEAVES.findIndex(
+      ({ id }) => id === 'education',
+    );
+    const elementsByTarget = new Map([
+      ['project-subsection:challenges', {
+        getBoundingClientRect: () => ({ top: 300, bottom: 900 }),
+      }],
+      ['root-section:education', {
+        getBoundingClientRect: () => ({ top: 740, bottom: 1200 }),
+      }],
+    ]);
+
+    const rects = getObservedScrollLocationRects(
+      [
+        ADMIN_OBSERVED_LEAVES[challengesIndex],
+        ADMIN_OBSERVED_LEAVES[educationIndex],
+      ],
+      (target) => elementsByTarget.get(getScrollTargetKey(target)) || null,
+    );
+
+    expect(rects).toEqual([
+      {
+        id: 'projects/challenges',
+        rect: { top: 300, bottom: 740 },
+      },
+      {
+        id: 'education',
+        rect: { top: 740, bottom: 1200 },
+      },
+    ]);
+  });
+
   it('skips unavailable targets without changing the remaining location order', () => {
     const elementsByTarget = new Map([
       ['root-section:about', {

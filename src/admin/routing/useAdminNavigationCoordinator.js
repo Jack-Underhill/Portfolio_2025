@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import {
+  NAVIGATION_RELEASE_ACTIONS,
+  getNavigationReleaseAction,
+  getObservedLeafTransition,
+} from './navigationCoordinatorPolicy.js';
 import { isScrollSectionAcceptablyVisible } from './scrollspyUtils.js';
 
 const NAVIGATION_PHASES = Object.freeze({
@@ -166,16 +171,22 @@ export function useAdminNavigationCoordinator({
 
   const releaseNavigation = useCallback((reason = 'settled') => {
     const releasedTarget = navigationTargetRef.current;
+    const observedLeafId = observedLeafIdRef.current;
+    const releaseAction = getNavigationReleaseAction({
+      hasNavigationTarget: Boolean(releasedTarget),
+      observedLeafId,
+      reason,
+    });
     clearSettleLifecycle();
     navigationTargetRef.current = null;
     setNavigationTarget(null);
     setNavigationPhase(NAVIGATION_PHASES.IDLE);
 
-    if (releasedTarget && reason === 'interrupted' && observedLeafIdRef.current) {
-      onObservedRouteReplaceRef.current?.(observedLeafIdRef.current);
-    } else if (releasedTarget && reason === 'settled') {
+    if (releaseAction === NAVIGATION_RELEASE_ACTIONS.REPLACE_OBSERVED_ROUTE) {
+      onObservedRouteReplaceRef.current?.(observedLeafId);
+    } else if (releaseAction === NAVIGATION_RELEASE_ACTIONS.NOTIFY_SETTLED) {
       onNavigationSettledRef.current?.({
-        observedLeafId: observedLeafIdRef.current,
+        observedLeafId,
         target: releasedTarget,
       });
     }
@@ -421,12 +432,17 @@ export function useAdminNavigationCoordinator({
   ]);
 
   const handleObservedLeafChange = useCallback((leafId) => {
-    if (stabilizationRef.current) return;
+    const transition = getObservedLeafTransition({
+      hasNavigationTarget: Boolean(navigationTargetRef.current),
+      isStabilizing: Boolean(stabilizationRef.current),
+      leafId,
+    });
+    if (!transition.shouldUpdateObservedLeaf) return;
 
     observedLeafIdRef.current = leafId;
     onObservedLeafChangeRef.current?.(leafId);
 
-    if (!navigationTargetRef.current) {
+    if (transition.shouldReplaceRoute) {
       onObservedRouteReplaceRef.current?.(leafId);
     }
   }, []);
