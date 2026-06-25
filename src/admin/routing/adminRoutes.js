@@ -101,6 +101,25 @@ export const ADMIN_ROUTES = Object.freeze([
 export const DEFAULT_ADMIN_ROUTE = ADMIN_ROUTES[0];
 export const DEFAULT_PROJECT_SUBSECTION_ROUTE = PROJECT_SUBSECTION_ROUTES[0];
 
+export const ADMIN_WORKFLOW_LOCATIONS = Object.freeze(
+  ADMIN_ROUTES.flatMap((route) => [
+    Object.freeze({
+      id: route.id,
+      routeId: route.id,
+      parentId: null,
+    }),
+    ...(route.children || []).map((childRoute) => Object.freeze({
+      id: `${route.id}/${childRoute.id}`,
+      routeId: route.id,
+      parentId: route.id,
+    })),
+  ]),
+);
+
+export const ADMIN_WORKFLOW_LOCATION_IDS = Object.freeze(
+  ADMIN_WORKFLOW_LOCATIONS.map((location) => location.id),
+);
+
 export const ADMIN_OBSERVED_LEAVES = Object.freeze(
   ADMIN_ROUTES.flatMap((route) => {
     if (route.id !== ADMIN_ROUTE_IDS.PROJECTS) {
@@ -128,6 +147,15 @@ export const ADMIN_OBSERVED_LEAVES = Object.freeze(
     }));
   }),
 );
+
+export function getAdminWorkflowBranchLocationIds(parentLocationId) {
+  return ADMIN_WORKFLOW_LOCATIONS
+    .filter((location) => (
+      location.id === parentLocationId
+      || location.parentId === parentLocationId
+    ))
+    .map((location) => location.id);
+}
 
 function trimTrailingSlash(pathname) {
   if (pathname === '/') return pathname;
