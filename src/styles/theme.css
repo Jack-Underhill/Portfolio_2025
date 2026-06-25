@@ -68,8 +68,18 @@
   --scrollbar-modal-track: rgba(15, 23, 42, 0.25);
   --scrollbar-modal-thumb: rgba(148, 163, 184, 0.45);
   --scrollbar-modal-thumb-hover: rgba(148, 163, 184, 0.70);
-  --admin-section-toolbar-rule: rgb(103 232 249 / 0.45);
-  --admin-section-toolbar-shadow: rgb(34 211 238 / 0.34);
+  --admin-section-accent-rgb: 56 189 248;
+  --admin-section-masthead-glow: rgb(var(--admin-section-accent-rgb) / 0.09);
+  --admin-section-masthead-border: rgb(var(--admin-section-accent-rgb) / 0.16);
+  --admin-section-masthead-rule: rgb(var(--admin-section-accent-rgb) / 0.28);
+  --admin-section-badge-border: rgb(var(--admin-section-accent-rgb) / 0.24);
+  --admin-section-badge-bg: rgb(var(--admin-section-accent-rgb) / 0.08);
+  --admin-section-badge-text: rgb(var(--admin-section-accent-rgb));
+  --admin-section-toolbar-rule: rgb(var(--admin-section-accent-rgb) / 0.24);
+  --admin-section-toolbar-shadow: rgb(var(--admin-section-accent-rgb) / 0.14);
+  --admin-shell-gradient-start: rgb(12 21 38);
+  --admin-shell-gradient-mid: rgb(20 34 55);
+  --admin-shell-gradient-end: rgb(15 23 42);
 }
 
 .shadow-card-inset {

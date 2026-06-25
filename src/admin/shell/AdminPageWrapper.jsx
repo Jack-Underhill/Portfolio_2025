@@ -26,7 +26,6 @@ function AdminPageWrapper({ name, desc, component, onSectionMount }) {
                 title={name}
                 description={desc}
                 icon={route?.icon}
-                accent={route?.accent}
             />
 
             <div className={adminUi.sectionContent}>

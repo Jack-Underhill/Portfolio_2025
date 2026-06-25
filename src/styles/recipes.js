@@ -42,62 +42,45 @@ export const adminUi = {
 
 export const adminMasthead = {
   surface:
-    "relative isolate overflow-hidden border-y border-admin-border-subtle bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.68)_58%,rgba(30,41,59,0.5))] py-4 shadow-subtle-highlight sm:py-5",
+    "relative isolate overflow-hidden border-y border-[var(--admin-section-masthead-border)] bg-[radial-gradient(circle_at_14%_0%,var(--admin-section-masthead-glow),transparent_38%),linear-gradient(135deg,var(--admin-shell-gradient-start),var(--admin-shell-gradient-mid)_58%,var(--admin-shell-gradient-end))] py-4 shadow-subtle-highlight sm:py-5",
   inner:
     "mx-auto flex w-[calc(100%_-_2.5rem)] max-w-6xl min-w-0 flex-col gap-4 sm:w-[calc(100%_-_4rem)] sm:flex-row sm:items-start lg:w-[calc(100%_-_5rem)] xl:w-[calc(100%_-_6rem)]",
   iconBadge:
-    "flex h-11 w-11 shrink-0 items-center justify-center rounded-md border shadow-subtle-highlight",
+    "flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[var(--admin-section-badge-border)] bg-[var(--admin-section-badge-bg)] text-[var(--admin-section-badge-text)] shadow-subtle-highlight",
   copy: "min-w-0 space-y-1.5",
   title: "text-2xl font-semibold leading-tight tracking-normal text-admin-text sm:text-3xl",
   description: "max-w-3xl text-sm leading-6 text-admin-text-muted",
-  accentRule: "mt-5 h-0.5 w-full",
+  accentRule:
+    "mt-5 h-px w-full bg-[linear-gradient(90deg,transparent,var(--admin-section-masthead-rule)_14%,var(--admin-section-masthead-rule)_86%,transparent)]",
   accents: {
     sky: {
-      badge: "border-sky-400/30 bg-sky-400/10 text-sky-200",
-      rule: "bg-sky-400/35",
       vars: {
-        "--admin-section-toolbar-rule": "rgb(56 189 248 / 0.45)",
-        "--admin-section-toolbar-shadow": "rgb(56 189 248 / 0.34)",
+        "--admin-section-accent-rgb": "56 189 248",
       },
     },
     cyan: {
-      badge: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200",
-      rule: "bg-cyan-400/35",
       vars: {
-        "--admin-section-toolbar-rule": "rgb(103 232 249 / 0.45)",
-        "--admin-section-toolbar-shadow": "rgb(34 211 238 / 0.34)",
+        "--admin-section-accent-rgb": "34 211 238",
       },
     },
     indigo: {
-      badge: "border-indigo-300/30 bg-indigo-400/10 text-indigo-200",
-      rule: "bg-indigo-300/35",
       vars: {
-        "--admin-section-toolbar-rule": "rgb(165 180 252 / 0.45)",
-        "--admin-section-toolbar-shadow": "rgb(129 140 248 / 0.34)",
+        "--admin-section-accent-rgb": "129 140 248",
       },
     },
     violet: {
-      badge: "border-violet-300/30 bg-violet-400/10 text-violet-200",
-      rule: "bg-violet-300/35",
       vars: {
-        "--admin-section-toolbar-rule": "rgb(196 181 253 / 0.45)",
-        "--admin-section-toolbar-shadow": "rgb(167 139 250 / 0.34)",
+        "--admin-section-accent-rgb": "167 139 250",
       },
     },
     teal: {
-      badge: "border-teal-300/30 bg-teal-400/10 text-teal-200",
-      rule: "bg-teal-300/35",
       vars: {
-        "--admin-section-toolbar-rule": "rgb(94 234 212 / 0.45)",
-        "--admin-section-toolbar-shadow": "rgb(45 212 191 / 0.34)",
+        "--admin-section-accent-rgb": "45 212 191",
       },
     },
     blue: {
-      badge: "border-blue-300/30 bg-blue-400/10 text-blue-200",
-      rule: "bg-blue-300/35",
       vars: {
-        "--admin-section-toolbar-rule": "rgb(147 197 253 / 0.45)",
-        "--admin-section-toolbar-shadow": "rgb(96 165 250 / 0.34)",
+        "--admin-section-accent-rgb": "96 165 250",
       },
     },
   },
@@ -117,7 +100,7 @@ export const adminShell = {
   root:
     "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:14.4rem] md:pl-[var(--admin-primary-sidebar-width)]",
   sidebar:
-    "flex md:min-h-screen flex-col border-r border-admin-border bg-admin-panel md:fixed md:inset-y-0 md:left-0 md:h-screen md:w-[var(--admin-primary-sidebar-width)]",
+    "flex md:min-h-screen flex-col border-r border-admin-border bg-[linear-gradient(180deg,var(--admin-shell-gradient-mid),var(--admin-shell-gradient-start))] md:fixed md:inset-y-0 md:left-0 md:h-screen md:w-[var(--admin-primary-sidebar-width)]",
   sidebarHeader: "shrink-0 space-y-2 border-b border-admin-border px-5 py-6",
   eyebrow: "text-xs uppercase tracking-wide text-admin-text-subtle",
   nav: "flex-1 flex flex-col overflow-y-auto px-3 py-4 gap-1",
@@ -164,7 +147,7 @@ export const adminShell = {
   navChildLinkActive:
     "bg-admin-panel-hover text-admin-text shadow-[inset_2px_0_0_var(--color-admin-accent-text)]",
   savePanel:
-    "shrink-0 space-y-3 border-t border-admin-border bg-admin-panel px-5 py-5",
+    "shrink-0 space-y-3 border-t border-admin-border px-5 py-5",
   main: "min-h-screen py-8",
   content: "w-full space-y-10",
   statusBanner:

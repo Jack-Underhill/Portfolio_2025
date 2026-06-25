@@ -1,4 +1,4 @@
-import { adminMasthead, cx } from '../../styles/recipes';
+import { adminMasthead } from '../../styles/recipes';
 import AdminNavIcon from './AdminNavIcon.jsx';
 
 function AdminSectionMasthead({
@@ -6,15 +6,12 @@ function AdminSectionMasthead({
     title,
     description,
     icon = 'user',
-    accent = 'sky',
 }) {
-    const accentClasses = adminMasthead.accents[accent] || adminMasthead.accents.sky;
-
     return (
         <header className={adminMasthead.surface}>
             <div className={adminMasthead.inner}>
                 <div
-                    className={cx(adminMasthead.iconBadge, accentClasses.badge)}
+                    className={adminMasthead.iconBadge}
                     aria-hidden="true"
                 >
                     <AdminNavIcon icon={icon} />
@@ -28,7 +25,7 @@ function AdminSectionMasthead({
                 </div>
             </div>
 
-            <div className={cx(adminMasthead.accentRule, accentClasses.rule)} aria-hidden="true" />
+            <div className={adminMasthead.accentRule} aria-hidden="true" />
         </header>
     );
 }
