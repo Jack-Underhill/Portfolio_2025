@@ -1,6 +1,6 @@
 # Current Errors and Warnings
 
-Date: 2026-06-24
+Date: 2026-06-25
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last full baseline checked on 2026-06-24 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The coordinated, route-addressable, scroll-continuous admin shell passed 184 unit tests across 30 files, lint, schema drift, build, and the accessibility smoke.
+Last full baseline checked on 2026-06-25 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The coordinated, route-addressable, scroll-continuous admin shell with per-location workflow state passed 198 unit tests across 31 files, lint, schema drift, build, and the accessibility smoke.
 
 Passing:
 

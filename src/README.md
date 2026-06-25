@@ -25,6 +25,7 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 ## Folders
 
 - `admin/`: React admin CMS shell, route-addressable scroll-stack editing sections, form controls, project editors, admin navigation, and the browser client for the local admin backend.
+- `admin/workflow/`: per-location admin dirty/validation state, pure transitions and parent aggregation, and the hook that derives global unsaved state.
 - `api/`: browser-safe public data readers and public Supabase client. See `src/api/README.md`.
 - `assets/`: bundled images, icons, logos, and videos used by the public site.
 - `components/`: public portfolio components, section components, project modal/viewer components, and shared UI primitives.
@@ -45,6 +46,7 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 
 - Keep presentational markup in `components/` or `admin/`.
 - Keep reusable lifecycle behavior in `hooks/`.
+- Keep admin edit attribution at the data-owning root, subsection, or operation boundary; navigation observation must not decide what became dirty.
 - Keep repeated styling tokens and admin class recipes in `styles/`.
 - Keep one-off layout and component-specific classes near the component that uses them.
 
@@ -62,6 +64,6 @@ Use this directory for code that is bundled by Vite and safe to run in the brows
 - Project classification fields are data-backed and grouped through `src/domain/projects/viewModel.js`; `Projects.jsx` fetches once, maps once, then renders `FeaturedProjectsGroup` and `StandardProjectsGroup`.
 - Project modal ownership is centralized in `Projects.jsx`; project preview ownership still flows through source-aware `activePreviewId` state, including scroll-driven viewport activation from project groups.
 - Project card viewport activation uses `useViewportActivationGroup` for one active item per group, with reduced-motion, modal-open, and marquee opt-outs and no card-local viewport math.
-- The development-only admin renders fixed top-level sections in one route-addressable scroll stack with one primary sidebar navigation surface. One flattened observed leaf owns current-location styling across root sections and Projects children, while a temporary coordinator target owns intentional scrolling and locks its requested URL until settlement or user interruption. Projects expands in the sidebar to expose its route-backed subsection links; `/admin/projects` remains a real parent target and naturally resolves to observed Classification when records exist. Initial and Back/Forward route entry waits for loaded content and stable target geometry, and project-record changes preserve the current subsection anchor without writing navigation history. No secondary sidebar or conditional content gutter remains. Each top-level section has an admin masthead, selector-backed sections use selector-only sticky toolbars, and Projects renders all fixed subsection fields for the selected record while repeated records stay selector-driven.
+- The development-only admin renders fixed top-level sections in one route-addressable scroll stack with one primary sidebar navigation surface. One flattened observed leaf owns current-location styling across root sections and Projects children, while a temporary coordinator target owns intentional scrolling and locks its requested URL until settlement or user interruption. Projects expands in the sidebar to expose its route-backed subsection links; `/admin/projects` remains a real parent target and naturally resolves to observed Classification when records exist. Initial and Back/Forward route entry waits for loaded content and stable target geometry, and project-record changes preserve the current subsection anchor without writing navigation history. No secondary sidebar or conditional content gutter remains. Each top-level section has an admin masthead, selector-backed sections use selector-only sticky toolbars, and Projects renders all fixed subsection fields for the selected record while repeated records stay selector-driven. Per-location workflow state is owned separately from navigation observation: explicit edit boundaries mark root, child, or Projects parent owners dirty; validation state does not clear dirty state; and global save/leave behavior derives from whether any owner remains dirty.
 - Public accessibility guardrails now include labeled landmarks/headings, reduced-motion handling, modal focus containment, and a focused Playwright/axe smoke through `cmd /c npm run test:a11y`.
 - Keep detailed architecture status and cleanup notes in `docs/`; this README is the local map for maintainers working inside `src`.

@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-06-24
+Date: 2026-06-25
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last accessibility-affecting baseline checked on 2026-06-24 with Windows `cmd /c` commands for the coordinated, route-addressable, scroll-continuous admin shell with an expandable Projects group in the primary sidebar.
+Last accessibility-affecting baseline checked on 2026-06-25 with Windows `cmd /c` commands for the coordinated, route-addressable, scroll-continuous admin shell with per-location workflow state.
 
 Passing:
 
@@ -75,8 +75,9 @@ Architecture viewer:
 
 Admin:
 
-- `src/admin/AppAdmin.jsx`: development-only admin draft ownership, save state, route-addressable scroll navigation, status-message derivation, and unsaved-leave warning wiring.
-- `src/admin/shell/*`: fixed primary sidebar navigation landmark, expandable route groups, decorative disclosure chevrons, save panel, top-of-content status/error live region, and scroll-continuous main layout.
+- `src/admin/AppAdmin.jsx`: development-only admin draft ownership, save state, route-addressable scroll navigation, workflow transition wiring, status-message derivation, and unsaved-leave warning wiring.
+- `src/admin/workflow/*`: one per-location workflow-state owner, pure dirty/validation transitions, global unsaved derivation, and parent-indicator aggregation.
+- `src/admin/shell/*`: fixed primary sidebar navigation landmark, expandable route groups, accessible workflow indicators, decorative disclosure chevrons, save panel, top-of-content status/error live region, and scroll-continuous main layout.
 - `src/admin/pages/*`: admin page wrappers with one visible masthead heading per top-level admin section.
 - `src/admin/sections/*`: section editors, named regions, selector-driven repeated-record editing, and add/remove/reorder controls where present.
 - `src/admin/credentials/CredentialGroupEditor.jsx`: shared Education/Certification selector editor used by separate routed pages.
@@ -148,6 +149,10 @@ Admin accessibility:
 - Exactly one precise observed leaf exposes `aria-current="location"`. A Projects child owns that semantic while its root receives only the grouped active styling, so assistive technology is not given both a parent and child current location.
 - The exact current root or Projects child label uses the animated cyan/white/cyan gradient. When a child is current, the Projects ancestor uses static cyan text and icon styling rather than a second animation.
 - Inactive root icons use one consistent neutral treatment, active root and ancestor icons use static cyan, and active row surfaces remain neutral.
+- Root and Projects child rows reserve a separate workflow-status slot. Unsaved, validating, valid, and invalid states use distinct dot, spinner, check, and alert shapes with state-specific color, an accessible name such as `Links: unsaved changes`, and matching discoverable title text.
+- Workflow indicators do not change `aria-current`, recolor the navigation label, or infer edit ownership from the observed route. Dirty ownership originates from the editor or operation that changed the data.
+- Collapsed Projects summarizes descendant workflow state by precedence. Expanded Projects keeps child indicators visible while suppressing redundant aggregate parent state, except for direct parent dirty, validating, or invalid state.
+- Successful validation leaves the draft unsaved and the save control enabled. Editing after validation clears stale Projects validation indicators while preserving every dirty owner, and the unsaved-leave warning remains active until a successful save.
 - Projects is an expandable root link whose `aria-expanded` state follows the coordinated origin, destination, and observed-leaf policy and whose `aria-controls` references the in-flow child link group. Its right/down chevron is decorative with `aria-hidden="true"` and is not a separate control.
 - The Projects child group remains mounted for its visual disclosure transition, becomes `inert` and `aria-hidden` while collapsed, and disables the transition for reduced-motion users.
 - Activating the Projects parent preserves `/admin/projects` while scrolling to the Projects masthead. When project content exists, observation at the top of Projects resolves the precise current leaf and settled URL to Classification without manually defaulting the click to that child.
@@ -159,6 +164,7 @@ Admin accessibility:
 - The sidebar save panel keeps the global save button reachable, exposes busy state while saving, and reports saved, unsaved, saving, and draft-validation save states through a polite status line.
 - The top-of-content admin status banner appears only for active messaging. Errors use `role="alert"`; saving, validation, and unsaved-change messages use `role="status"` with polite live-region behavior and a labeled dismiss button.
 - Each top-level admin section has one clear visible masthead heading through `AdminPageWrapper`. Masthead icons are decorative, and section editors keep local named regions and labels where their controls need them.
+- Admin mastheads share one dark neutral gradient. Restrained section hue is limited to the glow, border/rule, icon badge, and sticky-toolbar accent so it does not compete with workflow-state colors.
 - Selector-backed admin workspaces use a section-scoped sticky toolbar directly after the masthead. The toolbar is intentionally selector-only, keeps selector labels visible, and stays in normal DOM order before section actions and editor fields.
 - Add, draft, validation, preview, and remove actions remain in normal section content/editor flow so the sticky surface stays compact and related edit/remove controls stay near each other.
 - Empty Education and Certification record states use plain empty text without rendering an empty sticky selector toolbar. Empty Skills and Contact states use plain empty text plus their Add action.

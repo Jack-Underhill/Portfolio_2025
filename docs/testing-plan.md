@@ -39,6 +39,7 @@ Current baseline test files:
 - `tests/hooks/viewportActivationScoring.test.js`
 - `tests/components/projects/viewer/viewerUrl.test.js`
 - `tests/netlify/functions/inline-svg.test.js`
+- `tests/runtime/netlify.test.js`
 - `tests/server/admin/utils/storage.test.js`
 - `tests/server/admin/routes/validation.helpers.test.js`
 - `tests/server/admin/routes/validation.uploads.test.js`
@@ -71,7 +72,14 @@ Admin navigation coverage:
 - `tests/admin/scrollspyUtils.test.js` covers ordered flattened geometry, Classification observation beginning at the Projects parent, the final Projects-child boundary at Education, edge forcing, short-section ownership, current-section hysteresis, sticky viewport offsets, and already-visible scroll guards.
 - `tests/admin/navigationCoordinator.test.js` covers the pure route-write policy: traveling observation during a locked target, passive idle replacement, settlement release, user-interruption replacement, and suppression during project-record stabilization.
 - `tests/admin/adminNavExpansion.test.js` and `tests/admin/adminSectionToolbar.test.js` cover expandable-group policy and sticky-toolbar geometry without coupling tests to Tailwind class strings.
-- `tests/admin/adminWorkflowState.test.js` covers multiple dirty roots and Projects children, direct parent plus child state, validated-but-unsaved behavior, validation failure and stale-validation clearing, successful/failed save transitions, collapsed precedence, expanded suppression, and single-owner/multi-owner agent import attribution from actual changed fields.
+- `tests/admin/adminWorkflowState.test.js` covers route-tree workflow IDs, explicit Projects field ownership, multiple dirty roots and Projects children, direct parent plus child state, validated-but-unsaved behavior, validation failure and stale-validation clearing, successful/failed save transitions, collapsed precedence, expanded suppression, and single-owner/multi-owner agent import attribution from actual changed fields.
+
+Admin workflow test strategy:
+
+- Pure transition tests protect dirty and validation as independent dimensions; validation success never implies persistence.
+- Ownership tests use explicit root callbacks, Projects subsection IDs, collection-operation policy, and the changed-field map for agent imports. Navigation observation is not an attribution input.
+- Parent display tests derive collapsed precedence and expanded suppression from the same workflow map rather than asserting sidebar class strings.
+- The authenticated admin DOM, tooltip/focus behavior, and save/validation interaction sequence remain the documented browser boundary until a stable non-destructive fixture exists.
 
 Remaining testing gap:
 

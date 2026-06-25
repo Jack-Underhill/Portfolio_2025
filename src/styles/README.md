@@ -8,7 +8,7 @@ Use this directory for reusable tokens, global utility classes, animations, and 
 
 - Define Tailwind theme colors and global CSS variables.
 - Provide reusable shadow, overlay, focus, reduced-motion, scrollbar, marquee, and gradient utility classes.
-- Keep repeated admin form and admin UI class strings in one place.
+- Keep repeated admin form and admin UI class strings in one place, including current-location, workflow-indicator, masthead, and sticky-toolbar visual language.
 - Provide the `cx` helper for simple conditional class composition.
 
 Keep this directory free of feature-specific layout decisions, component state, data fetching, and one-off styles that are easier to understand beside the component that uses them.
@@ -24,4 +24,7 @@ Keep this directory free of feature-specific layout decisions, component state, 
 - Add entries to `recipes.js` only when a class recipe is reused across multiple components or clarifies a repeated admin pattern.
 - Prefer component-local class names for isolated layout or feature-specific styling.
 - Keep public site visual tokens and admin-specific tokens clearly named so the two surfaces can evolve independently.
+- Keep semantic responsibilities separate: cyan identifies current admin location, section-scoped hues identify mastheads, and amber/green/red workflow colors remain confined to status indicators.
+- Reuse the shared gradient keyframes for the exact admin current label, with an admin-specific utility and a reduced-motion rule that preserves the gradient while stopping animation.
+- Keep masthead hue values scoped through the shared admin section accent variable; route metadata should select a hue name rather than supply raw CSS values.
 - Keep detailed styling cleanup notes in `docs/`. This README is only the local map for maintainers reading `src/styles`.

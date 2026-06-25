@@ -1,6 +1,6 @@
 # Architecture Cleanup Candidates
 
-Date: 2026-06-24
+Date: 2026-06-25
 
 ## Purpose
 
@@ -21,6 +21,10 @@ The architecture is already directionally correct:
 - Pure row shaping and route helpers live under `src/domain`.
 - Development-only admin route parsing, history writes, one flattened scrollspy, and the navigation coordinator live under `src/admin/routing` and stay local to the admin shell instead of introducing an app-wide router.
 - Admin navigation has one observed active leaf and one temporary intentional target. `useAdminRoute` owns URL/history behavior, while `useAdminNavigationCoordinator` owns readiness-gated scrolling, target settlement/interruption, and project-record viewport stabilization.
+- Admin edit workflow has one state owner under `src/admin/workflow`. Global unsaved state is derived from per-location dirty state instead of maintained through a second undifferentiated boolean.
+- Dirty ownership originates at data-owning edit boundaries: root page callbacks identify their route owner, Projects subsection callbacks identify their child owner, collection operations identify the Projects parent, and agent imports use one changed-field ownership map.
+- Navigation observation and workflow state are independent. Active route, observed leaf, focus, and scroll position are not valid edit-attribution inputs.
+- Persistence and validation remain independent workflow dimensions. Validation can replace an amber indicator with green or red without clearing dirty state; only a successful save resets the workflow map.
 - Browser lifecycle behavior has been extracted into focused hooks.
 - Viewport-driven card activation is centralized in `src/hooks/useViewportActivationGroup.js`, with project preview bridging kept in `src/hooks/useProjectViewportPreview.js`.
 - Styling tokens and repeated recipes have clearer homes.
