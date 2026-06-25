@@ -26,6 +26,7 @@ import { getExpandedAdminRouteIds } from './routing/adminNavExpansion.js';
 import useAdminNavigationCoordinator from './routing/useAdminNavigationCoordinator.js';
 import useAdminRoute                  from './routing/useAdminRoute.js';
 import useUnsavedAdminWarning         from './routing/useUnsavedAdminWarning.js';
+import useAdminWorkflowState          from './workflow/useAdminWorkflowState.js';
 import { adminUi }          from '../styles/recipes';
 
 const initialAboutState = {
@@ -156,10 +157,14 @@ function AppAdmin() {
     const [isSaving, setIsSaving] = useState(false);
     const [isAdminDataReady, setIsAdminDataReady] = useState(false);
     const [isProjectValidationInFlight, setIsProjectValidationInFlight] = useState(false);
-    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [error, setError] = useState(null);
     const [errorVersion, setErrorVersion] = useState(0);
     const [dismissedStatusKey, setDismissedStatusKey] = useState(null);
+    const {
+        hasUnsavedChanges,
+        markLocationsDirty,
+        resetWorkflowState,
+    } = useAdminWorkflowState();
     const {
         activeRoute,
         activeProjectSubsectionId,
@@ -348,7 +353,7 @@ function AppAdmin() {
                 setContactState(contact);
                 setSkillsState(skills || initialSkillsState);
                 setCredentialsState(credentials || initialCredentialsState);
-                setHasUnsavedChanges(false);
+                resetWorkflowState();
             } catch (err) {
                 console.error(err);
                 setError(err);
@@ -357,20 +362,45 @@ function AppAdmin() {
                 setIsAdminDataReady(true);
             }
         })();
-    }, []);
+    }, [resetWorkflowState]);
 
-    const markDirty = useCallback((setter) => (nextState) => {
-        setHasUnsavedChanges(true);
-        setter(nextState);
-    }, []);
+    const handleAboutChange = useCallback((nextState) => {
+        markLocationsDirty([ADMIN_ROUTE_IDS.ABOUT]);
+        setAboutState(nextState);
+    }, [markLocationsDirty]);
 
     const handleProjectBioChange = useCallback((projectBio) => {
-        setHasUnsavedChanges(true);
+        markLocationsDirty([ADMIN_ROUTE_IDS.ABOUT]);
         setProjectsState((currentState) => ({
             ...currentState,
             projectBio,
         }));
-    }, []);
+    }, [markLocationsDirty]);
+
+    const handleProjectsChange = useCallback((nextState, ownerLocationIds) => {
+        markLocationsDirty(ownerLocationIds);
+        setProjectsState(nextState);
+    }, [markLocationsDirty]);
+
+    const handleEducationChange = useCallback((nextState) => {
+        markLocationsDirty([ADMIN_ROUTE_IDS.EDUCATION]);
+        setCredentialsState(nextState);
+    }, [markLocationsDirty]);
+
+    const handleCertificationsChange = useCallback((nextState) => {
+        markLocationsDirty([ADMIN_ROUTE_IDS.CERTIFICATIONS]);
+        setCredentialsState(nextState);
+    }, [markLocationsDirty]);
+
+    const handleSkillsChange = useCallback((nextState) => {
+        markLocationsDirty([ADMIN_ROUTE_IDS.SKILLS]);
+        setSkillsState(nextState);
+    }, [markLocationsDirty]);
+
+    const handleContactChange = useCallback((nextState) => {
+        markLocationsDirty([ADMIN_ROUTE_IDS.CONTACT]);
+        setContactState(nextState);
+    }, [markLocationsDirty]);
 
     const handleSave = async () => {
         if (isSaving || isProjectValidationInFlight || !hasUnsavedChanges) return;
@@ -391,7 +421,7 @@ function AppAdmin() {
         setContactState(contact);
         setSkillsState(skills || initialSkillsState);
         setCredentialsState(credentials || initialCredentialsState);
-        setHasUnsavedChanges(false);
+        resetWorkflowState();
 
         } catch (err) {
             console.error(err);
@@ -439,12 +469,13 @@ function AppAdmin() {
         credentialsState,
         skillsState,
         contactState,
-        onAboutChange: markDirty(setAboutState),
+        onAboutChange: handleAboutChange,
         onProjectBioChange: handleProjectBioChange,
-        onProjectsChange: markDirty(setProjectsState),
-        onCredentialsChange: markDirty(setCredentialsState),
-        onSkillsChange: markDirty(setSkillsState),
-        onContactChange: markDirty(setContactState),
+        onProjectsChange: handleProjectsChange,
+        onEducationChange: handleEducationChange,
+        onCertificationsChange: handleCertificationsChange,
+        onSkillsChange: handleSkillsChange,
+        onContactChange: handleContactChange,
         isSaveInFlight: isSaving,
         onValidationBusyChange: setIsProjectValidationInFlight,
         onAdminSectionMount: setAdminSectionRef,

@@ -1,12 +1,16 @@
 import AdminPageWrapper from '../shell/AdminPageWrapper';
 import CredentialGroupEditor from '../credentials/CredentialGroupEditor';
 
-function CertificationsAdminPage({ credentialsState, onCredentialsChange, onAdminSectionMount }) {
+function CertificationsAdminPage({
+    credentialsState,
+    onCertificationsChange,
+    onAdminSectionMount,
+}) {
     const certifications = Array.isArray(credentialsState?.certifications)
         ? credentialsState.certifications
         : [];
     const updateCertifications = (nextCertifications) => {
-        onCredentialsChange({
+        onCertificationsChange({
             ...(credentialsState || {}),
             certifications: nextCertifications,
         });

@@ -86,6 +86,17 @@ describe('admin workflow state', () => {
     expect(hasAdminWorkflowUnsavedChanges(workflowState)).toBe(true);
   });
 
+  it('keeps multiple root sections dirty when edited in sequence', () => {
+    let workflowState = createAdminWorkflowState();
+
+    workflowState = markAdminWorkflowLocationsDirty(workflowState, ['education']);
+    workflowState = markAdminWorkflowLocationsDirty(workflowState, ['certifications']);
+
+    expect(getLocationState(workflowState, 'education').dirty).toBe(true);
+    expect(getLocationState(workflowState, 'certifications').dirty).toBe(true);
+    expect(hasAdminWorkflowUnsavedChanges(workflowState)).toBe(true);
+  });
+
   it('preserves dirty state through successful validation', () => {
     let workflowState = markAdminWorkflowLocationsDirty(
       createAdminWorkflowState(),

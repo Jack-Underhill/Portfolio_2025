@@ -1,12 +1,12 @@
 import AdminPageWrapper from '../shell/AdminPageWrapper';
 import CredentialGroupEditor from '../credentials/CredentialGroupEditor';
 
-function EducationAdminPage({ credentialsState, onCredentialsChange, onAdminSectionMount }) {
+function EducationAdminPage({ credentialsState, onEducationChange, onAdminSectionMount }) {
     const education = Array.isArray(credentialsState?.education) 
         ? credentialsState.education 
         : [];
     const updateEducation = (nextEducation) => {
-        onCredentialsChange({
+        onEducationChange({
             ...(credentialsState || {}),
             education: nextEducation,
         });
