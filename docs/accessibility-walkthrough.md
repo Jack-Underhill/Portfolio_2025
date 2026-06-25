@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-06-23
+Date: 2026-06-24
 
 ## Purpose
 
@@ -148,9 +148,11 @@ Admin accessibility:
 - Projects is an expandable root link whose `aria-expanded` state follows the coordinated origin, destination, and observed-leaf policy and whose `aria-controls` references the in-flow child link group. Its right/down chevron is decorative with `aria-hidden="true"` and is not a separate control.
 - The Projects child group remains mounted for its visual disclosure transition, becomes `inert` and `aria-hidden` while collapsed, and disables the transition for reduced-motion users.
 - Activating the Projects parent preserves `/admin/projects` while scrolling to the Projects masthead. When project content exists, observation at the top of Projects resolves the precise current leaf and settled URL to Classification without manually defaulting the click to that child.
+- Initial route entry and Browser Back/Forward wait for admin data and stable target geometry before scrolling. If a requested Projects child cannot render because no project records exist, navigation lands honestly on the Projects parent instead.
 - During intentional smooth navigation, the observed leaf may move rapidly through intermediate root and child locations for the traveling sidebar highlight. The requested URL stays locked until navigation settles, no live region announces those intermediate changes, and the activated link retains keyboard focus.
 - Admin navigation uses instant scrolling when `prefers-reduced-motion: reduce` is active while preserving the same final route and current-leaf semantics.
 - Wheel, touch, scrollbar/middle-pointer, and non-editing keyboard scroll input release intentional navigation ownership so observation can take over. Arrow, Page, Home, End, and Space input from an input, textarea, select, or contenteditable editor is not treated as a navigation interruption.
+- Switching the selected project record preserves the current Projects subsection and approximate viewport anchor without changing the route or briefly announcing another top-level section as current.
 - The sidebar save panel keeps the global save button reachable, exposes busy state while saving, and reports saved, unsaved, saving, and draft-validation save states through a polite status line.
 - The top-of-content admin status banner appears only for active messaging. Errors use `role="alert"`; saving, validation, and unsaved-change messages use `role="status"` with polite live-region behavior and a labeled dismiss button.
 - Each top-level admin section has one clear visible masthead heading through `AdminPageWrapper`. Masthead icons are decorative, and section editors keep local named regions and labels where their controls need them.
