@@ -125,11 +125,21 @@ export const adminShell = {
     "flex min-w-0 items-center gap-3 rounded-md px-1.5 py-2.5 text-md font-medium leading-snug text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
   navDisclosureSlot:
     "flex h-4 w-4 shrink-0 items-center justify-center text-admin-text-subtle",
+  navChevron:
+    "h-4 w-4 shrink-0 text-admin-text-muted transition-transform duration-200 ease-out motion-reduce:transition-none",
+  navChevronExpanded: "rotate-90",
   navLinkLabel: "min-w-0 flex-1 break-words",
   navLinkActive:
     "bg-admin-panel-hover text-admin-text ring-1 ring-admin-border",
-  navGroup: "space-y-1.5",
-  navChildList: "ml-[2.8rem] space-y-0.5 border-l border-admin-border-subtle pl-3",
+  navGroup: "min-w-0",
+  navChildDisclosure:
+    "grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none",
+  navChildDisclosureExpanded: "grid-rows-[1fr] opacity-100",
+  navChildDisclosureCollapsed:
+    "pointer-events-none grid-rows-[0fr] opacity-0",
+  navChildDisclosureInner: "min-h-0 overflow-hidden",
+  navChildList:
+    "mt-1.5 ml-[2.8rem] space-y-0.5 border-l border-admin-border-subtle pl-3",
   navChildLink:
     "block min-w-0 rounded-md px-2.5 py-1.5 text-sm font-medium leading-snug text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
   navChildLinkActive:

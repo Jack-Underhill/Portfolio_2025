@@ -48,26 +48,40 @@ function AdminSidebar({
                                 <span className={adminShell.navLinkLabel}>{route.label}</span>
                             </a>
 
-                            {isExpanded && (
-                                <div id={childListId} className={adminShell.navChildList}>
-                                    {childRoutes.map((childRoute) => {
-                                        const isChildActive = childRoute.id === activeProjectSubsectionId;
+                            {isExpandable && (
+                                <div
+                                    id={childListId}
+                                    aria-hidden={!isExpanded}
+                                    className={cx(
+                                        adminShell.navChildDisclosure,
+                                        isExpanded
+                                            ? adminShell.navChildDisclosureExpanded
+                                            : adminShell.navChildDisclosureCollapsed,
+                                    )}
+                                    inert={isExpanded ? undefined : ''}
+                                >
+                                    <div className={adminShell.navChildDisclosureInner}>
+                                        <div className={adminShell.navChildList}>
+                                            {childRoutes.map((childRoute) => {
+                                                const isChildActive = childRoute.id === activeProjectSubsectionId;
 
-                                        return (
-                                            <a
-                                                key={childRoute.id}
-                                                href={childRoute.path}
-                                                aria-current={isChildActive ? 'location' : undefined}
-                                                onClick={(event) => onProjectSubsectionNavigate?.(event, childRoute)}
-                                                className={cx(
-                                                    adminShell.navChildLink,
-                                                    isChildActive && adminShell.navChildLinkActive,
-                                                )}
-                                            >
-                                                {childRoute.title}
-                                            </a>
-                                        );
-                                    })}
+                                                return (
+                                                    <a
+                                                        key={childRoute.id}
+                                                        href={childRoute.path}
+                                                        aria-current={isChildActive ? 'location' : undefined}
+                                                        onClick={(event) => onProjectSubsectionNavigate?.(event, childRoute)}
+                                                        className={cx(
+                                                            adminShell.navChildLink,
+                                                            isChildActive && adminShell.navChildLinkActive,
+                                                        )}
+                                                    >
+                                                        {childRoute.title}
+                                                    </a>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
