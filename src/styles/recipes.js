@@ -128,7 +128,13 @@ export const adminShell = {
   navChevron:
     "h-4 w-4 shrink-0 text-admin-text-muted transition-transform duration-200 ease-out motion-reduce:transition-none",
   navChevronExpanded: "rotate-90",
+  navIcon:
+    "flex h-6 w-6 shrink-0 items-center justify-center",
+  navIconInactive: "text-admin-text-muted",
+  navIconActive: "text-admin-accent-text",
   navLinkLabel: "min-w-0 flex-1 break-words",
+  navCurrentLabel: "admin-current-location-label",
+  navAncestorLabel: "text-admin-accent-text",
   navStatusSlot:
     "flex h-5 w-5 shrink-0 items-center justify-center",
   navStatusIndicator:

@@ -40,7 +40,12 @@ function AdminSidebar({
                     const isExpandable = childRoutes.length > 0;
                     const isExpanded = isExpandable && expandedRouteIds.includes(route.id);
                     const childListId = isExpandable ? `admin-nav-${route.id}-children` : undefined;
-                    const isPreciseRootLocation = isActive && !activeProjectSubsectionId;
+                    const isActiveAncestor = (
+                        isActive
+                        && isExpandable
+                        && Boolean(activeProjectSubsectionId)
+                    );
+                    const isPreciseRootLocation = isActive && !isActiveAncestor;
                     const routeVisualState = isExpandable
                         ? deriveAdminWorkflowParentVisualState({
                             workflowState,
@@ -67,8 +72,25 @@ function AdminSidebar({
                                 <span className={adminShell.navDisclosureSlot}>
                                     {isExpandable && <AdminNavChevron isExpanded={isExpanded} />}
                                 </span>
-                                <AdminNavIcon icon={route.icon} />
-                                <span className={adminShell.navLinkLabel}>{route.label}</span>
+                                <span
+                                    className={cx(
+                                        adminShell.navIcon,
+                                        isActive
+                                            ? adminShell.navIconActive
+                                            : adminShell.navIconInactive,
+                                    )}
+                                >
+                                    <AdminNavIcon icon={route.icon} />
+                                </span>
+                                <span
+                                    className={cx(
+                                        adminShell.navLinkLabel,
+                                        isPreciseRootLocation && adminShell.navCurrentLabel,
+                                        isActiveAncestor && adminShell.navAncestorLabel,
+                                    )}
+                                >
+                                    {route.label}
+                                </span>
                                 <AdminNavStatusIndicator
                                     label={route.label}
                                     visualState={routeVisualState}
@@ -112,7 +134,12 @@ function AdminSidebar({
                                                             isChildActive && adminShell.navChildLinkActive,
                                                         )}
                                                     >
-                                                        <span className={adminShell.navChildLinkLabel}>
+                                                        <span
+                                                            className={cx(
+                                                                adminShell.navChildLinkLabel,
+                                                                isChildActive && adminShell.navCurrentLabel,
+                                                            )}
+                                                        >
                                                             {childRoute.title}
                                                         </span>
                                                         <AdminNavStatusIndicator

@@ -135,6 +135,7 @@ Motion, contrast, and focus:
 - Education and certification cards keep hover/focus effects for pointer and keyboard users; touch viewport activation does not move focus or trigger navigation.
 - Reduced-motion CSS calms AOS elements, animated gradient text, tag marquee motion, hover-gradient transforms, avatar float/tilt motion, and avatar hover transforms.
 - Reduced-motion CSS also calms the fixed section nav's button rotation, hamburger/X morph, tray transitions, and active-link gradient animation. The Home link uses instant top scrolling when reduced motion is active.
+- The admin current-location gradient remains visible under reduced motion while its animation is disabled.
 - The public back-to-top button uses instant scrolling when reduced motion is active.
 - Credential/card meta contrast uses the current `--color-text-subtle` value of `#8BA1B6`.
 - Visible focus is strengthened on the public menu button, project cards, credential cards, back-to-top control, and shared admin form/button/link recipes.
@@ -145,6 +146,8 @@ Admin accessibility:
 - Top-level admin routes remain addressable at `/admin/about`, `/admin/projects`, `/admin/education`, `/admin/certifications`, `/admin/skills`, and `/admin/contact`. Project subsections are addressable from `/admin/projects/classification` through the remaining Intro, Media, Links, Tech, Lists, and Challenges child paths.
 - The fixed sidebar is the only admin navigation surface. It exposes a named `Admin pages` navigation landmark and icon-plus-label root links. One flattened observed leaf owns the visual current location across root sections and Projects subsections.
 - Exactly one precise observed leaf exposes `aria-current="location"`. A Projects child owns that semantic while its root receives only the grouped active styling, so assistive technology is not given both a parent and child current location.
+- The exact current root or Projects child label uses the animated cyan/white/cyan gradient. When a child is current, the Projects ancestor uses static cyan text and icon styling rather than a second animation.
+- Inactive root icons use one consistent neutral treatment, active root and ancestor icons use static cyan, and active row surfaces remain neutral.
 - Projects is an expandable root link whose `aria-expanded` state follows the coordinated origin, destination, and observed-leaf policy and whose `aria-controls` references the in-flow child link group. Its right/down chevron is decorative with `aria-hidden="true"` and is not a separate control.
 - The Projects child group remains mounted for its visual disclosure transition, becomes `inert` and `aria-hidden` while collapsed, and disables the transition for reduced-motion users.
 - Activating the Projects parent preserves `/admin/projects` while scrolling to the Projects masthead. When project content exists, observation at the top of Projects resolves the precise current leaf and settled URL to Classification without manually defaulting the click to that child.

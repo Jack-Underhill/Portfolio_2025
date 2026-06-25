@@ -164,6 +164,21 @@
   transition: color 200ms ease-in-out;
 }
 
+.admin-current-location-label {
+  color: transparent;
+  background-image: linear-gradient(
+    to right,
+    var(--color-admin-accent-text),
+    var(--color-admin-text),
+    var(--color-admin-accent-text)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: moveGradient 3s reverse linear infinite;
+}
+
 [data-nav-link]:hover .nav-link-gradient-text,
 [data-nav-link]:focus-visible .nav-link-gradient-text,
 [data-nav-link][aria-current="location"] .nav-link-gradient-text {
@@ -236,7 +251,8 @@
 
   [data-nav-link]:hover .nav-link-gradient-text,
   [data-nav-link]:focus-visible .nav-link-gradient-text,
-  [data-nav-link][aria-current="location"] .nav-link-gradient-text {
+  [data-nav-link][aria-current="location"] .nav-link-gradient-text,
+  .admin-current-location-label {
     animation: none !important;
   }
 
