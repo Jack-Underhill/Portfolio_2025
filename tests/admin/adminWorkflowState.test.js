@@ -18,6 +18,7 @@ import {
   completeAdminWorkflowValidationSuccessfully,
   createAdminWorkflowState,
   deriveAdminWorkflowVisualState,
+  deriveAdminWorkflowParentVisualState,
   deriveCollapsedAdminWorkflowParentState,
   deriveExpandedAdminWorkflowParentState,
   getAdminWorkflowLocationState,
@@ -222,6 +223,7 @@ describe('admin workflow state', () => {
   it('suppresses aggregate child state for expanded parents while retaining direct state', () => {
     const normal = { dirty: false, validation: ADMIN_WORKFLOW_VALIDATION.NONE };
     const dirty = { dirty: true, validation: ADMIN_WORKFLOW_VALIDATION.NONE };
+    const valid = { dirty: true, validation: ADMIN_WORKFLOW_VALIDATION.VALID };
     const invalid = { dirty: false, validation: ADMIN_WORKFLOW_VALIDATION.INVALID };
 
     expect(deriveExpandedAdminWorkflowParentState({
@@ -233,8 +235,41 @@ describe('admin workflow state', () => {
       childStates: [invalid],
     })).toBe(ADMIN_WORKFLOW_VISUAL_STATE.DIRTY);
     expect(deriveExpandedAdminWorkflowParentState({
+      parentState: valid,
+      childStates: [valid],
+    })).toBe(ADMIN_WORKFLOW_VISUAL_STATE.DIRTY);
+    expect(deriveExpandedAdminWorkflowParentState({
       parentState: invalid,
       childStates: [dirty],
     })).toBe(ADMIN_WORKFLOW_VISUAL_STATE.INVALID);
+  });
+
+  it('derives collapsed and expanded parent navigation state from one workflow map', () => {
+    let workflowState = markAdminWorkflowLocationsDirty(
+      createAdminWorkflowState(),
+      ['projects/links'],
+    );
+
+    expect(deriveAdminWorkflowParentVisualState({
+      workflowState,
+      parentLocationId: 'projects',
+      childLocationIds: ['projects/links', 'projects/tech'],
+      isExpanded: false,
+    })).toBe(ADMIN_WORKFLOW_VISUAL_STATE.DIRTY);
+    expect(deriveAdminWorkflowParentVisualState({
+      workflowState,
+      parentLocationId: 'projects',
+      childLocationIds: ['projects/links', 'projects/tech'],
+      isExpanded: true,
+    })).toBe(ADMIN_WORKFLOW_VISUAL_STATE.NORMAL);
+
+    workflowState = markAdminWorkflowLocationsDirty(workflowState, ['projects']);
+
+    expect(deriveAdminWorkflowParentVisualState({
+      workflowState,
+      parentLocationId: 'projects',
+      childLocationIds: ['projects/links', 'projects/tech'],
+      isExpanded: true,
+    })).toBe(ADMIN_WORKFLOW_VISUAL_STATE.DIRTY);
   });
 });

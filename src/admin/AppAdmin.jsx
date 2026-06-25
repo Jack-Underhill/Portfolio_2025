@@ -165,6 +165,7 @@ function AppAdmin() {
     const [errorVersion, setErrorVersion] = useState(0);
     const [dismissedStatusKey, setDismissedStatusKey] = useState(null);
     const {
+        workflowState,
         hasUnsavedChanges,
         markLocationsDirty,
         markBranchLocationsDirty,
@@ -512,6 +513,7 @@ function AppAdmin() {
             activeRouteId={observedActiveLeaf.routeId}
             activeProjectSubsectionId={observedActiveLeaf.projectSubsectionId}
             expandedRouteIds={expandedRouteIds}
+            workflowState={workflowState}
             onNavigate={handleAdminNavigate}
             onProjectSubsectionNavigate={handleProjectSubsectionNavigate}
             onSave={handleSave}

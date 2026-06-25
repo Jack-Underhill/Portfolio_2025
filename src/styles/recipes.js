@@ -115,7 +115,7 @@ export const adminSectionToolbar = {
 
 export const adminShell = {
   root:
-    "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:12.8rem] md:pl-[var(--admin-primary-sidebar-width)]",
+    "min-h-screen bg-admin-page text-admin-text md:[--admin-primary-sidebar-width:14.4rem] md:pl-[var(--admin-primary-sidebar-width)]",
   sidebar:
     "flex md:min-h-screen flex-col border-r border-admin-border bg-admin-panel md:fixed md:inset-y-0 md:left-0 md:h-screen md:w-[var(--admin-primary-sidebar-width)]",
   sidebarHeader: "shrink-0 space-y-2 border-b border-admin-border px-5 py-6",
@@ -129,6 +129,18 @@ export const adminShell = {
     "h-4 w-4 shrink-0 text-admin-text-muted transition-transform duration-200 ease-out motion-reduce:transition-none",
   navChevronExpanded: "rotate-90",
   navLinkLabel: "min-w-0 flex-1 break-words",
+  navStatusSlot:
+    "flex h-5 w-5 shrink-0 items-center justify-center",
+  navStatusIndicator:
+    "flex h-5 w-5 items-center justify-center",
+  navStatusIcon: "h-4 w-4",
+  navStatusDirtyDot: "h-2.5 w-2.5 rounded-full bg-current",
+  navStatusIndicatorStates: {
+    dirty: "text-amber-400",
+    validating: "text-admin-accent-text",
+    valid: "text-green-400",
+    invalid: "text-admin-danger",
+  },
   navLinkActive:
     "bg-admin-panel-hover text-admin-text ring-1 ring-admin-border",
   navGroup: "min-w-0",
@@ -141,7 +153,8 @@ export const adminShell = {
   navChildList:
     "mt-1.5 ml-[2.8rem] space-y-0.5 border-l border-admin-border-subtle pl-3",
   navChildLink:
-    "block min-w-0 rounded-md px-2.5 py-1.5 text-sm font-medium leading-snug text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+    "flex min-w-0 items-center gap-2 rounded-md px-2.5 py-1.5 text-sm font-medium leading-snug text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text",
+  navChildLinkLabel: "min-w-0 flex-1 break-words",
   navChildLinkActive:
     "bg-admin-panel-hover text-admin-text shadow-[inset_2px_0_0_var(--color-admin-accent-text)]",
   savePanel:

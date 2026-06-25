@@ -1,12 +1,23 @@
 import { ADMIN_ROUTES } from '../routing/adminRoutes.js';
+import {
+    deriveAdminWorkflowParentVisualState,
+    deriveAdminWorkflowVisualState,
+    getAdminWorkflowLocationState,
+} from '../workflow/adminWorkflowState.js';
 import { adminShell, adminUi, cx } from '../../styles/recipes';
 import AdminNavChevron from './AdminNavChevron.jsx';
 import AdminNavIcon from './AdminNavIcon.jsx';
+import AdminNavStatusIndicator from './AdminNavStatusIndicator.jsx';
+
+function getChildWorkflowLocationId(routeId, childRouteId) {
+    return `${routeId}/${childRouteId}`;
+}
 
 function AdminSidebar({
     activeRouteId,
     activeProjectSubsectionId,
     expandedRouteIds = [],
+    workflowState = {},
     onNavigate,
     onProjectSubsectionNavigate,
     onSave,
@@ -30,6 +41,18 @@ function AdminSidebar({
                     const isExpanded = isExpandable && expandedRouteIds.includes(route.id);
                     const childListId = isExpandable ? `admin-nav-${route.id}-children` : undefined;
                     const isPreciseRootLocation = isActive && !activeProjectSubsectionId;
+                    const routeVisualState = isExpandable
+                        ? deriveAdminWorkflowParentVisualState({
+                            workflowState,
+                            parentLocationId: route.id,
+                            childLocationIds: childRoutes.map((childRoute) => (
+                                getChildWorkflowLocationId(route.id, childRoute.id)
+                            )),
+                            isExpanded,
+                        })
+                        : deriveAdminWorkflowVisualState(
+                            getAdminWorkflowLocationState(workflowState, route.id),
+                        );
 
                     return (
                         <div key={route.id} className={isExpandable ? adminShell.navGroup : undefined}>
@@ -46,6 +69,10 @@ function AdminSidebar({
                                 </span>
                                 <AdminNavIcon icon={route.icon} />
                                 <span className={adminShell.navLinkLabel}>{route.label}</span>
+                                <AdminNavStatusIndicator
+                                    label={route.label}
+                                    visualState={routeVisualState}
+                                />
                             </a>
 
                             {isExpandable && (
@@ -64,6 +91,15 @@ function AdminSidebar({
                                         <div className={adminShell.navChildList}>
                                             {childRoutes.map((childRoute) => {
                                                 const isChildActive = childRoute.id === activeProjectSubsectionId;
+                                                const childVisualState = deriveAdminWorkflowVisualState(
+                                                    getAdminWorkflowLocationState(
+                                                        workflowState,
+                                                        getChildWorkflowLocationId(
+                                                            route.id,
+                                                            childRoute.id,
+                                                        ),
+                                                    ),
+                                                );
 
                                                 return (
                                                     <a
@@ -76,7 +112,13 @@ function AdminSidebar({
                                                             isChildActive && adminShell.navChildLinkActive,
                                                         )}
                                                     >
-                                                        {childRoute.title}
+                                                        <span className={adminShell.navChildLinkLabel}>
+                                                            {childRoute.title}
+                                                        </span>
+                                                        <AdminNavStatusIndicator
+                                                            label={childRoute.title}
+                                                            visualState={childVisualState}
+                                                        />
                                                     </a>
                                                 );
                                             })}

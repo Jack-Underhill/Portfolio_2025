@@ -176,5 +176,40 @@ export function deriveCollapsedAdminWorkflowParentState({
 export function deriveExpandedAdminWorkflowParentState({
   parentState = NORMAL_LOCATION_STATE,
 }) {
-  return deriveAdminWorkflowVisualState(parentState);
+  if (parentState.validation === ADMIN_WORKFLOW_VALIDATION.INVALID) {
+    return ADMIN_WORKFLOW_VISUAL_STATE.INVALID;
+  }
+
+  if (parentState.validation === ADMIN_WORKFLOW_VALIDATION.VALIDATING) {
+    return ADMIN_WORKFLOW_VISUAL_STATE.VALIDATING;
+  }
+
+  if (parentState.dirty) {
+    return ADMIN_WORKFLOW_VISUAL_STATE.DIRTY;
+  }
+
+  return ADMIN_WORKFLOW_VISUAL_STATE.NORMAL;
+}
+
+export function deriveAdminWorkflowParentVisualState({
+  workflowState,
+  parentLocationId,
+  childLocationIds = [],
+  isExpanded,
+}) {
+  const parentState = getAdminWorkflowLocationState(
+    workflowState,
+    parentLocationId,
+  );
+
+  if (isExpanded) {
+    return deriveExpandedAdminWorkflowParentState({ parentState });
+  }
+
+  return deriveCollapsedAdminWorkflowParentState({
+    parentState,
+    childStates: childLocationIds.map((locationId) => (
+      getAdminWorkflowLocationState(workflowState, locationId)
+    )),
+  });
 }

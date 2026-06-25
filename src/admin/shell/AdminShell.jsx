@@ -6,6 +6,7 @@ function AdminShell({
     activeRouteId,
     activeProjectSubsectionId,
     expandedRouteIds,
+    workflowState,
     children,
     onNavigate,
     onProjectSubsectionNavigate,
@@ -23,6 +24,7 @@ function AdminShell({
                 activeRouteId={activeRouteId}
                 activeProjectSubsectionId={activeProjectSubsectionId}
                 expandedRouteIds={expandedRouteIds}
+                workflowState={workflowState}
                 onNavigate={onNavigate}
                 onProjectSubsectionNavigate={onProjectSubsectionNavigate}
                 onSave={onSave}
