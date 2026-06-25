@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-06-24
+Date: 2026-06-25
 
 ## Purpose
 
@@ -23,6 +23,7 @@ Current baseline test files:
 - `tests/admin/navigationCoordinator.test.js`
 - `tests/admin/adminNavExpansion.test.js`
 - `tests/admin/adminSectionToolbar.test.js`
+- `tests/admin/adminWorkflowState.test.js`
 - `tests/runtime/paths.test.js`
 - `tests/domain/projects/routing.test.js`
 - `tests/domain/projects/mappers.test.js`
@@ -50,7 +51,7 @@ Current baseline test files:
 
 Current checks:
 
-- `cmd /c npm run test` passes with 30 test files and 184 tests.
+- `cmd /c npm run test` passes with 31 test files and 198 tests.
 - `cmd /c npm run lint` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run build` passes with the existing chunk-size advisory.
@@ -70,11 +71,13 @@ Admin navigation coverage:
 - `tests/admin/scrollspyUtils.test.js` covers ordered flattened geometry, Classification observation beginning at the Projects parent, the final Projects-child boundary at Education, edge forcing, short-section ownership, current-section hysteresis, sticky viewport offsets, and already-visible scroll guards.
 - `tests/admin/navigationCoordinator.test.js` covers the pure route-write policy: traveling observation during a locked target, passive idle replacement, settlement release, user-interruption replacement, and suppression during project-record stabilization.
 - `tests/admin/adminNavExpansion.test.js` and `tests/admin/adminSectionToolbar.test.js` cover expandable-group policy and sticky-toolbar geometry without coupling tests to Tailwind class strings.
+- `tests/admin/adminWorkflowState.test.js` covers multiple dirty roots and Projects children, direct parent plus child state, validated-but-unsaved behavior, validation failure and stale-validation clearing, successful/failed save transitions, collapsed precedence, expanded suppression, and single-owner/multi-owner agent import attribution from actual changed fields.
 
 Remaining testing gap:
 
 - The coordinated DOM lifecycle remains a browser/manual boundary because the repo does not have a stable authenticated admin fixture. Required focused checks are delayed direct entry after data readiness, traveling highlights with a locked URL, wheel/touch/keyboard interruption, `/admin/projects` settling to Classification, Browser Back/Forward, large-to-small project switching, the zero-project Projects fallback, and unsaved-edit preservation.
-- Expandable admin sidebar rendering remains a browser/manual boundary until a stable admin component or browser fixture exists. Dirty-state preservation, file-input helper text, status dismissal, save behavior, and `beforeunload` also remain manual checks.
+- Expandable admin sidebar rendering remains a browser/manual boundary until a stable admin component or browser fixture exists. The authenticated manual pass must cover the exact active root/child gradient, static Projects ancestor treatment, traveling highlights, reduced motion, neutral inactive icon contrast, simultaneous dirty indicators, validation spinner/success/error, Save remaining enabled after successful validation, successful/failed save behavior, collapsed/expanded parent display, focus, status tooltips, and `beforeunload`.
+- The 2026-06-25 workflow verification pass completed the pure workflow matrix and full quality gate. It did not claim authenticated admin visual verification because no stable local fixture or non-destructive browser login path exists; the checks above remain the explicit browser boundary.
 - Add browser/component smoke coverage later for modal focus and remaining Netlify function behavior such as `track-visit`.
 - Add browser smoke only if project viewport card activation, desktop standard-card marquee behavior, or deeper fixed-nav scrollspy behavior needs coverage beyond the pure scoring helpers, current nav smoke, and axe checks.
 - Project-card video preview lifecycle has focused helper coverage in `tests/hooks/useHoverPreviewIntent.test.js`: retained-source cleanup versus default source release, actual playback state from `playing`, clearing state on `pause`/`emptied`/`ended`/`error`, and listener cleanup. Prop routing and guarded `safeVideo` source/preload behavior remain covered by structural/manual verification rather than a React component harness.

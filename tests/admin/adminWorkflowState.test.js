@@ -8,6 +8,7 @@ import {
   getProjectFieldWorkflowLocationIds,
   getProjectWorkflowLocationId,
 } from '../../src/admin/projects/projectEditorSections.js';
+import { applyAgentProjectDraftPatch } from '../../src/domain/projects/agentDraft.js';
 import {
   ADMIN_WORKFLOW_VALIDATION,
   ADMIN_WORKFLOW_VISUAL_STATE,
@@ -74,6 +75,53 @@ describe('admin workflow state', () => {
       'projects/tech',
     ]);
     expect(getProjectFieldWorkflowLocationIds(['unsupportedField'])).toEqual([]);
+  });
+
+  it('attributes a single-owner agent import only to its changed subsection', () => {
+    const result = applyAgentProjectDraftPatch(
+      {
+        title: 'Current title',
+        description: 'Current description',
+      },
+      {
+        title: 'Current title',
+        description: 'Updated description',
+      },
+    );
+
+    expect(result.changedFields).toEqual(['description']);
+    expect(getProjectFieldWorkflowLocationIds(result.changedFields)).toEqual([
+      'projects/intro',
+    ]);
+  });
+
+  it('attributes a multi-owner agent import to every changed subsection once', () => {
+    const result = applyAgentProjectDraftPatch(
+      {
+        title: 'Current title',
+        url: 'https://current.example.test',
+        techStack: {
+          frontend: ['React'],
+          backend: [],
+          data: [],
+          infrastructure: [],
+        },
+      },
+      {
+        title: 'Updated title',
+        url: 'https://updated.example.test',
+        techStack: {
+          frontend: ['Astro'],
+        },
+      },
+    );
+
+    expect(result.changedFields).toEqual(['title', 'url', 'techStack']);
+    expect(getProjectFieldWorkflowLocationIds(result.changedFields)).toEqual([
+      'projects/intro',
+      'projects/links',
+      'projects/tech',
+    ]);
   });
 
   it('keeps Links and Tech dirty when edited in sequence', () => {
@@ -265,6 +313,8 @@ describe('admin workflow state', () => {
 
     workflowState = markAdminWorkflowLocationsDirty(workflowState, ['projects']);
 
+    expect(getLocationState(workflowState, 'projects').dirty).toBe(true);
+    expect(getLocationState(workflowState, 'projects/links').dirty).toBe(true);
     expect(deriveAdminWorkflowParentVisualState({
       workflowState,
       parentLocationId: 'projects',
