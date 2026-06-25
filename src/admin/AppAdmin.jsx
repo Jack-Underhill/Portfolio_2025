@@ -22,6 +22,7 @@ import {
 import useAdminScrollspy, {
     useAdminScrollTargetRegistry,
 } from './routing/useAdminScrollspy.js';
+import { getExpandedAdminRouteIds } from './routing/adminNavExpansion.js';
 import useAdminNavigationCoordinator from './routing/useAdminNavigationCoordinator.js';
 import useAdminRoute                  from './routing/useAdminRoute.js';
 import useUnsavedAdminWarning         from './routing/useUnsavedAdminWarning.js';
@@ -238,6 +239,10 @@ function AppAdmin() {
         },
         onRouteTargetFallback: replaceAdminRoute,
     });
+    const expandedRouteIds = getExpandedAdminRouteIds({
+        observedLeafId: observedActiveLeaf.id,
+        navigationTarget,
+    });
 
     const { updateActiveSection: updateObservedActiveLeaf } = useAdminScrollspy({
         observedLeafId: observedActiveLeafId,
@@ -452,11 +457,7 @@ function AppAdmin() {
         <AdminShell
             activeRouteId={observedActiveLeaf.routeId}
             activeProjectSubsectionId={observedActiveLeaf.projectSubsectionId}
-            isProjectsExpanded={
-                observedActiveLeaf.routeId === ADMIN_ROUTE_IDS.PROJECTS
-                || navigationTarget?.destinationId === ADMIN_ROUTE_IDS.PROJECTS
-                || navigationTarget?.destinationId?.startsWith(`${ADMIN_ROUTE_IDS.PROJECTS}/`)
-            }
+            expandedRouteIds={expandedRouteIds}
             onNavigate={handleAdminNavigate}
             onProjectSubsectionNavigate={handleProjectSubsectionNavigate}
             onSave={handleSave}

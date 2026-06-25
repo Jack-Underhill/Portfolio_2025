@@ -6,7 +6,7 @@ import AdminNavIcon from './AdminNavIcon.jsx';
 function AdminSidebar({
     activeRouteId,
     activeProjectSubsectionId,
-    isProjectsExpanded,
+    expandedRouteIds = [],
     onNavigate,
     onProjectSubsectionNavigate,
     onSave,
@@ -27,7 +27,7 @@ function AdminSidebar({
                     const isActive = activeRouteId === route.id;
                     const childRoutes = route.children || [];
                     const isExpandable = childRoutes.length > 0;
-                    const isExpanded = isExpandable && isProjectsExpanded;
+                    const isExpanded = isExpandable && expandedRouteIds.includes(route.id);
                     const childListId = isExpandable ? `admin-nav-${route.id}-children` : undefined;
                     const isPreciseRootLocation = isActive && !activeProjectSubsectionId;
 

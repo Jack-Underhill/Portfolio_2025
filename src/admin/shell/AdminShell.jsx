@@ -5,7 +5,7 @@ import AdminStatusBanner from './AdminStatusBanner.jsx';
 function AdminShell({
     activeRouteId,
     activeProjectSubsectionId,
-    isProjectsExpanded,
+    expandedRouteIds,
     children,
     onNavigate,
     onProjectSubsectionNavigate,
@@ -22,7 +22,7 @@ function AdminShell({
             <AdminSidebar
                 activeRouteId={activeRouteId}
                 activeProjectSubsectionId={activeProjectSubsectionId}
-                isProjectsExpanded={isProjectsExpanded}
+                expandedRouteIds={expandedRouteIds}
                 onNavigate={onNavigate}
                 onProjectSubsectionNavigate={onProjectSubsectionNavigate}
                 onSave={onSave}

@@ -94,6 +94,13 @@ function getElementDocumentTop(element) {
   return rect.top + (window.scrollY || document.documentElement.scrollTop || 0);
 }
 
+function withNavigationOrigin(target, originLeafId) {
+  return {
+    ...target,
+    originLeafId: target.originLeafId ?? originLeafId ?? null,
+  };
+}
+
 export function useAdminNavigationCoordinator({
   getTargetElement,
   initialObservedLeafId = null,
@@ -289,14 +296,18 @@ export function useAdminNavigationCoordinator({
   const navigateToTarget = useCallback((target) => {
     if (!target?.path || !target?.scrollTarget) return false;
 
+    const targetWithOrigin = withNavigationOrigin(
+      target,
+      observedLeafIdRef.current,
+    );
     clearSettleLifecycle();
     clearStabilizationLifecycle();
-    navigationTargetRef.current = target;
-    setNavigationTarget(target);
+    navigationTargetRef.current = targetWithOrigin;
+    setNavigationTarget(targetWithOrigin);
     setNavigationPhase(NAVIGATION_PHASES.NAVIGATING);
-    onNavigateRouteRef.current?.(target.path);
+    onNavigateRouteRef.current?.(targetWithOrigin.path);
 
-    const element = getTargetElement(target.scrollTarget);
+    const element = getTargetElement(targetWithOrigin.scrollTarget);
     if (!element || typeof window === 'undefined') {
       releaseNavigation();
       return false;
@@ -315,19 +326,33 @@ export function useAdminNavigationCoordinator({
   const navigateToRouteTarget = useCallback((target, options = {}) => {
     if (!target?.path || !target?.scrollTarget) return false;
 
+    const currentTarget = navigationTargetRef.current;
+    const preservedOriginLeafId = (
+      currentTarget?.source === target.source
+      && currentTarget?.path === target.path
+    )
+      ? currentTarget.originLeafId
+      : observedLeafIdRef.current;
+    const targetWithOrigin = withNavigationOrigin(target, preservedOriginLeafId);
     clearSettleLifecycle();
     clearStabilizationLifecycle();
-    navigationTargetRef.current = target;
-    setNavigationTarget(target);
+    navigationTargetRef.current = targetWithOrigin;
+    setNavigationTarget(targetWithOrigin);
     setNavigationPhase(NAVIGATION_PHASES.LOADING);
 
     if (!options.isReady || typeof window === 'undefined') {
       return true;
     }
 
-    let activeTarget = target;
-    if (options.shouldUseFallback && options.fallbackTarget) {
-      activeTarget = options.fallbackTarget;
+    const fallbackTargetWithOrigin = options.fallbackTarget
+      ? withNavigationOrigin(
+          options.fallbackTarget,
+          targetWithOrigin.originLeafId,
+        )
+      : null;
+    let activeTarget = targetWithOrigin;
+    if (options.shouldUseFallback && fallbackTargetWithOrigin) {
+      activeTarget = fallbackTargetWithOrigin;
       navigationTargetRef.current = activeTarget;
       setNavigationTarget(activeTarget);
       onRouteTargetFallbackRef.current?.(activeTarget.path);
@@ -362,19 +387,18 @@ export function useAdminNavigationCoordinator({
       }
 
       if (measuredFrames >= ROUTE_TARGET_MAX_MEASURE_FRAMES) {
-        const fallbackTarget = options.fallbackTarget;
         if (
-          fallbackTarget?.path
-          && fallbackTarget?.scrollTarget
-          && activeTarget !== fallbackTarget
+          fallbackTargetWithOrigin?.path
+          && fallbackTargetWithOrigin?.scrollTarget
+          && activeTarget !== fallbackTargetWithOrigin
         ) {
-          activeTarget = fallbackTarget;
+          activeTarget = fallbackTargetWithOrigin;
           measuredFrames = 0;
           stableFrames = 0;
           previousDocumentTop = null;
-          navigationTargetRef.current = fallbackTarget;
-          setNavigationTarget(fallbackTarget);
-          onRouteTargetFallbackRef.current?.(fallbackTarget.path);
+          navigationTargetRef.current = fallbackTargetWithOrigin;
+          setNavigationTarget(fallbackTargetWithOrigin);
+          onRouteTargetFallbackRef.current?.(fallbackTargetWithOrigin.path);
           settleFrameRef.current = window.requestAnimationFrame(measureTarget);
           return;
         }
