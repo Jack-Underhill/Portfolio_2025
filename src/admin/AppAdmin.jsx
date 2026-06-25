@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { loadAdminData, saveAdminData } from './api/adminClient';
 import AdminShell                     from './shell/AdminShell.jsx';
+import {
+    getAdminStickyToolbarViewportOffset,
+} from './shell/adminSectionToolbarGeometry.js';
 import AboutAdminPage                 from './pages/AboutAdminPage.jsx';
 import ProjectsAdminPage              from './pages/ProjectsAdminPage.jsx';
 import EducationAdminPage             from './pages/EducationAdminPage.jsx';
@@ -51,7 +54,6 @@ const initialCredentialsState = {
     certifications: [],
 };
 
-const PROJECT_SCROLLSPY_TOP_OFFSET_PX = 208;
 const OBSERVED_LEAVES_BY_ID = new Map(
     ADMIN_OBSERVED_LEAVES.map((leaf) => [leaf.id, leaf]),
 );
@@ -74,12 +76,6 @@ function getRouteObservedLeafId(routeId, projectSubsectionId = null) {
     return OBSERVED_LEAVES_BY_ID.has(projectLeafId)
         ? projectLeafId
         : ADMIN_OBSERVED_LEAVES[0].id;
-}
-
-function getObservedLeafViewportTopOffset(leafId) {
-    return OBSERVED_LEAVES_BY_ID.get(leafId)?.routeId === ADMIN_ROUTE_IDS.PROJECTS
-        ? PROJECT_SCROLLSPY_TOP_OFFSET_PX
-        : 0;
 }
 
 function getRouteNavigationTarget(activeRoute, projectSubsectionId, source) {
@@ -248,7 +244,7 @@ function AppAdmin() {
         getTargetElement,
         locations: ADMIN_OBSERVED_LEAVES,
         onObservedLeafChange: handleObservedLeafChange,
-        viewportTopOffset: getObservedLeafViewportTopOffset,
+        viewportTopOffset: getAdminStickyToolbarViewportOffset,
     });
 
     useEffect(() => {

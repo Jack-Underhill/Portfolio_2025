@@ -20,9 +20,9 @@ function getScrollMetrics() {
   };
 }
 
-function resolveViewportTopOffset(viewportTopOffset, observedLeafId) {
+function resolveViewportTopOffset(viewportTopOffset) {
   return typeof viewportTopOffset === 'function'
-    ? viewportTopOffset(observedLeafId)
+    ? viewportTopOffset()
     : viewportTopOffset;
 }
 
@@ -43,10 +43,7 @@ export function useAdminScrollspy({
     if (!enabled || typeof window === 'undefined' || typeof document === 'undefined') return;
 
     const sectionRects = getObservedScrollLocationRects(locations, getTargetElement);
-    const resolvedViewportTopOffset = resolveViewportTopOffset(
-      viewportTopOffset,
-      observedLeafIdRef.current,
-    );
+    const resolvedViewportTopOffset = resolveViewportTopOffset(viewportTopOffset);
 
     const nextSectionId = getActiveScrollSection(sectionRects, {
       ...getScrollMetrics(),

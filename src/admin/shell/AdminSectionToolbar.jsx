@@ -9,7 +9,10 @@ function AdminSectionToolbar({
     if (!children && !actions) return null;
 
     return (
-        <div className={cx(adminSectionToolbar.shell, className)}>
+        <div
+            className={cx(adminSectionToolbar.shell, className)}
+            data-admin-section-toolbar
+        >
             <div className={adminSectionToolbar.body}>
                 {children ? (
                     <div className={adminSectionToolbar.primary}>
