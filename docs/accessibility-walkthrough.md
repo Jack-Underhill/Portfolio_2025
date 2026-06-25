@@ -15,7 +15,7 @@ Keep this current-state oriented:
 
 ## Current Baseline
 
-Last accessibility-affecting baseline checked on 2026-06-23 with Windows `cmd /c` commands for the route-addressable, scroll-continuous admin shell with an expandable Projects group in the primary sidebar.
+Last accessibility-affecting baseline checked on 2026-06-24 with Windows `cmd /c` commands for the coordinated, route-addressable, scroll-continuous admin shell with an expandable Projects group in the primary sidebar.
 
 Passing:
 
@@ -141,11 +141,16 @@ Motion, contrast, and focus:
 
 Admin accessibility:
 
-- The admin runs as a development-only routed CMS shell with all fixed top-level admin sections rendered in one scroll-continuous stack. `/admin` and unknown `/admin/*` paths canonicalize to About, while `/admin/projects` canonicalizes to `/admin/projects/classification`.
-- Top-level admin routes remain addressable at `/admin/about`, `/admin/projects/classification`, `/admin/education`, `/admin/certifications`, `/admin/skills`, and `/admin/contact`. Project subsections are also addressable at `/admin/projects/intro`, `/admin/projects/media`, `/admin/projects/links`, `/admin/projects/tech`, `/admin/projects/lists`, and `/admin/projects/challenges`.
-- The fixed sidebar is the only admin navigation surface. It exposes a named `Admin pages` navigation landmark, icon-plus-label root links, and `aria-current="location"` on the active top-level scroll location.
-- Projects is an expandable root link whose `aria-expanded` state follows whether Projects is active and whose `aria-controls` references the in-flow child link group. Its right/down chevron is decorative with `aria-hidden="true"` and is not a separate control.
-- Visible Projects subsection links follow the root link in keyboard order and expose `aria-current="location"` on the active subsection. Activating the Projects parent does not manually assign a child; route and scrollspy state determine the precise subsection location.
+- The admin runs as a development-only routed CMS shell with all fixed top-level admin sections rendered in one scroll-continuous stack. `/admin` and unknown top-level `/admin/*` paths canonicalize to About. `/admin/projects` remains a valid parent destination; unknown Projects child paths canonicalize to that parent.
+- Top-level admin routes remain addressable at `/admin/about`, `/admin/projects`, `/admin/education`, `/admin/certifications`, `/admin/skills`, and `/admin/contact`. Project subsections are addressable from `/admin/projects/classification` through the remaining Intro, Media, Links, Tech, Lists, and Challenges child paths.
+- The fixed sidebar is the only admin navigation surface. It exposes a named `Admin pages` navigation landmark and icon-plus-label root links. One flattened observed leaf owns the visual current location across root sections and Projects subsections.
+- Exactly one precise observed leaf exposes `aria-current="location"`. A Projects child owns that semantic while its root receives only the grouped active styling, so assistive technology is not given both a parent and child current location.
+- Projects is an expandable root link whose `aria-expanded` state follows the coordinated origin, destination, and observed-leaf policy and whose `aria-controls` references the in-flow child link group. Its right/down chevron is decorative with `aria-hidden="true"` and is not a separate control.
+- The Projects child group remains mounted for its visual disclosure transition, becomes `inert` and `aria-hidden` while collapsed, and disables the transition for reduced-motion users.
+- Activating the Projects parent preserves `/admin/projects` while scrolling to the Projects masthead. When project content exists, observation at the top of Projects resolves the precise current leaf and settled URL to Classification without manually defaulting the click to that child.
+- During intentional smooth navigation, the observed leaf may move rapidly through intermediate root and child locations for the traveling sidebar highlight. The requested URL stays locked until navigation settles, no live region announces those intermediate changes, and the activated link retains keyboard focus.
+- Admin navigation uses instant scrolling when `prefers-reduced-motion: reduce` is active while preserving the same final route and current-leaf semantics.
+- Wheel, touch, scrollbar/middle-pointer, and non-editing keyboard scroll input release intentional navigation ownership so observation can take over. Arrow, Page, Home, End, and Space input from an input, textarea, select, or contenteditable editor is not treated as a navigation interruption.
 - The sidebar save panel keeps the global save button reachable, exposes busy state while saving, and reports saved, unsaved, saving, and draft-validation save states through a polite status line.
 - The top-of-content admin status banner appears only for active messaging. Errors use `role="alert"`; saving, validation, and unsaved-change messages use `role="status"` with polite live-region behavior and a labeled dismiss button.
 - Each top-level admin section has one clear visible masthead heading through `AdminPageWrapper`. Masthead icons are decorative, and section editors keep local named regions and labels where their controls need them.

@@ -64,7 +64,7 @@ function isEditableElement(element) {
   if (!(element instanceof Element)) return false;
 
   return Boolean(element.closest(
-    'input, textarea, select, [contenteditable=""], [contenteditable="true"]',
+    'input, textarea, select, [contenteditable]:not([contenteditable="false"])',
   ));
 }
 
