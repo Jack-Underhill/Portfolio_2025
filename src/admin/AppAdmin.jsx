@@ -17,6 +17,7 @@ import {
     ADMIN_ROUTE_IDS,
     ADMIN_SCROLL_TARGET_TYPES,
     DEFAULT_PROJECT_SUBSECTION_ROUTE,
+    getAdminWorkflowBranchLocationIds,
     getProjectSubsectionPath,
 } from './routing/adminRoutes.js';
 import useAdminScrollspy, {
@@ -61,6 +62,9 @@ const OBSERVED_LEAVES_BY_ID = new Map(
 );
 const PROJECTS_ROOT_ROUTE = ADMIN_ROUTES.find(
     (route) => route.id === ADMIN_ROUTE_IDS.PROJECTS,
+);
+const PROJECTS_WORKFLOW_LOCATION_IDS = getAdminWorkflowBranchLocationIds(
+    ADMIN_ROUTE_IDS.PROJECTS,
 );
 
 function getRouteObservedLeafId(routeId, projectSubsectionId = null) {
@@ -163,6 +167,10 @@ function AppAdmin() {
     const {
         hasUnsavedChanges,
         markLocationsDirty,
+        markBranchLocationsDirty,
+        beginValidation,
+        completeValidationSuccessfully,
+        completeBranchValidationWithFailure,
         resetWorkflowState,
     } = useAdminWorkflowState();
     const {
@@ -378,9 +386,21 @@ function AppAdmin() {
     }, [markLocationsDirty]);
 
     const handleProjectsChange = useCallback((nextState, ownerLocationIds) => {
-        markLocationsDirty(ownerLocationIds);
+        markBranchLocationsDirty(ADMIN_ROUTE_IDS.PROJECTS, ownerLocationIds);
         setProjectsState(nextState);
-    }, [markLocationsDirty]);
+    }, [markBranchLocationsDirty]);
+
+    const handleProjectValidationStart = useCallback(() => {
+        beginValidation(PROJECTS_WORKFLOW_LOCATION_IDS);
+    }, [beginValidation]);
+
+    const handleProjectValidationSuccess = useCallback(() => {
+        completeValidationSuccessfully(PROJECTS_WORKFLOW_LOCATION_IDS);
+    }, [completeValidationSuccessfully]);
+
+    const handleProjectValidationFailure = useCallback(() => {
+        completeBranchValidationWithFailure(ADMIN_ROUTE_IDS.PROJECTS);
+    }, [completeBranchValidationWithFailure]);
 
     const handleEducationChange = useCallback((nextState) => {
         markLocationsDirty([ADMIN_ROUTE_IDS.EDUCATION]);
@@ -478,6 +498,9 @@ function AppAdmin() {
         onContactChange: handleContactChange,
         isSaveInFlight: isSaving,
         onValidationBusyChange: setIsProjectValidationInFlight,
+        onProjectValidationStart: handleProjectValidationStart,
+        onProjectValidationSuccess: handleProjectValidationSuccess,
+        onProjectValidationFailure: handleProjectValidationFailure,
         onAdminSectionMount: setAdminSectionRef,
         onProjectSectionMount: setProjectSectionRef,
         onProjectRecordChangeStart: handleProjectRecordChangeStart,

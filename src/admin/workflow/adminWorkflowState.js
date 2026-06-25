@@ -58,6 +58,17 @@ export function clearAdminWorkflowBranchValidation(workflowState, parentLocation
   );
 }
 
+export function applyAdminWorkflowBranchEdit(
+  workflowState,
+  parentLocationId,
+  locationIds,
+) {
+  return markAdminWorkflowLocationsDirty(
+    clearAdminWorkflowBranchValidation(workflowState, parentLocationId),
+    locationIds,
+  );
+}
+
 export function beginAdminWorkflowValidation(workflowState, locationIds) {
   return updateLocations(workflowState, locationIds, (locationState) => ({
     ...locationState,
@@ -77,6 +88,16 @@ export function completeAdminWorkflowValidationWithFailure(workflowState, locati
     ...locationState,
     validation: ADMIN_WORKFLOW_VALIDATION.INVALID,
   }));
+}
+
+export function completeAdminWorkflowBranchValidationWithFailure(
+  workflowState,
+  parentLocationId,
+) {
+  return completeAdminWorkflowValidationWithFailure(
+    clearAdminWorkflowBranchValidation(workflowState, parentLocationId),
+    [parentLocationId],
+  );
 }
 
 export function clearAdminWorkflowStateAfterSave() {

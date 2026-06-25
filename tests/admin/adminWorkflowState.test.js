@@ -11,11 +11,11 @@ import {
 import {
   ADMIN_WORKFLOW_VALIDATION,
   ADMIN_WORKFLOW_VISUAL_STATE,
+  applyAdminWorkflowBranchEdit,
   beginAdminWorkflowValidation,
-  clearAdminWorkflowBranchValidation,
   clearAdminWorkflowStateAfterSave,
+  completeAdminWorkflowBranchValidationWithFailure,
   completeAdminWorkflowValidationSuccessfully,
-  completeAdminWorkflowValidationWithFailure,
   createAdminWorkflowState,
   deriveAdminWorkflowVisualState,
   deriveCollapsedAdminWorkflowParentState,
@@ -129,8 +129,11 @@ describe('admin workflow state', () => {
       PROJECTS_LOCATION_IDS,
     );
 
-    workflowState = clearAdminWorkflowBranchValidation(workflowState, 'projects');
-    workflowState = markAdminWorkflowLocationsDirty(workflowState, ['projects/media']);
+    workflowState = applyAdminWorkflowBranchEdit(
+      workflowState,
+      'projects',
+      ['projects/media'],
+    );
 
     expect(getLocationState(workflowState, 'projects/links')).toEqual({
       dirty: true,
@@ -152,9 +155,13 @@ describe('admin workflow state', () => {
       ['projects/links', 'education'],
     );
 
-    workflowState = completeAdminWorkflowValidationWithFailure(
+    workflowState = beginAdminWorkflowValidation(
       workflowState,
-      ['projects'],
+      PROJECTS_LOCATION_IDS,
+    );
+    workflowState = completeAdminWorkflowBranchValidationWithFailure(
+      workflowState,
+      'projects',
     );
 
     expect(getLocationState(workflowState, 'projects')).toEqual({
@@ -162,6 +169,9 @@ describe('admin workflow state', () => {
       validation: ADMIN_WORKFLOW_VALIDATION.INVALID,
     });
     expect(getLocationState(workflowState, 'projects/links').dirty).toBe(true);
+    expect(getLocationState(workflowState, 'projects/links').validation).toBe(
+      ADMIN_WORKFLOW_VALIDATION.NONE,
+    );
     expect(getLocationState(workflowState, 'education').dirty).toBe(true);
     expect(hasAdminWorkflowUnsavedChanges(workflowState)).toBe(true);
   });

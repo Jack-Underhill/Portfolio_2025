@@ -6,6 +6,9 @@ function ProjectsAdminPage({
     onProjectsChange,
     isSaveInFlight,
     onValidationBusyChange,
+    onProjectValidationStart,
+    onProjectValidationSuccess,
+    onProjectValidationFailure,
     onAdminSectionMount,
     onProjectSectionMount,
     onProjectRecordChangeStart,
@@ -22,6 +25,9 @@ function ProjectsAdminPage({
                     onChange={onProjectsChange}
                     isSaveInFlight={isSaveInFlight}
                     onValidationBusyChange={onValidationBusyChange}
+                    onValidationStart={onProjectValidationStart}
+                    onValidationSuccess={onProjectValidationSuccess}
+                    onValidationFailure={onProjectValidationFailure}
                     onProjectSectionMount={onProjectSectionMount}
                     onProjectRecordChangeStart={onProjectRecordChangeStart}
                     onProjectWorkspaceReturn={onProjectWorkspaceReturn}

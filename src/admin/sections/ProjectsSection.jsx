@@ -32,6 +32,9 @@ function ProjectsSection({
     onChange,
     isSaveInFlight = false,
     onValidationBusyChange,
+    onValidationStart,
+    onValidationSuccess,
+    onValidationFailure,
     onProjectSectionMount,
     onProjectRecordChangeStart,
     onProjectWorkspaceReturn,
@@ -171,6 +174,7 @@ function ProjectsSection({
         validationRequestId.current = requestId;
         setIsValidating(true);
         onValidationBusyChange?.(true);
+        onValidationStart?.();
         setValidationState({
             state: 'validating',
             type: 'status',
@@ -183,6 +187,7 @@ function ProjectsSection({
 
             if (isMountedRef.current) {
                 const count = result?.projectCount ?? projects.length;
+                onValidationSuccess?.();
                 setValidationState({
                     state: 'success',
                     type: 'status',
@@ -196,6 +201,7 @@ function ProjectsSection({
             if (validationRequestId.current !== requestId) return;
 
             if (isMountedRef.current) {
+                onValidationFailure?.();
                 setValidationState({
                     state: 'error',
                     type: 'alert',
@@ -208,7 +214,16 @@ function ProjectsSection({
                 setIsValidating(false);
             }
         }
-    }, [isSaveInFlight, isValidating, onValidationBusyChange, projects.length, state]);
+    }, [
+        isSaveInFlight,
+        isValidating,
+        onValidationBusyChange,
+        onValidationFailure,
+        onValidationStart,
+        onValidationSuccess,
+        projects.length,
+        state,
+    ]);
 
     // --- add / update / remove ---
     const handleAddProject = () => {
