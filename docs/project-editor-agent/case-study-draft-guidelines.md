@@ -141,7 +141,7 @@ Use `competition` for hackathons, game jams, and similar limited-time competitiv
 
 ## Existing Project Review Mode
 
-Ask for or use current project draft context before revising an existing case study. Prefer the admin `Copy current context` action. A manual copy/export is acceptable only if the UI is unavailable.
+Ask for or use current project draft context before revising an existing case study. Prefer the admin Projects `Agent` subsection `Copy draft` action. A manual copy/export is acceptable only if the UI is unavailable.
 
 Review current project context shaped like this. Treat `projectContext` as read-only identification and `draft` as supported content fields to compare, not as an import payload:
 

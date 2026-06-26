@@ -67,19 +67,19 @@ describe('admin scrollspy utilities', () => {
     expect(rects[1].rect.top).not.toBe(classificationRect.top);
     expect(rects.at(-1)).toEqual({
       id: 'contact',
-      rect: { top: 1100, bottom: 1200 },
+      rect: { top: 1200, bottom: 1300 },
     });
   });
 
   it('ends the final Projects leaf at the Education observation boundary', () => {
-    const challengesIndex = ADMIN_OBSERVED_LEAVES.findIndex(
-      ({ id }) => id === 'projects/challenges',
+    const agentIndex = ADMIN_OBSERVED_LEAVES.findIndex(
+      ({ id }) => id === 'projects/agent',
     );
     const educationIndex = ADMIN_OBSERVED_LEAVES.findIndex(
       ({ id }) => id === 'education',
     );
     const elementsByTarget = new Map([
-      ['project-subsection:challenges', {
+      ['project-subsection:agent', {
         getBoundingClientRect: () => ({ top: 300, bottom: 900 }),
       }],
       ['root-section:education', {
@@ -89,7 +89,7 @@ describe('admin scrollspy utilities', () => {
 
     const rects = getObservedScrollLocationRects(
       [
-        ADMIN_OBSERVED_LEAVES[challengesIndex],
+        ADMIN_OBSERVED_LEAVES[agentIndex],
         ADMIN_OBSERVED_LEAVES[educationIndex],
       ],
       (target) => elementsByTarget.get(getScrollTargetKey(target)) || null,
@@ -97,7 +97,7 @@ describe('admin scrollspy utilities', () => {
 
     expect(rects).toEqual([
       {
-        id: 'projects/challenges',
+        id: 'projects/agent',
         rect: { top: 300, bottom: 740 },
       },
       {
