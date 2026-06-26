@@ -6,6 +6,7 @@ import ProjectEditor from '../projects/ProjectEditor';
 import ProjectDraftContextPanel from '../projects/ProjectDraftContextPanel';
 import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
 import ProjectPreviewActions from '../projects/ProjectPreviewActions';
+import ProjectWorkspaceActions from '../projects/ProjectWorkspaceActions';
 import {
     getProjectFieldWorkflowLocationIds,
     getProjectWorkflowLocationId,
@@ -22,7 +23,6 @@ import {
 import { createEmptyProjectDraft } from '../../domain/projects/defaults';
 import { normalizeProjectSortOrder } from '../../domain/projects/mappers';
 import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
-import { adminUi } from '../../styles/recipes';
 
 const PROJECT_DRAFT_IMPORT_PANEL_ID = 'project-agent-draft-import-panel';
 const PROJECT_DRAFT_CONTEXT_PANEL_ID = 'project-agent-draft-context-panel';
@@ -294,32 +294,28 @@ function ProjectsSection({
                 />
             </AdminSectionToolbar>
 
-            <button
-                type="button"
-                onClick={handleAddProject}
-                aria-label="Add project"
-                className={adminUi.secondaryButton}
-            >
-                + Add Project
-            </button>
+            <ProjectWorkspaceActions
+                canPreview={Boolean(previewProject)}
+                canValidate={projects.length > 0}
+                isSaveInFlight={isSaveInFlight}
+                isValidating={isValidating}
+                onAddProject={handleAddProject}
+                onPreview={handleOpenPreview}
+                onValidate={handleValidateDraft}
+            />
 
             {activeProject && (
                 <>
                     <ProjectPreviewActions
                         canCopyContext={Boolean(activeProject)}
                         canImport={Boolean(activeProject)}
-                        canPreview={Boolean(previewProject)}
-                        canValidate={projects.length > 0}
                         contextPanelId={PROJECT_DRAFT_CONTEXT_PANEL_ID}
                         importPanelId={PROJECT_DRAFT_IMPORT_PANEL_ID}
                         isContextOpen={isContextPanelOpen}
                         isImportOpen={isImportPanelOpen}
                         isSaveInFlight={isSaveInFlight}
-                        isValidating={isValidating}
                         onToggleContext={handleToggleContextPanel}
                         onToggleImport={handleToggleImportPanel}
-                        onPreview={handleOpenPreview}
-                        onValidate={handleValidateDraft}
                     />
 
                     {isContextPanelOpen && (

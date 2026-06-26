@@ -2,19 +2,14 @@ import { adminUi } from '../../styles/recipes';
 
 function ProjectPreviewActions({
   canCopyContext,
-  canPreview,
   canImport,
-  canValidate,
   contextPanelId,
   importPanelId,
   isContextOpen,
   isImportOpen,
   isSaveInFlight = false,
-  isValidating,
   onToggleContext,
   onToggleImport,
-  onPreview,
-  onValidate,
 }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -37,23 +32,6 @@ function ProjectPreviewActions({
         className={adminUi.secondaryButton}
       >
         Import draft
-      </button>
-      <button
-        type="button"
-        onClick={onValidate}
-        disabled={!canValidate || isValidating || isSaveInFlight}
-        aria-busy={isValidating}
-        className={adminUi.secondaryButton}
-      >
-        {isValidating ? 'Validating...' : 'Validate draft'}
-      </button>
-      <button
-        type="button"
-        onClick={onPreview}
-        disabled={!canPreview}
-        className={adminUi.secondaryButton}
-      >
-        Preview
       </button>
     </div>
   );
