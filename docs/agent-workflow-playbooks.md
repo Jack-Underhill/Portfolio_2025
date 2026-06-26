@@ -153,7 +153,8 @@ Read first:
 - `src/components/sections/Projects.jsx`
 - `src/components/projects/modal/ProjectModal.jsx`
 - `src/admin/sections/ProjectsSection.jsx`
-- `src/admin/projects/ProjectPreviewActions.jsx`
+- `src/admin/projects/ProjectWorkspaceActions.jsx`
+- `src/admin/projects/ProjectAgentSection.jsx`
 - `src/admin/api/adminClient.js`
 - `server/admin/routes/projects.js`
 - `server/admin/routes/validation.js`
@@ -163,8 +164,8 @@ Do:
 - Classify the task before editing: content-only, admin UI, schema, public rendering, routing, or validation.
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
 - For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
-- For agent-assisted drafts, produce a JSON payload that the admin `Import draft` action can apply through `src/domain/projects/agentDraft.js`.
-- For existing project revisions, ask the user for the admin `Copy current context` output and follow [Existing Project Review Mode](./project-editor-agent/case-study-draft-guidelines.md#existing-project-review-mode) before comparing current content against new source material.
+- For agent-assisted drafts, produce a JSON payload that the admin Projects `Agent` subsection `Import draft` action can apply through `src/domain/projects/agentDraft.js`.
+- For existing project revisions, ask the user for the admin Projects `Agent` subsection current-context output and follow [Existing Project Review Mode](./project-editor-agent/case-study-draft-guidelines.md#existing-project-review-mode) before comparing current content against new source material.
 - Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
 - Preserve route-backed project opens through the current project routing helpers.
 - Use `server/admin/routes/validation.js` for persisted project edit rules and `server/admin/routes/projects.js` for admin serialization.
@@ -221,7 +222,7 @@ Agent-assisted draft payloads:
 - Leave optional action URLs as empty strings when there is no public link; do not invent links.
 - Do not use em dashes in drafted case-study copy. Use commas, parentheses, colons, semicolons, or shorter sentences instead.
 - Do not include identity, routing, media, upload, or persistence fields such as `id`, `permalink`, `sortOrder`, `imageUrl`, `videoUrl`, `architectureImageUrl`, file objects, or `techTags`.
-- Tell the user to paste the JSON into the admin `Import draft` panel, then run `Validate draft`, open `Preview`, and save only after review.
+- Tell the user to paste the JSON into the admin Projects `Agent` subsection `Import draft` panel, then run `Validate Projects`, open `Preview Case Study`, and save only after review.
 
 Do not:
 
