@@ -46,6 +46,7 @@ describe('admin workflow state', () => {
       'projects/tech',
       'projects/lists',
       'projects/challenges',
+      'projects/agent',
       'education',
       'certifications',
       'skills',
@@ -60,6 +61,7 @@ describe('admin workflow state', () => {
       'projects/tech',
       'projects/lists',
       'projects/challenges',
+      'projects/agent',
     ]);
   });
 

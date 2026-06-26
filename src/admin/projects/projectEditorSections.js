@@ -6,6 +6,7 @@ export const PROJECT_EDITOR_SECTIONS = [
   { id: 'tech', title: 'Tech' },
   { id: 'lists', title: 'Lists' },
   { id: 'challenges', title: 'Challenges' },
+  { id: 'agent', title: 'Agent' },
 ];
 
 export const DEFAULT_PROJECT_EDITOR_SECTION = PROJECT_EDITOR_SECTIONS[0];

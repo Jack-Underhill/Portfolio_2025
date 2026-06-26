@@ -3,9 +3,6 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import ProjectModal from '../../components/projects/modal/ProjectModal';
 
 import ProjectEditor from '../projects/ProjectEditor';
-import ProjectDraftContextPanel from '../projects/ProjectDraftContextPanel';
-import ProjectDraftImportPanel from '../projects/ProjectDraftImportPanel';
-import ProjectPreviewActions from '../projects/ProjectPreviewActions';
 import ProjectWorkspaceActions from '../projects/ProjectWorkspaceActions';
 import {
     getProjectFieldWorkflowLocationIds,
@@ -306,35 +303,6 @@ function ProjectsSection({
 
             {activeProject && (
                 <>
-                    <ProjectPreviewActions
-                        canCopyContext={Boolean(activeProject)}
-                        canImport={Boolean(activeProject)}
-                        contextPanelId={PROJECT_DRAFT_CONTEXT_PANEL_ID}
-                        importPanelId={PROJECT_DRAFT_IMPORT_PANEL_ID}
-                        isContextOpen={isContextPanelOpen}
-                        isImportOpen={isImportPanelOpen}
-                        isSaveInFlight={isSaveInFlight}
-                        onToggleContext={handleToggleContextPanel}
-                        onToggleImport={handleToggleImportPanel}
-                    />
-
-                    {isContextPanelOpen && (
-                        <ProjectDraftContextPanel
-                            id={PROJECT_DRAFT_CONTEXT_PANEL_ID}
-                            contextText={currentProjectContextText}
-                            onCopySuccess={handleContextCopied}
-                        />
-                    )}
-
-                    {isImportPanelOpen && (
-                        <ProjectDraftImportPanel
-                            id={PROJECT_DRAFT_IMPORT_PANEL_ID}
-                            isDisabled={isSaveInFlight}
-                            onApplyDraft={handleApplyAgentDraft}
-                            onApplySuccess={handleAgentDraftApplied}
-                        />
-                    )}
-
                     {validationState && (
                         <p
                             className={
@@ -350,6 +318,19 @@ function ProjectsSection({
 
                     <ProjectEditor
                         project={activeProject}
+                        agentDraft={{
+                            contextPanelId: PROJECT_DRAFT_CONTEXT_PANEL_ID,
+                            contextText: currentProjectContextText,
+                            importPanelId: PROJECT_DRAFT_IMPORT_PANEL_ID,
+                            isContextOpen: isContextPanelOpen,
+                            isImportOpen: isImportPanelOpen,
+                            isSaveInFlight,
+                            onApplyDraft: handleApplyAgentDraft,
+                            onApplySuccess: handleAgentDraftApplied,
+                            onCopySuccess: handleContextCopied,
+                            onToggleContext: handleToggleContextPanel,
+                            onToggleImport: handleToggleImportPanel,
+                        }}
                         onSectionChange={handleProjectSectionChange}
                         onRemove={() => handleRemoveProject(activeProject.id)}
                         onSectionMount={onProjectSectionMount}

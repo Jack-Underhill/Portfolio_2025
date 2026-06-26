@@ -1,3 +1,4 @@
+import ProjectAgentSection     from './ProjectAgentSection';
 import ProjectChallengeFields   from './editor/ProjectChallengeFields';
 import ProjectClassificationFields from './editor/ProjectClassificationFields';
 import ProjectListFields        from './editor/ProjectListFields';
@@ -8,7 +9,7 @@ import ProjectIntroFields       from './editor/ProjectIntroFields';
 import { getProjectEditorSectionElementId } from './projectEditorSections';
 import { adminUi }              from '../../styles/recipes';
 
-function ProjectEditor({ project, onSectionChange, onRemove, onSectionMount }) {
+function ProjectEditor({ project, agentDraft, onSectionChange, onRemove, onSectionMount }) {
   const permalink = (project.permalink || '').trim();
   const challenges = Array.isArray(project.challenges) ? project.challenges : [];
 
@@ -134,6 +135,30 @@ function ProjectEditor({ project, onSectionChange, onRemove, onSectionMount }) {
             challenges={challenges}
             headingId={getSectionHeadingId('challenges')}
             handleFieldChange={createSectionFieldChangeHandler('challenges')}
+          />
+        </section>
+
+        <section
+          id={getProjectEditorSectionElementId('agent')}
+          ref={getSectionRef('agent')}
+          aria-labelledby={getSectionHeadingId('agent')}
+          className={adminUi.projectEditorSection}
+        >
+          <ProjectAgentSection
+            canCopyContext={Boolean(project)}
+            canImport={Boolean(project)}
+            contextPanelId={agentDraft.contextPanelId}
+            contextText={agentDraft.contextText}
+            headingId={getSectionHeadingId('agent')}
+            importPanelId={agentDraft.importPanelId}
+            isContextOpen={agentDraft.isContextOpen}
+            isImportOpen={agentDraft.isImportOpen}
+            isSaveInFlight={agentDraft.isSaveInFlight}
+            onApplyDraft={agentDraft.onApplyDraft}
+            onApplySuccess={agentDraft.onApplySuccess}
+            onCopySuccess={agentDraft.onCopySuccess}
+            onToggleContext={agentDraft.onToggleContext}
+            onToggleImport={agentDraft.onToggleImport}
           />
         </section>
       </div>
