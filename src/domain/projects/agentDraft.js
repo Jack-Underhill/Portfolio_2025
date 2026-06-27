@@ -45,6 +45,9 @@ const PRESERVED_FIELDS = Object.freeze([
   'techTags',
 ]);
 
+export const AGENT_PROJECT_DRAFT_SUPPORTED_FIELDS = SUPPORTED_FIELDS;
+export const AGENT_PROJECT_DRAFT_PROTECTED_FIELDS = PRESERVED_FIELDS;
+
 export class AgentProjectDraftImportError extends Error {
   constructor(message) {
     super(message);
