@@ -7,7 +7,7 @@ Use this directory for privileged admin reads and writes that require the Supaba
 ## Scope
 
 - Start the local admin HTTP server on loopback only.
-- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Skills, Credentials, Projects, project draft validation, and save-all flows.
+- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Skills, Credentials, Projects, project draft validation, local Projects agent runs, and save-all flows.
 - Read and write Supabase tables with the service-role client.
 - Validate admin payloads and uploaded files before persistence.
 - Upload admin-managed media into the `portfolio-assets` bucket and return public URLs.
@@ -16,7 +16,7 @@ Keep this directory free of browser code, React components, public anon-key read
 
 ## Folders
 
-- `agent/`: owns the local-only Codex bridge spike helper, controlled terminal harness, and spike-level project patch validation. It is not exposed through an admin route.
+- `agent/`: owns the local-only Codex bridge, controlled terminal harness, Projects agent prompt/run helpers, and strict agent output validation.
 - `clients/`: owns the Supabase service-role client and storage bucket constant.
 - `routes/`: owns admin endpoint handlers, request parsing, validation, and JSON/error responses.
 - `utils/`: owns shared server helpers for storage paths, permalink creation, strings, and tech-stack flattening.
@@ -30,6 +30,7 @@ Keep this directory free of browser code, React components, public anon-key read
 - `routes/skills.js`: manages grouped Skills rows with service-role replacement saves.
 - `routes/credentials.js`: manages Education and Certification rows with service-role replacement saves.
 - `routes/projects.js`: manages project section text, projects, project draft validation, project media uploads, ordering, permalink creation, and deleted-project cleanup.
+- `routes/projectsAgent.js`: exposes the local-only Projects agent run route and delegates Codex orchestration to `agent/`.
 - `routes/requestBody.js`: parses JSON and multipart admin requests, enforces body limits, and attaches uploaded files to state objects.
 - `routes/validation.js`: normalizes and validates admin payloads, URLs, arrays, booleans, IDs, and upload file limits.
 
@@ -43,8 +44,8 @@ Keep this directory free of browser code, React components, public anon-key read
 
 ## Current Caveats
 
-- `npm run admin:codex-spike` is the terminal-only Phase 0 Codex bridge check. It invokes the logged-in local Codex CLI through `codex exec --cd <repo-root> --sandbox read-only --ephemeral --color never -`, validates strict JSON output, and does not require or pass `OPENAI_API_KEY`.
-- The Codex bridge is the selected Phase 1 candidate path. No SDK dependency is installed; revisit SDK options only if `codex exec` proves unreliable while still preserving the no-OpenAI-API-key requirement.
+- `npm run admin:codex-spike` remains the terminal Phase 0 Codex bridge check. The Projects agent route uses the same logged-in local Codex CLI path through `codex exec --cd <repo-root> --sandbox read-only --ephemeral --color never -` and does not require or pass `OPENAI_API_KEY`.
+- The Codex bridge is the selected Phase 1 path. No SDK dependency is installed; revisit SDK options only if `codex exec` proves unreliable while still preserving the no-OpenAI-API-key requirement.
 - `routes/about.js` and `routes/projects.js` each own singleton IDs for their current table shapes.
 - Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
 - Architecture SVG viewer validation and the Netlify inline SVG proxy trust the same project-scoped `projects/:id/architecture.svg` path.
