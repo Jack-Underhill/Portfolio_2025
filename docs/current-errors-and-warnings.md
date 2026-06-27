@@ -14,7 +14,7 @@ This document records known current failures, lint warnings/errors, local runtim
 
 ## Command Status
 
-Last full baseline checked on 2026-06-25 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The coordinated, route-addressable, scroll-continuous admin shell with per-location workflow state passed 198 unit tests across 31 files, lint, schema drift, build, and the accessibility smoke.
+Last full baseline checked on 2026-06-25 with Windows `cmd /c` because direct PowerShell `npm` execution is blocked by the local unsigned `npm.ps1` policy. The coordinated, route-addressable, scroll-continuous admin shell with per-location workflow state passed unit tests, lint, schema drift, build, and the accessibility smoke.
 
 Passing:
 
@@ -64,6 +64,16 @@ Decision:
 - This is an expected local development warning, not a production error.
 - It remains documented so it is not mistaken for a broken visit counter.
 - Use `netlify dev` when testing deployed-function behavior locally.
+
+## Local Codex Bridge Caveats
+
+`cmd /c npm run admin:codex-spike` is a terminal-only local verification command for the Phase 0 Codex bridge. It shells out through the logged-in local Codex CLI, so it depends on `codex` being available on `PATH` and the local Codex runtime already being authenticated.
+
+Decision:
+
+- This command is not part of the default browser or public-site gate.
+- It does not require or pass `OPENAI_API_KEY`; investigate SDK options only if `codex exec` becomes unreliable while preserving that no-API-key requirement.
+- Non-fatal stderr warnings from local Codex/plugin discovery or shell snapshot behavior can appear even when both JSON schema checks pass. Treat timeout, nonzero exit, malformed JSON, non-object JSON, or validation failure as real spike failures.
 
 ## Architecture Viewer Local Warning
 

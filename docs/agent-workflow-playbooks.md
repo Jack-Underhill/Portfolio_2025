@@ -51,6 +51,7 @@ Use these rules before choosing files to edit:
 - Public browser reads belong in `src/api/public`.
 - Pure browser/server-safe data shaping belongs in `src/domain`.
 - Admin validation belongs in `server/admin/routes/validation.js` or nearby server-owned helpers.
+- Local Codex invocation belongs under `server/admin/agent`. The current Phase 0 bridge is terminal-only and must not be exposed to the browser through a route until a later PRD adds the local admin run workflow.
 - Browser-visible route and function path constants belong in `src/runtime/paths.js`.
 - Project route parsing and building belongs in `src/domain/projects/routing.js`.
 - Admin-managed storage path behavior belongs in `server/admin/utils`; public components should consume stored URLs.
@@ -165,6 +166,7 @@ Do:
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
 - For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
 - For agent-assisted drafts, produce a JSON payload that the admin Projects `Agent` subsection `Import draft` action can apply through `src/domain/projects/agentDraft.js`.
+- The Phase 0 local Codex bridge currently exists only as `cmd /c npm run admin:codex-spike`; the owner-facing Projects workflow remains Copy draft, external Codex review, Import draft, Validate Projects, Preview Case Study, then explicit Save until the later local admin run workflow ships.
 - For existing project revisions, ask the user for the admin Projects `Agent` subsection current-context output and follow [Existing Project Review Mode](./project-editor-agent/case-study-draft-guidelines.md#existing-project-review-mode) before comparing current content against new source material.
 - Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
 - Preserve route-backed project opens through the current project routing helpers.

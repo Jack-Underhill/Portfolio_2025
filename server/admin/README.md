@@ -16,6 +16,7 @@ Keep this directory free of browser code, React components, public anon-key read
 
 ## Folders
 
+- `agent/`: owns the local-only Codex bridge spike helper, controlled terminal harness, and spike-level project patch validation. It is not exposed through an admin route.
 - `clients/`: owns the Supabase service-role client and storage bucket constant.
 - `routes/`: owns admin endpoint handlers, request parsing, validation, and JSON/error responses.
 - `utils/`: owns shared server helpers for storage paths, permalink creation, strings, and tech-stack flattening.
@@ -42,6 +43,8 @@ Keep this directory free of browser code, React components, public anon-key read
 
 ## Current Caveats
 
+- `npm run admin:codex-spike` is the terminal-only Phase 0 Codex bridge check. It invokes the logged-in local Codex CLI through `codex exec --cd <repo-root> --sandbox read-only --ephemeral --color never -`, validates strict JSON output, and does not require or pass `OPENAI_API_KEY`.
+- The Codex bridge is the selected Phase 1 candidate path. No SDK dependency is installed; revisit SDK options only if `codex exec` proves unreliable while still preserving the no-OpenAI-API-key requirement.
 - `routes/about.js` and `routes/projects.js` each own singleton IDs for their current table shapes.
 - Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
 - Architecture SVG viewer validation and the Netlify inline SVG proxy trust the same project-scoped `projects/:id/architecture.svg` path.

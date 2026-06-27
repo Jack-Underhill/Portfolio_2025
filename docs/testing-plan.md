@@ -40,6 +40,7 @@ Current baseline test files:
 - `tests/components/projects/viewer/viewerUrl.test.js`
 - `tests/netlify/functions/inline-svg.test.js`
 - `tests/runtime/netlify.test.js`
+- `tests/server/admin/agent/codexBridge.test.js`
 - `tests/server/admin/utils/storage.test.js`
 - `tests/server/admin/routes/validation.helpers.test.js`
 - `tests/server/admin/routes/validation.uploads.test.js`
@@ -52,12 +53,17 @@ Current baseline test files:
 
 Current checks:
 
-- `cmd /c npm run test` passes with 31 test files and 198 tests.
+- `cmd /c npm run test` passes in the current baseline.
 - `cmd /c npm run lint` passes.
 - `cmd /c npm run check:schema` passes.
 - `cmd /c npm run build` passes with the existing chunk-size advisory.
 - `cmd /c npm run test:a11y` passes.
 - `git diff --check` passes.
+
+Local Codex bridge focused checks:
+
+- `cmd /c npx vitest run tests/server/admin/agent/codexBridge.test.js tests/domain/projects/agentDraft.test.js` covers the deterministic bridge helper and the existing project draft import contract.
+- `cmd /c npm run admin:codex-spike` runs the terminal-only real Codex bridge spike through the logged-in local CLI. Run it when changing `server/admin/agent/*` or the project patch contract, but keep it out of the default gate because it depends on local Codex CLI/auth availability.
 
 Current accessibility smoke coverage:
 
@@ -259,6 +265,7 @@ Current coverage:
 - Pure helper primitives, upload file validation, and about/project/contact/skills state validation are covered.
 - Contact validation includes link label/URL/icon checks plus published defaulting, explicit false preservation, and non-boolean rejection.
 - The project draft validation endpoint is covered as a no-write route that reuses project state validation.
+- The local Codex bridge helper is covered with deterministic process fixtures for success, stderr detail, malformed JSON, non-object JSON, validation failure, nonzero exit, and timeout. The real `codex exec` path remains a manual local spike check through `cmd /c npm run admin:codex-spike`.
 
 Why this matters:
 
