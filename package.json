@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "admin:server": "node --env-file=.env.local server/admin/index.js",
+    "admin:codex-spike": "node --env-file=.env.local server/admin/agent/codexBridgeSpike.js",
     "backup:supabase": "node --env-file=.env.local scripts/backup-supabase.mjs",
     "migrate:supabase": "node --env-file=.env.local scripts/run-supabase-migration.mjs",
     "diagnose:runtime": "node scripts/diagnose-runtime.mjs",
