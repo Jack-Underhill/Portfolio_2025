@@ -8,6 +8,7 @@ export const PROJECT_AGENT_CONTEXT_MAX_LENGTH = 50000;
 
 const SUMMARY_ARRAY_MAX_ITEMS = 20;
 const SUMMARY_STRING_MAX_LENGTH = 500;
+const REVIEW_PATCH_IGNORED_WARNING = 'Ignored draft fields returned during review.';
 
 export class ProjectAgentSchemaError extends Error {
   constructor(type, message, details = {}) {
@@ -115,7 +116,11 @@ export function validateProjectAgentRunInput(input) {
   };
 }
 
-export function validateProjectAgentOutput(json) {
+function hasPatchFields(patch) {
+  return Object.keys(patch).length > 0;
+}
+
+export function validateProjectAgentOutput(json, { ignorePatch = false } = {}) {
   if (!isPlainObject(json)) {
     throw new ProjectAgentSchemaError('malformed_wrapper', 'Project agent output must be an object.');
   }
@@ -126,6 +131,17 @@ export function validateProjectAgentOutput(json) {
 
   const notes = normalizeSummaryArray(json.notes, 'notes');
   const codexWarnings = normalizeSummaryArray(json.warnings, 'warnings');
+
+  if (ignorePatch) {
+    return {
+      patch: {},
+      notes,
+      warnings: hasPatchFields(json.patch)
+        ? [...codexWarnings, REVIEW_PATCH_IGNORED_WARNING]
+        : codexWarnings,
+      appliedFields: [],
+    };
+  }
 
   let mapped;
 

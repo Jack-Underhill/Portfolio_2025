@@ -136,7 +136,9 @@ export async function runProjectAgent({
       command: resolvedCommand,
       args,
     });
-    const output = validateProjectAgentOutput(getBridgeJson(bridgeResult));
+    const output = validateProjectAgentOutput(getBridgeJson(bridgeResult), {
+      ignorePatch: ownerIntent.id === 'review',
+    });
 
     return {
       ...output,

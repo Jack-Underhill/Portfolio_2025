@@ -76,6 +76,42 @@ describe('project agent run helpers', () => {
     });
   });
 
+  it('suppresses patch fields returned from review runs', async () => {
+    const result = await runProjectAgent({
+      intent: 'review',
+      instructions: 'Review the draft.',
+      projectContext,
+      codexBridge: async ({ prompt }) => {
+        expect(prompt).toContain('Derived run plan: review-current-case-study');
+        expect(prompt).toContain('Return patch as exactly {}.');
+
+        return {
+          json: {
+            patch: {
+              title: 'Should not apply',
+            },
+            notes: ['Title could be sharper.'],
+            warnings: ['Missing outcome evidence.'],
+          },
+          elapsedMs: 9,
+        };
+      },
+    });
+
+    expect(result).toEqual({
+      patch: {},
+      notes: ['Title could be sharper.'],
+      warnings: [
+        'Missing outcome evidence.',
+        'Ignored draft fields returned during review.',
+      ],
+      appliedFields: [],
+      intent: 'review',
+      runPlan: 'review-current-case-study',
+      elapsedMs: 9,
+    });
+  });
+
   it('normalizes missing notes and warnings to empty arrays', () => {
     expect(validateProjectAgentOutput({
       patch: {
