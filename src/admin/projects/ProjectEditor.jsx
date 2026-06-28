@@ -145,8 +145,8 @@ function ProjectEditor({ project, agentDraft, onSectionChange, onRemove, onSecti
           className={adminUi.projectEditorSection}
         >
           <ProjectAgentSection
-            canCopyContext={Boolean(project)}
-            canImport={Boolean(project)}
+            hasActiveProject={Boolean(project)}
+            agentRun={agentDraft.agentRun}
             contextPanelId={agentDraft.contextPanelId}
             contextText={agentDraft.contextText}
             headingId={getSectionHeadingId('agent')}
@@ -157,6 +157,7 @@ function ProjectEditor({ project, agentDraft, onSectionChange, onRemove, onSecti
             onApplyDraft={agentDraft.onApplyDraft}
             onApplySuccess={agentDraft.onApplySuccess}
             onCopySuccess={agentDraft.onCopySuccess}
+            onRunAgent={agentDraft.onRunAgent}
             onToggleContext={agentDraft.onToggleContext}
             onToggleImport={agentDraft.onToggleImport}
           />

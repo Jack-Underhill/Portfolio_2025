@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import process from 'node:process';
+
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { CodexBridgeError } from '../../../../server/admin/agent/codexBridge.js';
 import { runProjectAgent } from '../../../../server/admin/agent/projectAgentRun.js';
@@ -19,6 +21,11 @@ const projectContext = {
 };
 
 describe('project agent run helpers', () => {
+  afterEach(() => {
+    delete process.env.CODEX_BRIDGE_COMMAND;
+    delete process.env.CODEX_BRIDGE_TIMEOUT_MS;
+  });
+
   it('validates and normalizes a fake Codex wrapper response', async () => {
     const result = await runProjectAgent({
       mode: 'revise-current-case-study',
@@ -173,6 +180,36 @@ describe('project agent run helpers', () => {
     });
 
     expect(calls).toBe(0);
+  });
+
+  it('uses the local Codex bridge environment command and timeout defaults', async () => {
+    process.env.CODEX_BRIDGE_COMMAND = 'C:\\Tools\\codex.exe';
+    process.env.CODEX_BRIDGE_TIMEOUT_MS = '45000';
+
+    await expect(runProjectAgent({
+      mode: 'revise-current-case-study',
+      instructions: 'Update the title.',
+      projectContext,
+      codexBridge: async ({ command, timeoutMs, args }) => {
+        expect(command).toBe('C:\\Tools\\codex.exe');
+        expect(timeoutMs).toBe(45000);
+        expect(args[0]).toBe('exec');
+
+        return {
+          json: {
+            patch: {
+              title: 'Env command title',
+            },
+            notes: [],
+            warnings: [],
+          },
+        };
+      },
+    })).resolves.toMatchObject({
+      patch: {
+        title: 'Env command title',
+      },
+    });
   });
 
   it('normalizes Codex bridge failures without exposing raw diagnostics', async () => {

@@ -12,9 +12,10 @@ import {
 import CardSelector from '../navigation/CardSelector';
 import AdminSectionToolbar from '../shell/AdminSectionToolbar';
 
-import { validateProjectDraft } from '../api/adminClient';
+import { runProjectAgent, validateProjectDraft } from '../api/adminClient';
 import {
     applyAgentProjectDraftPatch,
+    createAgentProjectDraftReviewContext,
     stringifyAgentProjectDraftReviewContext,
 } from '../../domain/projects/agentDraft';
 import { createEmptyProjectDraft } from '../../domain/projects/defaults';
@@ -23,6 +24,18 @@ import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
 
 const PROJECT_DRAFT_IMPORT_PANEL_ID = 'project-agent-draft-import-panel';
 const PROJECT_DRAFT_CONTEXT_PANEL_ID = 'project-agent-draft-context-panel';
+
+function createIdleAgentRunState() {
+    return {
+        status: 'idle',
+        error: '',
+        notes: [],
+        warnings: [],
+        appliedFields: [],
+        changedFields: [],
+        elapsedMs: null,
+    };
+}
 
 function ProjectsSection({
     state,
@@ -44,6 +57,9 @@ function ProjectsSection({
     const [previewMediaUrls, setPreviewMediaUrls] = useState({});
     const [validationState, setValidationState] = useState(null);
     const [isValidating, setIsValidating] = useState(false);
+    const [agentRunState, setAgentRunState] = useState(createIdleAgentRunState);
+    const stateRef = useRef(state);
+    const activeProjectRef = useRef(null);
     const isMountedRef = useRef(false);
     const validationRequestId = useRef(0);
 
@@ -71,6 +87,8 @@ function ProjectsSection({
         : (projects[0]?.id ?? null);
 
     const activeProject = projects.find((p) => p.id === resolvedActiveId) ?? null;
+    stateRef.current = state;
+    activeProjectRef.current = activeProject;
 
     const previewProject = useMemo(() => {
         if (!activeProject) return null;
@@ -122,11 +140,12 @@ function ProjectsSection({
 
     const updateState = (patch, ownerLocationIds) => {
         clearValidationState();
-        onChange({ ...state, ...patch }, ownerLocationIds);
+        onChange({ ...stateRef.current, ...patch }, ownerLocationIds);
     };
 
     const setProjects = (updater, ownerLocationIds) => {
-        const nextRaw = typeof updater === 'function' ? updater(projects) : updater;
+        const currentProjects = stateRef.current.projects ?? [];
+        const nextRaw = typeof updater === 'function' ? updater(currentProjects) : updater;
         const next = normalizeProjectSortOrder(nextRaw);
         updateState({ projects: next }, ownerLocationIds);
     };
@@ -157,8 +176,10 @@ function ProjectsSection({
         if (projectId === resolvedActiveId) return;
 
         onProjectRecordChangeStart?.();
+        activeProjectRef.current = projects.find((project) => project.id === projectId) ?? null;
+        setAgentRunState(createIdleAgentRunState);
         setActiveId(projectId);
-    }, [onProjectRecordChangeStart, resolvedActiveId]);
+    }, [onProjectRecordChangeStart, projects, resolvedActiveId]);
 
     const handleClosePreview = useCallback(() => {
         setIsPreviewOpen(false);
@@ -254,6 +275,15 @@ function ProjectsSection({
         );
     };
 
+    const applyAgentDraftToProject = (project, payload) => {
+        const result = applyAgentProjectDraftPatch(project, payload);
+        const ownerLocationIds = getProjectFieldWorkflowLocationIds(result.changedFields);
+        if (ownerLocationIds.length > 0) {
+            handleChangeProject(project.id, result.project, ownerLocationIds);
+        }
+        return result;
+    };
+
     const handleApplyAgentDraft = (payloadText) => {
         if (!activeProject) return {
             project: null,
@@ -263,15 +293,76 @@ function ProjectsSection({
             warnings: ['No active project is selected.'],
         };
 
-        const result = applyAgentProjectDraftPatch(activeProject, payloadText);
-        const ownerLocationIds = getProjectFieldWorkflowLocationIds(result.changedFields);
-        if (ownerLocationIds.length > 0) {
-            handleChangeProject(activeProject.id, result.project, ownerLocationIds);
+        return applyAgentDraftToProject(activeProject, payloadText);
+    };
+
+    const handleRunProjectAgent = async ({ mode, instructions }) => {
+        if (!activeProject || isSaveInFlight || agentRunState.status === 'running') return;
+
+        const runProjectId = activeProject.id;
+        const projectContext = createAgentProjectDraftReviewContext(activeProject);
+        setAgentRunState({
+            status: 'running',
+            error: '',
+            notes: [],
+            warnings: [],
+            appliedFields: [],
+            changedFields: [],
+            elapsedMs: null,
+        });
+
+        try {
+            const result = await runProjectAgent({
+                mode,
+                instructions,
+                projectContext,
+            });
+            if (!isMountedRef.current) return;
+
+            const latestProject = activeProjectRef.current;
+            if (!latestProject || latestProject.id !== runProjectId) {
+                setAgentRunState({
+                    status: 'failed',
+                    error: 'The active project changed before Codex finished. No changes were applied.',
+                    notes: [],
+                    warnings: [],
+                    appliedFields: [],
+                    changedFields: [],
+                    elapsedMs: result.elapsedMs ?? null,
+                });
+                return;
+            }
+
+            const applyResult = applyAgentDraftToProject(latestProject, result.patch);
+            setAgentRunState({
+                status: 'succeeded',
+                error: '',
+                notes: result.notes ?? [],
+                warnings: [...(result.warnings ?? []), ...applyResult.warnings],
+                appliedFields: applyResult.appliedFields,
+                changedFields: applyResult.changedFields,
+                elapsedMs: result.elapsedMs ?? null,
+            });
+        } catch (error) {
+            if (!isMountedRef.current) return;
+
+            setAgentRunState({
+                status: 'failed',
+                error: error?.message || 'Project agent run failed.',
+                notes: [],
+                warnings: [],
+                appliedFields: [],
+                changedFields: [],
+                elapsedMs: null,
+            });
         }
-        return result;
     };
 
     const handleRemoveProject = (id) => {
+        if (activeProjectRef.current?.id === id) {
+            activeProjectRef.current = null;
+        }
+        setAgentRunState(createIdleAgentRunState);
         setProjects(
             (prev) => prev.filter((p) => p.id !== id),
             [PROJECTS_WORKFLOW_LOCATION_ID],
@@ -319,6 +410,7 @@ function ProjectsSection({
                     <ProjectEditor
                         project={activeProject}
                         agentDraft={{
+                            agentRun: agentRunState,
                             contextPanelId: PROJECT_DRAFT_CONTEXT_PANEL_ID,
                             contextText: currentProjectContextText,
                             importPanelId: PROJECT_DRAFT_IMPORT_PANEL_ID,
@@ -328,6 +420,7 @@ function ProjectsSection({
                             onApplyDraft: handleApplyAgentDraft,
                             onApplySuccess: handleAgentDraftApplied,
                             onCopySuccess: handleContextCopied,
+                            onRunAgent: handleRunProjectAgent,
                             onToggleContext: handleToggleContextPanel,
                             onToggleImport: handleToggleImportPanel,
                         }}

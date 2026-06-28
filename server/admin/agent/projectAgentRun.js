@@ -1,4 +1,5 @@
 import path from 'node:path';
+import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 import { CodexBridgeError, runCodexExecJson } from './codexBridge.js';
@@ -35,6 +36,22 @@ export function createProjectAgentCodexArgs(root = repoRoot) {
     'never',
     '-',
   ];
+}
+
+function parsePositiveInteger(value, fallback) {
+  if (value == null || value === '') return fallback;
+
+  const parsed = Number(value);
+
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function getDefaultCodexCommand() {
+  return process.env.CODEX_BRIDGE_COMMAND || 'codex';
+}
+
+function getDefaultTimeoutMs() {
+  return parsePositiveInteger(process.env.CODEX_BRIDGE_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 }
 
 function normalizeRunError(error) {
@@ -80,9 +97,9 @@ export async function runProjectAgent({
   instructions,
   projectContext,
   codexBridge = runCodexExecJson,
-  timeoutMs = DEFAULT_TIMEOUT_MS,
+  timeoutMs = getDefaultTimeoutMs(),
   cwd = repoRoot,
-  command = 'codex',
+  command = getDefaultCodexCommand(),
   args = createProjectAgentCodexArgs(cwd),
 } = {}) {
   const startedAt = performance.now();
