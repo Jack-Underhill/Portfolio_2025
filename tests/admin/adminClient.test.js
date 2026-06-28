@@ -33,7 +33,7 @@ describe('admin API client', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Tighten the overview.',
       projectContext,
     })).resolves.toEqual(responseBody);
@@ -45,7 +45,7 @@ describe('admin API client', () => {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          mode: 'revise-current-case-study',
+          intent: 'revise',
           instructions: 'Tighten the overview.',
           projectContext,
         }),
@@ -62,7 +62,7 @@ describe('admin API client', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Update features.',
       projectContext,
     })).rejects.toThrow('Local Codex returned an invalid project patch.');

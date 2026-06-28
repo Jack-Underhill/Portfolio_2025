@@ -304,19 +304,19 @@ function ProjectsSection({
         return applyAgentDraftToProject(activeProject, payloadText);
     };
 
-    const handleRunProjectAgent = async ({ mode, instructions }) => {
+    const handleRunProjectAgent = async ({ intent, instructions }) => {
         if (!activeProject || isSaveInFlight || agentRunState.status === 'running') return;
 
         const runProjectId = activeProject.id;
         const requestId = agentRunRequestId.current + 1;
         const projectContext = createAgentProjectDraftReviewContext(activeProject);
         agentRunRequestId.current = requestId;
-        setLastAgentRunRequest({ mode, instructions });
+        setLastAgentRunRequest({ intent, instructions });
         setAgentRunState(createRunningProjectAgentRunState);
 
         try {
             const result = await runProjectAgent({
-                mode,
+                intent,
                 instructions,
                 projectContext,
             });
@@ -336,6 +336,8 @@ function ProjectsSection({
                 warnings: [...(result.warnings ?? []), ...applyResult.warnings],
                 appliedFields: applyResult.appliedFields,
                 changedFields: applyResult.changedFields,
+                intent: result.intent ?? intent,
+                runPlan: result.runPlan ?? null,
                 elapsedMs: result.elapsedMs ?? null,
             });
         } catch (error) {
@@ -352,6 +354,8 @@ function ProjectsSection({
                 warnings: [],
                 appliedFields: [],
                 changedFields: [],
+                intent,
+                runPlan: null,
                 elapsedMs: null,
             });
         }

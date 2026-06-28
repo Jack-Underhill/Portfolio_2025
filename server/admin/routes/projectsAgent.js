@@ -12,7 +12,7 @@ function getProjectAgentRunPayload(body) {
   assertPlainObject(body, 'Project agent run request body');
 
   return {
-    mode: body.mode,
+    intent: body.intent,
     instructions: body.instructions,
     projectContext: body.projectContext,
   };
@@ -23,7 +23,7 @@ function normalizeRunError(error) {
     return error;
   }
 
-  if (error.type === 'invalid_input' || error.type === 'invalid_mode') {
+  if (error.type === 'invalid_input' || error.type === 'invalid_intent') {
     const badRequest = new BadRequestError(error.message);
     badRequest.type = error.type;
     return badRequest;

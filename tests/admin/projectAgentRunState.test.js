@@ -8,7 +8,7 @@ import {
 
 const ACTIVE_PROJECT = Object.freeze({ id: 'project-1' });
 const LAST_REQUEST = Object.freeze({
-  mode: 'revise-current-case-study',
+  intent: 'revise',
   instructions: 'Tighten the case study.',
 });
 
@@ -21,6 +21,8 @@ describe('project agent run state', () => {
       warnings: [],
       appliedFields: [],
       changedFields: [],
+      intent: null,
+      runPlan: null,
       elapsedMs: null,
     });
 
@@ -31,6 +33,8 @@ describe('project agent run state', () => {
       warnings: [],
       appliedFields: [],
       changedFields: [],
+      intent: null,
+      runPlan: null,
       elapsedMs: null,
     });
   });

@@ -7,10 +7,14 @@ import TextAreaInput from '../forms/TextAreaInput';
 import FieldLabel from '../forms/FieldLabel';
 import { adminForm, adminUi } from '../../styles/recipes';
 
-const PROJECT_AGENT_MODE_OPTIONS = Object.freeze([
+const PROJECT_AGENT_INTENT_OPTIONS = Object.freeze([
   {
-    value: 'revise-current-case-study',
-    label: 'Revise current case study',
+    value: 'revise',
+    label: 'Revise draft',
+  },
+  {
+    value: 'review',
+    label: 'Review only',
   },
 ]);
 
@@ -35,19 +39,19 @@ function ProjectAgentSection({
   onToggleContext,
   onToggleImport,
 }) {
-  const [mode, setMode] = useState(PROJECT_AGENT_MODE_OPTIONS[0].value);
+  const [intent, setIntent] = useState(PROJECT_AGENT_INTENT_OPTIONS[0].value);
   const [instructions, setInstructions] = useState('');
   const isRunning = agentRun?.status === 'running';
   const hasInstructions = instructions.trim().length > 0;
   const canSubmitRun = hasActiveProject && hasInstructions && !isSaveInFlight && !isRunning;
-  const runModeId = `${headingId}-mode`;
+  const runIntentId = `${headingId}-intent`;
   const instructionsId = `${headingId}-instructions`;
 
   const handleRunAgent = () => {
     if (!canSubmitRun) return;
 
     onRunAgent?.({
-      mode,
+      intent,
       instructions,
     });
   };
@@ -59,17 +63,17 @@ function ProjectAgentSection({
         <div className={`${adminUi.panel} space-y-3 p-4`}>
           <div className="grid gap-4 md:grid-cols-[minmax(0,16rem)_1fr]">
             <div className="space-y-1">
-              <FieldLabel htmlFor={runModeId}>
-                Mode
+              <FieldLabel htmlFor={runIntentId}>
+                Intent
               </FieldLabel>
               <select
-                id={runModeId}
-                value={mode}
-                onChange={(event) => setMode(event.target.value)}
+                id={runIntentId}
+                value={intent}
+                onChange={(event) => setIntent(event.target.value)}
                 disabled={isSaveInFlight || isRunning}
                 className={adminForm.input}
               >
-                {PROJECT_AGENT_MODE_OPTIONS.map((option) => (
+                {PROJECT_AGENT_INTENT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>

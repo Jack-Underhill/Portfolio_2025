@@ -7,7 +7,7 @@ import { ProjectAgentRunError } from '../../../../server/admin/agent/projectAgen
 import { createProjectsAgentRunHandler } from '../../../../server/admin/routes/projectsAgent.js';
 
 const validPayload = {
-  mode: 'revise-current-case-study',
+  intent: 'revise',
   instructions: 'Tighten the overview.',
   projectContext: {
     projectContext: {
@@ -34,6 +34,8 @@ describe('projects agent run route', () => {
         notes: ['Updated the title.'],
         warnings: [],
         appliedFields: ['title'],
+        intent: 'revise',
+        runPlan: 'revise-current-case-study',
         elapsedMs: 25,
       };
     });
@@ -50,6 +52,8 @@ describe('projects agent run route', () => {
       notes: ['Updated the title.'],
       warnings: [],
       appliedFields: ['title'],
+      intent: 'revise',
+      runPlan: 'revise-current-case-study',
       elapsedMs: 25,
     });
   });
@@ -89,6 +93,28 @@ describe('projects agent run route', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json()).toEqual({
       error: 'Project agent instructions are required.',
+    });
+
+    warn.mockRestore();
+  });
+
+  it('returns concise 400 responses for unsupported project agent intents', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const runAgent = vi.fn(async () => {
+      throw new ProjectAgentRunError(
+        'invalid_intent',
+        'Unsupported project agent intent. Supported intents: revise, review.',
+      );
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = jsonRequest({ ...validPayload, intent: 'polish' });
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json()).toEqual({
+      error: 'Unsupported project agent intent. Supported intents: revise, review.',
     });
 
     warn.mockRestore();

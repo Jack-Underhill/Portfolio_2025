@@ -35,6 +35,27 @@ function getFailureMessage(error) {
   return firstLine;
 }
 
+function getRunPlanSummary(agentRun) {
+  if (agentRun?.intent === 'review' || agentRun?.runPlan === 'review-current-case-study') {
+    return {
+      title: 'Codex reviewed the active draft without editing it.',
+      detail: 'Review the notes and warnings; clearing this result only hides the summary.',
+    };
+  }
+
+  if (agentRun?.runPlan === 'generate-new-case-study') {
+    return {
+      title: 'Codex generated a new case study draft.',
+      detail: 'Review and preview the draft before saving; clearing this result only hides the summary.',
+    };
+  }
+
+  return {
+    title: 'Codex applied a patch to the active unsaved draft.',
+    detail: 'Review and preview the draft before saving; clearing this result only hides the summary.',
+  };
+}
+
 function FieldSummary({ label, fields }) {
   const normalizedFields = normalizeItems(fields);
 
@@ -99,6 +120,7 @@ function ProjectAgentRunPanel({
   const shouldShowActions = Boolean(onRetry || onClearResult) && status !== 'idle';
   const elapsedSummary = formatElapsedMs(agentRun?.elapsedMs);
   const failureMessage = getFailureMessage(agentRun?.error);
+  const runPlanSummary = getRunPlanSummary(agentRun);
   const headingRef = useRef(null);
   const previousStatusRef = useRef(status);
 
@@ -178,10 +200,10 @@ function ProjectAgentRunPanel({
         <div className="space-y-3 text-sm" role="status" aria-live="polite">
           <div className="space-y-1">
             <p className="font-medium text-admin-accent-text">
-              Codex applied a patch to the active unsaved draft.
+              {runPlanSummary.title}
             </p>
             <p className="text-admin-text-muted">
-              Review and preview the draft before saving; clearing this result only hides the summary.
+              {runPlanSummary.detail}
             </p>
           </div>
 

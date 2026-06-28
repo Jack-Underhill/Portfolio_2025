@@ -6,6 +6,8 @@ export function createIdleProjectAgentRunState() {
     warnings: [],
     appliedFields: [],
     changedFields: [],
+    intent: null,
+    runPlan: null,
     elapsedMs: null,
   };
 }

@@ -52,9 +52,9 @@ export async function validateProjectDraft(state) {
   return postAdminPayload('/projects/validate', { projects: state });
 }
 
-export async function runProjectAgent({ mode, instructions, projectContext }) {
+export async function runProjectAgent({ intent, instructions, projectContext }) {
   return postAdminPayload('/projects/agent/run', {
-    mode,
+    intent,
     instructions,
     projectContext,
   });
