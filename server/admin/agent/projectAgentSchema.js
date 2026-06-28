@@ -69,9 +69,9 @@ export function validateProjectAgentRunInput(input) {
     throw new ProjectAgentSchemaError('invalid_input', 'Project agent input must be an object.');
   }
 
-  const mode = typeof input.mode === 'string' ? input.mode.trim() : '';
-  if (!mode) {
-    throw new ProjectAgentSchemaError('invalid_mode', 'Project agent mode is required.');
+  const intent = typeof input.intent === 'string' ? input.intent.trim() : '';
+  if (!intent) {
+    throw new ProjectAgentSchemaError('invalid_intent', 'Project agent intent is required.');
   }
 
   const instructions = typeof input.instructions === 'string' ? input.instructions.trim() : '';
@@ -109,7 +109,7 @@ export function validateProjectAgentRunInput(input) {
   }
 
   return {
-    mode,
+    intent,
     instructions,
     projectContext: input.projectContext,
   };

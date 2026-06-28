@@ -4,8 +4,12 @@ import { fileURLToPath } from 'node:url';
 
 import { CodexBridgeError, runCodexExecJson } from './codexBridge.js';
 import { CodexCommandResolutionError, findLatestCodexCommand } from './codexCommand.js';
-import { getProjectAgentMode, ProjectAgentModeError } from './projectAgentModes.js';
 import { buildProjectAgentPrompt } from './projectAgentPrompt.js';
+import {
+  createProjectAgentRunPlan,
+  getProjectAgentIntent,
+  ProjectAgentIntentError,
+} from './projectAgentRunPlan.js';
 import {
   ProjectAgentSchemaError,
   validateProjectAgentOutput,
@@ -56,8 +60,8 @@ function normalizeRunError(error) {
     return error;
   }
 
-  if (error instanceof ProjectAgentModeError) {
-    return new ProjectAgentRunError('invalid_mode', error.message);
+  if (error instanceof ProjectAgentIntentError) {
+    return new ProjectAgentRunError('invalid_intent', error.message);
   }
 
   if (error instanceof ProjectAgentSchemaError) {
@@ -100,7 +104,7 @@ function getBridgeJson(bridgeResult) {
 }
 
 export async function runProjectAgent({
-  mode,
+  intent,
   instructions,
   projectContext,
   codexBridge = runCodexExecJson,
@@ -113,10 +117,17 @@ export async function runProjectAgent({
   const startedAt = performance.now();
 
   try {
-    const input = validateProjectAgentRunInput({ mode, instructions, projectContext });
-    getProjectAgentMode(input.mode);
+    const input = validateProjectAgentRunInput({ intent, instructions, projectContext });
+    const ownerIntent = getProjectAgentIntent(input.intent);
+    const runPlan = createProjectAgentRunPlan({
+      intent: ownerIntent.id,
+      projectContext: input.projectContext,
+    });
 
-    const prompt = buildProjectAgentPrompt(input);
+    const prompt = buildProjectAgentPrompt({
+      ...input,
+      runPlan: runPlan.id,
+    });
     const resolvedCommand = command ?? commandResolver();
     const bridgeResult = await codexBridge({
       prompt,
@@ -129,6 +140,8 @@ export async function runProjectAgent({
 
     return {
       ...output,
+      intent: ownerIntent.id,
+      runPlan: runPlan.id,
       elapsedMs: Number.isFinite(bridgeResult?.elapsedMs)
         ? bridgeResult.elapsedMs
         : Math.round(performance.now() - startedAt),

@@ -41,11 +41,12 @@ describe('project agent run helpers', () => {
 
   it('validates and normalizes a fake Codex wrapper response', async () => {
     const result = await runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Update the title.',
       projectContext,
       codexBridge: async ({ prompt }) => {
         expect(prompt).toContain('Update the title.');
+        expect(prompt).toContain('Derived run plan: revise-current-case-study');
 
         return {
           json: {
@@ -69,6 +70,8 @@ describe('project agent run helpers', () => {
         'Ignored unsupported project draft field "id".',
       ],
       appliedFields: ['title'],
+      intent: 'revise',
+      runPlan: 'revise-current-case-study',
       elapsedMs: 12,
     });
   });
@@ -90,7 +93,7 @@ describe('project agent run helpers', () => {
 
   it('reports malformed wrapper output with a structured error', async () => {
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Update the title.',
       projectContext,
       codexBridge: async () => ({
@@ -109,7 +112,7 @@ describe('project agent run helpers', () => {
 
   it('rejects invalid notes and warnings instead of coercing non-strings', async () => {
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Update the title.',
       projectContext,
       codexBridge: async () => ({
@@ -127,7 +130,7 @@ describe('project agent run helpers', () => {
 
   it('keeps unsupported-only patches as warnings without applying fields', async () => {
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Try changing identity.',
       projectContext,
       codexBridge: async () => ({
@@ -148,7 +151,7 @@ describe('project agent run helpers', () => {
 
   it('reports invalid patch fields through the project draft contract', async () => {
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Update features.',
       projectContext,
       codexBridge: async () => ({
@@ -166,7 +169,7 @@ describe('project agent run helpers', () => {
     });
   });
 
-  it('reports invalid mode and invalid request input before invoking the bridge', async () => {
+  it('reports invalid intent and invalid request input before invoking the bridge', async () => {
     let calls = 0;
     const codexBridge = async () => {
       calls += 1;
@@ -174,16 +177,16 @@ describe('project agent run helpers', () => {
     };
 
     await expect(runProjectAgent({
-      mode: 'review-current-case-study',
+      intent: 'polish',
       instructions: 'Review this.',
       projectContext,
       codexBridge,
     })).rejects.toMatchObject({
-      type: 'invalid_mode',
+      type: 'invalid_intent',
     });
 
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: ' ',
       projectContext,
       codexBridge,
@@ -203,7 +206,7 @@ describe('project agent run helpers', () => {
     };
 
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'x'.repeat(PROJECT_AGENT_INSTRUCTIONS_MAX_LENGTH + 1),
       projectContext,
       codexBridge,
@@ -213,7 +216,7 @@ describe('project agent run helpers', () => {
     });
 
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Update the title.',
       projectContext: {
         projectContext: {},
@@ -235,7 +238,7 @@ describe('project agent run helpers', () => {
     process.env.CODEX_BRIDGE_TIMEOUT_MS = '45000';
 
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Update the title.',
       projectContext,
       codexBridge: async ({ command, timeoutMs, args }) => {
@@ -262,7 +265,7 @@ describe('project agent run helpers', () => {
 
   it('normalizes Codex bridge failures without exposing raw diagnostics', async () => {
     await expect(runProjectAgent({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: 'Update the title.',
       projectContext,
       codexBridge: async () => {

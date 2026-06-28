@@ -136,14 +136,16 @@ describe('project agent prompt helpers', () => {
     })).toEqual(expect.objectContaining({ id: 'revise-with-source-context' }));
   });
 
-  it('builds a bounded server-side prompt with schema, guardrails, and current draft context', () => {
+  it('builds a revise prompt with schema, guardrails, and current draft context', () => {
     const prompt = buildProjectAgentPrompt({
-      mode: 'revise-current-case-study',
+      intent: 'revise',
       instructions: ' Tighten the overview and keep the React evidence. ',
       projectContext,
     });
 
-    expect(prompt).toContain('Mode: revise-current-case-study');
+    expect(prompt).toContain('Owner intent: revise (Revise draft)');
+    expect(prompt).toContain('Derived run plan: revise-current-case-study');
+    expect(prompt).toContain('Return a supported patch that directly implements the owner instructions.');
     expect(prompt).toContain('Tighten the overview and keep the React evidence.');
     expect(prompt).toContain('"title": "Current title"');
     expect(prompt).toContain('{ "patch": {}, "notes": [], "warnings": [] }');
@@ -151,7 +153,59 @@ describe('project agent prompt helpers', () => {
     expect(prompt).toContain('Protected fields that must never be changed or returned:');
     expect(prompt).toContain('id, permalink, sortOrder');
     expect(prompt).toContain('Use fewer strong bullets');
+    expect(prompt).toContain('Keep overview and role plain-language');
     expect(prompt).toContain('Return only strict JSON');
     expect(prompt).not.toContain('OPENAI_API_KEY');
+  });
+
+  it('builds a review prompt that requires analysis-only output and an empty patch', () => {
+    const prompt = buildProjectAgentPrompt({
+      intent: 'review',
+      instructions: 'Find stale claims and weak evidence.',
+      projectContext,
+    });
+
+    expect(prompt).toContain('Owner intent: review (Review only)');
+    expect(prompt).toContain('Derived run plan: review-current-case-study');
+    expect(prompt).toContain('Analyze only.');
+    expect(prompt).toContain('Return patch as exactly {}.');
+    expect(prompt).toContain('Do not rewrite fields, even when issues are found.');
+    expect(prompt).toContain('findings, missing evidence, contradictions, bloat, stale content');
+    expect(prompt).toContain('{ "patch": {}, "notes": [], "warnings": [] }');
+    expect(prompt).not.toContain('OPENAI_API_KEY');
+  });
+
+  it('builds a generate-new-case-study prompt for an empty revise draft', () => {
+    const prompt = buildProjectAgentPrompt({
+      intent: 'revise',
+      instructions: 'Draft a new case study about the scheduling app.',
+      projectContext: {
+        projectContext: {},
+        draft: {
+          title: '',
+          description: '',
+          overview: '',
+          role: '',
+          features: [],
+          metrics: [],
+          challenges: [],
+          improvements: [],
+          techStack: {
+            frontend: [],
+            backend: [],
+            data: [],
+            infrastructure: [],
+          },
+          projectType: 'personal',
+          labels: [],
+          published: true,
+          featuredRank: '',
+        },
+      },
+    });
+
+    expect(prompt).toContain('Derived run plan: generate-new-case-study');
+    expect(prompt).toContain('Treat the active draft as a fresh working draft.');
+    expect(prompt).toContain('Do not invent URLs, results, metrics, or facts not supported by instructions or context.');
   });
 });

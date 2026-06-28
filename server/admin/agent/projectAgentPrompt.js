@@ -3,35 +3,85 @@ import {
   AGENT_PROJECT_DRAFT_SUPPORTED_FIELDS,
 } from '../../../src/domain/projects/agentDraft.js';
 import { PROJECT_TECH_STACK_KEYS, PROJECT_TYPES } from '../../../src/domain/projects/constants.js';
-import { getProjectAgentMode } from './projectAgentModes.js';
+import {
+  createProjectAgentRunPlan,
+  getProjectAgentIntent,
+  getProjectAgentRunPlan,
+  ProjectAgentIntentError,
+} from './projectAgentRunPlan.js';
 import { validateProjectAgentRunInput } from './projectAgentSchema.js';
 
 const QUALITY_GUIDANCE = Object.freeze([
   'Optimize for HR, employer, developer, and non-technical family/friend readers.',
   'Prefer concrete shipped behavior, measurable outcome, architectural responsibility, or real constraints.',
+  'Keep description to one concise card sentence, usually 18-30 words.',
+  'Keep overview and role plain-language, focused, and normally around 70-110 words.',
+  'Prefer 4-5 strong features, 3-5 evidence metrics, 3 challenge cards, and 3-4 credible improvements.',
   'Use fewer strong bullets over a complete implementation inventory.',
   'Avoid repeating the same signal across features, metrics, challenges, and improvements.',
   'Keep tech stack values short, recognizable, and useful; avoid internal file or setup details.',
+]);
+
+const REVIEW_OUTPUT_RULES = Object.freeze([
+  'Analyze only.',
+  'Return patch as exactly {}.',
+  'Put findings, missing evidence, contradictions, bloat, stale content, and recommended next actions in notes and warnings.',
+  'Do not rewrite fields, even when issues are found.',
+]);
+
+const REVISE_OUTPUT_RULES = Object.freeze([
+  'Return a supported patch that directly implements the owner instructions.',
+  'Preserve accurate existing context unless the owner asks to change it.',
+  'Use empty supported fields only when the owner clearly asks to clear content.',
+  'Include notes and warnings for assumptions, preserved uncertainty, and review needs.',
 ]);
 
 function formatBullets(items) {
   return items.map((item) => `- ${item}`).join('\n');
 }
 
+function resolveRunPlan(validatedInput, input) {
+  if (typeof input?.runPlan === 'string' && input.runPlan.trim()) {
+    const runPlan = getProjectAgentRunPlan(input.runPlan);
+
+    if (runPlan.intent !== validatedInput.intent) {
+      throw new ProjectAgentIntentError(
+        `Project agent run plan "${runPlan.id}" does not match intent "${validatedInput.intent}".`,
+      );
+    }
+
+    return runPlan;
+  }
+
+  return createProjectAgentRunPlan({
+    intent: validatedInput.intent,
+    projectContext: validatedInput.projectContext,
+    hasSourceContext: input?.hasSourceContext === true,
+  });
+}
+
 export function buildProjectAgentPrompt(input) {
   const validatedInput = validateProjectAgentRunInput(input);
-  const mode = getProjectAgentMode(validatedInput.mode);
+  const intent = getProjectAgentIntent(validatedInput.intent);
+  const runPlan = resolveRunPlan(validatedInput, input);
+  const outputRules = intent.id === 'review' ? REVIEW_OUTPUT_RULES : REVISE_OUTPUT_RULES;
   const contextJson = JSON.stringify(validatedInput.projectContext, null, 2);
 
   return [
     'You are a local portfolio case-study drafting assistant.',
-    'You are revising an unsaved admin draft. Your output will not be saved automatically.',
+    'You are working with an unsaved local admin draft. Your output will not be saved automatically.',
     '',
-    `Mode: ${mode.id} (${mode.label})`,
-    mode.summary,
+    `Owner intent: ${intent.id} (${intent.label})`,
+    intent.summary,
     '',
-    'Mode instructions:',
-    formatBullets(mode.instructions),
+    `Derived run plan: ${runPlan.id} (${runPlan.label})`,
+    runPlan.summary,
+    '',
+    'Run-plan responsibilities:',
+    formatBullets(runPlan.responsibilities),
+    '',
+    'Intent output rules:',
+    formatBullets(outputRules),
     '',
     'Owner instructions:',
     validatedInput.instructions,
