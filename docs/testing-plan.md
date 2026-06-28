@@ -41,6 +41,10 @@ Current baseline test files:
 - `tests/netlify/functions/inline-svg.test.js`
 - `tests/runtime/netlify.test.js`
 - `tests/server/admin/agent/codexBridge.test.js`
+- `tests/server/admin/agent/projectAgentPrompt.test.js`
+- `tests/server/admin/agent/projectAgentRun.test.js`
+- `tests/server/admin/routes/projectsAgent.test.js`
+- `tests/admin/adminClient.test.js`
 - `tests/server/admin/utils/storage.test.js`
 - `tests/server/admin/routes/validation.helpers.test.js`
 - `tests/server/admin/routes/validation.uploads.test.js`
@@ -60,10 +64,11 @@ Current checks:
 - `cmd /c npm run test:a11y` passes.
 - `git diff --check` passes.
 
-Local Codex bridge focused checks:
+Local Codex agent focused checks:
 
 - `cmd /c npx vitest run tests/server/admin/agent/codexBridge.test.js tests/domain/projects/agentDraft.test.js` covers the deterministic bridge helper and the existing project draft import contract.
-- `cmd /c npm run admin:codex-spike` runs the terminal-only real Codex bridge spike through the logged-in local CLI. Run it when changing `server/admin/agent/*` or the project patch contract, but keep it out of the default gate because it depends on local Codex CLI/auth availability.
+- `cmd /c npx vitest run tests/server/admin/agent/projectAgentPrompt.test.js tests/server/admin/agent/projectAgentRun.test.js tests/server/admin/routes/projectsAgent.test.js tests/admin/adminClient.test.js` covers the Phase 1 prompt, run orchestration, route boundary, and browser client helper with fake Codex responses only.
+- `cmd /c npm run admin:codex-spike` runs a real Codex CLI bridge check through the logged-in local CLI. Run it when changing the low-level bridge command path or local CLI assumptions, but keep it out of the default gate because it depends on local Codex CLI/auth availability.
 
 Current accessibility smoke coverage:
 
@@ -119,6 +124,7 @@ Current coverage:
 - Route parsing/building, public project mappers, detail view models, fallback merging, and sort-order normalization are covered.
 - Draft-to-public-modal preview mapping is covered for complete drafts, optional fields, classification normalization, malformed list fallbacks, and challenge preservation.
 - Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
+- The Phase 1 Projects agent run path is covered at the helper and route layers: explicit mode prompt construction, wrapper validation, instruction/context limits, bridge failure normalization, malformed wrapper handling, invalid patch handling, route content-type errors, concise browser-facing errors, and the `runProjectAgent` admin client helper.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
 - Public project-card classification pills consume the mapped `projectType` and `labels` fields. The card-local timer, opacity overlap, reduced-motion branch, and assistive-hidden transient layers remain manually verified until the repo gains a lightweight React component test path.
 - Desktop standard-card marquee verification is currently pure focus-alignment helper coverage plus quality-gate/accessibility-smoke/manual checks rather than a dedicated component test; mobile and reduced-motion users still receive the grid path.
@@ -265,7 +271,7 @@ Current coverage:
 - Pure helper primitives, upload file validation, and about/project/contact/skills state validation are covered.
 - Contact validation includes link label/URL/icon checks plus published defaulting, explicit false preservation, and non-boolean rejection.
 - The project draft validation endpoint is covered as a no-write route that reuses project state validation.
-- The local Codex bridge helper is covered with deterministic process fixtures for success, stderr detail, malformed JSON, non-object JSON, validation failure, nonzero exit, and timeout. The real `codex exec` path remains a manual local spike check through `cmd /c npm run admin:codex-spike`.
+- The local Codex bridge helper is covered with deterministic process fixtures for success, stderr detail, malformed JSON, non-object JSON, validation failure, nonzero exit, and timeout. The Projects agent run helpers and local route are covered with fake Codex outputs; no unit test invokes real Codex. The real `codex exec` path remains a manual local check through `cmd /c npm run admin:codex-spike`.
 
 Why this matters:
 

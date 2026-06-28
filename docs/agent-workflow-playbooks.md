@@ -51,7 +51,7 @@ Use these rules before choosing files to edit:
 - Public browser reads belong in `src/api/public`.
 - Pure browser/server-safe data shaping belongs in `src/domain`.
 - Admin validation belongs in `server/admin/routes/validation.js` or nearby server-owned helpers.
-- Local Codex invocation belongs under `server/admin/agent`. The current Phase 0 bridge is terminal-only and must not be exposed to the browser through a route until a later PRD adds the local admin run workflow.
+- Local Codex invocation belongs under `server/admin/agent`. The current Projects agent route is local admin only, invokes the logged-in Codex CLI from the backend, and must not move Codex runtime, shell access, auth paths, or prompt assembly into browser code.
 - Browser-visible route and function path constants belong in `src/runtime/paths.js`.
 - Project route parsing and building belongs in `src/domain/projects/routing.js`.
 - Admin-managed storage path behavior belongs in `server/admin/utils`; public components should consume stored URLs.
@@ -165,8 +165,9 @@ Do:
 - Classify the task before editing: content-only, admin UI, schema, public rendering, routing, or validation.
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
 - For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
-- For agent-assisted drafts, produce a JSON payload that the admin Projects `Agent` subsection `Import draft` action can apply through `src/domain/projects/agentDraft.js`.
-- The Phase 0 local Codex bridge currently exists only as `cmd /c npm run admin:codex-spike`; the owner-facing Projects workflow remains Copy draft, external Codex review, Import draft, Validate Projects, Preview Case Study, then explicit Save until the later local admin run workflow ships.
+- For simple current-draft revisions, use the Projects `Agent` subsection `Run Codex` control with the active draft context and freeform owner instructions. A successful run applies the returned patch to the unsaved local draft through `src/domain/projects/agentDraft.js`.
+- Keep `Copy draft` and `Import draft` available as fallbacks for manual Codex sessions, source-heavy reviews, or cases where the local Codex CLI is unavailable.
+- After either `Run Codex` or `Import draft`, run `Validate Projects`, open `Preview Case Study`, edit if needed, and save only after review.
 - For existing project revisions, ask the user for the admin Projects `Agent` subsection current-context output and follow [Existing Project Review Mode](./project-editor-agent/case-study-draft-guidelines.md#existing-project-review-mode) before comparing current content against new source material.
 - Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
 - Preserve route-backed project opens through the current project routing helpers.
@@ -224,7 +225,7 @@ Agent-assisted draft payloads:
 - Leave optional action URLs as empty strings when there is no public link; do not invent links.
 - Do not use em dashes in drafted case-study copy. Use commas, parentheses, colons, semicolons, or shorter sentences instead.
 - Do not include identity, routing, media, upload, or persistence fields such as `id`, `permalink`, `sortOrder`, `imageUrl`, `videoUrl`, `architectureImageUrl`, file objects, or `techTags`.
-- Tell the user to paste the JSON into the admin Projects `Agent` subsection `Import draft` panel, then run `Validate Projects`, open `Preview Case Study`, and save only after review.
+- Tell the user to use `Run Codex` for in-admin current-draft revisions when the needed source context fits the instructions field. For manual sessions, paste the JSON into the admin Projects `Agent` subsection `Import draft` panel. In both flows, run `Validate Projects`, open `Preview Case Study`, and save only after review.
 
 Do not:
 

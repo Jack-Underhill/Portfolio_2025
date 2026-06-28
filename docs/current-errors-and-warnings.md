@@ -67,13 +67,13 @@ Decision:
 
 ## Local Codex Bridge Caveats
 
-`cmd /c npm run admin:codex-spike` is a terminal-only local verification command for the Phase 0 Codex bridge. It shells out through the logged-in local Codex CLI, so it depends on `codex` being available on `PATH` and the local Codex runtime already being authenticated.
+`cmd /c npm run admin:codex-spike` is a local verification command for the Phase 0 Codex bridge. The Projects admin `Run Codex` workflow uses the local-only `POST /admin-api/projects/agent/run` route and the same logged-in Codex CLI path from the backend. Both depend on `codex` being available on `PATH` or through `CODEX_BRIDGE_COMMAND`, and the local Codex runtime already being authenticated.
 
 Decision:
 
-- This command is not part of the default browser or public-site gate.
+- The spike command and real UI run are not part of the default browser or public-site gate.
 - It does not require or pass `OPENAI_API_KEY`; investigate SDK options only if `codex exec` becomes unreliable while preserving that no-API-key requirement.
-- Non-fatal stderr warnings from local Codex/plugin discovery or shell snapshot behavior can appear even when both JSON schema checks pass. Treat timeout, nonzero exit, malformed JSON, non-object JSON, or validation failure as real spike failures.
+- Non-fatal stderr warnings from local Codex/plugin discovery or shell snapshot behavior can appear even when JSON schema checks pass. Treat timeout, nonzero exit, malformed JSON, non-object JSON, malformed wrapper output, or project patch validation failure as real agent failures.
 
 ## Architecture Viewer Local Warning
 

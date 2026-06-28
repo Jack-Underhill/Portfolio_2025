@@ -41,7 +41,7 @@ Current admin draft preview flow:
 - `ProjectsSection.jsx` renders the mapped draft through the shared `ProjectModal` with admin-local open/close state.
 - `src/domain/projects/agentDraft.js` parses agent draft JSON, maps supported fields into a project patch, applies that patch to the active local draft, and serializes safe current project review context.
 - `ProjectWorkspaceActions.jsx` exposes Projects-level `+ Add Project`, `Validate Projects`, and `Preview Case Study` actions below the selector.
-- `ProjectAgentSection.jsx` renders the Projects `Agent` subsection with local-only `Copy draft` and `Import draft` actions. The import and context panels live in `ProjectDraftImportPanel.jsx` and `ProjectDraftContextPanel.jsx`.
+- `ProjectAgentSection.jsx` renders the Projects `Agent` subsection with local-only `Run Codex`, `Copy draft`, and `Import draft` actions. `Run Codex` calls the local admin route through `src/admin/api/adminClient.js`, then `ProjectsSection.jsx` applies successful patches to the unsaved active draft through the same `src/domain/projects/agentDraft.js` contract used by manual imports. The import and context panels live in `ProjectDraftImportPanel.jsx` and `ProjectDraftContextPanel.jsx`.
 - Newly selected image, video, and architecture files are previewed through temporary object URLs owned by admin UI state and revoked after use.
 - `POST /admin-api/projects/validate` validates the current projects payload without Supabase writes or storage uploads; `validateProjectDraft` is the browser helper.
 
@@ -50,7 +50,7 @@ Agent draft import decision:
 - Supported payloads are pasted JSON or the first fenced `json` block with content fields only.
 - Import preserves identity, routing, sort order, media URLs, selected media file objects, and derived `techTags`; unknown keys are ignored with warnings.
 - Missing supported keys preserve the active project draft, while present empty strings or arrays intentionally clear those supported fields.
-- Import does not save, upload, call Supabase, persist drafts, or bypass Validate Projects, Preview Case Study, or explicit Save.
+- Import and local Codex runs do not save, upload, call Supabase, persist drafts, or bypass Validate Projects, Preview Case Study, or explicit Save.
 - Current project context export separates read-only `projectContext` from importable `draft` content so existing-project agent review has context without creating an identity/media mutation path.
 
 Current public presentation flow:

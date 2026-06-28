@@ -141,7 +141,7 @@ Use `competition` for hackathons, game jams, and similar limited-time competitiv
 
 ## Existing Project Review Mode
 
-Ask for or use current project draft context before revising an existing case study. Prefer the admin Projects `Agent` subsection `Copy draft` action. A manual copy/export is acceptable only if the UI is unavailable.
+Ask for or use current project draft context before revising an existing case study. In the admin UI, prefer the Projects `Agent` subsection `Run Codex` action for simple current-draft revisions with freeform instructions. Use `Copy draft` plus a manual Codex session when source-heavy review needs more context than the in-admin instructions field can comfortably carry, or when the local Codex route is unavailable.
 
 Review current project context shaped like this. Treat `projectContext` as read-only identification and `draft` as supported content fields to compare, not as an import payload:
 

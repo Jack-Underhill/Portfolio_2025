@@ -7,7 +7,7 @@ Use this directory for privileged admin reads and writes that require the Supaba
 ## Scope
 
 - Start the local admin HTTP server on loopback only.
-- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Skills, Credentials, Projects, project draft validation, local Projects agent runs, and save-all flows.
+- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Skills, Credentials, Projects, project draft validation, `POST /admin-api/projects/agent/run`, and save-all flows.
 - Read and write Supabase tables with the service-role client.
 - Validate admin payloads and uploaded files before persistence.
 - Upload admin-managed media into the `portfolio-assets` bucket and return public URLs.
@@ -30,7 +30,7 @@ Keep this directory free of browser code, React components, public anon-key read
 - `routes/skills.js`: manages grouped Skills rows with service-role replacement saves.
 - `routes/credentials.js`: manages Education and Certification rows with service-role replacement saves.
 - `routes/projects.js`: manages project section text, projects, project draft validation, project media uploads, ordering, permalink creation, and deleted-project cleanup.
-- `routes/projectsAgent.js`: exposes the local-only Projects agent run route and delegates Codex orchestration to `agent/`.
+- `routes/projectsAgent.js`: exposes the local-only `POST /admin-api/projects/agent/run` route and delegates Codex orchestration to `agent/`.
 - `routes/requestBody.js`: parses JSON and multipart admin requests, enforces body limits, and attaches uploaded files to state objects.
 - `routes/validation.js`: normalizes and validates admin payloads, URLs, arrays, booleans, IDs, and upload file limits.
 
