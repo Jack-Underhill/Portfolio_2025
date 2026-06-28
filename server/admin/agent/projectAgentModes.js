@@ -1,40 +1,45 @@
-const PROJECT_AGENT_MODES = Object.freeze({
-  'revise-current-case-study': Object.freeze({
-    id: 'revise-current-case-study',
-    label: 'Revise current case study',
-    summary: 'Revise the current project draft using the owner instructions.',
-    instructions: [
-      'Return a minimal patch for the current project draft.',
-      'Prioritize the owner instructions while preserving accurate existing context.',
-      'Use empty supported fields only when the owner clearly asks to clear content.',
-      'Do not produce review-only commentary instead of a patch when a concrete revision is possible.',
-    ],
-  }),
-});
+import {
+  getProjectAgentRunPlan,
+  ProjectAgentIntentError,
+} from './projectAgentRunPlan.js';
 
-export const PROJECT_AGENT_MODE_IDS = Object.freeze(Object.keys(PROJECT_AGENT_MODES));
+const LEGACY_PROJECT_AGENT_MODE_IDS = Object.freeze(['revise-current-case-study']);
 
-export class ProjectAgentModeError extends Error {
+export const PROJECT_AGENT_MODE_IDS = LEGACY_PROJECT_AGENT_MODE_IDS;
+
+export class ProjectAgentModeError extends ProjectAgentIntentError {
   constructor(message) {
     super(message);
-    this.name = 'ProjectAgentModeError';
-    this.type = 'invalid_mode';
+    this.name = 'ProjectAgentIntentError';
+    this.type = 'invalid_intent';
   }
 }
 
 export function getProjectAgentMode(modeId) {
   const normalizedModeId = typeof modeId === 'string' ? modeId.trim() : '';
-  const mode = PROJECT_AGENT_MODES[normalizedModeId];
 
-  if (!mode) {
+  if (!LEGACY_PROJECT_AGENT_MODE_IDS.includes(normalizedModeId)) {
     throw new ProjectAgentModeError(
-      `Unsupported project agent mode. Supported modes: ${PROJECT_AGENT_MODE_IDS.join(', ')}.`,
+      `Unsupported project agent intent. Supported intents: revise, review.`,
     );
   }
 
-  return mode;
+  try {
+    const runPlan = getProjectAgentRunPlan(normalizedModeId);
+
+    return {
+      ...runPlan,
+      instructions: runPlan.responsibilities,
+    };
+  } catch (error) {
+    if (error instanceof ProjectAgentIntentError) {
+      throw new ProjectAgentModeError(error.message);
+    }
+
+    throw error;
+  }
 }
 
 export function listProjectAgentModes() {
-  return PROJECT_AGENT_MODE_IDS.map((modeId) => PROJECT_AGENT_MODES[modeId]);
+  return PROJECT_AGENT_MODE_IDS.map(getProjectAgentMode);
 }
