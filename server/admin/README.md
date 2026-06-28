@@ -16,7 +16,7 @@ Keep this directory free of browser code, React components, public anon-key read
 
 ## Folders
 
-- `agent/`: owns the local-only Codex bridge, controlled terminal harness, Projects agent prompt/run helpers, and strict agent output validation.
+- `agent/`: owns the local-only Codex bridge, controlled terminal harness, Projects agent intent/run-plan helpers, prompt/run helpers, and strict agent output validation.
 - `clients/`: owns the Supabase service-role client and storage bucket constant.
 - `routes/`: owns admin endpoint handlers, request parsing, validation, and JSON/error responses.
 - `utils/`: owns shared server helpers for storage paths, permalink creation, strings, and tech-stack flattening.
@@ -47,6 +47,8 @@ Keep this directory free of browser code, React components, public anon-key read
 - `npm run admin:codex-spike` remains the terminal Phase 0 Codex bridge check. The Projects agent route invokes the logged-in local Codex runtime through `codex exec --cd <repo-root> --sandbox read-only --ephemeral --color never -` and does not require or pass `OPENAI_API_KEY`.
 - The browser-facing Projects agent run resolves the local Codex executable from the latest installed OpenAI VS Code extension on this Windows machine. The spike command still supports `CODEX_BRIDGE_COMMAND` or `codex` on `PATH` for low-level bridge checks.
 - The Codex bridge is the selected local path. No SDK dependency is installed; revisit SDK options only if `codex exec` proves unreliable while still preserving the no-OpenAI-API-key requirement.
+- The Projects agent route accepts owner intent, not a user-selected mode. `revise` is the only editing intent and can return supported patch fields for the active unsaved draft. `review` derives the `review-current-case-study` run plan, analyzes only, and suppresses any returned patch fields server-side before the browser can apply them.
+- Run-plan derivation lives in `agent/projectAgentRunPlan.js`: revise on an effectively empty draft generates a new case study, revise on a non-empty draft revises the current case study, and future source-context revision has a defined run-plan placeholder without source ingestion wired yet.
 - `routes/about.js` and `routes/projects.js` each own singleton IDs for their current table shapes.
 - Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
 - Architecture SVG viewer validation and the Netlify inline SVG proxy trust the same project-scoped `projects/:id/architecture.svg` path.

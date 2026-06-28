@@ -68,7 +68,7 @@ Current checks:
 Local Codex agent focused checks:
 
 - `cmd /c npx vitest run tests/server/admin/agent/codexBridge.test.js tests/domain/projects/agentDraft.test.js` covers the deterministic bridge helper and the existing project draft import contract.
-- `cmd /c npx vitest run tests/server/admin/agent/projectAgentPrompt.test.js tests/server/admin/agent/projectAgentRun.test.js tests/server/admin/routes/projectsAgent.test.js tests/admin/adminClient.test.js` covers the prompt, run orchestration, route boundary, and browser client helper with fake Codex responses only.
+- `cmd /c npx vitest run tests/server/admin/agent/projectAgentPrompt.test.js tests/server/admin/agent/projectAgentRun.test.js tests/server/admin/routes/projectsAgent.test.js tests/admin/adminClient.test.js tests/admin/projectAgentRunState.test.js` covers prompt assembly, intent validation, derived run planning, review patch suppression, run orchestration, route/client request shape, and run-state retry/clear behavior with fake Codex responses only.
 - `cmd /c npx vitest run tests/admin/projectAgentRunState.test.js` covers the Project Agent review-surface helper state used for idle/running shape and retry/clear availability.
 - `cmd /c npm run admin:codex-spike` runs a real Codex CLI bridge check through the logged-in local CLI. Run it when changing the low-level bridge command path or local CLI assumptions, but keep it out of the default gate because it depends on local Codex CLI/auth availability.
 
@@ -93,7 +93,7 @@ Admin workflow test strategy:
 - Ownership tests use explicit root callbacks, Projects subsection IDs, collection-operation policy, and the changed-field map for agent imports. Navigation observation is not an attribution input.
 - Parent display tests derive collapsed precedence and expanded suppression from the same workflow map rather than asserting sidebar class strings.
 - The authenticated admin DOM, tooltip/focus behavior, and save/validation interaction sequence remain the documented browser boundary until a stable non-destructive fixture exists.
-- Projects Agent run-panel rendering remains in that authenticated admin browser boundary: manual checks cover readable success/failure states, keyboard access to Retry and Clear result, and the distinction that Clear result does not revert unsaved draft edits.
+- Projects Agent run-panel rendering remains in that authenticated admin browser boundary: manual checks cover readable success/failure states, keyboard access to Retry and Clear result, Review success copy that does not imply draft edits, and the distinction that Clear result does not revert unsaved draft edits.
 
 Remaining testing gap:
 
@@ -127,7 +127,7 @@ Current coverage:
 - Route parsing/building, public project mappers, detail view models, fallback merging, and sort-order normalization are covered.
 - Draft-to-public-modal preview mapping is covered for complete drafts, optional fields, classification normalization, malformed list fallbacks, and challenge preservation.
 - Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
-- The Phase 1 Projects agent run path is covered at the helper and route layers: explicit mode prompt construction, wrapper validation, instruction/context limits, bridge failure normalization, malformed wrapper handling, invalid patch handling, route content-type errors, concise browser-facing errors, and the `runProjectAgent` admin client helper.
+- The Projects agent run path is covered at the helper and route layers: owner intent validation, derived run-plan prompt construction, wrapper validation, instruction/context limits, review-only patch suppression, bridge failure normalization, malformed wrapper handling, invalid patch handling, route content-type errors, concise browser-facing errors, and the `runProjectAgent` admin client helper.
 - The Phase 2 Projects agent review surface has focused pure coverage for serializable idle/running state and retry/clear availability across active-project, saved/running, in-flight save, and missing-request cases. Rendered live-region semantics, focus handoff, and compact result layout remain a manual authenticated-admin boundary rather than a React component harness.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
 - Public project-card classification pills consume the mapped `projectType` and `labels` fields. The card-local timer, opacity overlap, reduced-motion branch, and assistive-hidden transient layers remain manually verified until the repo gains a lightweight React component test path.
