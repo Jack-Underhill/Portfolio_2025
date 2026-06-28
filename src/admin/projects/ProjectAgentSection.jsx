@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import ProjectDraftContextPanel from './ProjectDraftContextPanel';
 import ProjectDraftImportPanel from './ProjectDraftImportPanel';
+import ProjectAgentRunPanel from './ProjectAgentRunPanel';
 import TextAreaInput from '../forms/TextAreaInput';
 import FieldLabel from '../forms/FieldLabel';
 import { adminForm, adminUi } from '../../styles/recipes';
@@ -12,12 +13,6 @@ const PROJECT_AGENT_MODE_OPTIONS = Object.freeze([
     label: 'Revise current case study',
   },
 ]);
-
-function formatFields(label, fields = []) {
-  if (!fields.length) return '';
-
-  return `${label}: ${fields.join(', ')}.`;
-}
 
 function ProjectAgentSection({
   hasActiveProject,
@@ -43,8 +38,6 @@ function ProjectAgentSection({
   const canSubmitRun = hasActiveProject && hasInstructions && !isSaveInFlight && !isRunning;
   const runModeId = `${headingId}-mode`;
   const instructionsId = `${headingId}-instructions`;
-  const appliedFieldsSummary = formatFields('Applied fields', agentRun?.appliedFields);
-  const changedFieldsSummary = formatFields('Changed fields', agentRun?.changedFields);
 
   const handleRunAgent = () => {
     if (!canSubmitRun) return;
@@ -99,37 +92,7 @@ function ProjectAgentSection({
             {isRunning ? 'Running Codex...' : 'Run Codex'}
           </button>
 
-          {agentRun?.status === 'running' && (
-            <p className="text-sm text-admin-accent-text" role="status">
-              Running Codex on the active draft...
-            </p>
-          )}
-
-          {agentRun?.status === 'failed' && agentRun.error && (
-            <p className="text-sm text-admin-danger-hover" role="alert">
-              {agentRun.error}
-            </p>
-          )}
-
-          {agentRun?.status === 'succeeded' && (
-            <div className="space-y-1 text-sm text-admin-accent-text" role="status">
-              <p>
-                Codex returned a patch and applied it to this unsaved draft.
-              </p>
-              {appliedFieldsSummary && (
-                <p>{appliedFieldsSummary}</p>
-              )}
-              {changedFieldsSummary && (
-                <p>{changedFieldsSummary}</p>
-              )}
-              {agentRun.notes?.map((note) => (
-                <p key={`note-${note}`}>{note}</p>
-              ))}
-              {agentRun.warnings?.map((warning) => (
-                <p key={`warning-${warning}`}>{warning}</p>
-              ))}
-            </div>
-          )}
+          <ProjectAgentRunPanel agentRun={agentRun} />
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
