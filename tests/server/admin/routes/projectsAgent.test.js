@@ -116,6 +116,54 @@ describe('projects agent run route', () => {
 
     error.mockRestore();
   });
+
+  it('returns concise 500 responses for malformed Codex wrapper output', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const runAgent = vi.fn(async () => {
+      throw new ProjectAgentRunError(
+        'malformed_wrapper',
+        'Project agent output patch must be an object.',
+        { stdout: 'raw output should not be returned' },
+      );
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = jsonRequest(validPayload);
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(500);
+    expect(res.json()).toEqual({
+      error: 'Local Codex returned an invalid response shape.',
+    });
+
+    error.mockRestore();
+  });
+
+  it('returns concise bridge failures without raw diagnostics', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const runAgent = vi.fn(async () => {
+      throw new ProjectAgentRunError(
+        'bridge_failure',
+        'Local Codex run failed: Command timed out after 120000 ms.',
+        {
+          stderr: 'raw stderr should not be returned',
+        },
+      );
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = jsonRequest(validPayload);
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(500);
+    expect(res.json()).toEqual({
+      error: 'Local Codex run failed: Command timed out after 120000 ms.',
+    });
+
+    error.mockRestore();
+  });
 });
 
 function jsonRequest(payload, contentType = 'application/json') {

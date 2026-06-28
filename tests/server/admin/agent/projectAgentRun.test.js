@@ -4,7 +4,11 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { CodexBridgeError } from '../../../../server/admin/agent/codexBridge.js';
 import { runProjectAgent } from '../../../../server/admin/agent/projectAgentRun.js';
-import { validateProjectAgentOutput } from '../../../../server/admin/agent/projectAgentSchema.js';
+import {
+  PROJECT_AGENT_CONTEXT_MAX_LENGTH,
+  PROJECT_AGENT_INSTRUCTIONS_MAX_LENGTH,
+  validateProjectAgentOutput,
+} from '../../../../server/admin/agent/projectAgentSchema.js';
 
 const projectContext = {
   projectContext: {
@@ -177,6 +181,41 @@ describe('project agent run helpers', () => {
     })).rejects.toMatchObject({
       type: 'invalid_input',
       message: 'Project agent instructions are required.',
+    });
+
+    expect(calls).toBe(0);
+  });
+
+  it('enforces instruction and project context limits before invoking the bridge', async () => {
+    let calls = 0;
+    const codexBridge = async () => {
+      calls += 1;
+      return { json: { patch: {} } };
+    };
+
+    await expect(runProjectAgent({
+      mode: 'revise-current-case-study',
+      instructions: 'x'.repeat(PROJECT_AGENT_INSTRUCTIONS_MAX_LENGTH + 1),
+      projectContext,
+      codexBridge,
+    })).rejects.toMatchObject({
+      type: 'invalid_input',
+      message: `Project agent instructions must be ${PROJECT_AGENT_INSTRUCTIONS_MAX_LENGTH} characters or fewer.`,
+    });
+
+    await expect(runProjectAgent({
+      mode: 'revise-current-case-study',
+      instructions: 'Update the title.',
+      projectContext: {
+        projectContext: {},
+        draft: {
+          overview: 'x'.repeat(PROJECT_AGENT_CONTEXT_MAX_LENGTH),
+        },
+      },
+      codexBridge,
+    })).rejects.toMatchObject({
+      type: 'invalid_input',
+      message: `Project agent projectContext must serialize to ${PROJECT_AGENT_CONTEXT_MAX_LENGTH} characters or fewer.`,
     });
 
     expect(calls).toBe(0);
