@@ -1,6 +1,6 @@
 # Agent Workflow Playbooks
 
-Date: 2026-06-02
+Date: 2026-06-28
 
 ## Purpose
 
@@ -156,6 +156,7 @@ Read first:
 - `src/admin/sections/ProjectsSection.jsx`
 - `src/admin/projects/ProjectWorkspaceActions.jsx`
 - `src/admin/projects/ProjectAgentSection.jsx`
+- `src/admin/projects/ProjectAgentRunPanel.jsx`
 - `src/admin/api/adminClient.js`
 - `server/admin/routes/projects.js`
 - `server/admin/routes/validation.js`
@@ -165,7 +166,9 @@ Do:
 - Classify the task before editing: content-only, admin UI, schema, public rendering, routing, or validation.
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
 - For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
-- For simple current-draft revisions, use the Projects `Agent` subsection `Run Codex` control with the active draft context and freeform owner instructions. A successful run applies the returned patch to the unsaved local draft through `src/domain/projects/agentDraft.js`.
+- For simple current-draft revisions, use the Projects `Agent` subsection `Run Codex` control with the active draft context and freeform owner instructions. A successful run applies the returned patch to the unsaved local draft through `src/domain/projects/agentDraft.js` and shows a review surface with changed fields, applied fields, notes, warnings, and elapsed time when available.
+- Use `Retry` when the last submitted mode and instructions should be rerun against the current active draft. Retry does not rewind to the pre-run draft; it follows the same current-draft reprompt workflow as another Run Codex submission.
+- Use `Clear result` only to hide the visible run summary. It does not revert any draft edits and does not clear the instructions textarea.
 - Keep `Copy draft` and `Import draft` available as fallbacks for manual Codex sessions, source-heavy reviews, or cases where the local Codex CLI is unavailable.
 - After either `Run Codex` or `Import draft`, run `Validate Projects`, open `Preview Case Study`, edit if needed, and save only after review.
 - For existing project revisions, ask the user for the admin Projects `Agent` subsection current-context output and follow [Existing Project Review Mode](./project-editor-agent/case-study-draft-guidelines.md#existing-project-review-mode) before comparing current content against new source material.

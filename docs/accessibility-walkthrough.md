@@ -1,6 +1,6 @@
 # Accessibility Walkthrough
 
-Date: 2026-06-25
+Date: 2026-06-28
 
 ## Purpose
 
@@ -173,6 +173,8 @@ Admin accessibility:
 - Project editor subsection links render directly beneath Projects in the primary sidebar while Projects is active. No separate Projects secondary sidebar or conditional content gutter remains.
 - The active project editor renders all fixed project subsection regions for the selected project. Each subsection has a visible heading associated with the region, while project records and challenge items remain selector-driven.
 - The admin project preview opens the shared project modal from the active unsaved draft and inherits the existing dialog focus containment, Escape close, and focus-restore behavior.
+- The admin Projects `Agent` subsection local run panel reports running and successful Codex runs through polite status semantics, reports failed runs through an alert region, and moves focus to the stable run-result heading only after an asynchronous running state completes or fails. The success copy says the patch was applied to the active unsaved draft and still needs owner review, preview, and explicit Save.
+- The Agent run panel keeps Retry and Clear result keyboard reachable with explicit accessible names and disabled states while a run is in flight. Retry reruns the last submitted request against the current active draft. Clear result hides the run summary without reverting draft edits or clearing the instructions textarea.
 - The admin Projects `Agent` subsection draft import and current-context panels use labeled textareas, alert/status feedback, and disabled states while Save is in flight so pasted draft changes do not race the save response.
 - Shared admin file inputs keep a real native file control associated with `FieldLabel`, visually replace the browser-owned filename text with app-owned `Choose file` or `Replace file` action text, and expose the saved/pending state through nearby helper text referenced by `aria-describedby`. File selection still uses the native control; saved URLs are represented by caller-owned booleans instead of attempting to prefill the input value.
 - Repeated list textareas have item-specific accessible names, and remove buttons describe the item they affect.

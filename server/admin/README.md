@@ -44,8 +44,9 @@ Keep this directory free of browser code, React components, public anon-key read
 
 ## Current Caveats
 
-- `npm run admin:codex-spike` remains the terminal Phase 0 Codex bridge check. The Projects agent route uses the same logged-in local Codex CLI path through `codex exec --cd <repo-root> --sandbox read-only --ephemeral --color never -` and does not require or pass `OPENAI_API_KEY`.
-- The Codex bridge is the selected Phase 1 path. No SDK dependency is installed; revisit SDK options only if `codex exec` proves unreliable while still preserving the no-OpenAI-API-key requirement.
+- `npm run admin:codex-spike` remains the terminal Phase 0 Codex bridge check. The Projects agent route invokes the logged-in local Codex runtime through `codex exec --cd <repo-root> --sandbox read-only --ephemeral --color never -` and does not require or pass `OPENAI_API_KEY`.
+- The browser-facing Projects agent run resolves the local Codex executable from the latest installed OpenAI VS Code extension on this Windows machine. The spike command still supports `CODEX_BRIDGE_COMMAND` or `codex` on `PATH` for low-level bridge checks.
+- The Codex bridge is the selected local path. No SDK dependency is installed; revisit SDK options only if `codex exec` proves unreliable while still preserving the no-OpenAI-API-key requirement.
 - `routes/about.js` and `routes/projects.js` each own singleton IDs for their current table shapes.
 - Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
 - Architecture SVG viewer validation and the Netlify inline SVG proxy trust the same project-scoped `projects/:id/architecture.svg` path.

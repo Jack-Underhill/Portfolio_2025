@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-06-17
+Date: 2026-06-28
 
 ## Purpose
 
@@ -41,7 +41,8 @@ Current admin draft preview flow:
 - `ProjectsSection.jsx` renders the mapped draft through the shared `ProjectModal` with admin-local open/close state.
 - `src/domain/projects/agentDraft.js` parses agent draft JSON, maps supported fields into a project patch, applies that patch to the active local draft, and serializes safe current project review context.
 - `ProjectWorkspaceActions.jsx` exposes Projects-level `+ Add Project`, `Validate Projects`, and `Preview Case Study` actions below the selector.
-- `ProjectAgentSection.jsx` renders the Projects `Agent` subsection with local-only `Run Codex`, `Copy draft`, and `Import draft` actions. `Run Codex` calls the local admin route through `src/admin/api/adminClient.js`, then `ProjectsSection.jsx` applies successful patches to the unsaved active draft through the same `src/domain/projects/agentDraft.js` contract used by manual imports. The import and context panels live in `ProjectDraftImportPanel.jsx` and `ProjectDraftContextPanel.jsx`.
+- `ProjectAgentSection.jsx` renders the Projects `Agent` subsection inputs and local-only `Run Codex`, `Copy draft`, and `Import draft` actions. `Run Codex` calls the local admin route through `src/admin/api/adminClient.js`, then `ProjectsSection.jsx` applies successful patches to the unsaved active draft through the same `src/domain/projects/agentDraft.js` contract used by manual imports.
+- `ProjectAgentRunPanel.jsx` renders the post-run review surface for running, succeeded, and failed states. Successful runs report changed fields, applied fields, notes, warnings, and elapsed time when available; Retry reruns the last submitted mode and instructions against the current active draft; Clear result hides the visible run summary without mutating project draft fields. The import and context fallback panels live in `ProjectDraftImportPanel.jsx` and `ProjectDraftContextPanel.jsx`.
 - Newly selected image, video, and architecture files are previewed through temporary object URLs owned by admin UI state and revoked after use.
 - `POST /admin-api/projects/validate` validates the current projects payload without Supabase writes or storage uploads; `validateProjectDraft` is the browser helper.
 
