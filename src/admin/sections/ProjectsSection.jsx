@@ -9,6 +9,11 @@ import {
     getProjectWorkflowLocationId,
     PROJECTS_WORKFLOW_LOCATION_ID,
 } from '../projects/projectEditorSections';
+import {
+    createIdleProjectAgentRunState,
+    createRunningProjectAgentRunState,
+    deriveProjectAgentRunControls,
+} from '../projects/projectAgentRunState';
 import CardSelector from '../navigation/CardSelector';
 import AdminSectionToolbar from '../shell/AdminSectionToolbar';
 
@@ -24,18 +29,6 @@ import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
 
 const PROJECT_DRAFT_IMPORT_PANEL_ID = 'project-agent-draft-import-panel';
 const PROJECT_DRAFT_CONTEXT_PANEL_ID = 'project-agent-draft-context-panel';
-
-function createIdleAgentRunState() {
-    return {
-        status: 'idle',
-        error: '',
-        notes: [],
-        warnings: [],
-        appliedFields: [],
-        changedFields: [],
-        elapsedMs: null,
-    };
-}
 
 function ProjectsSection({
     state,
@@ -57,7 +50,7 @@ function ProjectsSection({
     const [previewMediaUrls, setPreviewMediaUrls] = useState({});
     const [validationState, setValidationState] = useState(null);
     const [isValidating, setIsValidating] = useState(false);
-    const [agentRunState, setAgentRunState] = useState(createIdleAgentRunState);
+    const [agentRunState, setAgentRunState] = useState(createIdleProjectAgentRunState);
     const [lastAgentRunRequest, setLastAgentRunRequest] = useState(null);
     const stateRef = useRef(state);
     const activeProjectRef = useRef(null);
@@ -99,7 +92,7 @@ function ProjectsSection({
 
         lastActiveProjectId.current = currentProjectId;
         agentRunRequestId.current += 1;
-        setAgentRunState(createIdleAgentRunState);
+        setAgentRunState(createIdleProjectAgentRunState);
         setLastAgentRunRequest(null);
     }, [activeProject?.id]);
 
@@ -191,7 +184,7 @@ function ProjectsSection({
         onProjectRecordChangeStart?.();
         activeProjectRef.current = projects.find((project) => project.id === projectId) ?? null;
         agentRunRequestId.current += 1;
-        setAgentRunState(createIdleAgentRunState);
+        setAgentRunState(createIdleProjectAgentRunState);
         setLastAgentRunRequest(null);
         setActiveId(projectId);
     }, [onProjectRecordChangeStart, projects, resolvedActiveId]);
@@ -319,15 +312,7 @@ function ProjectsSection({
         const projectContext = createAgentProjectDraftReviewContext(activeProject);
         agentRunRequestId.current = requestId;
         setLastAgentRunRequest({ mode, instructions });
-        setAgentRunState({
-            status: 'running',
-            error: '',
-            notes: [],
-            warnings: [],
-            appliedFields: [],
-            changedFields: [],
-            elapsedMs: null,
-        });
+        setAgentRunState(createRunningProjectAgentRunState);
 
         try {
             const result = await runProjectAgent({
@@ -375,7 +360,7 @@ function ProjectsSection({
     const handleClearAgentRunResult = () => {
         if (agentRunState.status === 'running') return;
 
-        setAgentRunState(createIdleAgentRunState);
+        setAgentRunState(createIdleProjectAgentRunState);
     };
 
     const handleRetryProjectAgent = () => {
@@ -390,7 +375,7 @@ function ProjectsSection({
             activeProjectRef.current = null;
         }
         agentRunRequestId.current += 1;
-        setAgentRunState(createIdleAgentRunState);
+        setAgentRunState(createIdleProjectAgentRunState);
         setLastAgentRunRequest(null);
         setProjects(
             (prev) => prev.filter((p) => p.id !== id),
@@ -446,12 +431,12 @@ function ProjectsSection({
                             isContextOpen: isContextPanelOpen,
                             isImportOpen: isImportPanelOpen,
                             isSaveInFlight,
-                            canClearResult: agentRunState.status !== 'idle'
-                                && agentRunState.status !== 'running',
-                            canRetry: Boolean(lastAgentRunRequest)
-                                && Boolean(activeProject)
-                                && !isSaveInFlight
-                                && agentRunState.status !== 'running',
+                            ...deriveProjectAgentRunControls({
+                                activeProject,
+                                agentRun: agentRunState,
+                                isSaveInFlight,
+                                lastRequest: lastAgentRunRequest,
+                            }),
                             onApplyDraft: handleApplyAgentDraft,
                             onApplySuccess: handleAgentDraftApplied,
                             onClearResult: handleClearAgentRunResult,
