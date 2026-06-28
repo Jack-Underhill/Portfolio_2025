@@ -24,10 +24,14 @@ function ProjectAgentSection({
   isContextOpen,
   isImportOpen,
   isSaveInFlight = false,
+  canClearResult = false,
+  canRetry = false,
   onApplyDraft,
   onApplySuccess,
+  onClearResult,
   onCopySuccess,
   onRunAgent,
+  onRetryAgent,
   onToggleContext,
   onToggleImport,
 }) {
@@ -92,7 +96,13 @@ function ProjectAgentSection({
             {isRunning ? 'Running Codex...' : 'Run Codex'}
           </button>
 
-          <ProjectAgentRunPanel agentRun={agentRun} />
+          <ProjectAgentRunPanel
+            agentRun={agentRun}
+            canClearResult={canClearResult}
+            canRetry={canRetry}
+            onClearResult={onClearResult}
+            onRetry={onRetryAgent}
+          />
         </div>
 
         <div className="flex flex-wrap items-center gap-3">

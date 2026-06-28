@@ -154,10 +154,14 @@ function ProjectEditor({ project, agentDraft, onSectionChange, onRemove, onSecti
             isContextOpen={agentDraft.isContextOpen}
             isImportOpen={agentDraft.isImportOpen}
             isSaveInFlight={agentDraft.isSaveInFlight}
+            canClearResult={agentDraft.canClearResult}
+            canRetry={agentDraft.canRetry}
             onApplyDraft={agentDraft.onApplyDraft}
             onApplySuccess={agentDraft.onApplySuccess}
+            onClearResult={agentDraft.onClearResult}
             onCopySuccess={agentDraft.onCopySuccess}
             onRunAgent={agentDraft.onRunAgent}
+            onRetryAgent={agentDraft.onRetryAgent}
             onToggleContext={agentDraft.onToggleContext}
             onToggleImport={agentDraft.onToggleImport}
           />

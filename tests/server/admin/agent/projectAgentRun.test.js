@@ -3,7 +3,7 @@ import process from 'node:process';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { CodexBridgeError } from '../../../../server/admin/agent/codexBridge.js';
-import { runProjectAgent } from '../../../../server/admin/agent/projectAgentRun.js';
+import { runProjectAgent as runProjectAgentBase } from '../../../../server/admin/agent/projectAgentRun.js';
 import {
   PROJECT_AGENT_CONTEXT_MAX_LENGTH,
   PROJECT_AGENT_INSTRUCTIONS_MAX_LENGTH,
@@ -23,6 +23,15 @@ const projectContext = {
     description: 'Current card copy',
   },
 };
+
+const discoveredCodexCommand = 'C:\\Tools\\latest-codex.exe';
+
+function runProjectAgent(options) {
+  return runProjectAgentBase({
+    commandResolver: () => discoveredCodexCommand,
+    ...options,
+  });
+}
 
 describe('project agent run helpers', () => {
   afterEach(() => {
@@ -221,8 +230,8 @@ describe('project agent run helpers', () => {
     expect(calls).toBe(0);
   });
 
-  it('uses the local Codex bridge environment command and timeout defaults', async () => {
-    process.env.CODEX_BRIDGE_COMMAND = 'C:\\Tools\\codex.exe';
+  it('uses discovered local Codex command and timeout defaults', async () => {
+    process.env.CODEX_BRIDGE_COMMAND = 'C:\\Deleted\\old-codex.exe';
     process.env.CODEX_BRIDGE_TIMEOUT_MS = '45000';
 
     await expect(runProjectAgent({
@@ -230,7 +239,7 @@ describe('project agent run helpers', () => {
       instructions: 'Update the title.',
       projectContext,
       codexBridge: async ({ command, timeoutMs, args }) => {
-        expect(command).toBe('C:\\Tools\\codex.exe');
+        expect(command).toBe(discoveredCodexCommand);
         expect(timeoutMs).toBe(45000);
         expect(args[0]).toBe('exec');
 

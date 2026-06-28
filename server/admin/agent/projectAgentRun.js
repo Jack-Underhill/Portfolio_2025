@@ -3,6 +3,7 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 import { CodexBridgeError, runCodexExecJson } from './codexBridge.js';
+import { CodexCommandResolutionError, findLatestCodexCommand } from './codexCommand.js';
 import { getProjectAgentMode, ProjectAgentModeError } from './projectAgentModes.js';
 import { buildProjectAgentPrompt } from './projectAgentPrompt.js';
 import {
@@ -46,10 +47,6 @@ function parsePositiveInteger(value, fallback) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-function getDefaultCodexCommand() {
-  return process.env.CODEX_BRIDGE_COMMAND || 'codex';
-}
-
 function getDefaultTimeoutMs() {
   return parsePositiveInteger(process.env.CODEX_BRIDGE_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 }
@@ -78,6 +75,16 @@ function normalizeRunError(error) {
     );
   }
 
+  if (error instanceof CodexCommandResolutionError) {
+    return new ProjectAgentRunError(
+      'bridge_failure',
+      `Local Codex run failed: ${error.message}`,
+      {
+        bridgeType: 'command_resolution_failure',
+      },
+    );
+  }
+
   return new ProjectAgentRunError(
     'unknown_failure',
     error instanceof Error ? error.message : 'Project agent run failed.',
@@ -99,7 +106,8 @@ export async function runProjectAgent({
   codexBridge = runCodexExecJson,
   timeoutMs = getDefaultTimeoutMs(),
   cwd = repoRoot,
-  command = getDefaultCodexCommand(),
+  command,
+  commandResolver = findLatestCodexCommand,
   args = createProjectAgentCodexArgs(cwd),
 } = {}) {
   const startedAt = performance.now();
@@ -109,11 +117,12 @@ export async function runProjectAgent({
     getProjectAgentMode(input.mode);
 
     const prompt = buildProjectAgentPrompt(input);
+    const resolvedCommand = command ?? commandResolver();
     const bridgeResult = await codexBridge({
       prompt,
       timeoutMs,
       cwd,
-      command,
+      command: resolvedCommand,
       args,
     });
     const output = validateProjectAgentOutput(getBridgeJson(bridgeResult));

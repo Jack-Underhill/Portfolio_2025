@@ -58,10 +58,12 @@ function ProjectsSection({
     const [validationState, setValidationState] = useState(null);
     const [isValidating, setIsValidating] = useState(false);
     const [agentRunState, setAgentRunState] = useState(createIdleAgentRunState);
+    const [lastAgentRunRequest, setLastAgentRunRequest] = useState(null);
     const stateRef = useRef(state);
     const activeProjectRef = useRef(null);
     const isMountedRef = useRef(false);
     const validationRequestId = useRef(0);
+    const agentRunRequestId = useRef(0);
 
     useEffect(() => {
         isMountedRef.current = true;
@@ -87,8 +89,19 @@ function ProjectsSection({
         : (projects[0]?.id ?? null);
 
     const activeProject = projects.find((p) => p.id === resolvedActiveId) ?? null;
+    const lastActiveProjectId = useRef(activeProject?.id ?? null);
     stateRef.current = state;
     activeProjectRef.current = activeProject;
+
+    useEffect(() => {
+        const currentProjectId = activeProject?.id ?? null;
+        if (lastActiveProjectId.current === currentProjectId) return;
+
+        lastActiveProjectId.current = currentProjectId;
+        agentRunRequestId.current += 1;
+        setAgentRunState(createIdleAgentRunState);
+        setLastAgentRunRequest(null);
+    }, [activeProject?.id]);
 
     const previewProject = useMemo(() => {
         if (!activeProject) return null;
@@ -177,7 +190,9 @@ function ProjectsSection({
 
         onProjectRecordChangeStart?.();
         activeProjectRef.current = projects.find((project) => project.id === projectId) ?? null;
+        agentRunRequestId.current += 1;
         setAgentRunState(createIdleAgentRunState);
+        setLastAgentRunRequest(null);
         setActiveId(projectId);
     }, [onProjectRecordChangeStart, projects, resolvedActiveId]);
 
@@ -300,7 +315,10 @@ function ProjectsSection({
         if (!activeProject || isSaveInFlight || agentRunState.status === 'running') return;
 
         const runProjectId = activeProject.id;
+        const requestId = agentRunRequestId.current + 1;
         const projectContext = createAgentProjectDraftReviewContext(activeProject);
+        agentRunRequestId.current = requestId;
+        setLastAgentRunRequest({ mode, instructions });
         setAgentRunState({
             status: 'running',
             error: '',
@@ -318,18 +336,10 @@ function ProjectsSection({
                 projectContext,
             });
             if (!isMountedRef.current) return;
+            if (agentRunRequestId.current !== requestId) return;
 
             const latestProject = activeProjectRef.current;
             if (!latestProject || latestProject.id !== runProjectId) {
-                setAgentRunState({
-                    status: 'failed',
-                    error: 'The active project changed before Codex finished. No changes were applied.',
-                    notes: [],
-                    warnings: [],
-                    appliedFields: [],
-                    changedFields: [],
-                    elapsedMs: result.elapsedMs ?? null,
-                });
                 return;
             }
 
@@ -345,6 +355,10 @@ function ProjectsSection({
             });
         } catch (error) {
             if (!isMountedRef.current) return;
+            if (agentRunRequestId.current !== requestId) return;
+
+            const latestProject = activeProjectRef.current;
+            if (!latestProject || latestProject.id !== runProjectId) return;
 
             setAgentRunState({
                 status: 'failed',
@@ -358,11 +372,26 @@ function ProjectsSection({
         }
     };
 
+    const handleClearAgentRunResult = () => {
+        if (agentRunState.status === 'running') return;
+
+        setAgentRunState(createIdleAgentRunState);
+    };
+
+    const handleRetryProjectAgent = () => {
+        if (!lastAgentRunRequest) return;
+        if (!activeProject || isSaveInFlight || agentRunState.status === 'running') return;
+
+        handleRunProjectAgent(lastAgentRunRequest);
+    };
+
     const handleRemoveProject = (id) => {
         if (activeProjectRef.current?.id === id) {
             activeProjectRef.current = null;
         }
+        agentRunRequestId.current += 1;
         setAgentRunState(createIdleAgentRunState);
+        setLastAgentRunRequest(null);
         setProjects(
             (prev) => prev.filter((p) => p.id !== id),
             [PROJECTS_WORKFLOW_LOCATION_ID],
@@ -417,10 +446,18 @@ function ProjectsSection({
                             isContextOpen: isContextPanelOpen,
                             isImportOpen: isImportPanelOpen,
                             isSaveInFlight,
+                            canClearResult: agentRunState.status !== 'idle'
+                                && agentRunState.status !== 'running',
+                            canRetry: Boolean(lastAgentRunRequest)
+                                && Boolean(activeProject)
+                                && !isSaveInFlight
+                                && agentRunState.status !== 'running',
                             onApplyDraft: handleApplyAgentDraft,
                             onApplySuccess: handleAgentDraftApplied,
+                            onClearResult: handleClearAgentRunResult,
                             onCopySuccess: handleContextCopied,
                             onRunAgent: handleRunProjectAgent,
+                            onRetryAgent: handleRetryProjectAgent,
                             onToggleContext: handleToggleContextPanel,
                             onToggleImport: handleToggleImportPanel,
                         }}
