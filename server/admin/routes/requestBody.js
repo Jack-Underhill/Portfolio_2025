@@ -53,6 +53,12 @@ export function applyMultipartFiles(state, form, mappings) {
   return state;
 }
 
+export function getMultipartFiles(form, names) {
+  if (!form) return [];
+
+  return names.flatMap((name) => form.getAll(name).filter(isUploadedFileLike));
+}
+
 async function parseJsonRequest(req) {
   assertContentLength(req, JSON_BODY_LIMIT_BYTES, 'Admin JSON request body');
   const text = await readRequestText(req, JSON_BODY_LIMIT_BYTES);
@@ -117,12 +123,17 @@ function firstUploadedFile(form, names) {
 }
 
 function isUploadedFile(value) {
+  return isUploadedFileLike(value) && value.size > 0;
+}
+
+function isUploadedFileLike(value) {
   return (
     value &&
     typeof value === 'object' &&
     typeof value.arrayBuffer === 'function' &&
     typeof value.name === 'string' &&
-    value.size > 0
+    Number.isFinite(value.size) &&
+    value.size >= 0
   );
 }
 

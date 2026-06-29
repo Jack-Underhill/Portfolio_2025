@@ -61,7 +61,7 @@ describe('projects agent run route', () => {
     });
   });
 
-  it('requires application/json requests before invoking Codex', async () => {
+  it('requires JSON or multipart requests before invoking Codex', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const runAgent = vi.fn();
     const handler = createProjectsAgentRunHandler({ runAgent });
@@ -73,7 +73,224 @@ describe('projects agent run route', () => {
     expect(runAgent).not.toHaveBeenCalled();
     expect(res.statusCode).toBe(400);
     expect(res.json()).toEqual({
-      error: 'Project agent run requests must use application/json.',
+      error: 'Project agent run requests must use application/json or multipart/form-data.',
+    });
+
+    warn.mockRestore();
+  });
+
+  it('normalizes pasted source text from JSON requests before invoking Codex', async () => {
+    const runAgent = vi.fn(async (payload) => {
+      expect(payload).toEqual({
+        ...validPayload,
+        intent: 'review',
+        sourceBundle: {
+          hasSourceContext: true,
+          sources: [
+            expect.objectContaining({
+              id: 'source-1',
+              kind: 'pasted-text',
+              label: 'Pasted source material',
+              text: 'Launch notes and outcome metrics.',
+            }),
+          ],
+          manifest: [
+            expect.objectContaining({
+              id: 'source-1',
+              included: true,
+              label: 'Pasted source material',
+            }),
+          ],
+          warnings: [],
+        },
+      });
+
+      return {
+        patch: {},
+        notes: ['Reviewed against pasted source.'],
+        warnings: [],
+        appliedFields: [],
+        intent: 'review',
+        runPlan: 'review-with-source-context',
+        sourceManifest: [],
+        elapsedMs: 25,
+      };
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = jsonRequest({
+      ...validPayload,
+      intent: 'review',
+      sourceText: '  Launch notes and outcome metrics.  ',
+    });
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(runAgent).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('normalizes source files from multipart requests before invoking Codex', async () => {
+    const runAgent = vi.fn(async (payload) => {
+      expect(payload.sourceBundle).toEqual({
+        hasSourceContext: true,
+        sources: [
+          expect.objectContaining({
+            id: 'source-1',
+            kind: 'file',
+            label: 'report.md',
+            mediaType: 'text/markdown',
+            text: '# Report',
+          }),
+          expect.objectContaining({
+            id: 'source-2',
+            kind: 'file',
+            label: 'metrics.csv',
+            mediaType: 'text/csv',
+            text: 'name,value\nwins,3',
+          }),
+        ],
+        manifest: [
+          expect.objectContaining({
+            id: 'source-1',
+            label: 'report.md',
+            included: true,
+          }),
+          expect.objectContaining({
+            id: 'source-2',
+            label: 'metrics.csv',
+            included: true,
+          }),
+        ],
+        warnings: [],
+      });
+
+      return {
+        patch: { title: 'Revised title' },
+        notes: ['Updated the title.'],
+        warnings: [],
+        appliedFields: ['title'],
+        intent: 'revise',
+        runPlan: 'revise-with-source-context',
+        sourceManifest: [],
+        elapsedMs: 25,
+      };
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = multipartRequest(validPayload, [
+      ['sourceFiles', new Blob(['# Report'], { type: 'text/markdown' }), 'report.md'],
+      ['sourceFiles', new Blob(['name,value\nwins,3'], { type: 'text/csv' }), 'metrics.csv'],
+    ]);
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(runAgent).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('normalizes mixed pasted and file source from multipart requests', async () => {
+    const runAgent = vi.fn(async (payload) => {
+      expect(payload.sourceBundle.sources).toEqual([
+        expect.objectContaining({
+          id: 'source-1',
+          kind: 'pasted-text',
+          text: 'Owner source note.',
+        }),
+        expect.objectContaining({
+          id: 'source-2',
+          kind: 'file',
+          label: 'release.log',
+          text: 'Released v1.',
+        }),
+      ]);
+
+      return {
+        patch: { description: 'Revised card copy' },
+        notes: ['Updated the description.'],
+        warnings: [],
+        appliedFields: ['description'],
+        intent: 'revise',
+        runPlan: 'revise-with-source-context',
+        sourceManifest: [],
+        elapsedMs: 25,
+      };
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = multipartRequest({
+      ...validPayload,
+      sourceText: 'Owner source note.',
+    }, [
+      ['sourceFiles', new Blob(['Released v1.'], { type: 'text/plain' }), 'release.log'],
+    ]);
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(runAgent).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('passes unsupported source uploads as skipped source bundle warnings', async () => {
+    const runAgent = vi.fn(async (payload) => {
+      expect(payload).toEqual({
+        ...validPayload,
+        sourceBundle: {
+          hasSourceContext: false,
+          sources: [],
+          manifest: [
+            expect.objectContaining({
+              id: 'source-1',
+              kind: 'file',
+              label: 'screenshot.png',
+              included: false,
+              warnings: ['Unsupported source file type for "screenshot.png".'],
+            }),
+          ],
+          warnings: ['Skipped unsupported source file "screenshot.png".'],
+        },
+      });
+
+      return {
+        patch: {},
+        notes: ['No usable source was included.'],
+        warnings: ['Skipped unsupported source file "screenshot.png".'],
+        appliedFields: [],
+        intent: 'revise',
+        runPlan: 'revise-current-case-study',
+        sourceManifest: [],
+        elapsedMs: 25,
+      };
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = multipartRequest(validPayload, [
+      ['sourceFiles', new Blob(['not an image'], { type: 'image/png' }), 'screenshot.png'],
+    ]);
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(runAgent).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('returns concise 400 responses for multipart parse errors', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const runAgent = vi.fn();
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = Readable.from([Buffer.from('not multipart data')]);
+    req.headers = {
+      'content-type': 'multipart/form-data; boundary=broken',
+      'content-length': Buffer.byteLength('not multipart data'),
+    };
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(runAgent).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(400);
+    expect(res.json()).toEqual({
+      error: 'Admin multipart request could not be parsed',
     });
 
     warn.mockRestore();
@@ -263,6 +480,24 @@ function jsonRequest(payload, contentType = 'application/json') {
     'content-type': contentType,
     'content-length': Buffer.byteLength(body),
   };
+
+  return req;
+}
+
+function multipartRequest(payload, files = []) {
+  const form = new FormData();
+  form.set('payload', JSON.stringify(payload));
+
+  for (const [name, value, filename] of files) {
+    form.append(name, value, filename);
+  }
+
+  const request = new Request('http://localhost/admin-api/projects/agent/run', {
+    method: 'POST',
+    body: form,
+  });
+  const req = Readable.fromWeb(request.body);
+  req.headers = Object.fromEntries(request.headers.entries());
 
   return req;
 }

@@ -56,6 +56,82 @@ describe('admin API client', () => {
     );
   });
 
+  it('keeps pasted source-only project agent runs on the JSON path', async () => {
+    const responseBody = {
+      patch: {},
+      notes: ['Reviewed against source.'],
+      warnings: [],
+      appliedFields: [],
+      elapsedMs: 25,
+      sourceManifest: [],
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(runProjectAgent({
+      intent: 'review',
+      instructions: 'Check the draft against the notes.',
+      projectContext,
+      sourceText: 'Launch notes and metrics.',
+    })).resolves.toEqual(responseBody);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8787/admin-api/projects/agent/run',
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          intent: 'review',
+          instructions: 'Check the draft against the notes.',
+          projectContext,
+          sourceText: 'Launch notes and metrics.',
+        }),
+      },
+    );
+  });
+
+  it('posts project agent source files as multipart under the sourceFiles field', async () => {
+    const responseBody = {
+      patch: { description: 'Revised card copy' },
+      notes: ['Used attached source material.'],
+      warnings: [],
+      appliedFields: ['description'],
+      elapsedMs: 25,
+      sourceManifest: [],
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const sourceFiles = [
+      new File(['# Report'], 'report.md', { type: 'text/markdown' }),
+      new File(['name,value\nwins,3'], 'metrics.csv', { type: 'text/csv' }),
+    ];
+
+    await expect(runProjectAgent({
+      intent: 'revise',
+      instructions: 'Use the source files.',
+      projectContext,
+      sourceText: 'Owner source note.',
+      sourceFiles,
+    })).resolves.toEqual(responseBody);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [, options] = fetchMock.mock.calls[0];
+    expect(options.method).toBe('POST');
+    expect(options.headers).toBeUndefined();
+    expect(options.body).toBeInstanceOf(FormData);
+    expect(JSON.parse(options.body.get('payload'))).toEqual({
+      intent: 'revise',
+      instructions: 'Use the source files.',
+      projectContext,
+      sourceText: 'Owner source note.',
+    });
+    expect(options.body.getAll('sourceFiles')).toEqual(sourceFiles);
+  });
+
   it('surfaces concise admin route errors from failed project agent runs', async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
       error: 'Local Codex returned an invalid project patch.',

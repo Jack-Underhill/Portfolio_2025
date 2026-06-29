@@ -1,22 +1,43 @@
 import { getCodexRuntimeMetadata } from '../agent/codexRuntimeMetadata.js';
 import { ProjectAgentRunError, runProjectAgent } from '../agent/projectAgentRun.js';
-import { BadRequestError, assertPlainObject, parseAdminRequest } from './requestBody.js';
+import { createProjectAgentSourceBundle } from '../agent/sourceBundle.js';
+import {
+  BadRequestError,
+  assertPlainObject,
+  getMultipartFiles,
+  parseAdminRequest,
+} from './requestBody.js';
 import { sendJson, sendRouteError } from './responses.js';
 
-function hasJsonContentType(req) {
+function getContentType(req) {
   const value = req.headers?.['content-type'];
-  const contentType = Array.isArray(value) ? value.join(', ') : String(value || '');
-  return contentType.toLowerCase().includes('application/json');
+  return (Array.isArray(value) ? value.join(', ') : String(value || '')).toLowerCase();
 }
 
-function getProjectAgentRunPayload(body) {
+function hasProjectAgentRunContentType(req) {
+  const contentType = getContentType(req);
+  return contentType.includes('application/json') || contentType.includes('multipart/form-data');
+}
+
+async function getProjectAgentRunPayload(body, form) {
   assertPlainObject(body, 'Project agent run request body');
 
-  return {
+  const payload = {
     intent: body.intent,
     instructions: body.instructions,
     projectContext: body.projectContext,
   };
+  const sourceText = body.sourceText;
+  const sourceFiles = getMultipartFiles(form, ['sourceFiles']);
+
+  if ((typeof sourceText === 'string' && sourceText.trim()) || sourceFiles.length > 0) {
+    payload.sourceBundle = await createProjectAgentSourceBundle({
+      sourceText,
+      sourceFiles,
+    });
+  }
+
+  return payload;
 }
 
 function normalizeRunError(error) {
@@ -56,12 +77,14 @@ function getBrowserFacingRunMessage(error) {
 export function createProjectsAgentRunHandler({ runAgent = runProjectAgent } = {}) {
   return async function handleProjectsAgentRun(req, res) {
     try {
-      if (!hasJsonContentType(req)) {
-        throw new BadRequestError('Project agent run requests must use application/json.');
+      if (!hasProjectAgentRunContentType(req)) {
+        throw new BadRequestError(
+          'Project agent run requests must use application/json or multipart/form-data.',
+        );
       }
 
-      const { body } = await parseAdminRequest(req);
-      const payload = getProjectAgentRunPayload(body);
+      const { body, form } = await parseAdminRequest(req);
+      const payload = await getProjectAgentRunPayload(body, form);
       const result = await runAgent(payload);
 
       sendJson(res, 200, result);

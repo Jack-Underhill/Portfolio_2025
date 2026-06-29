@@ -52,11 +52,35 @@ export async function validateProjectDraft(state) {
   return postAdminPayload('/projects/validate', { projects: state });
 }
 
-export async function runProjectAgent({ intent, instructions, projectContext }) {
-  return postAdminPayload('/projects/agent/run', {
+export async function runProjectAgent({
+  intent,
+  instructions,
+  projectContext,
+  sourceText,
+  sourceFiles,
+}) {
+  const payload = {
     intent,
     instructions,
     projectContext,
+    sourceText,
+  };
+  const uploadFiles = Array.isArray(sourceFiles) ? sourceFiles.filter(isUploadFile) : [];
+
+  if (uploadFiles.length === 0) {
+    return postAdminPayload('/projects/agent/run', payload);
+  }
+
+  const form = new FormData();
+  form.set('payload', JSON.stringify(payload));
+
+  for (const file of uploadFiles) {
+    form.append('sourceFiles', file);
+  }
+
+  return requestJson('/projects/agent/run', {
+    method: 'POST',
+    body: form,
   });
 }
 
