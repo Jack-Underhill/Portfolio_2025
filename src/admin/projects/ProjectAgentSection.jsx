@@ -3,6 +3,7 @@ import { useState } from 'react';
 import ProjectDraftContextPanel from './ProjectDraftContextPanel';
 import ProjectDraftImportPanel from './ProjectDraftImportPanel';
 import ProjectAgentRunPanel from './ProjectAgentRunPanel';
+import ProjectAgentSourceInputs from './ProjectAgentSourceInputs';
 import TextAreaInput from '../forms/TextAreaInput';
 import { adminForm, adminUi } from '../../styles/recipes';
 
@@ -61,13 +62,29 @@ function ProjectAgentSection({
 }) {
   const [intent, setIntent] = useState(PROJECT_AGENT_INTENT_OPTIONS[0].value);
   const [instructions, setInstructions] = useState('');
+  const [sourceText, setSourceText] = useState('');
+  const [sourceFiles, setSourceFiles] = useState([]);
   const isRunning = agentRun?.status === 'running';
+  const isAgentInputDisabled = isSaveInFlight || isRunning;
   const hasInstructions = instructions.trim().length > 0;
-  const canSubmitRun = hasActiveProject && hasInstructions && !isSaveInFlight && !isRunning;
+  const hasSourceText = sourceText.trim().length > 0;
+  const hasSourceFiles = sourceFiles.length > 0;
+  const hasRunnableInput = hasInstructions || hasSourceText || hasSourceFiles;
+  const canSubmitRun = hasActiveProject && hasRunnableInput && !isSaveInFlight && !isRunning;
   const runIntentId = `${headingId}-intent`;
   const instructionsId = `${headingId}-instructions`;
+  const sourceTextId = `${headingId}-source-material`;
+  const sourceFilesId = `${headingId}-source-files`;
   const runtimeModelLabel = getRuntimeModelLabel(runtimeMetadata);
   const runtimeModelTitle = getRuntimeModelTitle(runtimeMetadata);
+
+  const handleAddSourceFiles = (files) => {
+    setSourceFiles((currentFiles) => [...currentFiles, ...files]);
+  };
+
+  const handleRemoveSourceFile = (fileIndex) => {
+    setSourceFiles((currentFiles) => currentFiles.filter((_, index) => index !== fileIndex));
+  };
 
   const handleRunAgent = () => {
     if (!canSubmitRun) return;
@@ -75,6 +92,8 @@ function ProjectAgentSection({
     onRunAgent?.({
       intent,
       instructions,
+      sourceText,
+      sourceFiles,
     });
   };
 
@@ -89,37 +108,34 @@ function ProjectAgentSection({
             value={instructions}
             onChange={setInstructions}
             minRows={3}
-            disabled={isSaveInFlight || isRunning}
+            disabled={isAgentInputDisabled}
+          />
+
+          <TextAreaInput
+            id={sourceTextId}
+            label="Source material"
+            value={sourceText}
+            onChange={setSourceText}
+            minRows={2}
+            disabled={isAgentInputDisabled}
+            placeholder="Paste notes, reports, metrics, or other evidence."
           />
 
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              disabled
-              aria-label="Attach source context to this Agent run (coming soon)"
-              title="Source attachments are not available yet"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full border border-admin-border bg-admin-control text-admin-text-muted opacity-70 disabled:cursor-not-allowed"
-            >
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 20 20"
-                className="size-4.5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth="1.75"
-              >
-                <path d="M10 5v10" />
-                <path d="M5 10h10" />
-              </svg>
-            </button>
+            <ProjectAgentSourceInputs
+              id={sourceFilesId}
+              sourceFiles={sourceFiles}
+              disabled={isAgentInputDisabled}
+              onAddFiles={handleAddSourceFiles}
+              onRemoveFile={handleRemoveSourceFile}
+            />
 
             <div className="relative min-w-[1rem] flex-1 sm:w-33 sm:flex-none">
               <select
                 id={runIntentId}
                 value={intent}
                 onChange={(event) => setIntent(event.target.value)}
-                disabled={isSaveInFlight || isRunning}
+                disabled={isAgentInputDisabled}
                 aria-label="Project agent intent"
                 title="Project agent intent"
                 className={`${adminForm.input} appearance-none pr-10`}

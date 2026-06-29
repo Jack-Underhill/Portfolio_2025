@@ -103,6 +103,18 @@ function getBridgeJson(bridgeResult) {
   return bridgeResult;
 }
 
+function getSourceDiagnosticContext(sourceBundle) {
+  const manifest = Array.isArray(sourceBundle?.manifest) ? sourceBundle.manifest : [];
+  const sourceCount = Array.isArray(sourceBundle?.sources) ? sourceBundle.sources.length : 0;
+
+  return {
+    hasSourceContext: sourceBundle?.hasSourceContext === true,
+    sourceCount,
+    sourceManifestCount: manifest.length,
+    sourceWarningCount: Array.isArray(sourceBundle?.warnings) ? sourceBundle.warnings.length : 0,
+  };
+}
+
 export async function runProjectAgent({
   intent,
   instructions,
@@ -116,6 +128,7 @@ export async function runProjectAgent({
   args = createProjectAgentCodexArgs(cwd),
 } = {}) {
   const startedAt = performance.now();
+  let diagnosticContext = {};
 
   try {
     const input = validateProjectAgentRunInput({
@@ -130,6 +143,11 @@ export async function runProjectAgent({
       projectContext: input.projectContext,
       hasSourceContext: input.sourceBundle?.hasSourceContext === true,
     });
+    diagnosticContext = {
+      intent: ownerIntent.id,
+      runPlan: runPlan.id,
+      ...getSourceDiagnosticContext(input.sourceBundle),
+    };
 
     const prompt = buildProjectAgentPrompt({
       ...input,
@@ -161,6 +179,11 @@ export async function runProjectAgent({
         : Math.round(performance.now() - startedAt),
     };
   } catch (error) {
-    throw normalizeRunError(error);
+    const normalizedError = normalizeRunError(error);
+    normalizedError.details = {
+      ...normalizedError.details,
+      ...diagnosticContext,
+    };
+    throw normalizedError;
   }
 }

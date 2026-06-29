@@ -48,6 +48,7 @@ function normalizeRunError(error) {
   if (error.type === 'invalid_input' || error.type === 'invalid_intent') {
     const badRequest = new BadRequestError(error.message);
     badRequest.type = error.type;
+    badRequest.clientDetails = createClientRunErrorDetails(error, badRequest.message);
     return badRequest;
   }
 
@@ -55,7 +56,33 @@ function normalizeRunError(error) {
   routeError.statusCode = 500;
   routeError.type = error.type;
   routeError.details = error.details;
+  routeError.clientDetails = createClientRunErrorDetails(error, routeError.message);
   return routeError;
+}
+
+function createClientRunErrorDetails(error, browserMessage) {
+  const details = error?.details && typeof error.details === 'object' ? error.details : {};
+  const clientDetails = {
+    type: error.type || 'unknown_failure',
+    message: error.message || browserMessage,
+  };
+
+  for (const key of [
+    'runPlan',
+    'intent',
+    'hasSourceContext',
+    'sourceCount',
+    'sourceManifestCount',
+    'sourceWarningCount',
+    'bridgeType',
+    'elapsedMs',
+  ]) {
+    if (details[key] != null) {
+      clientDetails[key] = details[key];
+    }
+  }
+
+  return clientDetails;
 }
 
 function getBrowserFacingRunMessage(error) {

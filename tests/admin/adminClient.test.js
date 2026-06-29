@@ -135,6 +135,12 @@ describe('admin API client', () => {
   it('surfaces concise admin route errors from failed project agent runs', async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
       error: 'Local Codex returned an invalid project patch.',
+      details: {
+        type: 'invalid_patch',
+        message: 'features must be an array.',
+        runPlan: 'revise-with-source-context',
+        sourceCount: 1,
+      },
     }), {
       status: 500,
     }));
@@ -144,7 +150,15 @@ describe('admin API client', () => {
       intent: 'revise',
       instructions: 'Update features.',
       projectContext,
-    })).rejects.toThrow('Local Codex returned an invalid project patch.');
+    })).rejects.toMatchObject({
+      message: 'Local Codex returned an invalid project patch.',
+      details: {
+        type: 'invalid_patch',
+        message: 'features must be an array.',
+        runPlan: 'revise-with-source-context',
+        sourceCount: 1,
+      },
+    });
   });
 
   it('loads project agent runtime metadata from the local admin route', async () => {

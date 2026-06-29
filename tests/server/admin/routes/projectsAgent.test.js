@@ -301,7 +301,7 @@ describe('projects agent run route', () => {
     const runAgent = vi.fn(async () => {
       throw new ProjectAgentRunError(
         'invalid_input',
-        'Project agent instructions are required.',
+        'Project agent instructions or source material are required.',
       );
     });
     const handler = createProjectsAgentRunHandler({ runAgent });
@@ -312,7 +312,11 @@ describe('projects agent run route', () => {
 
     expect(res.statusCode).toBe(400);
     expect(res.json()).toEqual({
-      error: 'Project agent instructions are required.',
+      error: 'Project agent instructions or source material are required.',
+      details: {
+        type: 'invalid_input',
+        message: 'Project agent instructions or source material are required.',
+      },
     });
 
     warn.mockRestore();
@@ -335,6 +339,10 @@ describe('projects agent run route', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json()).toEqual({
       error: 'Unsupported project agent intent. Supported intents: revise, review.',
+      details: {
+        type: 'invalid_intent',
+        message: 'Unsupported project agent intent. Supported intents: revise, review.',
+      },
     });
 
     warn.mockRestore();
@@ -346,7 +354,14 @@ describe('projects agent run route', () => {
       throw new ProjectAgentRunError(
         'invalid_patch',
         'features must be an array.',
-        { stdout: 'raw output should not be returned' },
+        {
+          runPlan: 'revise-with-source-context',
+          intent: 'revise',
+          hasSourceContext: true,
+          sourceCount: 1,
+          sourceWarningCount: 0,
+          stdout: 'raw output should not be returned',
+        },
       );
     });
     const handler = createProjectsAgentRunHandler({ runAgent });
@@ -358,7 +373,17 @@ describe('projects agent run route', () => {
     expect(res.statusCode).toBe(500);
     expect(res.json()).toEqual({
       error: 'Local Codex returned an invalid project patch.',
+      details: {
+        type: 'invalid_patch',
+        message: 'features must be an array.',
+        runPlan: 'revise-with-source-context',
+        intent: 'revise',
+        hasSourceContext: true,
+        sourceCount: 1,
+        sourceWarningCount: 0,
+      },
     });
+    expect(JSON.stringify(res.json())).not.toContain('raw output should not be returned');
 
     error.mockRestore();
   });
@@ -381,6 +406,10 @@ describe('projects agent run route', () => {
     expect(res.statusCode).toBe(500);
     expect(res.json()).toEqual({
       error: 'Local Codex returned an invalid response shape.',
+      details: {
+        type: 'malformed_wrapper',
+        message: 'Project agent output patch must be an object.',
+      },
     });
 
     error.mockRestore();
@@ -393,6 +422,8 @@ describe('projects agent run route', () => {
         'bridge_failure',
         'Local Codex run failed: Command timed out after 120000 ms.',
         {
+          bridgeType: 'timeout',
+          elapsedMs: 120000,
           stderr: 'raw stderr should not be returned',
         },
       );
@@ -406,7 +437,14 @@ describe('projects agent run route', () => {
     expect(res.statusCode).toBe(500);
     expect(res.json()).toEqual({
       error: 'Local Codex run failed: Command timed out after 120000 ms.',
+      details: {
+        type: 'bridge_failure',
+        message: 'Local Codex run failed: Command timed out after 120000 ms.',
+        bridgeType: 'timeout',
+        elapsedMs: 120000,
+      },
     });
+    expect(JSON.stringify(res.json())).not.toContain('raw stderr should not be returned');
 
     error.mockRestore();
   });

@@ -219,14 +219,19 @@ export function validateProjectAgentRunInput(input) {
   }
 
   const instructions = typeof input.instructions === 'string' ? input.instructions.trim() : '';
-  if (!instructions) {
-    throw new ProjectAgentSchemaError('invalid_input', 'Project agent instructions are required.');
-  }
+  const sourceBundle = normalizeProjectAgentSourceBundle(input.sourceBundle);
 
   if (instructions.length > PROJECT_AGENT_INSTRUCTIONS_MAX_LENGTH) {
     throw new ProjectAgentSchemaError(
       'invalid_input',
       `Project agent instructions must be ${PROJECT_AGENT_INSTRUCTIONS_MAX_LENGTH} characters or fewer.`,
+    );
+  }
+
+  if (!instructions && sourceBundle?.hasSourceContext !== true) {
+    throw new ProjectAgentSchemaError(
+      'invalid_input',
+      'Project agent instructions or source material are required.',
     );
   }
 
@@ -256,7 +261,7 @@ export function validateProjectAgentRunInput(input) {
     intent,
     instructions,
     projectContext: input.projectContext,
-    sourceBundle: normalizeProjectAgentSourceBundle(input.sourceBundle),
+    sourceBundle,
   };
 }
 

@@ -186,6 +186,35 @@ describe('project agent prompt helpers', () => {
     })).toEqual(expect.objectContaining({ id: 'review-with-source-context' }));
   });
 
+  it('keeps empty revise drafts on the generate plan even with source context', () => {
+    expect(createProjectAgentRunPlan({
+      intent: 'revise',
+      hasSourceContext: true,
+      projectContext: {
+        draft: {
+          title: '',
+          description: '',
+          overview: '',
+          role: '',
+          features: [],
+          metrics: [],
+          challenges: [],
+          improvements: [],
+          techStack: {
+            frontend: [],
+            backend: [],
+            data: [],
+            infrastructure: [],
+          },
+          projectType: 'personal',
+          labels: [],
+          published: true,
+          featuredRank: '',
+        },
+      },
+    })).toEqual(expect.objectContaining({ id: 'generate-new-case-study' }));
+  });
+
   it('builds a revise prompt with schema, guardrails, and current draft context', () => {
     const prompt = buildProjectAgentPrompt({
       intent: 'revise',
@@ -200,6 +229,13 @@ describe('project agent prompt helpers', () => {
     expect(prompt).toContain('"title": "Current title"');
     expect(prompt).toContain('{ "patch": {}, "notes": [], "warnings": [] }');
     expect(prompt).toContain('title, description, overview, role');
+    expect(prompt).toContain('Supported patch field shapes:');
+    expect(prompt).toContain('challenges must be an array of objects');
+    expect(prompt).toContain('Never return challenges as strings or arrays of strings.');
+    expect(prompt).toContain('"challenge": "Specific constraint or problem"');
+    expect(prompt).toContain('"solution": "Specific implementation or decision"');
+    expect(prompt).toContain('"result": "Specific outcome or lesson"');
+    expect(prompt).toContain('"techStack": {');
     expect(prompt).toContain('Protected fields that must never be changed or returned:');
     expect(prompt).toContain('id, permalink, sortOrder');
     expect(prompt).toContain('Use fewer strong bullets');
@@ -295,5 +331,42 @@ describe('project agent prompt helpers', () => {
     expect(prompt).toContain('Derived run plan: generate-new-case-study');
     expect(prompt).toContain('Treat the active draft as a fresh working draft.');
     expect(prompt).toContain('Do not invent URLs, results, metrics, or facts not supported by instructions or context.');
+  });
+
+  it('builds a generate prompt with source evidence for an empty source-backed revise draft', () => {
+    const prompt = buildProjectAgentPrompt({
+      intent: 'revise',
+      instructions: 'Draft a new case study from the attached report.',
+      sourceBundle,
+      projectContext: {
+        projectContext: {},
+        draft: {
+          title: '',
+          description: '',
+          overview: '',
+          role: '',
+          features: [],
+          metrics: [],
+          challenges: [],
+          improvements: [],
+          techStack: {
+            frontend: [],
+            backend: [],
+            data: [],
+            infrastructure: [],
+          },
+          projectType: 'personal',
+          labels: [],
+          published: true,
+          featuredRank: '',
+        },
+      },
+    });
+
+    expect(prompt).toContain('Derived run plan: generate-new-case-study');
+    expect(prompt).toContain('Treat the active draft as a fresh working draft.');
+    expect(prompt).toContain('Source context guardrails:');
+    expect(prompt).toContain('Source evidence excerpts:');
+    expect(prompt).toContain('Metric: support handoff time fell by 30%.');
   });
 });

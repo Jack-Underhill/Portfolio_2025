@@ -35,6 +35,46 @@ function getFailureMessage(error) {
   return firstLine;
 }
 
+function formatFailureDetails(details) {
+  if (!details || typeof details !== 'object') return '';
+
+  const parts = [];
+  const type = typeof details.type === 'string' ? details.type.trim() : '';
+  const message = typeof details.message === 'string' ? details.message.trim() : '';
+
+  if (type && message) {
+    parts.push(`${type}: ${message}`);
+  } else if (type) {
+    parts.push(`Type: ${type}`);
+  } else if (message) {
+    parts.push(message);
+  }
+
+  if (typeof details.runPlan === 'string' && details.runPlan.trim()) {
+    parts.push(`Run plan: ${details.runPlan.trim()}`);
+  }
+
+  if (typeof details.bridgeType === 'string' && details.bridgeType.trim()) {
+    parts.push(`Bridge: ${details.bridgeType.trim()}`);
+  }
+
+  if (Number.isFinite(details.sourceCount)) {
+    parts.push(`Source entries: ${details.sourceCount}`);
+  } else if (details.hasSourceContext === true) {
+    parts.push('Source context: included');
+  } else if (details.hasSourceContext === false) {
+    parts.push('Source context: none');
+  }
+
+  if (Number.isFinite(details.sourceWarningCount) && details.sourceWarningCount > 0) {
+    parts.push(`Source warnings: ${details.sourceWarningCount}`);
+  }
+
+  if (!parts.length) return '';
+
+  return parts.join('. ');
+}
+
 function getRunPlanSummary(agentRun) {
   if (agentRun?.intent === 'review' || agentRun?.runPlan === 'review-current-case-study') {
     return {
@@ -120,6 +160,7 @@ function ProjectAgentRunPanel({
   const shouldShowActions = Boolean(onRetry || onClearResult) && status !== 'idle';
   const elapsedSummary = formatElapsedMs(agentRun?.elapsedMs);
   const failureMessage = getFailureMessage(agentRun?.error);
+  const failureDetails = formatFailureDetails(agentRun?.errorDetails);
   const runPlanSummary = getRunPlanSummary(agentRun);
   const headingRef = useRef(null);
   const previousStatusRef = useRef(status);
@@ -193,6 +234,11 @@ function ProjectAgentRunPanel({
           <p className="text-admin-text-muted">
             {failureMessage}
           </p>
+          {failureDetails && (
+            <p className="text-xs leading-5 text-admin-text-subtle">
+              {failureDetails}
+            </p>
+          )}
         </div>
       )}
 

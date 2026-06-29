@@ -202,12 +202,12 @@ export function createProjectAgentRunPlan({
     );
   }
 
-  if (hasSourceContext) {
-    return getProjectAgentRunPlan('revise-with-source-context');
-  }
-
   if (isProjectAgentDraftEffectivelyEmpty(projectContext)) {
     return getProjectAgentRunPlan('generate-new-case-study');
+  }
+
+  if (hasSourceContext) {
+    return getProjectAgentRunPlan('revise-with-source-context');
   }
 
   return getProjectAgentRunPlan('revise-current-case-study');

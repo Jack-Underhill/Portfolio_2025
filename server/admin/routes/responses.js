@@ -7,6 +7,7 @@ export function sendRouteError(res, error) {
   const message = error?.message || 'Admin backend request failed';
   const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
   const logMessage = `[admin] ${statusCode} ${message}`;
+  const payload = { error: message };
 
   if (statusCode >= 500) {
     console.error(logMessage, error?.stack || error);
@@ -14,5 +15,13 @@ export function sendRouteError(res, error) {
     console.warn(logMessage);
   }
 
-  sendJson(res, statusCode, { error: message });
+  if (isPlainObject(error?.clientDetails)) {
+    payload.details = error.clientDetails;
+  }
+
+  sendJson(res, statusCode, payload);
+}
+
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }

@@ -180,6 +180,57 @@ describe('project agent run helpers', () => {
     expect(JSON.stringify(result.sourceManifest)).not.toContain(sourceBundle.sources[0].text);
   });
 
+  it('allows source-only revise runs when source context is available', async () => {
+    const result = await runProjectAgent({
+      intent: 'revise',
+      instructions: '   ',
+      projectContext: {
+        projectContext: {},
+        draft: {
+          title: '',
+          description: '',
+          overview: '',
+          role: '',
+          features: [],
+          metrics: [],
+          challenges: [],
+          improvements: [],
+          techStack: {
+            frontend: [],
+            backend: [],
+            data: [],
+            infrastructure: [],
+          },
+        },
+      },
+      sourceBundle,
+      codexBridge: async ({ prompt }) => {
+        expect(prompt).toContain('Derived run plan: generate-new-case-study');
+        expect(prompt).toContain('Owner instructions:\n(No owner instructions provided.)');
+        expect(prompt).toContain('Source says the project reduced support handoff time by 30%.');
+
+        return {
+          json: {
+            patch: {
+              title: 'Source-backed case study',
+            },
+            notes: [],
+            warnings: [],
+          },
+          elapsedMs: 14,
+        };
+      },
+    });
+
+    expect(result).toMatchObject({
+      patch: {
+        title: 'Source-backed case study',
+      },
+      runPlan: 'generate-new-case-study',
+      sourceManifest: sourceBundle.manifest,
+    });
+  });
+
   it('suppresses patch fields returned from source-backed review runs', async () => {
     const result = await runProjectAgent({
       intent: 'review',
@@ -336,7 +387,7 @@ describe('project agent run helpers', () => {
       codexBridge,
     })).rejects.toMatchObject({
       type: 'invalid_input',
-      message: 'Project agent instructions are required.',
+      message: 'Project agent instructions or source material are required.',
     });
 
     expect(calls).toBe(0);

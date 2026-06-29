@@ -2,6 +2,7 @@ export function createIdleProjectAgentRunState() {
   return {
     status: 'idle',
     error: '',
+    errorDetails: null,
     notes: [],
     warnings: [],
     appliedFields: [],

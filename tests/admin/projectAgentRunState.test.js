@@ -17,6 +17,7 @@ describe('project agent run state', () => {
     expect(createIdleProjectAgentRunState()).toEqual({
       status: 'idle',
       error: '',
+      errorDetails: null,
       notes: [],
       warnings: [],
       appliedFields: [],
@@ -29,6 +30,7 @@ describe('project agent run state', () => {
     expect(createRunningProjectAgentRunState()).toEqual({
       status: 'running',
       error: '',
+      errorDetails: null,
       notes: [],
       warnings: [],
       appliedFields: [],

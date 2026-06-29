@@ -342,14 +342,25 @@ function ProjectsSection({
         return applyAgentDraftToProject(activeProject, payloadText);
     };
 
-    const handleRunProjectAgent = async ({ intent, instructions }) => {
+    const handleRunProjectAgent = async ({
+        intent,
+        instructions,
+        sourceText,
+        sourceFiles,
+    }) => {
         if (!activeProject || isSaveInFlight || agentRunState.status === 'running') return;
 
         const runProjectId = activeProject.id;
         const requestId = agentRunRequestId.current + 1;
         const projectContext = createAgentProjectDraftReviewContext(activeProject);
+        const normalizedSourceFiles = Array.isArray(sourceFiles) ? sourceFiles : [];
         agentRunRequestId.current = requestId;
-        setLastAgentRunRequest({ intent, instructions });
+        setLastAgentRunRequest({
+            intent,
+            instructions,
+            sourceText,
+            sourceFiles: normalizedSourceFiles,
+        });
         setAgentRunState(createRunningProjectAgentRunState);
 
         try {
@@ -357,6 +368,8 @@ function ProjectsSection({
                 intent,
                 instructions,
                 projectContext,
+                sourceText,
+                sourceFiles: normalizedSourceFiles,
             });
             if (!isMountedRef.current) return;
             if (agentRunRequestId.current !== requestId) return;
@@ -376,6 +389,7 @@ function ProjectsSection({
                 changedFields: applyResult.changedFields,
                 intent: result.intent ?? intent,
                 runPlan: result.runPlan ?? null,
+                errorDetails: null,
                 elapsedMs: result.elapsedMs ?? null,
             });
         } catch (error) {
@@ -388,6 +402,7 @@ function ProjectsSection({
             setAgentRunState({
                 status: 'failed',
                 error: error?.message || 'Project agent run failed.',
+                errorDetails: error?.details ?? null,
                 notes: [],
                 warnings: [],
                 appliedFields: [],

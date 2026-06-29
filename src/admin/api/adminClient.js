@@ -146,7 +146,11 @@ async function requestJson(path, options = {}) {
   const data = await parseJsonResponse(response);
 
   if (!response.ok) {
-    throw new Error(data?.error || `Admin request failed with ${response.status}`);
+    const error = new Error(data?.error || `Admin request failed with ${response.status}`);
+    if (data?.details && typeof data.details === 'object') {
+      error.details = data.details;
+    }
+    throw error;
   }
 
   return data;
