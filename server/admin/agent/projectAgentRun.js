@@ -107,6 +107,7 @@ export async function runProjectAgent({
   intent,
   instructions,
   projectContext,
+  sourceBundle,
   codexBridge = runCodexExecJson,
   timeoutMs = getDefaultTimeoutMs(),
   cwd = repoRoot,
@@ -117,11 +118,17 @@ export async function runProjectAgent({
   const startedAt = performance.now();
 
   try {
-    const input = validateProjectAgentRunInput({ intent, instructions, projectContext });
+    const input = validateProjectAgentRunInput({
+      intent,
+      instructions,
+      projectContext,
+      sourceBundle,
+    });
     const ownerIntent = getProjectAgentIntent(input.intent);
     const runPlan = createProjectAgentRunPlan({
       intent: ownerIntent.id,
       projectContext: input.projectContext,
+      hasSourceContext: input.sourceBundle?.hasSourceContext === true,
     });
 
     const prompt = buildProjectAgentPrompt({
@@ -142,8 +149,13 @@ export async function runProjectAgent({
 
     return {
       ...output,
+      warnings: [
+        ...output.warnings,
+        ...(input.sourceBundle?.warnings ?? []),
+      ],
       intent: ownerIntent.id,
       runPlan: runPlan.id,
+      sourceManifest: input.sourceBundle?.manifest ?? [],
       elapsedMs: Number.isFinite(bridgeResult?.elapsedMs)
         ? bridgeResult.elapsedMs
         : Math.round(performance.now() - startedAt),

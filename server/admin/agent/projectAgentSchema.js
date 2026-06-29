@@ -9,6 +9,9 @@ export const PROJECT_AGENT_CONTEXT_MAX_LENGTH = 50000;
 const SUMMARY_ARRAY_MAX_ITEMS = 20;
 const SUMMARY_STRING_MAX_LENGTH = 500;
 const REVIEW_PATCH_IGNORED_WARNING = 'Ignored draft fields returned during review.';
+const SOURCE_BUNDLE_MAX_SOURCES = 10;
+const SOURCE_BUNDLE_WARNING_MAX_ITEMS = 25;
+const SOURCE_BUNDLE_WARNING_MAX_LENGTH = 500;
 
 export class ProjectAgentSchemaError extends Error {
   constructor(type, message, details = {}) {
@@ -65,6 +68,146 @@ function normalizeSummaryArray(value, field) {
     .filter(Boolean);
 }
 
+function normalizeSourceWarnings(value, field) {
+  if (value == null) return [];
+
+  if (!Array.isArray(value)) {
+    throw new ProjectAgentSchemaError('invalid_input', `${field} must be an array of strings.`);
+  }
+
+  if (value.length > SOURCE_BUNDLE_WARNING_MAX_ITEMS) {
+    throw new ProjectAgentSchemaError(
+      'invalid_input',
+      `${field} must contain ${SOURCE_BUNDLE_WARNING_MAX_ITEMS} or fewer items.`,
+    );
+  }
+
+  return value
+    .map((item, index) => {
+      if (typeof item !== 'string') {
+        throw new ProjectAgentSchemaError(
+          'invalid_input',
+          `${field} item ${index + 1} must be a string.`,
+        );
+      }
+
+      const text = item.trim();
+      return text.length > SOURCE_BUNDLE_WARNING_MAX_LENGTH
+        ? `${text.slice(0, SOURCE_BUNDLE_WARNING_MAX_LENGTH).trimEnd()}...`
+        : text;
+    })
+    .filter(Boolean);
+}
+
+function normalizeSourceManifestEntry(entry, index) {
+  if (!isPlainObject(entry)) {
+    throw new ProjectAgentSchemaError(
+      'invalid_input',
+      `sourceBundle manifest entry ${index + 1} must be an object.`,
+    );
+  }
+
+  const id = typeof entry.id === 'string' ? entry.id.trim() : '';
+  const kind = typeof entry.kind === 'string' ? entry.kind.trim() : '';
+  const label = typeof entry.label === 'string' ? entry.label.trim() : '';
+  const mediaType = typeof entry.mediaType === 'string' ? entry.mediaType.trim() : undefined;
+  const bytes = Number.isFinite(entry.bytes) && entry.bytes >= 0 ? entry.bytes : 0;
+
+  if (!id || !kind || !label) {
+    throw new ProjectAgentSchemaError(
+      'invalid_input',
+      `sourceBundle manifest entry ${index + 1} must include id, kind, and label.`,
+    );
+  }
+
+  const normalized = {
+    id,
+    kind,
+    label,
+    bytes,
+    included: entry.included === true,
+    warnings: normalizeSourceWarnings(
+      entry.warnings,
+      `sourceBundle manifest entry ${index + 1} warnings`,
+    ),
+  };
+
+  if (mediaType) {
+    normalized.mediaType = mediaType;
+  }
+
+  return normalized;
+}
+
+function normalizeSourceItem(source, index) {
+  if (!isPlainObject(source)) {
+    throw new ProjectAgentSchemaError(
+      'invalid_input',
+      `sourceBundle source ${index + 1} must be an object.`,
+    );
+  }
+
+  const id = typeof source.id === 'string' ? source.id.trim() : '';
+  const kind = typeof source.kind === 'string' ? source.kind.trim() : '';
+  const label = typeof source.label === 'string' ? source.label.trim() : '';
+  const mediaType = typeof source.mediaType === 'string' ? source.mediaType.trim() : 'text/plain';
+  const text = typeof source.text === 'string' ? source.text.trim() : '';
+  const bytes = Number.isFinite(source.bytes) && source.bytes >= 0 ? source.bytes : 0;
+
+  if (!id || !kind || !label || !text) {
+    throw new ProjectAgentSchemaError(
+      'invalid_input',
+      `sourceBundle source ${index + 1} must include id, kind, label, and text.`,
+    );
+  }
+
+  return {
+    id,
+    kind,
+    label,
+    mediaType,
+    bytes,
+    text,
+  };
+}
+
+function normalizeProjectAgentSourceBundle(sourceBundle) {
+  if (sourceBundle == null) return null;
+
+  if (!isPlainObject(sourceBundle)) {
+    throw new ProjectAgentSchemaError('invalid_input', 'sourceBundle must be an object.');
+  }
+
+  const rawSources = sourceBundle.sources == null ? [] : sourceBundle.sources;
+  const rawManifest = sourceBundle.manifest == null ? [] : sourceBundle.manifest;
+
+  if (!Array.isArray(rawSources)) {
+    throw new ProjectAgentSchemaError('invalid_input', 'sourceBundle sources must be an array.');
+  }
+
+  if (!Array.isArray(rawManifest)) {
+    throw new ProjectAgentSchemaError('invalid_input', 'sourceBundle manifest must be an array.');
+  }
+
+  if (rawSources.length > SOURCE_BUNDLE_MAX_SOURCES) {
+    throw new ProjectAgentSchemaError(
+      'invalid_input',
+      `sourceBundle sources must contain ${SOURCE_BUNDLE_MAX_SOURCES} or fewer items.`,
+    );
+  }
+
+  const sources = rawSources.map(normalizeSourceItem);
+  const manifest = rawManifest.map(normalizeSourceManifestEntry);
+  const warnings = normalizeSourceWarnings(sourceBundle.warnings, 'sourceBundle warnings');
+
+  return {
+    hasSourceContext: sources.length > 0,
+    sources,
+    manifest,
+    warnings,
+  };
+}
+
 export function validateProjectAgentRunInput(input) {
   if (!isPlainObject(input)) {
     throw new ProjectAgentSchemaError('invalid_input', 'Project agent input must be an object.');
@@ -113,6 +256,7 @@ export function validateProjectAgentRunInput(input) {
     intent,
     instructions,
     projectContext: input.projectContext,
+    sourceBundle: normalizeProjectAgentSourceBundle(input.sourceBundle),
   };
 }
 

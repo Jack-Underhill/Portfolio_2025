@@ -5,6 +5,7 @@ export const PROJECT_AGENT_RUN_PLAN_IDS = Object.freeze([
   'revise-current-case-study',
   'revise-with-source-context',
   'review-current-case-study',
+  'review-with-source-context',
 ]);
 
 const PROJECT_AGENT_INTENTS = Object.freeze({
@@ -64,6 +65,18 @@ const PROJECT_AGENT_RUN_PLANS = Object.freeze({
       'Analyze only and return an empty patch.',
       'Put findings, missing evidence, contradictions, bloat, stale content, and next actions in notes and warnings.',
       'Do not rewrite fields, even when issues are found.',
+    ]),
+  }),
+  'review-with-source-context': Object.freeze({
+    id: 'review-with-source-context',
+    intent: 'review',
+    label: 'Review with source context',
+    summary: 'Review the current draft against supplied source context without editing it.',
+    responsibilities: Object.freeze([
+      'Analyze only and return an empty patch.',
+      'Use source context as evidence when checking draft accuracy, gaps, and contradictions.',
+      'Put source-backed findings, missing evidence, contradictions, and next actions in notes and warnings.',
+      'Do not rewrite fields, even when source evidence supports a change.',
     ]),
   }),
 });
@@ -184,7 +197,9 @@ export function createProjectAgentRunPlan({
   const resolvedIntent = getProjectAgentIntent(intent);
 
   if (resolvedIntent.id === 'review') {
-    return getProjectAgentRunPlan('review-current-case-study');
+    return getProjectAgentRunPlan(
+      hasSourceContext ? 'review-with-source-context' : 'review-current-case-study',
+    );
   }
 
   if (hasSourceContext) {
