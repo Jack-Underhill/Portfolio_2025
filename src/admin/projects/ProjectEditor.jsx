@@ -154,6 +154,7 @@ function ProjectEditor({ project, agentDraft, onSectionChange, onRemove, onSecti
             isContextOpen={agentDraft.isContextOpen}
             isImportOpen={agentDraft.isImportOpen}
             isSaveInFlight={agentDraft.isSaveInFlight}
+            runtimeMetadata={agentDraft.runtimeMetadata}
             canClearResult={agentDraft.canClearResult}
             canRetry={agentDraft.canRetry}
             onApplyDraft={agentDraft.onApplyDraft}

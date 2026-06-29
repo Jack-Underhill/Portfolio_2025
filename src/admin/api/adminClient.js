@@ -60,6 +60,10 @@ export async function runProjectAgent({ intent, instructions, projectContext }) 
   });
 }
 
+export async function loadProjectAgentRuntime() {
+  return getJson('/projects/agent/runtime');
+}
+
 export async function loadContact() {
   return getJson('/contact');
 }

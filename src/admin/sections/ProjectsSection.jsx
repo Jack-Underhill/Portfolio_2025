@@ -17,7 +17,11 @@ import {
 import CardSelector from '../navigation/CardSelector';
 import AdminSectionToolbar from '../shell/AdminSectionToolbar';
 
-import { runProjectAgent, validateProjectDraft } from '../api/adminClient';
+import {
+    loadProjectAgentRuntime,
+    runProjectAgent,
+    validateProjectDraft,
+} from '../api/adminClient';
 import {
     applyAgentProjectDraftPatch,
     createAgentProjectDraftReviewContext,
@@ -29,6 +33,14 @@ import { mapProjectDraftToPreviewProject } from '../../domain/projects/preview';
 
 const PROJECT_DRAFT_IMPORT_PANEL_ID = 'project-agent-draft-import-panel';
 const PROJECT_DRAFT_CONTEXT_PANEL_ID = 'project-agent-draft-context-panel';
+const DEFAULT_PROJECT_AGENT_RUNTIME_METADATA = Object.freeze({
+    model: null,
+    modelReasoningEffort: null,
+    modelLabel: 'Codex default',
+    modelSource: 'default',
+    modelSourceLabel: 'Codex built-in default',
+    isModelExplicit: false,
+});
 
 function ProjectsSection({
     state,
@@ -51,6 +63,9 @@ function ProjectsSection({
     const [validationState, setValidationState] = useState(null);
     const [isValidating, setIsValidating] = useState(false);
     const [agentRunState, setAgentRunState] = useState(createIdleProjectAgentRunState);
+    const [agentRuntimeMetadata, setAgentRuntimeMetadata] = useState(
+        DEFAULT_PROJECT_AGENT_RUNTIME_METADATA,
+    );
     const [lastAgentRunRequest, setLastAgentRunRequest] = useState(null);
     const stateRef = useRef(state);
     const activeProjectRef = useRef(null);
@@ -63,6 +78,29 @@ function ProjectsSection({
 
         return () => {
             isMountedRef.current = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        let isCurrent = true;
+
+        async function loadRuntimeMetadata() {
+            try {
+                const metadata = await loadProjectAgentRuntime();
+                if (!isCurrent || !isMountedRef.current) return;
+
+                setAgentRuntimeMetadata(metadata ?? DEFAULT_PROJECT_AGENT_RUNTIME_METADATA);
+            } catch {
+                if (!isCurrent || !isMountedRef.current) return;
+
+                setAgentRuntimeMetadata(DEFAULT_PROJECT_AGENT_RUNTIME_METADATA);
+            }
+        }
+
+        loadRuntimeMetadata();
+
+        return () => {
+            isCurrent = false;
         };
     }, []);
 
@@ -435,6 +473,7 @@ function ProjectsSection({
                             isContextOpen: isContextPanelOpen,
                             isImportOpen: isImportPanelOpen,
                             isSaveInFlight,
+                            runtimeMetadata: agentRuntimeMetadata,
                             ...deriveProjectAgentRunControls({
                                 activeProject,
                                 agentRun: agentRunState,

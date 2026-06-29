@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { runProjectAgent } from '../../src/admin/api/adminClient.js';
+import {
+  loadProjectAgentRuntime,
+  runProjectAgent,
+} from '../../src/admin/api/adminClient.js';
 
 const projectContext = {
   projectContext: {
@@ -66,5 +69,41 @@ describe('admin API client', () => {
       instructions: 'Update features.',
       projectContext,
     })).rejects.toThrow('Local Codex returned an invalid project patch.');
+  });
+
+  it('loads project agent runtime metadata from the local admin route', async () => {
+    const responseBody = {
+      model: 'gpt-5.5',
+      modelReasoningEffort: 'high',
+      modelLabel: 'gpt-5.5',
+      modelSource: 'user-config',
+      modelSourceLabel: 'Codex user config',
+      isModelExplicit: true,
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(loadProjectAgentRuntime()).resolves.toEqual(responseBody);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8787/admin-api/projects/agent/runtime',
+      {},
+    );
+  });
+
+  it('surfaces concise admin route errors from failed runtime metadata loads', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      error: 'Project agent runtime metadata could not be loaded.',
+    }), {
+      status: 500,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(loadProjectAgentRuntime()).rejects.toThrow(
+      'Project agent runtime metadata could not be loaded.',
+    );
   });
 });

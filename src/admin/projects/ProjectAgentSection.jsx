@@ -18,6 +18,26 @@ const PROJECT_AGENT_INTENT_OPTIONS = Object.freeze([
   },
 ]);
 
+function getRuntimeModelLabel(runtimeMetadata) {
+  const modelLabel = runtimeMetadata?.modelLabel || 'Codex default';
+  const reasoningEffort = runtimeMetadata?.modelReasoningEffort?.trim();
+
+  if (!runtimeMetadata?.isModelExplicit || !reasoningEffort) {
+    return modelLabel;
+  }
+
+  return `${modelLabel}-${reasoningEffort}`;
+}
+
+function getRuntimeModelTitle(runtimeMetadata) {
+  const source = runtimeMetadata?.modelSourceLabel || 'Codex built-in default';
+  const reasoning = runtimeMetadata?.modelReasoningEffort
+    ? ` Reasoning: ${runtimeMetadata.modelReasoningEffort}.`
+    : '';
+
+  return `${source}.${reasoning}`;
+}
+
 function ProjectAgentSection({
   hasActiveProject,
   contextPanelId,
@@ -28,6 +48,7 @@ function ProjectAgentSection({
   isContextOpen,
   isImportOpen,
   isSaveInFlight = false,
+  runtimeMetadata,
   canClearResult = false,
   canRetry = false,
   onApplyDraft,
@@ -46,6 +67,8 @@ function ProjectAgentSection({
   const canSubmitRun = hasActiveProject && hasInstructions && !isSaveInFlight && !isRunning;
   const runIntentId = `${headingId}-intent`;
   const instructionsId = `${headingId}-instructions`;
+  const runtimeModelLabel = getRuntimeModelLabel(runtimeMetadata);
+  const runtimeModelTitle = getRuntimeModelTitle(runtimeMetadata);
 
   const handleRunAgent = () => {
     if (!canSubmitRun) return;
@@ -99,6 +122,12 @@ function ProjectAgentSection({
           >
             {isRunning ? 'Running Codex...' : 'Run Codex'}
           </button>
+          <p
+            className="text-xs text-admin-text-muted"
+            title={runtimeModelTitle}
+          >
+            model: {runtimeModelLabel}
+          </p>
 
           <ProjectAgentRunPanel
             agentRun={agentRun}
