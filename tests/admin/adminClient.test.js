@@ -94,6 +94,28 @@ describe('admin API client', () => {
     );
   });
 
+  it('loads fallback project agent runtime metadata as a successful response', async () => {
+    const responseBody = {
+      model: null,
+      modelReasoningEffort: null,
+      modelLabel: 'Codex default',
+      modelSource: 'default',
+      modelSourceLabel: 'Codex built-in default',
+      isModelExplicit: false,
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(loadProjectAgentRuntime()).resolves.toEqual(responseBody);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8787/admin-api/projects/agent/runtime',
+      {},
+    );
+  });
+
   it('surfaces concise admin route errors from failed runtime metadata loads', async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
       error: 'Project agent runtime metadata could not be loaded.',

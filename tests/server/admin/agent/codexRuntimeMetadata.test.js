@@ -121,6 +121,24 @@ describe('Codex runtime metadata', () => {
     }).modelLabel).toBe('Codex default');
   });
 
+  it('returns Codex default metadata when config cannot be read', () => {
+    expect(getCodexRuntimeMetadata({
+      env: {},
+      homeDir: '/home/owner',
+      existsSync: () => true,
+      readFileSync: () => {
+        throw new Error('permission denied');
+      },
+    })).toEqual({
+      model: null,
+      modelReasoningEffort: null,
+      modelLabel: 'Codex default',
+      modelSource: 'default',
+      modelSourceLabel: 'Codex built-in default',
+      isModelExplicit: false,
+    });
+  });
+
   it('ignores comments and parses supported top-level string assignments', () => {
     expect(parseCodexRuntimeConfig(`
       # Codex settings

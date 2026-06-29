@@ -141,7 +141,7 @@ Use `competition` for hackathons, game jams, and similar limited-time competitiv
 
 ## Existing Project Review Workflow
 
-Ask for or use current project draft context before revising an existing case study. In the admin UI, prefer the Projects `Agent` subsection `Run Codex` action for simple current-draft work with freeform instructions: choose `Revise draft` when Codex should edit the unsaved draft, or `Review only` when Codex should analyze without editing. Use `Copy draft` plus a manual Codex session when source-heavy review needs more context than the in-admin instructions field can comfortably carry, or when the local Codex route is unavailable.
+Ask for or use current project draft context before revising an existing case study. In the admin UI, prefer the Projects `Agent` subsection `Run Agent` action for simple current-draft work with freeform instructions: choose `Revise draft` when the local agent should edit the unsaved draft, or `Review only` when it should analyze without editing. Use `Copy draft` plus a manual Codex session when source-heavy review needs more context than the in-admin instructions field can comfortably carry, or when the local Codex route is unavailable.
 
 Review current project context shaped like this. Treat `projectContext` as read-only identification and `draft` as supported content fields to compare, not as an import payload:
 

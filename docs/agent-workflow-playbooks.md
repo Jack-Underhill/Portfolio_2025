@@ -166,11 +166,11 @@ Do:
 - Classify the task before editing: content-only, admin UI, schema, public rendering, routing, or validation.
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
 - For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
-- For simple current-draft work, use the Projects `Agent` subsection `Run Codex` control with the active draft context, an explicit owner intent, and freeform owner instructions. `Revise draft` is the only editing intent: a successful revise run applies the returned patch to the unsaved local draft through `src/domain/projects/agentDraft.js` and shows a review surface with changed fields, applied fields, notes, warnings, and elapsed time when available. `Review only` analyzes without editing; the server returns no patch fields to the browser and uses notes/warnings for findings.
-- Use `Retry` when the last submitted intent and instructions should be rerun against the current active draft. Retry does not rewind to the pre-run draft; it follows the same current-draft reprompt workflow as another Run Codex submission.
+- For simple current-draft work, use the Projects `Agent` subsection `Run Agent` control with the active draft context, an explicit owner intent, and freeform owner instructions. `Revise draft` is the only editing intent: a successful revise run applies the returned patch to the unsaved local draft through `src/domain/projects/agentDraft.js` and shows a review surface with changed fields, applied fields, notes, warnings, and elapsed time when available. `Review only` analyzes without editing; the server returns no patch fields to the browser and uses notes/warnings for findings.
+- Use `Retry` when the last submitted intent and instructions should be rerun against the current active draft. Retry does not rewind to the pre-run draft; it follows the same current-draft reprompt workflow as another Run Agent submission.
 - Use `Clear result` only to hide the visible run summary. It does not revert any draft edits and does not clear the instructions textarea.
 - Keep `Copy draft` and `Import draft` available as fallbacks for manual Codex sessions, source-heavy reviews, or cases where the local Codex CLI is unavailable.
-- After either an editing `Run Codex` intent or `Import draft`, run `Validate Projects`, open `Preview Case Study`, edit if needed, and save only after review. For `Review only` runs, inspect notes/warnings first; any draft edits still need a separate revise/import/manual edit path before validation and save.
+- After either an editing `Run Agent` intent or `Import draft`, run `Validate Projects`, open `Preview Case Study`, edit if needed, and save only after review. For `Review only` runs, inspect notes/warnings first; any draft edits still need a separate revise/import/manual edit path before validation and save.
 - For existing project revisions, ask the user for the admin Projects `Agent` subsection current-context output and follow [Existing Project Review Workflow](./project-editor-agent/case-study-draft-guidelines.md#existing-project-review-workflow) before comparing current content against new source material.
 - Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
 - Preserve route-backed project opens through the current project routing helpers.
@@ -228,7 +228,7 @@ Agent-assisted draft payloads:
 - Leave optional action URLs as empty strings when there is no public link; do not invent links.
 - Do not use em dashes in drafted case-study copy. Use commas, parentheses, colons, semicolons, or shorter sentences instead.
 - Do not include identity, routing, media, upload, or persistence fields such as `id`, `permalink`, `sortOrder`, `imageUrl`, `videoUrl`, `architectureImageUrl`, file objects, or `techTags`.
-- Tell the user to use `Run Codex` for in-admin current-draft revisions when the needed source context fits the instructions field. For manual sessions, paste the JSON into the admin Projects `Agent` subsection `Import draft` panel. In both flows, run `Validate Projects`, open `Preview Case Study`, and save only after review.
+- Tell the user to use `Run Agent` for in-admin current-draft revisions when the needed source context fits the instructions field. For manual sessions, paste the JSON into the admin Projects `Agent` subsection `Import draft` panel. In both flows, run `Validate Projects`, open `Preview Case Study`, and save only after review.
 
 Do not:
 
