@@ -7,7 +7,7 @@ Use this directory for privileged admin reads and writes that require the Supaba
 ## Scope
 
 - Start the local admin HTTP server on loopback only.
-- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Skills, Credentials, Projects, project draft validation, `POST /admin-api/projects/agent/run`, and save-all flows.
+- Serve `/admin-api/*` endpoints for health, bootstrap, About, Contact, Skills, Credentials, Projects, project draft validation, Projects agent run/runtime metadata, and save-all flows.
 - Read and write Supabase tables with the service-role client.
 - Validate admin payloads and uploaded files before persistence.
 - Upload admin-managed media into the `portfolio-assets` bucket and return public URLs.
@@ -16,7 +16,7 @@ Keep this directory free of browser code, React components, public anon-key read
 
 ## Folders
 
-- `agent/`: owns the local-only Codex bridge, controlled terminal harness, Projects agent intent/run-plan helpers, prompt/run helpers, and strict agent output validation.
+- `agent/`: owns the local-only Codex bridge, controlled terminal harness, Projects agent intent/run-plan helpers, prompt/run helpers, browser-safe Codex runtime metadata, and strict agent output validation.
 - `clients/`: owns the Supabase service-role client and storage bucket constant.
 - `routes/`: owns admin endpoint handlers, request parsing, validation, and JSON/error responses.
 - `utils/`: owns shared server helpers for storage paths, permalink creation, strings, and tech-stack flattening.
@@ -30,7 +30,7 @@ Keep this directory free of browser code, React components, public anon-key read
 - `routes/skills.js`: manages grouped Skills rows with service-role replacement saves.
 - `routes/credentials.js`: manages Education and Certification rows with service-role replacement saves.
 - `routes/projects.js`: manages project section text, projects, project draft validation, project media uploads, ordering, permalink creation, and deleted-project cleanup.
-- `routes/projectsAgent.js`: exposes the local-only `POST /admin-api/projects/agent/run` route and delegates Codex orchestration to `agent/`.
+- `routes/projectsAgent.js`: exposes the local-only `POST /admin-api/projects/agent/run` route plus `GET /admin-api/projects/agent/runtime`, delegating Codex orchestration and runtime metadata resolution to `agent/`.
 - `routes/requestBody.js`: parses JSON and multipart admin requests, enforces body limits, and attaches uploaded files to state objects.
 - `routes/validation.js`: normalizes and validates admin payloads, URLs, arrays, booleans, IDs, and upload file limits.
 
@@ -46,6 +46,7 @@ Keep this directory free of browser code, React components, public anon-key read
 
 - `npm run admin:codex-spike` remains the terminal Phase 0 Codex bridge check. The Projects agent route invokes the logged-in local Codex runtime through `codex exec --cd <repo-root> --sandbox read-only --ephemeral --color never -` and does not require or pass `OPENAI_API_KEY`.
 - The browser-facing Projects agent run resolves the local Codex executable from the latest installed OpenAI VS Code extension on this Windows machine. The spike command still supports `CODEX_BRIDGE_COMMAND` or `codex` on `PATH` for low-level bridge checks.
+- `agent/codexRuntimeMetadata.js` owns the browser-safe Projects agent model metadata label. It reads only Codex `config.toml` model fields, exposes the configured model or `Codex default` through `GET /admin-api/projects/agent/runtime`, and does not expose auth files or raw config contents.
 - The Codex bridge is the selected local path. No SDK dependency is installed; revisit SDK options only if `codex exec` proves unreliable while still preserving the no-OpenAI-API-key requirement.
 - The Projects agent route accepts owner intent, not a user-selected mode. `revise` is the only editing intent and can return supported patch fields for the active unsaved draft. `review` derives the `review-current-case-study` run plan, analyzes only, and suppresses any returned patch fields server-side before the browser can apply them.
 - Run-plan derivation lives in `agent/projectAgentRunPlan.js`: revise on an effectively empty draft generates a new case study, revise on a non-empty draft revises the current case study, and future source-context revision has a defined run-plan placeholder without source ingestion wired yet.

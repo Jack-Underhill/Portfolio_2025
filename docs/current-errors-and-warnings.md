@@ -67,7 +67,7 @@ Decision:
 
 ## Local Codex Bridge Caveats
 
-`cmd /c npm run admin:codex-spike` is a local verification command for the Phase 0 Codex bridge. The Projects admin `Run Agent` workflow uses the local-only `POST /admin-api/projects/agent/run` route and invokes the logged-in Codex runtime from the backend. The browser-facing route resolves `codex.exe` from the latest installed OpenAI VS Code extension on this Windows machine; the spike command still depends on `codex` being available on `PATH` or through `CODEX_BRIDGE_COMMAND`. Both paths depend on the local Codex runtime already being authenticated.
+`cmd /c npm run admin:codex-spike` is a local verification command for the Phase 0 Codex bridge. The Projects admin `Run Agent` workflow uses the local-only `POST /admin-api/projects/agent/run` route and invokes the logged-in Codex runtime from the backend. That run route resolves `codex.exe` from the latest installed OpenAI VS Code extension on this Windows machine; the spike command still depends on `codex` being available on `PATH` or through `CODEX_BRIDGE_COMMAND`. The Projects agent composer also calls `GET /admin-api/projects/agent/runtime` for a browser-safe configured model label, falling back to `Codex default` when explicit config metadata is unavailable. Both run paths depend on the local Codex runtime already being authenticated.
 
 Decision:
 
