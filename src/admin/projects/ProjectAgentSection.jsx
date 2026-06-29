@@ -18,7 +18,7 @@ const PROJECT_AGENT_INTENT_OPTIONS = Object.freeze([
 ]);
 
 function getRuntimeModelLabel(runtimeMetadata) {
-  const modelLabel = runtimeMetadata?.modelLabel || 'Codex default';
+  const modelLabel = runtimeMetadata?.modelLabel || 'Agent default';
   const reasoningEffort = runtimeMetadata?.modelReasoningEffort?.trim();
 
   if (!runtimeMetadata?.isModelExplicit || !reasoningEffort) {
@@ -29,7 +29,7 @@ function getRuntimeModelLabel(runtimeMetadata) {
 }
 
 function getRuntimeModelTitle(runtimeMetadata) {
-  const source = runtimeMetadata?.modelSourceLabel || 'Codex built-in default';
+  const source = runtimeMetadata?.modelSourceLabel || 'Agent built-in default';
   const reasoning = runtimeMetadata?.modelReasoningEffort
     ? ` Reasoning: ${runtimeMetadata.modelReasoningEffort}.`
     : '';
@@ -96,7 +96,7 @@ function ProjectAgentSection({
             <button
               type="button"
               disabled
-              aria-label="Attach source context to this Codex run (coming soon)"
+              aria-label="Attach source context to this Agent run (coming soon)"
               title="Source attachments are not available yet"
               className="flex size-9 shrink-0 items-center justify-center rounded-full border border-admin-border bg-admin-control text-admin-text-muted opacity-70 disabled:cursor-not-allowed"
             >
@@ -114,7 +114,7 @@ function ProjectAgentSection({
               </svg>
             </button>
 
-            <div className="min-w-[11rem] flex-1 sm:w-44 sm:flex-none">
+            <div className="relative min-w-[1rem] flex-1 sm:w-33 sm:flex-none">
               <select
                 id={runIntentId}
                 value={intent}
@@ -122,7 +122,7 @@ function ProjectAgentSection({
                 disabled={isSaveInFlight || isRunning}
                 aria-label="Project agent intent"
                 title="Project agent intent"
-                className={adminForm.input}
+                className={`${adminForm.input} appearance-none pr-10`}
               >
                 {PROJECT_AGENT_INTENT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -130,6 +130,19 @@ function ProjectAgentSection({
                   </option>
                 ))}
               </select>
+
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-admin-text-muted"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.75"
+              >
+                <path d="m6 8 4 4 4-4" />
+              </svg>
             </div>
 
             <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
@@ -144,8 +157,8 @@ function ProjectAgentSection({
                 type="button"
                 onClick={handleRunAgent}
                 disabled={!canSubmitRun}
-                aria-label="Run Codex"
-                title="Run Codex"
+                aria-label="Run Agent"
+                title="Run Agent"
                 className="flex size-9 shrink-0 items-center justify-center rounded-full bg-admin-accent text-admin-text hover:bg-admin-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-admin-accent"
               >
                 <svg
