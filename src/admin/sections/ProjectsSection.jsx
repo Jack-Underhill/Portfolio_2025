@@ -390,6 +390,7 @@ function ProjectsSection({
                 intent: result.intent ?? intent,
                 runPlan: result.runPlan ?? null,
                 errorDetails: null,
+                sourceManifest: result.sourceManifest ?? [],
                 elapsedMs: result.elapsedMs ?? null,
             });
         } catch (error) {
@@ -409,6 +410,7 @@ function ProjectsSection({
                 changedFields: [],
                 intent,
                 runPlan: null,
+                sourceManifest: [],
                 elapsedMs: null,
             });
         }

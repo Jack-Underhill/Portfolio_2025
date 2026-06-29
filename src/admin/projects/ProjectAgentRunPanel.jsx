@@ -23,6 +23,13 @@ function formatElapsedMs(elapsedMs) {
   return `${(elapsedMs / 1000).toFixed(elapsedMs < 10000 ? 1 : 0)} s`;
 }
 
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) return 'unknown size';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(bytes < 10 * 1024 ? 1 : 0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function getFailureMessage(error) {
   const message = String(error || '').trim();
   if (!message) return 'Codex could not complete the run.';
@@ -76,10 +83,24 @@ function formatFailureDetails(details) {
 }
 
 function getRunPlanSummary(agentRun) {
+  if (agentRun?.runPlan === 'review-with-source-context') {
+    return {
+      title: 'Codex reviewed the active draft against source material.',
+      detail: 'Review the notes, warnings, and source usage; clearing this result only hides the summary.',
+    };
+  }
+
   if (agentRun?.intent === 'review' || agentRun?.runPlan === 'review-current-case-study') {
     return {
       title: 'Codex reviewed the active draft without editing it.',
       detail: 'Review the notes and warnings; clearing this result only hides the summary.',
+    };
+  }
+
+  if (agentRun?.runPlan === 'revise-with-source-context') {
+    return {
+      title: 'Codex revised the draft using source material.',
+      detail: 'Review the source usage and preview the draft before saving; clearing this result only hides the summary.',
     };
   }
 
@@ -143,6 +164,51 @@ function MessageGroup({ label, items, tone = 'default' }) {
             {item}
           </li>
         ))}
+      </ul>
+    </div>
+  );
+}
+
+function SourceManifestSummary({ sourceManifest }) {
+  const entries = Array.isArray(sourceManifest) ? sourceManifest : [];
+
+  if (!entries.length) return null;
+
+  return (
+    <div className="space-y-1">
+      <p className="text-xs font-medium uppercase tracking-wide text-admin-text-subtle">
+        Source material
+      </p>
+      <ul className="space-y-1.5" aria-label="Source material used by Codex">
+        {entries.map((entry, index) => {
+          const id = String(entry?.id || `source-${index + 1}`);
+          const label = String(entry?.label || id).trim();
+          const warnings = normalizeItems(entry?.warnings);
+          const statusLabel = entry?.included ? 'Included' : 'Skipped';
+          const toneClasses = entry?.included
+            ? 'border-admin-border-subtle bg-admin-row text-admin-text-muted'
+            : 'border-amber-400/40 bg-amber-400/10 text-amber-100';
+
+          return (
+            <li
+              key={`${id}-${index}`}
+              className={`rounded-md border px-2.5 py-2 text-xs leading-5 ${toneClasses}`}
+            >
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="font-medium text-admin-text">{statusLabel}</span>
+                <span className="min-w-0 break-words">{label}</span>
+                <span className="text-admin-text-subtle">{formatBytes(entry?.bytes)}</span>
+              </div>
+              {warnings.length > 0 && (
+                <ul className="mt-1 space-y-1 text-admin-text-subtle">
+                  {warnings.map((warning, warningIndex) => (
+                    <li key={`${id}-warning-${warningIndex}`}>{warning}</li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -259,6 +325,7 @@ function ProjectAgentRunPanel({
           </div>
 
           <MessageGroup label="Notes" items={agentRun?.notes} />
+          <SourceManifestSummary sourceManifest={agentRun?.sourceManifest} />
           <MessageGroup label="Warnings" items={agentRun?.warnings} tone="warning" />
         </div>
       )}

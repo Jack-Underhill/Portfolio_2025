@@ -11,6 +11,25 @@ const LAST_REQUEST = Object.freeze({
   intent: 'revise',
   instructions: 'Tighten the case study.',
 });
+const LIVE_FILE_REQUEST = Object.freeze({
+  ...LAST_REQUEST,
+  sourceFiles: [
+    Object.freeze({
+      name: 'notes.md',
+      size: 42,
+      arrayBuffer: async () => new ArrayBuffer(0),
+    }),
+  ],
+});
+const UNAVAILABLE_FILE_REQUEST = Object.freeze({
+  ...LAST_REQUEST,
+  sourceFiles: [
+    Object.freeze({
+      name: 'notes.md',
+      size: 42,
+    }),
+  ],
+});
 
 describe('project agent run state', () => {
   it('creates serializable idle and running run states', () => {
@@ -24,6 +43,7 @@ describe('project agent run state', () => {
       changedFields: [],
       intent: null,
       runPlan: null,
+      sourceManifest: [],
       elapsedMs: null,
     });
 
@@ -37,6 +57,7 @@ describe('project agent run state', () => {
       changedFields: [],
       intent: null,
       runPlan: null,
+      sourceManifest: [],
       elapsedMs: null,
     });
   });
@@ -97,6 +118,20 @@ describe('project agent run state', () => {
       agentRun: { ...createIdleProjectAgentRunState(), status: 'failed' },
       isSaveInFlight: true,
       lastRequest: LAST_REQUEST,
+    }).canRetry).toBe(false);
+  });
+
+  it('allows retry for live source file references and blocks unavailable file references', () => {
+    expect(deriveProjectAgentRunControls({
+      activeProject: ACTIVE_PROJECT,
+      agentRun: { ...createIdleProjectAgentRunState(), status: 'succeeded' },
+      lastRequest: LIVE_FILE_REQUEST,
+    }).canRetry).toBe(true);
+
+    expect(deriveProjectAgentRunControls({
+      activeProject: ACTIVE_PROJECT,
+      agentRun: { ...createIdleProjectAgentRunState(), status: 'succeeded' },
+      lastRequest: UNAVAILABLE_FILE_REQUEST,
     }).canRetry).toBe(false);
   });
 });

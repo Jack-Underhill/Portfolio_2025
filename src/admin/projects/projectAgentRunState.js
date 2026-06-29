@@ -9,6 +9,7 @@ export function createIdleProjectAgentRunState() {
     changedFields: [],
     intent: null,
     runPlan: null,
+    sourceManifest: [],
     elapsedMs: null,
   };
 }
@@ -18,6 +19,21 @@ export function createRunningProjectAgentRunState() {
     ...createIdleProjectAgentRunState(),
     status: 'running',
   };
+}
+
+function isRetryableSourceFile(file) {
+  return Boolean(file)
+    && typeof file.name === 'string'
+    && Number.isFinite(file.size)
+    && typeof file.arrayBuffer === 'function';
+}
+
+function hasRetryableSourceFiles(lastRequest) {
+  const sourceFiles = lastRequest?.sourceFiles;
+
+  if (!Array.isArray(sourceFiles) || sourceFiles.length === 0) return true;
+
+  return sourceFiles.every(isRetryableSourceFile);
 }
 
 export function deriveProjectAgentRunControls({
@@ -34,6 +50,7 @@ export function deriveProjectAgentRunControls({
     canRetry: Boolean(lastRequest)
       && Boolean(activeProject)
       && !isSaveInFlight
-      && !isRunning,
+      && !isRunning
+      && hasRetryableSourceFiles(lastRequest),
   };
 }
