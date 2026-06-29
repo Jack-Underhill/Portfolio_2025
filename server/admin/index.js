@@ -10,7 +10,10 @@ import {
   handleProjectsValidate,
   handleProjectsWrite,
 } from './routes/projects.js';
-import { handleProjectsAgentRun } from './routes/projectsAgent.js';
+import {
+  handleProjectsAgentRun,
+  handleProjectsAgentRuntime,
+} from './routes/projectsAgent.js';
 import { handleSkillsRead, handleSkillsWrite } from './routes/skills.js';
 import { sendJson } from './routes/responses.js';
 
@@ -86,6 +89,11 @@ function handleRequest(req, res) {
 
   if (req.method === 'POST' && requestUrl.pathname === '/admin-api/projects/agent/run') {
     handleProjectsAgentRun(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && requestUrl.pathname === '/admin-api/projects/agent/runtime') {
+    handleProjectsAgentRuntime(req, res);
     return;
   }
 

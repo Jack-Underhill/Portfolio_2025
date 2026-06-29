@@ -4,7 +4,10 @@ import { Readable } from 'node:stream';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ProjectAgentRunError } from '../../../../server/admin/agent/projectAgentRun.js';
-import { createProjectsAgentRunHandler } from '../../../../server/admin/routes/projectsAgent.js';
+import {
+  createProjectsAgentRunHandler,
+  createProjectsAgentRuntimeHandler,
+} from '../../../../server/admin/routes/projectsAgent.js';
 
 const validPayload = {
   intent: 'revise',
@@ -186,6 +189,67 @@ describe('projects agent run route', () => {
     expect(res.statusCode).toBe(500);
     expect(res.json()).toEqual({
       error: 'Local Codex run failed: Command timed out after 120000 ms.',
+    });
+
+    error.mockRestore();
+  });
+});
+
+describe('projects agent runtime route', () => {
+  it('returns explicit Codex runtime metadata from the server helper', () => {
+    const metadata = {
+      model: 'gpt-5.5',
+      modelReasoningEffort: 'high',
+      modelLabel: 'gpt-5.5',
+      modelSource: 'user-config',
+      modelSourceLabel: 'Codex user config',
+      isModelExplicit: true,
+    };
+    const getRuntimeMetadata = vi.fn(() => metadata);
+    const handler = createProjectsAgentRuntimeHandler({ getRuntimeMetadata });
+    const res = mockResponse();
+
+    handler({}, res);
+
+    expect(getRuntimeMetadata).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual(metadata);
+  });
+
+  it('returns fallback Codex runtime metadata as a successful response', () => {
+    const metadata = {
+      model: null,
+      modelReasoningEffort: null,
+      modelLabel: 'Codex default',
+      modelSource: 'default',
+      modelSourceLabel: 'Codex built-in default',
+      isModelExplicit: false,
+    };
+    const handler = createProjectsAgentRuntimeHandler({
+      getRuntimeMetadata: () => metadata,
+    });
+    const res = mockResponse();
+
+    handler({}, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual(metadata);
+  });
+
+  it('returns a concise route error when runtime metadata loading throws', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const handler = createProjectsAgentRuntimeHandler({
+      getRuntimeMetadata: () => {
+        throw new Error('raw config diagnostics should not be returned');
+      },
+    });
+    const res = mockResponse();
+
+    handler({}, res);
+
+    expect(res.statusCode).toBe(500);
+    expect(res.json()).toEqual({
+      error: 'Project agent runtime metadata could not be loaded.',
     });
 
     error.mockRestore();

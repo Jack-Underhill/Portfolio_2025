@@ -1,3 +1,4 @@
+import { getCodexRuntimeMetadata } from '../agent/codexRuntimeMetadata.js';
 import { ProjectAgentRunError, runProjectAgent } from '../agent/projectAgentRun.js';
 import { BadRequestError, assertPlainObject, parseAdminRequest } from './requestBody.js';
 import { sendJson, sendRouteError } from './responses.js';
@@ -70,4 +71,19 @@ export function createProjectsAgentRunHandler({ runAgent = runProjectAgent } = {
   };
 }
 
+export function createProjectsAgentRuntimeHandler({
+  getRuntimeMetadata = getCodexRuntimeMetadata,
+} = {}) {
+  return function handleProjectsAgentRuntime(req, res) {
+    try {
+      sendJson(res, 200, getRuntimeMetadata());
+    } catch {
+      const routeError = new Error('Project agent runtime metadata could not be loaded.');
+      routeError.statusCode = 500;
+      sendRouteError(res, routeError);
+    }
+  };
+}
+
 export const handleProjectsAgentRun = createProjectsAgentRunHandler();
+export const handleProjectsAgentRuntime = createProjectsAgentRuntimeHandler();
