@@ -4,7 +4,6 @@ import ProjectDraftContextPanel from './ProjectDraftContextPanel';
 import ProjectDraftImportPanel from './ProjectDraftImportPanel';
 import ProjectAgentRunPanel from './ProjectAgentRunPanel';
 import TextAreaInput from '../forms/TextAreaInput';
-import FieldLabel from '../forms/FieldLabel';
 import { adminForm, adminUi } from '../../styles/recipes';
 
 const PROJECT_AGENT_INTENT_OPTIONS = Object.freeze([
@@ -84,16 +83,45 @@ function ProjectAgentSection({
       <div className="space-y-3">
         <h2 id={headingId} className={adminUi.sectionLabel}>Agent</h2>
         <div className={`${adminUi.panel} space-y-3 p-4`}>
-          <div className="grid gap-4 md:grid-cols-[minmax(0,16rem)_1fr]">
-            <div className="space-y-1">
-              <FieldLabel htmlFor={runIntentId}>
-                Intent
-              </FieldLabel>
+          <TextAreaInput
+            id={instructionsId}
+            label="Instructions"
+            value={instructions}
+            onChange={setInstructions}
+            minRows={3}
+            disabled={isSaveInFlight || isRunning}
+          />
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              disabled
+              aria-label="Attach source context to this Codex run (coming soon)"
+              title="Source attachments are not available yet"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full border border-admin-border bg-admin-control text-admin-text-muted opacity-70 disabled:cursor-not-allowed"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                className="size-4.5"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeWidth="1.75"
+              >
+                <path d="M10 5v10" />
+                <path d="M5 10h10" />
+              </svg>
+            </button>
+
+            <div className="min-w-[11rem] flex-1 sm:w-44 sm:flex-none">
               <select
                 id={runIntentId}
                 value={intent}
                 onChange={(event) => setIntent(event.target.value)}
                 disabled={isSaveInFlight || isRunning}
+                aria-label="Project agent intent"
+                title="Project agent intent"
                 className={adminForm.input}
               >
                 {PROJECT_AGENT_INTENT_OPTIONS.map((option) => (
@@ -104,30 +132,38 @@ function ProjectAgentSection({
               </select>
             </div>
 
-            <TextAreaInput
-              id={instructionsId}
-              label="Instructions"
-              value={instructions}
-              onChange={setInstructions}
-              minRows={3}
-              disabled={isSaveInFlight || isRunning}
-            />
-          </div>
+            <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
+              <p
+                className="min-w-0 max-w-full break-words text-right text-xs text-admin-text-muted"
+                title={runtimeModelTitle}
+              >
+                model: {runtimeModelLabel}
+              </p>
 
-          <button
-            type="button"
-            onClick={handleRunAgent}
-            disabled={!canSubmitRun}
-            className={adminUi.primaryButton}
-          >
-            {isRunning ? 'Running Codex...' : 'Run Codex'}
-          </button>
-          <p
-            className="text-xs text-admin-text-muted"
-            title={runtimeModelTitle}
-          >
-            model: {runtimeModelLabel}
-          </p>
+              <button
+                type="button"
+                onClick={handleRunAgent}
+                disabled={!canSubmitRun}
+                aria-label="Run Codex"
+                title="Run Codex"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-admin-accent text-admin-text hover:bg-admin-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-admin-accent"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 20 20"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                >
+                  <path d="M10 16V4" />
+                  <path d="m5 9 5-5 5 5" />
+                </svg>
+              </button>
+            </div>
+          </div>
 
           <ProjectAgentRunPanel
             agentRun={agentRun}
