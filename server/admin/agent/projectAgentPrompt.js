@@ -38,7 +38,11 @@ const REVISE_OUTPUT_RULES = Object.freeze([
 
 const PATCH_FIELD_SHAPE_GUIDANCE = Object.freeze([
   'Text fields are strings: title, description, overview, role, url, sourceUrl, writeupUrl, videoPageUrl.',
-  'List fields are arrays of strings: features, metrics, improvements, labels.',
+  'features, metrics, and improvements are arrays of strings.',
+  'labels are display classification terms for the public card pill, not tech stack tags.',
+  'Use labels to describe project context, category, domain, or format, such as Capstone, Hackathon, Game Jam, AI Integration, Machine Learning, Full Stack, Desktop App, Coursework, or Portfolio.',
+  'Do not duplicate techStack values in labels; avoid labels like React, Node, SQL, C#, WinForms, Supabase, Tailwind, or API unless the label describes the project category rather than the implementation.',
+  'Prefer 1-3 strong labels that add detail beyond projectType.',
   'challenges must be an array of objects; each object may include string fields challenge, solution, and result.',
   'Never return challenges as strings or arrays of strings.',
   'techStack must be an object whose keys are accepted techStack categories and whose values are arrays of strings.',
@@ -51,6 +55,7 @@ const PATCH_SHAPE_EXAMPLE = JSON.stringify({
     description: 'One concise portfolio card sentence.',
     features: ['Concrete shipped behavior'],
     metrics: ['Evidence-backed outcome'],
+    labels: ['Desktop App', 'Coursework'],
     challenges: [
       {
         challenge: 'Specific constraint or problem',

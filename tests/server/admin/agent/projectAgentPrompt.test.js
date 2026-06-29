@@ -230,6 +230,13 @@ describe('project agent prompt helpers', () => {
     expect(prompt).toContain('{ "patch": {}, "notes": [], "warnings": [] }');
     expect(prompt).toContain('title, description, overview, role');
     expect(prompt).toContain('Supported patch field shapes:');
+    expect(prompt).toContain('labels are display classification terms for the public card pill, not tech stack tags.');
+    expect(prompt).toContain('Use labels to describe project context, category, domain, or format');
+    expect(prompt).toContain('Do not duplicate techStack values in labels');
+    expect(prompt).toContain('Prefer 1-3 strong labels that add detail beyond projectType.');
+    expect(prompt).toContain('"labels": [');
+    expect(prompt).toContain('"Desktop App"');
+    expect(prompt).toContain('"Coursework"');
     expect(prompt).toContain('challenges must be an array of objects');
     expect(prompt).toContain('Never return challenges as strings or arrays of strings.');
     expect(prompt).toContain('"challenge": "Specific constraint or problem"');
