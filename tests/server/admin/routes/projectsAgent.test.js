@@ -130,6 +130,34 @@ describe('projects agent run route', () => {
     expect(res.statusCode).toBe(200);
   });
 
+  it('ignores blank pasted source when no files are provided', async () => {
+    const runAgent = vi.fn(async (payload) => {
+      expect(payload).toEqual(validPayload);
+
+      return {
+        patch: {},
+        notes: [],
+        warnings: [],
+        appliedFields: [],
+        intent: 'revise',
+        runPlan: 'revise-current-case-study',
+        sourceManifest: [],
+        elapsedMs: 25,
+      };
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = jsonRequest({
+      ...validPayload,
+      sourceText: '   ',
+    });
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(runAgent).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toBe(200);
+  });
+
   it('normalizes source files from multipart requests before invoking Codex', async () => {
     const runAgent = vi.fn(async (payload) => {
       expect(payload.sourceBundle).toEqual({

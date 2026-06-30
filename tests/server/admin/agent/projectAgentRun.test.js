@@ -180,6 +180,48 @@ describe('project agent run helpers', () => {
     expect(JSON.stringify(result.sourceManifest)).not.toContain(sourceBundle.sources[0].text);
   });
 
+  it('normalizes source manifest metadata before returning it', async () => {
+    const unsafeSourceBundle = {
+      ...sourceBundle,
+      manifest: [
+        {
+          ...sourceBundle.manifest[0],
+          text: sourceBundle.sources[0].text,
+          warnings: ['  Trimmed source warning.  '],
+        },
+      ],
+      warnings: [],
+    };
+
+    const result = await runProjectAgent({
+      intent: 'revise',
+      instructions: 'Use the source metadata.',
+      projectContext,
+      sourceBundle: unsafeSourceBundle,
+      codexBridge: async () => ({
+        json: {
+          patch: {},
+          notes: [],
+          warnings: [],
+        },
+        elapsedMs: 11,
+      }),
+    });
+
+    expect(result.sourceManifest).toEqual([
+      {
+        id: 'source-1',
+        kind: 'pasted-text',
+        label: 'Pasted source material',
+        mediaType: 'text/plain',
+        bytes: 59,
+        included: true,
+        warnings: ['Trimmed source warning.'],
+      },
+    ]);
+    expect(result.sourceManifest[0]).not.toHaveProperty('text');
+  });
+
   it('allows source-only revise runs when source context is available', async () => {
     const result = await runProjectAgent({
       intent: 'revise',

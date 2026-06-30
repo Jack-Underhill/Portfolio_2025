@@ -99,6 +99,49 @@ describe('project agent source bundle helpers', () => {
     ]);
   });
 
+  it('keeps usable source files when adjacent uploads are skipped', async () => {
+    const bundle = await createProjectAgentSourceBundle({
+      sourceFiles: [
+        createFakeFile({ name: 'report.md', text: '# Report', type: 'text/markdown' }),
+        createFakeFile({ name: 'screenshot.png', text: 'not really an image', type: 'image/png' }),
+        createFakeFile({ name: 'blank.txt', text: '   ' }),
+      ],
+    });
+
+    expect(bundle.hasSourceContext).toBe(true);
+    expect(bundle.sources).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        label: 'report.md',
+        text: '# Report',
+      }),
+    ]);
+    expect(bundle.manifest).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        label: 'report.md',
+        included: true,
+        warnings: [],
+      }),
+      expect.objectContaining({
+        id: 'source-2',
+        label: 'screenshot.png',
+        included: false,
+        warnings: ['Unsupported source file type for "screenshot.png".'],
+      }),
+      expect.objectContaining({
+        id: 'source-3',
+        label: 'blank.txt',
+        included: false,
+        warnings: ['Source file "blank.txt" is empty after trimming.'],
+      }),
+    ]);
+    expect(bundle.warnings).toEqual([
+      'Skipped unsupported source file "screenshot.png".',
+      'Skipped empty source file "blank.txt".',
+    ]);
+  });
+
   it('ignores empty pasted source and empty files with manifest warnings', async () => {
     const bundle = await createProjectAgentSourceBundle({
       sourceText: '   ',
@@ -163,6 +206,29 @@ describe('project agent source bundle helpers', () => {
       }),
     ]);
     expect(bundle.warnings).toEqual(['Skipped oversized source file "huge.log".']);
+  });
+
+  it('skips files that cannot be decoded as UTF-8', async () => {
+    const bundle = await createProjectAgentSourceBundle({
+      sourceFiles: [
+        createFakeFile({
+          name: 'broken.log',
+          bytes: new Uint8Array([0xff, 0xff]),
+        }),
+      ],
+    });
+
+    expect(bundle.hasSourceContext).toBe(false);
+    expect(bundle.sources).toEqual([]);
+    expect(bundle.manifest).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        label: 'broken.log',
+        included: false,
+        warnings: ['Source file "broken.log" could not be decoded as UTF-8.'],
+      }),
+    ]);
+    expect(bundle.warnings).toEqual(['Skipped undecodable source file "broken.log".']);
   });
 
   it('truncates pasted source at the pasted text limit', async () => {

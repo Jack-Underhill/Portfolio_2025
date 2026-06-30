@@ -92,6 +92,41 @@ describe('admin API client', () => {
     );
   });
 
+  it('keeps empty source file arrays on the JSON path', async () => {
+    const responseBody = {
+      patch: { title: 'Revised title' },
+      notes: [],
+      warnings: [],
+      appliedFields: ['title'],
+      elapsedMs: 25,
+      sourceManifest: [],
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(runProjectAgent({
+      intent: 'revise',
+      instructions: 'Tighten the overview.',
+      projectContext,
+      sourceFiles: [],
+    })).resolves.toEqual(responseBody);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8787/admin-api/projects/agent/run',
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          intent: 'revise',
+          instructions: 'Tighten the overview.',
+          projectContext,
+        }),
+      },
+    );
+  });
+
   it('posts project agent source files as multipart under the sourceFiles field', async () => {
     const responseBody = {
       patch: { description: 'Revised card copy' },
