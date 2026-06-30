@@ -1,6 +1,6 @@
 # Data Flow Drift
 
-Date: 2026-06-28
+Date: 2026-06-29
 
 ## Purpose
 
@@ -41,9 +41,11 @@ Current admin draft preview flow:
 - `ProjectsSection.jsx` renders the mapped draft through the shared `ProjectModal` with admin-local open/close state.
 - `src/domain/projects/agentDraft.js` parses agent draft JSON, maps supported fields into a project patch, applies that patch to the active local draft, and serializes safe current project review context.
 - `ProjectWorkspaceActions.jsx` exposes Projects-level `+ Add Project`, `Validate Projects`, and `Preview Case Study` actions below the selector.
-- `ProjectAgentSection.jsx` renders the Projects `Agent` subsection inputs, local-only `Run Agent`, `Copy draft`, and `Import draft` actions, and the owner intent selector. `Revise draft` is the editing intent; `Review only` is analysis-only.
-- `Run Agent` calls the local admin route through `src/admin/api/adminClient.js`. For revise runs, `ProjectsSection.jsx` applies successful patches to the unsaved active draft through the same `src/domain/projects/agentDraft.js` contract used by manual imports. For review runs, `server/admin/agent/projectAgentRun.js` suppresses returned patch fields server-side so no draft fields are returned to the browser.
-- `ProjectAgentRunPanel.jsx` renders the post-run review surface for running, succeeded, and failed states. Successful runs report changed fields, applied fields, notes, warnings, elapsed time, and derived run-plan copy when available; Retry reruns the last submitted intent and instructions against the current active draft; Clear result hides the visible run summary without mutating project draft fields. The import and context fallback panels live in `ProjectDraftImportPanel.jsx` and `ProjectDraftContextPanel.jsx`.
+- `ProjectAgentSection.jsx` renders the Projects `Agent` subsection inputs, local-only `Run Agent`, `Copy draft`, and `Import draft` actions, the owner intent selector, and source inputs. `Revise draft` is the editing intent; `Review only` is analysis-only. Instructions stay separate from source evidence.
+- `ProjectAgentSourceInputs.jsx` owns the compact source controls: the `+` file-picker trigger, selected source-file chips, remove actions, file-size labels, and pasted source-material text area. Supported source file extensions are `.txt`, `.md`, `.markdown`, `.json`, `.csv`, and `.log`.
+- `Run Agent` calls the local admin route through `src/admin/api/adminClient.js`. No-file and pasted-source-only runs use JSON; runs with browser `File` objects use multipart with a JSON `payload` field and repeated `sourceFiles` fields. For revise runs, `ProjectsSection.jsx` applies successful patches to the unsaved active draft through the same `src/domain/projects/agentDraft.js` contract used by manual imports. For review runs, `server/admin/agent/projectAgentRun.js` suppresses returned patch fields server-side so no draft fields are returned to the browser.
+- `server/admin/routes/projectsAgent.js` is the browser-to-server source request boundary. It parses JSON or multipart, collects pasted source text and uploaded source files, and delegates normalization to `server/admin/agent/sourceBundle.js` plus `server/admin/agent/sourceIngestion/textSource.js`. The source bundle owns file-count, byte, per-source text, total text, extension, empty-file, unreadable-file, and UTF-8 decoding checks.
+- `ProjectAgentRunPanel.jsx` renders the post-run review surface for running, succeeded, and failed states. Successful runs report changed fields, applied fields, source manifest entries, notes, warnings, elapsed time, and derived run-plan copy when available; Retry reruns the last submitted intent, instructions, pasted source, and still-live source file objects against the current active draft; Clear result hides the visible run summary without mutating project draft fields or selected source inputs. The import and context fallback panels live in `ProjectDraftImportPanel.jsx` and `ProjectDraftContextPanel.jsx`.
 - Newly selected image, video, and architecture files are previewed through temporary object URLs owned by admin UI state and revoked after use.
 - `POST /admin-api/projects/validate` validates the current projects payload without Supabase writes or storage uploads; `validateProjectDraft` is the browser helper.
 
@@ -53,6 +55,7 @@ Agent draft import decision:
 - Import preserves identity, routing, sort order, media URLs, selected media file objects, and derived `techTags`; unknown keys are ignored with warnings.
 - Missing supported keys preserve the active project draft, while present empty strings or arrays intentionally clear those supported fields.
 - Import and local Codex revise runs do not save, upload, call Supabase, persist drafts, or bypass Validate Projects, Preview Case Study, or explicit Save. Local Codex review runs do not edit the draft.
+- Projects agent source material is transient request context. Pasted source text and selected file contents are not uploaded to Supabase storage, written to disk, persisted as project data, saved as run history, or exposed to public portfolio visitors. Run results return source manifests and warnings only, not raw source text.
 - Current project context export separates read-only `projectContext` from importable `draft` content so existing-project agent review has context without creating an identity/media mutation path.
 
 Current public presentation flow:

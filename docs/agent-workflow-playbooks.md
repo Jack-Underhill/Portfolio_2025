@@ -1,6 +1,6 @@
 # Agent Workflow Playbooks
 
-Date: 2026-06-28
+Date: 2026-06-29
 
 ## Purpose
 
@@ -51,7 +51,7 @@ Use these rules before choosing files to edit:
 - Public browser reads belong in `src/api/public`.
 - Pure browser/server-safe data shaping belongs in `src/domain`.
 - Admin validation belongs in `server/admin/routes/validation.js` or nearby server-owned helpers.
-- Local Codex invocation and runtime metadata belong under `server/admin/agent`. The current Projects agent routes are local admin only: the run route invokes the logged-in Codex CLI from the backend, and the runtime route exposes only browser-safe configured model metadata. Do not move Codex runtime, shell access, auth paths, config parsing, or prompt assembly into browser code.
+- Local Codex invocation, source bundle normalization, prompt assembly, and runtime metadata belong under `server/admin/agent`. The current Projects agent routes are local admin only: the run route invokes the logged-in Codex CLI from the backend, and the runtime route exposes only browser-safe configured model metadata. Do not move Codex runtime, shell access, auth paths, source ingestion, config parsing, or prompt assembly into browser code.
 - Browser-visible route and function path constants belong in `src/runtime/paths.js`.
 - Project route parsing and building belongs in `src/domain/projects/routing.js`.
 - Admin-managed storage path behavior belongs in `server/admin/utils`; public components should consume stored URLs.
@@ -166,10 +166,11 @@ Do:
 - Classify the task before editing: content-only, admin UI, schema, public rendering, routing, or validation.
 - Keep public project cards and project details compatible with `mapProjectRowToPublicCard`, `mapProjectRowToPublicDetails`, and the view-model helpers.
 - For admin draft previews, keep unsaved draft-to-modal shape changes in `mapProjectDraftToPreviewProject` and render through the shared `ProjectModal`.
-- For simple current-draft work, use the Projects `Agent` subsection composer with the active draft context, an explicit owner intent, and freeform owner instructions. The instructions field spans the panel, the intent lives in the composer row, the disabled `+` source button is only a future attachment affordance, and the compact model label is read-only metadata from the local admin backend. `Revise draft` is the only editing intent: a successful revise run applies the returned patch to the unsaved local draft through `src/domain/projects/agentDraft.js` and shows a review surface with changed fields, applied fields, notes, warnings, and elapsed time when available. `Review only` analyzes without editing; the server returns no patch fields to the browser and uses notes/warnings for findings.
-- Use `Retry` when the last submitted intent and instructions should be rerun against the current active draft. Retry does not rewind to the pre-run draft; it follows the same current-draft reprompt workflow as another Run Agent submission.
-- Use `Clear result` only to hide the visible run summary. It does not revert any draft edits and does not clear the composer instructions textarea.
-- Keep `Copy draft` and `Import draft` available as fallbacks for manual Codex sessions, source-heavy reviews, or cases where the local Codex CLI is unavailable.
+- For simple current-draft work, use the Projects `Agent` subsection composer with the active draft context, an explicit owner intent, freeform owner instructions, and optional source material. The instructions field remains separate from source evidence. The source `+` button opens a native multiple-file picker for `.txt`, `.md`, `.markdown`, `.json`, `.csv`, and `.log` files, and the source-material text area accepts pasted notes or reports. The compact model label is read-only metadata from the local admin backend. `Revise draft` is the only editing intent: a successful revise run applies the returned patch to the unsaved local draft through `src/domain/projects/agentDraft.js` and shows a review surface with changed fields, applied fields, source manifest entries, notes, warnings, and elapsed time when available. `Review only` analyzes without editing; the server returns no patch fields to the browser and uses notes/warnings for findings, including source-backed contradictions or missing evidence when source material is present.
+- Treat attached or pasted source material as transient evidence. It is included in the local request, normalized into a server-owned source bundle, and summarized back as a manifest without raw source text. It is not uploaded to Supabase, written to disk, saved as project data, or exposed to the public portfolio.
+- Use `Retry` when the last submitted intent, instructions, pasted source, and still-live selected source file objects should be rerun against the current active draft. Retry does not rewind to the pre-run draft; it follows the same current-draft reprompt workflow as another Run Agent submission, and it should not silently drop previously submitted source files if those browser file objects are no longer available.
+- Use `Clear result` only to hide the visible run summary. It does not revert any draft edits and does not clear the composer instructions or selected source inputs.
+- Keep `Copy draft` and `Import draft` available as fallbacks for manual Codex sessions, source types not supported by the local source bundle, or cases where the local Codex CLI is unavailable.
 - After either an editing `Run Agent` intent or `Import draft`, run `Validate Projects`, open `Preview Case Study`, edit if needed, and save only after review. For `Review only` runs, inspect notes/warnings first; any draft edits still need a separate revise/import/manual edit path before validation and save.
 - For existing project revisions, ask the user for the admin Projects `Agent` subsection current-context output and follow [Existing Project Review Workflow](./project-editor-agent/case-study-draft-guidelines.md#existing-project-review-workflow) before comparing current content against new source material.
 - Keep `Projects.jsx` as the owner of public fetch, grouping, flattened modal project list, and the single `ProjectModal` render.
@@ -228,7 +229,7 @@ Agent-assisted draft payloads:
 - Leave optional action URLs as empty strings when there is no public link; do not invent links.
 - Do not use em dashes in drafted case-study copy. Use commas, parentheses, colons, semicolons, or shorter sentences instead.
 - Do not include identity, routing, media, upload, or persistence fields such as `id`, `permalink`, `sortOrder`, `imageUrl`, `videoUrl`, `architectureImageUrl`, file objects, or `techTags`.
-- Tell the user to use the Projects `Agent` composer for in-admin current-draft revisions when the needed source context fits the instructions field. For manual sessions, paste the JSON into the admin Projects `Agent` subsection `Import draft` panel. In both flows, run `Validate Projects`, open `Preview Case Study`, and save only after review.
+- Tell the user to use the Projects `Agent` composer for in-admin current-draft revisions when the needed source context fits pasted source material or the supported simple text-like file types. For manual sessions or unsupported source types, paste the JSON into the admin Projects `Agent` subsection `Import draft` panel. In both flows, run `Validate Projects`, open `Preview Case Study`, and save only after review.
 
 Do not:
 

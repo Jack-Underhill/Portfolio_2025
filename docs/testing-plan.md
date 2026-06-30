@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-06-28
+Date: 2026-06-29
 
 ## Purpose
 
@@ -44,6 +44,7 @@ Current baseline test files:
 - `tests/server/admin/agent/codexRuntimeMetadata.test.js`
 - `tests/server/admin/agent/projectAgentPrompt.test.js`
 - `tests/server/admin/agent/projectAgentRun.test.js`
+- `tests/server/admin/agent/sourceBundle.test.js`
 - `tests/server/admin/routes/projectsAgent.test.js`
 - `tests/admin/adminClient.test.js`
 - `tests/admin/projectAgentRunState.test.js`
@@ -69,7 +70,7 @@ Current checks:
 Local Codex agent focused checks:
 
 - `cmd /c npx vitest run tests/server/admin/agent/codexBridge.test.js tests/domain/projects/agentDraft.test.js` covers the deterministic bridge helper and the existing project draft import contract.
-- `cmd /c npx vitest run tests/server/admin/agent/codexRuntimeMetadata.test.js tests/server/admin/agent/projectAgentPrompt.test.js tests/server/admin/agent/projectAgentRun.test.js tests/server/admin/routes/projectsAgent.test.js tests/admin/adminClient.test.js tests/admin/projectAgentRunState.test.js` covers browser-safe model metadata parsing/fallbacks, prompt assembly, intent validation, derived run planning, review patch suppression, run orchestration, route/client request shape, runtime metadata route/client behavior, and run-state retry/clear behavior with fake Codex responses only.
+- `cmd /c npx vitest run tests/server/admin/agent/codexRuntimeMetadata.test.js tests/server/admin/agent/sourceBundle.test.js tests/server/admin/agent/projectAgentPrompt.test.js tests/server/admin/agent/projectAgentRun.test.js tests/server/admin/routes/projectsAgent.test.js tests/admin/adminClient.test.js tests/admin/projectAgentRunState.test.js` covers browser-safe model metadata parsing/fallbacks, source bundle limits and manifests, prompt assembly, intent validation, source-aware derived run planning, review patch suppression, run orchestration, route/client JSON and multipart request shape, runtime metadata route/client behavior, and run-state retry/clear behavior with fake Codex responses only.
 - `cmd /c npx vitest run tests/admin/projectAgentRunState.test.js` covers the Project Agent review-surface helper state used for idle/running shape and retry/clear availability.
 - `cmd /c npm run admin:codex-spike` runs a real Codex CLI bridge check through the logged-in local CLI. Run it when changing the low-level bridge command path or local CLI assumptions, but keep it out of the default gate because it depends on local Codex CLI/auth availability.
 
@@ -94,7 +95,7 @@ Admin workflow test strategy:
 - Ownership tests use explicit root callbacks, Projects subsection IDs, collection-operation policy, and the changed-field map for agent imports. Navigation observation is not an attribution input.
 - Parent display tests derive collapsed precedence and expanded suppression from the same workflow map rather than asserting sidebar class strings.
 - The authenticated admin DOM, tooltip/focus behavior, and save/validation interaction sequence remain the documented browser boundary until a stable non-destructive fixture exists.
-- Projects Agent run-panel rendering remains in that authenticated admin browser boundary: manual checks cover readable success/failure states, keyboard access to Retry and Clear result, Review success copy that does not imply draft edits, and the distinction that Clear result does not revert unsaved draft edits.
+- Projects Agent run-panel rendering remains in that authenticated admin browser boundary: manual checks cover readable success/failure states, source manifest readability, selected source file add/remove behavior, keyboard access to Retry and Clear result, Review success copy that does not imply draft edits, and the distinction that Clear result does not revert unsaved draft edits or selected source inputs.
 
 Remaining testing gap:
 
@@ -128,8 +129,9 @@ Current coverage:
 - Route parsing/building, public project mappers, detail view models, fallback merging, and sort-order normalization are covered.
 - Draft-to-public-modal preview mapping is covered for complete drafts, optional fields, classification normalization, malformed list fallbacks, and challenge preservation.
 - Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
-- The Projects agent run and runtime metadata paths are covered at the helper and route layers: browser-safe Codex config metadata parsing/fallbacks, owner intent validation, derived run-plan prompt construction, wrapper validation, instruction/context limits, review-only patch suppression, bridge failure normalization, malformed wrapper handling, invalid patch handling, route content-type errors, concise browser-facing errors, and the `runProjectAgent` / `loadProjectAgentRuntime` admin client helpers.
-- The Phase 2 Projects agent review surface has focused pure coverage for serializable idle/running state and retry/clear availability across active-project, saved/running, in-flight save, and missing-request cases. Rendered live-region semantics, focus handoff, and compact result layout remain a manual authenticated-admin boundary rather than a React component harness.
+- The Projects agent run and runtime metadata paths are covered at the helper and route layers: browser-safe Codex config metadata parsing/fallbacks, owner intent validation, source bundle normalization, source-aware derived run-plan prompt construction, wrapper validation, instruction/context/source limits, review-only patch suppression, bridge failure normalization, malformed wrapper handling, invalid patch handling, route content-type errors, concise browser-facing errors, and the `runProjectAgent` / `loadProjectAgentRuntime` admin client helpers.
+- Source attachment coverage includes pasted text, valid text-like files, unsupported file extensions, empty/oversized/unreadable/undecodable files, total source text limits, manifest entries without raw source text, no-source JSON requests, pasted-source JSON requests, multipart file requests, and retry state preserving source inputs while browser file objects remain usable.
+- The Phase 2 Projects agent review surface has focused pure coverage for serializable idle/running state and retry/clear availability across active-project, saved/running, in-flight save, source-backed last requests, unavailable source file objects, and missing-request cases. Rendered live-region semantics, focus handoff, source controls, and compact result layout remain a manual authenticated-admin boundary rather than a React component harness.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
 - Public project-card classification pills consume the mapped `projectType` and `labels` fields. The card-local timer, opacity overlap, reduced-motion branch, and assistive-hidden transient layers remain manually verified until the repo gains a lightweight React component test path.
 - Desktop standard-card marquee verification is currently pure focus-alignment helper coverage plus quality-gate/accessibility-smoke/manual checks rather than a dedicated component test; mobile and reduced-motion users still receive the grid path.
@@ -276,7 +278,7 @@ Current coverage:
 - Pure helper primitives, upload file validation, and about/project/contact/skills state validation are covered.
 - Contact validation includes link label/URL/icon checks plus published defaulting, explicit false preservation, and non-boolean rejection.
 - The project draft validation endpoint is covered as a no-write route that reuses project state validation.
-- The local Codex bridge helper is covered with deterministic process fixtures for success, stderr detail, malformed JSON, non-object JSON, validation failure, nonzero exit, and timeout. The Codex runtime metadata helper is covered with deterministic config fixtures for explicit model/reasoning values, comments, missing/empty/unreadable config, unsupported syntax fallback, injected `CODEX_HOME`, and browser-safe output. The Projects agent run helpers and local route are covered with fake Codex outputs; no unit test invokes real Codex. The real `codex exec` path remains a manual local check through `cmd /c npm run admin:codex-spike`.
+- The local Codex bridge helper is covered with deterministic process fixtures for success, stderr detail, malformed JSON, non-object JSON, validation failure, nonzero exit, and timeout. The Codex runtime metadata helper is covered with deterministic config fixtures for explicit model/reasoning values, comments, missing/empty/unreadable config, unsupported syntax fallback, injected `CODEX_HOME`, and browser-safe output. The Projects agent source bundle, run helpers, admin client, and local route are covered with fake file objects and fake Codex outputs; no unit test invokes real Codex. The real `codex exec` path remains a manual local check through `cmd /c npm run admin:codex-spike`.
 
 Why this matters:
 

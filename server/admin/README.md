@@ -16,7 +16,7 @@ Keep this directory free of browser code, React components, public anon-key read
 
 ## Folders
 
-- `agent/`: owns the local-only Codex bridge, controlled terminal harness, Projects agent intent/run-plan helpers, prompt/run helpers, browser-safe Codex runtime metadata, and strict agent output validation.
+- `agent/`: owns the local-only Codex bridge, controlled terminal harness, Projects agent intent/run-plan helpers, prompt/run helpers, source bundle normalization, browser-safe Codex runtime metadata, and strict agent output validation.
 - `clients/`: owns the Supabase service-role client and storage bucket constant.
 - `routes/`: owns admin endpoint handlers, request parsing, validation, and JSON/error responses.
 - `utils/`: owns shared server helpers for storage paths, permalink creation, strings, and tech-stack flattening.
@@ -30,8 +30,8 @@ Keep this directory free of browser code, React components, public anon-key read
 - `routes/skills.js`: manages grouped Skills rows with service-role replacement saves.
 - `routes/credentials.js`: manages Education and Certification rows with service-role replacement saves.
 - `routes/projects.js`: manages project section text, projects, project draft validation, project media uploads, ordering, permalink creation, and deleted-project cleanup.
-- `routes/projectsAgent.js`: exposes the local-only `POST /admin-api/projects/agent/run` route plus `GET /admin-api/projects/agent/runtime`, delegating Codex orchestration and runtime metadata resolution to `agent/`.
-- `routes/requestBody.js`: parses JSON and multipart admin requests, enforces body limits, and attaches uploaded files to state objects.
+- `routes/projectsAgent.js`: exposes the local-only `POST /admin-api/projects/agent/run` route plus `GET /admin-api/projects/agent/runtime`, accepts JSON or multipart source-backed runs, and delegates source bundling, Codex orchestration, and runtime metadata resolution to `agent/`.
+- `routes/requestBody.js`: parses JSON and multipart admin requests, enforces body limits, and exposes uploaded file collections to route handlers.
 - `routes/validation.js`: normalizes and validates admin payloads, URLs, arrays, booleans, IDs, and upload file limits.
 
 ## Boundary Notes
@@ -48,8 +48,9 @@ Keep this directory free of browser code, React components, public anon-key read
 - The browser-facing Projects agent run resolves the local Codex executable from the latest installed OpenAI VS Code extension on this Windows machine. The spike command still supports `CODEX_BRIDGE_COMMAND` or `codex` on `PATH` for low-level bridge checks.
 - `agent/codexRuntimeMetadata.js` owns the browser-safe Projects agent model metadata label. It reads only Codex `config.toml` model fields, exposes the configured model or `Codex default` through `GET /admin-api/projects/agent/runtime`, and does not expose auth files or raw config contents.
 - The Codex bridge is the selected local path. No SDK dependency is installed; revisit SDK options only if `codex exec` proves unreliable while still preserving the no-OpenAI-API-key requirement.
-- The Projects agent route accepts owner intent, not a user-selected mode. `revise` is the only editing intent and can return supported patch fields for the active unsaved draft. `review` derives the `review-current-case-study` run plan, analyzes only, and suppresses any returned patch fields server-side before the browser can apply them.
-- Run-plan derivation lives in `agent/projectAgentRunPlan.js`: revise on an effectively empty draft generates a new case study, revise on a non-empty draft revises the current case study, and future source-context revision has a defined run-plan placeholder without source ingestion wired yet.
+- The Projects agent route accepts owner intent, not a user-selected mode. `revise` is the only editing intent and can return supported patch fields for the active unsaved draft. `review` derives either `review-current-case-study` or `review-with-source-context`, analyzes only, and suppresses any returned patch fields server-side before the browser can apply them.
+- Run-plan derivation lives in `agent/projectAgentRunPlan.js`: revise on an effectively empty draft generates a new case study, revise on a non-empty draft revises the current case study, source-backed revise runs use `revise-with-source-context`, and source-backed review runs use `review-with-source-context`.
+- Source material for Projects agent runs is transient request context. Browser no-file runs stay JSON; runs with selected local source files use multipart with a JSON `payload` part and repeated `sourceFiles` entries. `agent/sourceBundle.js` and `agent/sourceIngestion/textSource.js` own pasted text and simple text-like file normalization, limits, source manifests, skipped-source warnings, and UTF-8 decoding. Allowed source file extensions are `.txt`, `.md`, `.markdown`, `.json`, `.csv`, and `.log`; source text is not written to disk, uploaded to Supabase, persisted as project data, or returned to the browser in run results.
 - `routes/about.js` and `routes/projects.js` each own singleton IDs for their current table shapes.
 - Project media upload paths are owned by `utils/storage.js`: `projects/:id/preview-image.ext`, `projects/:id/preview-video.ext`, and `projects/:id/architecture.ext`.
 - Architecture SVG viewer validation and the Netlify inline SVG proxy trust the same project-scoped `projects/:id/architecture.svg` path.
