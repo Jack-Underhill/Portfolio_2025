@@ -8,6 +8,19 @@ export const PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS = [
   '.json',
   '.csv',
   '.log',
+  '.html',
+  '.css',
+  '.js',
+  '.jsx',
+  '.ts',
+  '.tsx',
+  '.py',
+  '.sql',
+  '.yaml',
+  '.yml',
+  '.toml',
+  '.xml',
+  '.ipynb',
 ];
 
 export const PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE = 'text/plain';
@@ -19,6 +32,19 @@ const MEDIA_TYPES_BY_EXTENSION = new Map([
   ['.json', 'application/json'],
   ['.csv', 'text/csv'],
   ['.log', 'text/plain'],
+  ['.html', 'text/html'],
+  ['.css', 'text/css'],
+  ['.js', 'text/javascript'],
+  ['.jsx', 'text/javascript'],
+  ['.ts', 'text/typescript'],
+  ['.tsx', 'text/typescript'],
+  ['.py', 'text/x-python'],
+  ['.sql', 'application/sql'],
+  ['.yaml', 'application/yaml'],
+  ['.yml', 'application/yaml'],
+  ['.toml', 'application/toml'],
+  ['.xml', 'application/xml'],
+  ['.ipynb', 'application/x-ipynb+json'],
 ]);
 
 export function getUtf8ByteLength(text) {
@@ -66,6 +92,62 @@ function getFileMediaType(file, extension) {
   return typeof file?.type === 'string' && file.type.trim()
     ? file.type.trim()
     : MEDIA_TYPES_BY_EXTENSION.get(extension) || PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE;
+}
+
+function normalizeNotebookCellSource(source) {
+  if (Array.isArray(source)) {
+    return source.join('');
+  }
+
+  if (typeof source === 'string') {
+    return source;
+  }
+
+  return '';
+}
+
+function extractNotebookText(text) {
+  let notebook;
+
+  try {
+    notebook = JSON.parse(text);
+  } catch {
+    return {
+      text: '',
+      warning: 'Source file could not be parsed as a Jupyter notebook.',
+    };
+  }
+
+  if (!Array.isArray(notebook?.cells)) {
+    return {
+      text: '',
+      warning: 'Source file is not a supported Jupyter notebook.',
+    };
+  }
+
+  const parts = [];
+
+  notebook.cells.forEach((cell, index) => {
+    const cellType = typeof cell?.cell_type === 'string' ? cell.cell_type : 'unknown';
+
+    if (cellType !== 'markdown' && cellType !== 'code') {
+      return;
+    }
+
+    const cellText = normalizeNotebookCellSource(cell.source).trim();
+
+    if (!cellText) {
+      return;
+    }
+
+    const label = cellType === 'markdown' ? 'Markdown' : 'Code';
+    parts.push(`[${label} cell ${index + 1}]\n${cellText}`);
+  });
+
+  return {
+    text: parts.join('\n\n').trim(),
+    warning: '',
+  };
 }
 
 export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
@@ -224,6 +306,28 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
       },
       warnings: [`Skipped empty source file "${label}".`],
     };
+  }
+
+  if (extension === '.ipynb') {
+    const notebookResult = extractNotebookText(text);
+
+    if (!notebookResult.text) {
+      return {
+        item: null,
+        manifest: {
+          id,
+          kind: 'file',
+          label,
+          mediaType: getFileMediaType(file, extension),
+          bytes: byteLength,
+          included: false,
+          warnings: [notebookResult.warning || `Source file "${label}" is empty after trimming.`],
+        },
+        warnings: [`Skipped unreadable source file "${label}".`],
+      };
+    }
+
+    text = notebookResult.text;
   }
 
   return {

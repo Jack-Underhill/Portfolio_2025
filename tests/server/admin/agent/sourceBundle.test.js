@@ -99,6 +99,97 @@ describe('project agent source bundle helpers', () => {
     ]);
   });
 
+  it('normalizes expanded text and code source file extensions', async () => {
+    const bundle = await createProjectAgentSourceBundle({
+      sourceFiles: [
+        createFakeFile({ name: 'App.jsx', text: 'export function App() {}', type: '' }),
+        createFakeFile({ name: 'schema.sql', text: 'select 1;', type: '' }),
+        createFakeFile({ name: 'config.yaml', text: 'name: portfolio', type: '' }),
+      ],
+    });
+
+    expect(bundle.hasSourceContext).toBe(true);
+    expect(bundle.sources).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        kind: 'file',
+        label: 'App.jsx',
+        mediaType: 'text/javascript',
+        text: 'export function App() {}',
+      }),
+      expect.objectContaining({
+        id: 'source-2',
+        kind: 'file',
+        label: 'schema.sql',
+        mediaType: 'application/sql',
+        text: 'select 1;',
+      }),
+      expect.objectContaining({
+        id: 'source-3',
+        kind: 'file',
+        label: 'config.yaml',
+        mediaType: 'application/yaml',
+        text: 'name: portfolio',
+      }),
+    ]);
+    expect(bundle.manifest).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        label: 'App.jsx',
+        included: true,
+        warnings: [],
+      }),
+      expect.objectContaining({
+        id: 'source-2',
+        label: 'schema.sql',
+        included: true,
+        warnings: [],
+      }),
+      expect.objectContaining({
+        id: 'source-3',
+        label: 'config.yaml',
+        included: true,
+        warnings: [],
+      }),
+    ]);
+  });
+
+  it('extracts markdown and code cells from direct notebook files', async () => {
+    const notebook = JSON.stringify({
+      cells: [
+        { cell_type: 'markdown', source: ['# Findings\n', 'Notebook notes.'] },
+        { cell_type: 'code', source: 'print("hello")' },
+        { cell_type: 'raw', source: 'ignored raw cell' },
+      ],
+    });
+
+    const bundle = await createProjectAgentSourceBundle({
+      sourceFiles: [
+        createFakeFile({ name: 'analysis.ipynb', text: notebook, type: '' }),
+      ],
+    });
+
+    expect(bundle.hasSourceContext).toBe(true);
+    expect(bundle.sources).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        kind: 'file',
+        label: 'analysis.ipynb',
+        mediaType: 'application/x-ipynb+json',
+        text: '[Markdown cell 1]\n# Findings\nNotebook notes.\n\n[Code cell 2]\nprint("hello")',
+      }),
+    ]);
+    expect(bundle.manifest).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        label: 'analysis.ipynb',
+        included: true,
+        warnings: [],
+      }),
+    ]);
+    expect(bundle.manifest[0]).not.toHaveProperty('text');
+  });
+
   it('keeps usable source files when adjacent uploads are skipped', async () => {
     const bundle = await createProjectAgentSourceBundle({
       sourceFiles: [

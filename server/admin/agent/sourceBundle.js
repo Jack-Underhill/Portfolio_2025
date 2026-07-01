@@ -1,15 +1,15 @@
 import {
-  normalizePastedSourceText,
-  normalizeUploadedTextSourceFile,
+  normalizeUploadedSourceFile,
   PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
-} from './sourceIngestion/textSource.js';
+} from './sourceIngestion/fileSource.js';
+import { normalizePastedSourceText } from './sourceIngestion/textSource.js';
 
 export { PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS };
 
 export const PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH = 30000;
-export const PROJECT_AGENT_SOURCE_FILE_MAX_BYTES = 256 * 1024;
-export const PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH = 60000;
-export const PROJECT_AGENT_SOURCE_FILE_MAX_COUNT = 5;
+export const PROJECT_AGENT_SOURCE_FILE_MAX_BYTES = 512 * 1024;
+export const PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH = 80000;
+export const PROJECT_AGENT_SOURCE_FILE_MAX_COUNT = 10;
 
 function createIncludedManifestEntry(source) {
   return {
@@ -124,7 +124,7 @@ export async function createProjectAgentSourceBundle({
     const id = `source-${nextSourceNumber}`;
     nextSourceNumber += 1;
 
-    const result = await normalizeUploadedTextSourceFile(file, {
+    const result = await normalizeUploadedSourceFile(file, {
       id,
       maxBytes: PROJECT_AGENT_SOURCE_FILE_MAX_BYTES,
     });
