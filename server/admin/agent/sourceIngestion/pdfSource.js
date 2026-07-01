@@ -1,0 +1,230 @@
+import { PDFParse } from 'pdf-parse';
+
+export const PROJECT_AGENT_SOURCE_PDF_EXTENSION = '.pdf';
+export const PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE = 'application/pdf';
+export const PROJECT_AGENT_SOURCE_PDF_MAX_BYTES = 10 * 1024 * 1024;
+export const PROJECT_AGENT_SOURCE_PDF_MAX_PAGES = 40;
+export const PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH = 80000;
+
+function getSafePdfLabel(file) {
+  const name = typeof file?.name === 'string' ? file.name.trim() : '';
+  return name || 'Unnamed PDF source file';
+}
+
+function getFileMediaType(file) {
+  return typeof file?.type === 'string' && file.type.trim()
+    ? file.type.trim()
+    : PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE;
+}
+
+function createSkippedPdfResult({
+  id,
+  label,
+  mediaType,
+  bytes,
+  manifestWarning,
+  warning,
+  pages,
+}) {
+  return {
+    item: null,
+    manifest: {
+      id,
+      kind: 'pdf',
+      label,
+      mediaType,
+      bytes,
+      included: false,
+      warnings: [manifestWarning],
+      ...(Number.isFinite(pages) ? { pages } : {}),
+    },
+    warnings: [warning],
+  };
+}
+
+function formatPdfText({ label, pages }) {
+  const pageParts = pages
+    .map((page) => {
+      const text = typeof page?.text === 'string' ? page.text.trim() : '';
+
+      if (!text) return '';
+
+      return `[Page ${page.num}]\n${text}`;
+    })
+    .filter(Boolean);
+
+  if (pageParts.length === 0) return '';
+
+  return `[PDF: ${label}]\n${pageParts.join('\n\n')}`.trim();
+}
+
+async function extractPdfText(buffer, { maxPages }) {
+  const parser = new PDFParse({ data: Buffer.from(buffer) });
+
+  try {
+    return await parser.getText({
+      first: maxPages,
+      pageJoiner: '',
+    });
+  } finally {
+    await parser.destroy();
+  }
+}
+
+export async function normalizeUploadedPdfSourceFile(file, {
+  id,
+  maxBytes = PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
+  maxPages = PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
+  maxTextLength = PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
+} = {}) {
+  const label = getSafePdfLabel(file);
+  const mediaType = getFileMediaType(file);
+  const size = Number.isFinite(file?.size) ? file.size : null;
+
+  if (size === 0) {
+    return createSkippedPdfResult({
+      id,
+      label,
+      mediaType,
+      bytes: 0,
+      manifestWarning: `PDF source file "${label}" is empty.`,
+      warning: `Skipped empty PDF source file "${label}".`,
+    });
+  }
+
+  if (size != null && size > maxBytes) {
+    return createSkippedPdfResult({
+      id,
+      label,
+      mediaType,
+      bytes: size,
+      manifestWarning: `PDF source file "${label}" exceeds the ${maxBytes} byte limit.`,
+      warning: `Skipped oversized PDF source file "${label}".`,
+    });
+  }
+
+  if (typeof file?.arrayBuffer !== 'function') {
+    return createSkippedPdfResult({
+      id,
+      label,
+      mediaType,
+      bytes: size ?? 0,
+      manifestWarning: `PDF source file "${label}" could not be read.`,
+      warning: `Skipped unreadable PDF source file "${label}".`,
+    });
+  }
+
+  let buffer;
+
+  try {
+    buffer = await file.arrayBuffer();
+  } catch {
+    return createSkippedPdfResult({
+      id,
+      label,
+      mediaType,
+      bytes: size ?? 0,
+      manifestWarning: `PDF source file "${label}" could not be read.`,
+      warning: `Skipped unreadable PDF source file "${label}".`,
+    });
+  }
+
+  const byteLength = buffer.byteLength ?? size ?? 0;
+
+  if (byteLength === 0) {
+    return createSkippedPdfResult({
+      id,
+      label,
+      mediaType,
+      bytes: 0,
+      manifestWarning: `PDF source file "${label}" is empty.`,
+      warning: `Skipped empty PDF source file "${label}".`,
+    });
+  }
+
+  if (byteLength > maxBytes) {
+    return createSkippedPdfResult({
+      id,
+      label,
+      mediaType,
+      bytes: byteLength,
+      manifestWarning: `PDF source file "${label}" exceeds the ${maxBytes} byte limit.`,
+      warning: `Skipped oversized PDF source file "${label}".`,
+    });
+  }
+
+  let result;
+
+  try {
+    result = await extractPdfText(buffer, { maxPages });
+  } catch {
+    return createSkippedPdfResult({
+      id,
+      label,
+      mediaType,
+      bytes: byteLength,
+      manifestWarning: `PDF source file "${label}" could not be extracted as text.`,
+      warning: `Skipped unreadable PDF source file "${label}".`,
+    });
+  }
+
+  const pages = Number.isFinite(result?.total) ? result.total : undefined;
+  let text = formatPdfText({
+    label,
+    pages: Array.isArray(result?.pages) ? result.pages : [],
+  });
+
+  if (!text) {
+    const noTextWarning = `PDF source file "${label}" did not contain extractable text. It may be scanned/image-only.`;
+    return createSkippedPdfResult({
+      id,
+      label,
+      mediaType,
+      bytes: byteLength,
+      pages,
+      manifestWarning: noTextWarning,
+      warning: `Skipped PDF source file "${label}" because no extractable text was found.`,
+    });
+  }
+
+  const warnings = [];
+  const manifestWarnings = [];
+
+  if (pages > maxPages) {
+    const pageLimitWarning = `PDF source file "${label}" has ${pages} pages; only the first ${maxPages} pages were extracted.`;
+    warnings.push(pageLimitWarning);
+    manifestWarnings.push(pageLimitWarning);
+  }
+
+  const isTextTruncated = text.length > maxTextLength;
+
+  if (isTextTruncated) {
+    text = text.slice(0, maxTextLength).trimEnd();
+    const textLimitWarning = `Truncated extracted PDF text from "${label}" to ${maxTextLength} characters.`;
+    warnings.push(textLimitWarning);
+    manifestWarnings.push(textLimitWarning);
+  }
+
+  return {
+    item: {
+      id,
+      kind: 'pdf',
+      label,
+      mediaType,
+      bytes: byteLength,
+      text,
+    },
+    manifest: {
+      id,
+      kind: 'pdf',
+      label,
+      mediaType,
+      bytes: byteLength,
+      included: true,
+      warnings: manifestWarnings,
+      ...(Number.isFinite(pages) ? { pages } : {}),
+      ...(isTextTruncated ? { truncated: true } : {}),
+    },
+    warnings,
+  };
+}

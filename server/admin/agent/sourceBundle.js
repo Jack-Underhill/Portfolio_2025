@@ -1,39 +1,57 @@
 import {
   normalizeUploadedSourceFile,
   PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
+  PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
+  PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
 } from './sourceIngestion/fileSource.js';
 import { normalizePastedSourceText } from './sourceIngestion/textSource.js';
 
-export { PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS };
+export {
+  PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
+  PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
+  PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
+};
 
 export const PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH = 30000;
 export const PROJECT_AGENT_SOURCE_FILE_MAX_BYTES = 512 * 1024;
 export const PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH = 80000;
 export const PROJECT_AGENT_SOURCE_FILE_MAX_COUNT = 10;
 
-function createIncludedManifestEntry(source) {
+function createIncludedManifestEntry(source, sourceManifest) {
+  const baseManifest = sourceManifest ? { ...sourceManifest } : {};
+  delete baseManifest.text;
+
   return {
+    ...baseManifest,
     id: source.id,
     kind: source.kind,
     label: source.label,
     mediaType: source.mediaType,
     bytes: source.bytes,
     included: true,
-    warnings: [],
+    warnings: Array.isArray(sourceManifest?.warnings) ? [...sourceManifest.warnings] : [],
   };
 }
 
-function createSkippedManifestEntry({ source, warning }) {
+function createSkippedManifestEntry({ source, warning, sourceManifest }) {
   const bytes = source ? source.bytes : 0;
+  const baseManifest = sourceManifest ? { ...sourceManifest } : {};
+  delete baseManifest.text;
 
   return {
+    ...baseManifest,
     id: source.id,
     kind: source.kind,
     label: source.label,
     mediaType: source.mediaType,
     bytes,
     included: false,
-    warnings: [warning],
+    warnings: [
+      ...(Array.isArray(sourceManifest?.warnings) ? sourceManifest.warnings : []),
+      warning,
+    ],
   };
 }
 
@@ -59,13 +77,21 @@ function applySourceTextLimit(source, maxLength, warning) {
   };
 }
 
-function tryIncludeSource({ source, sources, manifest, warnings, totalTextLength }) {
+function tryIncludeSource({
+  source,
+  sourceManifest,
+  sources,
+  manifest,
+  warnings,
+  totalTextLength,
+}) {
   const remainingLength = PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH - totalTextLength;
 
   if (remainingLength <= 0) {
     const warning = `Skipped source "${source.label}" because the total source text limit was reached.`;
     manifest.push(createSkippedManifestEntry({
       source,
+      sourceManifest,
       warning,
     }));
     warnings.push(warning);
@@ -83,8 +109,11 @@ function tryIncludeSource({ source, sources, manifest, warnings, totalTextLength
 
   sources.push(limited.source);
   manifest.push({
-    ...createIncludedManifestEntry(limited.source),
-    warnings: limited.manifestWarnings,
+    ...createIncludedManifestEntry(limited.source, sourceManifest),
+    warnings: [
+      ...(Array.isArray(sourceManifest?.warnings) ? sourceManifest.warnings : []),
+      ...limited.manifestWarnings,
+    ],
   });
   warnings.push(...limited.warnings);
 
@@ -127,6 +156,9 @@ export async function createProjectAgentSourceBundle({
     const result = await normalizeUploadedSourceFile(file, {
       id,
       maxBytes: PROJECT_AGENT_SOURCE_FILE_MAX_BYTES,
+      maxPdfBytes: PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
+      maxPdfPages: PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
+      maxPdfTextLength: PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
     });
 
     if (!result.item) {
@@ -138,6 +170,7 @@ export async function createProjectAgentSourceBundle({
     const beforeLength = totalTextLength;
     totalTextLength = tryIncludeSource({
       source: result.item,
+      sourceManifest: result.manifest,
       sources,
       manifest,
       warnings,
@@ -147,6 +180,8 @@ export async function createProjectAgentSourceBundle({
     if (totalTextLength === beforeLength) {
       continue;
     }
+
+    warnings.push(...result.warnings);
   }
 
   return {

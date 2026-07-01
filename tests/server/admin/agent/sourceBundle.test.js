@@ -7,6 +7,7 @@ import {
   PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH,
   PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH,
 } from '../../../../server/admin/agent/sourceBundle.js';
+import { createPdfBuffer } from './sourceIngestion/pdfTestFixture.js';
 
 const encoder = new TextEncoder();
 
@@ -152,6 +153,42 @@ describe('project agent source bundle helpers', () => {
         warnings: [],
       }),
     ]);
+  });
+
+  it('normalizes direct PDF source files with metadata-only manifests', async () => {
+    const bundle = await createProjectAgentSourceBundle({
+      sourceFiles: [
+        createFakeFile({
+          name: 'case-study.pdf',
+          bytes: createPdfBuffer('PDF bundle source evidence'),
+          type: 'application/pdf',
+        }),
+      ],
+    });
+
+    expect(bundle.hasSourceContext).toBe(true);
+    expect(bundle.sources).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        kind: 'pdf',
+        label: 'case-study.pdf',
+        mediaType: 'application/pdf',
+        text: '[PDF: case-study.pdf]\n[Page 1]\nPDF bundle source evidence',
+      }),
+    ]);
+    expect(bundle.manifest).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        kind: 'pdf',
+        label: 'case-study.pdf',
+        mediaType: 'application/pdf',
+        included: true,
+        warnings: [],
+        pages: 1,
+      }),
+    ]);
+    expect(bundle.manifest[0]).not.toHaveProperty('text');
+    expect(bundle.warnings).toEqual([]);
   });
 
   it('extracts markdown and code cells from direct notebook files', async () => {

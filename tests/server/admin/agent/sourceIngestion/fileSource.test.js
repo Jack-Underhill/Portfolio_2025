@@ -4,6 +4,7 @@ import {
   normalizeUploadedSourceFile,
   PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
 } from '../../../../../server/admin/agent/sourceIngestion/fileSource.js';
+import { createPdfBuffer } from './pdfTestFixture.js';
 
 const encoder = new TextEncoder();
 
@@ -43,6 +44,7 @@ describe('project agent source file dispatcher', () => {
       '.toml',
       '.xml',
       '.ipynb',
+      '.pdf',
     ]);
   });
 
@@ -67,6 +69,38 @@ describe('project agent source file dispatcher', () => {
         mediaType: 'text/typescript',
         included: true,
         warnings: [],
+      }),
+      warnings: [],
+    });
+    expect(result.manifest).not.toHaveProperty('text');
+  });
+
+  it('routes direct PDF files through PDF normalization', async () => {
+    const result = await normalizeUploadedSourceFile(
+      createFakeFile({
+        name: 'evidence.pdf',
+        bytes: createPdfBuffer('PDF dispatcher evidence'),
+        type: 'application/pdf',
+      }),
+      { id: 'source-1' },
+    );
+
+    expect(result).toEqual({
+      item: expect.objectContaining({
+        id: 'source-1',
+        kind: 'pdf',
+        label: 'evidence.pdf',
+        mediaType: 'application/pdf',
+        text: '[PDF: evidence.pdf]\n[Page 1]\nPDF dispatcher evidence',
+      }),
+      manifest: expect.objectContaining({
+        id: 'source-1',
+        kind: 'pdf',
+        label: 'evidence.pdf',
+        mediaType: 'application/pdf',
+        included: true,
+        warnings: [],
+        pages: 1,
       }),
       warnings: [],
     });
