@@ -1,10 +1,19 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import ProjectDraftContextPanel from './ProjectDraftContextPanel';
 import ProjectDraftImportPanel from './ProjectDraftImportPanel';
 import ProjectAgentRunPanel from './ProjectAgentRunPanel';
 import ProjectAgentSourceInputs from './ProjectAgentSourceInputs';
+import {
+  createFailedProjectAgentSourcePreview,
+  createIdleProjectAgentSourcePreview,
+  createLoadingProjectAgentSourcePreview,
+  createProjectAgentSourceInputSignature,
+  createSucceededProjectAgentSourcePreview,
+  hasProjectAgentSourceInput,
+} from './projectAgentSourcePreviewState';
 import TextAreaInput from '../forms/TextAreaInput';
+import { previewProjectAgentSources } from '../api/adminClient';
 import { adminForm, adminUi } from '../../styles/recipes';
 
 const PROJECT_AGENT_INTENT_OPTIONS = Object.freeze([
@@ -64,13 +73,28 @@ function ProjectAgentSection({
   const [instructions, setInstructions] = useState('');
   const [sourceText, setSourceText] = useState('');
   const [sourceFiles, setSourceFiles] = useState([]);
+  const [sourcePreview, setSourcePreview] = useState(createIdleProjectAgentSourcePreview);
+  const sourceInputSignature = createProjectAgentSourceInputSignature({ sourceText, sourceFiles });
+  const sourceInputSignatureRef = useRef(sourceInputSignature);
+  sourceInputSignatureRef.current = sourceInputSignature;
   const isRunning = agentRun?.status === 'running';
-  const isAgentInputDisabled = isSaveInFlight || isRunning;
+  const isPreviewingSources = sourcePreview.status === 'loading';
+  const isAgentInputDisabled = isSaveInFlight || isRunning || isPreviewingSources;
   const hasInstructions = instructions.trim().length > 0;
   const hasSourceText = sourceText.trim().length > 0;
   const hasSourceFiles = sourceFiles.length > 0;
   const hasRunnableInput = hasInstructions || hasSourceText || hasSourceFiles;
-  const canSubmitRun = hasActiveProject && hasRunnableInput && !isSaveInFlight && !isRunning;
+  const hasPreviewableSource = hasProjectAgentSourceInput({ sourceText, sourceFiles });
+  const canPreviewSources = hasActiveProject
+    && hasPreviewableSource
+    && !isSaveInFlight
+    && !isRunning
+    && !isPreviewingSources;
+  const canSubmitRun = hasActiveProject
+    && hasRunnableInput
+    && !isSaveInFlight
+    && !isRunning
+    && !isPreviewingSources;
   const runIntentId = `${headingId}-intent`;
   const instructionsId = `${headingId}-instructions`;
   const sourceTextId = `${headingId}-source-material`;
@@ -78,12 +102,45 @@ function ProjectAgentSection({
   const runtimeModelLabel = getRuntimeModelLabel(runtimeMetadata);
   const runtimeModelTitle = getRuntimeModelTitle(runtimeMetadata);
 
+  const clearSourcePreview = () => {
+    setSourcePreview(createIdleProjectAgentSourcePreview);
+  };
+
+  const handleSourceTextChange = (value) => {
+    setSourceText(value);
+    clearSourcePreview();
+  };
+
   const handleAddSourceFiles = (files) => {
     setSourceFiles((currentFiles) => [...currentFiles, ...files]);
+    clearSourcePreview();
   };
 
   const handleRemoveSourceFile = (fileIndex) => {
     setSourceFiles((currentFiles) => currentFiles.filter((_, index) => index !== fileIndex));
+    clearSourcePreview();
+  };
+
+  const handlePreviewSources = async () => {
+    if (!canPreviewSources) return;
+
+    const requestSignature = sourceInputSignatureRef.current;
+    setSourcePreview(createLoadingProjectAgentSourcePreview(requestSignature));
+
+    try {
+      const result = await previewProjectAgentSources({
+        sourceText,
+        sourceFiles,
+      });
+
+      if (sourceInputSignatureRef.current !== requestSignature) return;
+
+      setSourcePreview(createSucceededProjectAgentSourcePreview(result, requestSignature));
+    } catch (error) {
+      if (sourceInputSignatureRef.current !== requestSignature) return;
+
+      setSourcePreview(createFailedProjectAgentSourcePreview(error, requestSignature));
+    }
   };
 
   const handleRunAgent = () => {
@@ -115,7 +172,7 @@ function ProjectAgentSection({
             id={sourceTextId}
             label="Source material"
             value={sourceText}
-            onChange={setSourceText}
+            onChange={handleSourceTextChange}
             minRows={2}
             disabled={isAgentInputDisabled}
             placeholder="Paste notes, reports, metrics, or other evidence."
@@ -126,8 +183,12 @@ function ProjectAgentSection({
               id={sourceFilesId}
               sourceFiles={sourceFiles}
               disabled={isAgentInputDisabled}
+              sourcePreview={sourcePreview}
+              canPreviewSources={canPreviewSources}
+              isPreviewingSources={isPreviewingSources}
               onAddFiles={handleAddSourceFiles}
               onRemoveFile={handleRemoveSourceFile}
+              onPreviewSources={handlePreviewSources}
             />
 
             <div className="relative min-w-[1rem] flex-1 sm:w-33 sm:flex-none">
