@@ -1,4 +1,5 @@
 import {
+  getDisallowedTextSourceReason,
   getSourceFileExtension,
   isSupportedTextSourceFileName,
   normalizeUploadedTextSourceFile,
@@ -63,8 +64,10 @@ function getSafePath(entry) {
 
 function getEntryKind(path) {
   const extension = getSourceFileExtension(path);
+  const disallowedReason = getDisallowedTextSourceReason(path);
 
   if (extension === PROJECT_AGENT_SOURCE_PDF_EXTENSION) return { extension, kind: 'pdf' };
+  if (disallowedReason) return { extension, kind: 'disallowed-text', disallowedReason };
   if (isSupportedTextSourceFileName(path)) return { extension, kind: 'text' };
   if (extension === PROJECT_AGENT_SOURCE_ZIP_EXTENSION) return { extension, kind: 'nested-zip' };
   return { extension, kind: '' };
@@ -78,6 +81,7 @@ function getPolicyWarning({ archiveLabel, path, pathIsUnsafe, kind, includedCoun
 
   if (pathIsUnsafe) return `Skipped unsafe zip entry "${label}".`;
   if (isIgnored) return `Skipped ignored zip entry "${label}".`;
+  if (kind === 'disallowed-text') return `Skipped disallowed zip entry "${label}".`;
   if (kind === 'nested-zip') return `Skipped nested zip entry "${label}".`;
   if (!kind) return `Skipped unsupported zip entry "${label}".`;
   if (includedCount >= maxIncludedFiles) {

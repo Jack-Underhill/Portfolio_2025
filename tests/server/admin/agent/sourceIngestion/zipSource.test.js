@@ -39,10 +39,10 @@ function expectSkippedEntry(entry, { id, label, warning, bytes }) {
   expect(entry).toEqual(expect.objectContaining({
     item: null,
     manifest: expect.objectContaining({
-      id,
       label,
       included: false,
       warnings: [warning],
+      ...(id == null ? {} : { id }),
       ...(bytes == null ? {} : { bytes }),
     }),
   }));
@@ -135,6 +135,63 @@ describe('project agent zip source normalization', () => {
       expectSkippedEntry(result.entries[index], { id, label, warning });
     });
     expect(result.warnings).toEqual(result.entries.map((entry) => entry.manifest.warnings[0]));
+  });
+
+  it('applies the broad developer text policy to zip entries', async () => {
+    const result = await normalizeUploadedZipSourceFile(
+      createFakeFile({
+        name: 'developer.zip',
+        bytes: await createZipBuffer([
+          { path: 'Dockerfile', text: 'FROM node:22' },
+          { path: 'src/main.go', text: 'package main' },
+          { path: '.env', text: 'TOKEN=secret' },
+          { path: 'generated/client.ts', text: 'export const generated = true;' },
+          { path: 'public/app.min.js', text: 'console.log("minified")' },
+        ]),
+      }),
+      { createId: createIdFactory() },
+    );
+
+    const entriesByLabel = new Map(result.entries.map((entry) => [entry.manifest.label, entry]));
+
+    expect(entriesByLabel.get('developer.zip / Dockerfile')).toEqual(expect.objectContaining({
+      item: expect.objectContaining({
+        kind: 'file',
+        label: 'developer.zip / Dockerfile',
+        text: 'FROM node:22',
+      }),
+      manifest: expect.objectContaining({
+        included: true,
+        archiveLabel: 'developer.zip',
+        path: 'Dockerfile',
+        warnings: [],
+      }),
+    }));
+    expect(entriesByLabel.get('developer.zip / src/main.go')).toEqual(expect.objectContaining({
+      item: expect.objectContaining({
+        kind: 'file',
+        label: 'developer.zip / src/main.go',
+        text: 'package main',
+      }),
+      manifest: expect.objectContaining({
+        included: true,
+        archiveLabel: 'developer.zip',
+        path: 'src/main.go',
+        warnings: [],
+      }),
+    }));
+    expectSkippedEntry(entriesByLabel.get('developer.zip / .env'), {
+      label: 'developer.zip / .env',
+      warning: 'Skipped disallowed zip entry "developer.zip / .env".',
+    });
+    expectSkippedEntry(entriesByLabel.get('developer.zip / generated/client.ts'), {
+      label: 'developer.zip / generated/client.ts',
+      warning: 'Skipped ignored zip entry "developer.zip / generated/client.ts".',
+    });
+    expectSkippedEntry(entriesByLabel.get('developer.zip / public/app.min.js'), {
+      label: 'developer.zip / public/app.min.js',
+      warning: 'Skipped disallowed zip entry "developer.zip / public/app.min.js".',
+    });
   });
 
   it('enforces entry count, included file, per-entry byte, and total extracted byte limits', async () => {

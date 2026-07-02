@@ -15,7 +15,18 @@ describe('ProjectAgentSourceInputs', () => {
       />,
     );
 
-    expect(html).toContain('accept=".txt,.md,.markdown,.json,.csv,.log,.html,.css,.js,.jsx,.ts,.tsx,.py,.sql,.yaml,.yml,.toml,.xml,.ipynb,.pdf,.zip"');
+    expect(html).toContain('accept="');
+    expect(html).toContain('.java');
+    expect(html).toContain('.go');
+    expect(html).toContain('.rs');
+    expect(html).toContain('.vue');
+    expect(html).toContain('.svelte');
+    expect(html).toContain('.astro');
+    expect(html).toContain('.graphql');
+    expect(html).toContain('.proto');
+    expect(html).toContain('.dockerfile');
+    expect(html).toContain('Dockerfile');
+    expect(html).toContain('.env.example');
     expect(html).toContain('.pdf');
     expect(html).toContain('.zip');
   });

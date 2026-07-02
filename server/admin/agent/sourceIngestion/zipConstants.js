@@ -11,6 +11,7 @@ export const IGNORED_ZIP_PATH_SEGMENTS = new Set([
   'node_modules',
   'dist',
   'build',
+  'generated',
   'coverage',
   '.next',
   '.cache',

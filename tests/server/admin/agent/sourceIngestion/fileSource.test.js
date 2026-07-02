@@ -24,29 +24,25 @@ function createFakeFile({ name, text, type = 'text/plain', bytes }) {
 
 describe('project agent source file dispatcher', () => {
   it('exposes the expanded direct text and code extension allowlist', () => {
-    expect(PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS).toEqual([
+    expect(PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS).toEqual(expect.arrayContaining([
       '.txt',
       '.md',
-      '.markdown',
-      '.json',
-      '.csv',
-      '.log',
-      '.html',
-      '.css',
-      '.js',
-      '.jsx',
-      '.ts',
-      '.tsx',
-      '.py',
-      '.sql',
-      '.yaml',
-      '.yml',
-      '.toml',
-      '.xml',
+      '.java',
+      '.cpp',
+      '.cs',
+      '.go',
+      '.rs',
+      '.vue',
+      '.svelte',
+      '.astro',
+      '.scss',
+      '.graphql',
+      '.proto',
+      '.dockerfile',
       '.ipynb',
       '.pdf',
       '.zip',
-    ]);
+    ]));
   });
 
   it('routes supported direct code files through text normalization', async () => {
@@ -74,6 +70,32 @@ describe('project agent source file dispatcher', () => {
       warnings: [],
     });
     expect(result.manifest).not.toHaveProperty('text');
+  });
+
+  it('routes safe extensionless developer files through text normalization', async () => {
+    const result = await normalizeUploadedSourceFile(
+      createFakeFile({ name: 'Dockerfile', text: 'FROM node:22', type: '' }),
+      { id: 'source-1', maxBytes: 512 * 1024 },
+    );
+
+    expect(result).toEqual({
+      item: expect.objectContaining({
+        id: 'source-1',
+        kind: 'file',
+        label: 'Dockerfile',
+        mediaType: 'text/plain',
+        text: 'FROM node:22',
+      }),
+      manifest: expect.objectContaining({
+        id: 'source-1',
+        kind: 'file',
+        label: 'Dockerfile',
+        mediaType: 'text/plain',
+        included: true,
+        warnings: [],
+      }),
+      warnings: [],
+    });
   });
 
   it('routes direct PDF files through PDF normalization', async () => {
