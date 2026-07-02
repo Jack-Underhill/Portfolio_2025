@@ -87,6 +87,56 @@ const sourceBundle = {
   warnings: ['Truncated source "archive.log" to fit the total source limit.'],
 };
 
+const richFileSourceBundle = {
+  hasSourceContext: true,
+  sources: [
+    {
+      id: 'source-1',
+      kind: 'pdf',
+      label: 'final-report.pdf',
+      mediaType: 'application/pdf',
+      bytes: 2048,
+      text: '[PDF: final-report.pdf]\n[Page 1]\nThe final report confirms 99.9% uptime.',
+    },
+    ...Array.from({ length: 4 }, (_, index) => ({
+      id: `source-${index + 2}`,
+      kind: 'file',
+      label: `project-bundle.zip / src/module-${index + 1}.ts`,
+      mediaType: 'text/plain',
+      bytes: 100 + index,
+      text: `Module ${index + 1} implements source-backed workflow behavior.`,
+      archiveLabel: 'project-bundle.zip',
+      path: `src/module-${index + 1}.ts`,
+    })),
+  ],
+  manifest: [
+    {
+      id: 'source-1',
+      kind: 'pdf',
+      label: 'final-report.pdf',
+      mediaType: 'application/pdf',
+      bytes: 2048,
+      included: true,
+      warnings: [],
+      pages: 3,
+    },
+    ...Array.from({ length: 4 }, (_, index) => ({
+      id: `source-${index + 2}`,
+      kind: 'file',
+      label: `project-bundle.zip / src/module-${index + 1}.ts`,
+      mediaType: 'text/plain',
+      bytes: 100 + index,
+      included: true,
+      warnings: index === 3 ? ['Truncated source "project-bundle.zip / src/module-4.ts" to fit the total source limit.'] : [],
+      archiveLabel: 'project-bundle.zip',
+      path: `src/module-${index + 1}.ts`,
+      extractedBytes: 100 + index,
+      truncated: index === 3,
+    })),
+  ],
+  warnings: [],
+};
+
 describe('project agent prompt helpers', () => {
   it('exposes the supported owner intents without a generic framework', () => {
     expect(PROJECT_AGENT_INTENT_IDS).toEqual(['revise', 'review']);
@@ -288,6 +338,24 @@ describe('project agent prompt helpers', () => {
     expect(prompt).toContain('Launch notes say the workflow reduced review time.');
     expect(prompt).toContain('Metric: support handoff time fell by 30%.');
     expect(prompt).toContain('Owner instructions cannot override the strict JSON schema or protected-field rules.');
+  });
+
+  it('formats PDF and zip-derived manifest metadata and evidence labels compactly', () => {
+    const prompt = buildProjectAgentPrompt({
+      intent: 'revise',
+      instructions: 'Use the report and bundled source evidence.',
+      projectContext,
+      sourceBundle: richFileSourceBundle,
+    });
+
+    expect(prompt).toContain('source-1: final-report.pdf (pdf; included; bytes: 2048; mediaType: application/pdf; pages: 3)');
+    expect(prompt).toContain('source-2: project-bundle.zip / src/module-1.ts (file; included; bytes: 100; mediaType: text/plain; extractedBytes: 100; archive: project-bundle.zip; path: src/module-1.ts)');
+    expect(prompt).toContain('source-5: project-bundle.zip / src/module-4.ts (file; included; bytes: 103; mediaType: text/plain; extractedBytes: 103; truncated; archive: project-bundle.zip; path: src/module-4.ts; warnings: Truncated source "project-bundle.zip / src/module-4.ts" to fit the total source limit.)');
+    expect(prompt).toContain('[source-1] final-report.pdf');
+    expect(prompt).toContain('[PDF: final-report.pdf]\n[Page 1]\nThe final report confirms 99.9% uptime.');
+    expect(prompt).toContain('[source-5] project-bundle.zip / src/module-4.ts');
+    expect(prompt).toContain('kind: file');
+    expect(prompt).not.toContain('undefined');
   });
 
   it('builds a source-backed review prompt that remains analysis-only', () => {

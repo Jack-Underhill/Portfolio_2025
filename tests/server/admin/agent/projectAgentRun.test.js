@@ -50,6 +50,56 @@ const sourceBundle = {
   warnings: ['Truncated pasted source material to 30000 characters.'],
 };
 
+const richFileSourceBundle = {
+  hasSourceContext: true,
+  sources: [
+    {
+      id: 'source-1',
+      kind: 'pdf',
+      label: 'final-report.pdf',
+      mediaType: 'application/pdf',
+      bytes: 4096,
+      text: '[PDF: final-report.pdf]\n[Page 1]\nFinal report confirms 99.9% uptime.',
+    },
+    {
+      id: 'source-2',
+      kind: 'file',
+      label: 'project-bundle.zip / src/App.jsx',
+      mediaType: 'text/plain',
+      bytes: 512,
+      text: 'App.jsx wires the source preview and run manifest display.',
+    },
+  ],
+  manifest: [
+    {
+      id: 'source-1',
+      kind: 'pdf',
+      label: 'final-report.pdf',
+      mediaType: 'application/pdf',
+      bytes: 4096,
+      included: true,
+      warnings: [],
+      pages: 2,
+      text: 'raw PDF text must not be returned',
+    },
+    {
+      id: 'source-2',
+      kind: 'file',
+      label: 'project-bundle.zip / src/App.jsx',
+      mediaType: 'text/plain',
+      bytes: 512,
+      included: true,
+      warnings: ['Truncated source "project-bundle.zip / src/App.jsx" to fit the total source limit.'],
+      archiveLabel: 'project-bundle.zip',
+      path: 'src/App.jsx',
+      extractedBytes: 512,
+      truncated: true,
+      text: 'raw zip entry text must not be returned',
+    },
+  ],
+  warnings: ['Truncated source "project-bundle.zip / src/App.jsx" to fit the total source limit.'],
+};
+
 const discoveredCodexCommand = 'C:\\Tools\\latest-codex.exe';
 
 function runProjectAgent(options) {
@@ -178,6 +228,111 @@ describe('project agent run helpers', () => {
       elapsedMs: 15,
     });
     expect(JSON.stringify(result.sourceManifest)).not.toContain(sourceBundle.sources[0].text);
+  });
+
+  it('preserves safe PDF and zip manifest metadata without returning raw source text', async () => {
+    const result = await runProjectAgent({
+      intent: 'revise',
+      instructions: 'Use the richer source metadata.',
+      projectContext,
+      sourceBundle: richFileSourceBundle,
+      codexBridge: async ({ prompt }) => {
+        expect(prompt).toContain('final-report.pdf (pdf; included; bytes: 4096; mediaType: application/pdf; pages: 2)');
+        expect(prompt).toContain('project-bundle.zip / src/App.jsx');
+        expect(prompt).toContain('[PDF: final-report.pdf]');
+        expect(prompt).toContain('App.jsx wires the source preview and run manifest display.');
+
+        return {
+          json: {
+            patch: {
+              metrics: ['Confirmed 99.9% uptime'],
+            },
+            notes: [],
+            warnings: [],
+          },
+          elapsedMs: 16,
+        };
+      },
+    });
+
+    expect(result.sourceManifest).toEqual([
+      {
+        id: 'source-1',
+        kind: 'pdf',
+        label: 'final-report.pdf',
+        mediaType: 'application/pdf',
+        bytes: 4096,
+        included: true,
+        warnings: [],
+        pages: 2,
+      },
+      {
+        id: 'source-2',
+        kind: 'file',
+        label: 'project-bundle.zip / src/App.jsx',
+        mediaType: 'text/plain',
+        bytes: 512,
+        included: true,
+        warnings: ['Truncated source "project-bundle.zip / src/App.jsx" to fit the total source limit.'],
+        archiveLabel: 'project-bundle.zip',
+        path: 'src/App.jsx',
+        extractedBytes: 512,
+        truncated: true,
+      },
+    ]);
+    expect(JSON.stringify(result.sourceManifest)).not.toContain('raw PDF text');
+    expect(JSON.stringify(result.sourceManifest)).not.toContain('raw zip entry text');
+  });
+
+  it('accepts zip-derived source bundles with more than the old direct-file source count', async () => {
+    const manyZipEntries = {
+      hasSourceContext: true,
+      sources: Array.from({ length: 12 }, (_, index) => ({
+        id: `source-${index + 1}`,
+        kind: 'file',
+        label: `project-bundle.zip / src/file-${index + 1}.ts`,
+        mediaType: 'text/plain',
+        bytes: 32,
+        text: `Evidence from bundled file ${index + 1}.`,
+      })),
+      manifest: Array.from({ length: 12 }, (_, index) => ({
+        id: `source-${index + 1}`,
+        kind: 'file',
+        label: `project-bundle.zip / src/file-${index + 1}.ts`,
+        mediaType: 'text/plain',
+        bytes: 32,
+        included: true,
+        warnings: [],
+        archiveLabel: 'project-bundle.zip',
+        path: `src/file-${index + 1}.ts`,
+        extractedBytes: 32,
+      })),
+      warnings: [],
+    };
+
+    const result = await runProjectAgent({
+      intent: 'revise',
+      instructions: 'Use the bundled evidence.',
+      projectContext,
+      sourceBundle: manyZipEntries,
+      codexBridge: async ({ prompt }) => {
+        expect(prompt).toContain('Derived run plan: revise-with-source-context');
+        expect(prompt).toContain('source-12: project-bundle.zip / src/file-12.ts');
+        expect(prompt).toContain('[source-12] project-bundle.zip / src/file-12.ts');
+
+        return {
+          json: {
+            patch: {},
+            notes: ['Accepted many zip-derived sources.'],
+            warnings: [],
+          },
+          elapsedMs: 18,
+        };
+      },
+    });
+
+    expect(result.sourceManifest).toHaveLength(12);
+    expect(result.notes).toEqual(['Accepted many zip-derived sources.']);
   });
 
   it('normalizes source manifest metadata before returning it', async () => {
@@ -310,6 +465,46 @@ describe('project agent run helpers', () => {
       runPlan: 'review-with-source-context',
       sourceManifest: sourceBundle.manifest,
       elapsedMs: 10,
+    });
+  });
+
+  it('suppresses patch fields returned from PDF and zip source-backed review runs', async () => {
+    const result = await runProjectAgent({
+      intent: 'review',
+      instructions: 'Review the draft against the PDF and zip evidence.',
+      projectContext,
+      sourceBundle: richFileSourceBundle,
+      codexBridge: async ({ prompt }) => {
+        expect(prompt).toContain('Derived run plan: review-with-source-context');
+        expect(prompt).toContain('Return patch as exactly {}.');
+        expect(prompt).toContain('final-report.pdf');
+        expect(prompt).toContain('project-bundle.zip / src/App.jsx');
+
+        return {
+          json: {
+            patch: {
+              title: 'Should still not apply',
+              metrics: ['Should still not apply'],
+            },
+            notes: ['PDF and zip evidence support a stronger metric.'],
+            warnings: [],
+          },
+          elapsedMs: 17,
+        };
+      },
+    });
+
+    expect(result).toMatchObject({
+      patch: {},
+      notes: ['PDF and zip evidence support a stronger metric.'],
+      warnings: [
+        'Ignored draft fields returned during review.',
+        'Truncated source "project-bundle.zip / src/App.jsx" to fit the total source limit.',
+      ],
+      appliedFields: [],
+      intent: 'review',
+      runPlan: 'review-with-source-context',
+      elapsedMs: 17,
     });
   });
 

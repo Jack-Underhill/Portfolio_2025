@@ -2,6 +2,10 @@ import {
   AgentProjectDraftImportError,
   mapAgentProjectDraftToProjectPatch,
 } from '../../../src/domain/projects/agentDraft.js';
+import {
+  PROJECT_AGENT_SOURCE_FILE_MAX_COUNT,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
+} from './sourceBundle.js';
 
 export const PROJECT_AGENT_INSTRUCTIONS_MAX_LENGTH = 4000;
 export const PROJECT_AGENT_CONTEXT_MAX_LENGTH = 50000;
@@ -9,9 +13,12 @@ export const PROJECT_AGENT_CONTEXT_MAX_LENGTH = 50000;
 const SUMMARY_ARRAY_MAX_ITEMS = 20;
 const SUMMARY_STRING_MAX_LENGTH = 500;
 const REVIEW_PATCH_IGNORED_WARNING = 'Ignored draft fields returned during review.';
-const SOURCE_BUNDLE_MAX_SOURCES = 10;
+const SOURCE_BUNDLE_MAX_SOURCES = (PROJECT_AGENT_SOURCE_FILE_MAX_COUNT * PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES) + 1;
 const SOURCE_BUNDLE_WARNING_MAX_ITEMS = 25;
 const SOURCE_BUNDLE_WARNING_MAX_LENGTH = 500;
+const SOURCE_MANIFEST_STRING_METADATA_FIELDS = Object.freeze(['archiveLabel', 'path']);
+const SOURCE_MANIFEST_NUMBER_METADATA_FIELDS = Object.freeze(['pages', 'entryCount', 'extractedBytes']);
+const SOURCE_MANIFEST_BOOLEAN_METADATA_FIELDS = Object.freeze(['truncated']);
 
 export class ProjectAgentSchemaError extends Error {
   constructor(type, message, details = {}) {
@@ -134,6 +141,20 @@ function normalizeSourceManifestEntry(entry, index) {
 
   if (mediaType) {
     normalized.mediaType = mediaType;
+  }
+
+  for (const field of SOURCE_MANIFEST_STRING_METADATA_FIELDS) {
+    const value = typeof entry[field] === 'string' ? entry[field].trim() : '';
+    if (value) normalized[field] = value;
+  }
+
+  for (const field of SOURCE_MANIFEST_NUMBER_METADATA_FIELDS) {
+    const value = entry[field];
+    if (Number.isFinite(value) && value >= 0) normalized[field] = value;
+  }
+
+  for (const field of SOURCE_MANIFEST_BOOLEAN_METADATA_FIELDS) {
+    if (entry[field] === true) normalized[field] = true;
   }
 
   return normalized;

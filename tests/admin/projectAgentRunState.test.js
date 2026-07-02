@@ -21,6 +21,21 @@ const LIVE_FILE_REQUEST = Object.freeze({
     }),
   ],
 });
+const LIVE_RICH_FILE_REQUEST = Object.freeze({
+  ...LAST_REQUEST,
+  sourceFiles: [
+    Object.freeze({
+      name: 'report.pdf',
+      size: 4096,
+      arrayBuffer: async () => new ArrayBuffer(0),
+    }),
+    Object.freeze({
+      name: 'project-bundle.zip',
+      size: 8192,
+      arrayBuffer: async () => new ArrayBuffer(0),
+    }),
+  ],
+});
 const UNAVAILABLE_FILE_REQUEST = Object.freeze({
   ...LAST_REQUEST,
   sourceFiles: [
@@ -126,6 +141,12 @@ describe('project agent run state', () => {
       activeProject: ACTIVE_PROJECT,
       agentRun: { ...createIdleProjectAgentRunState(), status: 'succeeded' },
       lastRequest: LIVE_FILE_REQUEST,
+    }).canRetry).toBe(true);
+
+    expect(deriveProjectAgentRunControls({
+      activeProject: ACTIVE_PROJECT,
+      agentRun: { ...createIdleProjectAgentRunState(), status: 'succeeded' },
+      lastRequest: LIVE_RICH_FILE_REQUEST,
     }).canRetry).toBe(true);
 
     expect(deriveProjectAgentRunControls({

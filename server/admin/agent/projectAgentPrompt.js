@@ -82,12 +82,24 @@ function formatSourceManifest(sourceBundle) {
   return sourceBundle.manifest
     .map((entry) => {
       const status = entry.included ? 'included' : 'skipped';
-      const mediaType = entry.mediaType ? `; mediaType: ${entry.mediaType}` : '';
+      const details = [
+        entry.kind,
+        status,
+        `bytes: ${entry.bytes}`,
+      ];
+
+      if (entry.mediaType) details.push(`mediaType: ${entry.mediaType}`);
+      if (Number.isFinite(entry.pages)) details.push(`pages: ${entry.pages}`);
+      if (Number.isFinite(entry.extractedBytes)) details.push(`extractedBytes: ${entry.extractedBytes}`);
+      if (entry.truncated === true) details.push('truncated');
+      if (entry.archiveLabel) details.push(`archive: ${entry.archiveLabel}`);
+      if (entry.path) details.push(`path: ${entry.path}`);
+
       const warnings = entry.warnings.length
         ? `; warnings: ${entry.warnings.join(' | ')}`
         : '';
 
-      return `- ${entry.id}: ${entry.label} (${entry.kind}; ${status}; bytes: ${entry.bytes}${mediaType}${warnings})`;
+      return `- ${entry.id}: ${entry.label} (${details.join('; ')}${warnings})`;
     })
     .join('\n');
 }
