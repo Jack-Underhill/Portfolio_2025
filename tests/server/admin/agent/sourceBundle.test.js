@@ -1,3 +1,4 @@
+import JSZip from 'jszip';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -23,6 +24,16 @@ function createFakeFile({ name, text, type = 'text/plain', bytes }) {
       encoded.byteOffset + encoded.byteLength,
     ),
   };
+}
+
+async function createZipBytes(entries) {
+  const zip = new JSZip();
+
+  entries.forEach(({ path, text, bytes }) => {
+    zip.file(path, bytes || text || '');
+  });
+
+  return new Uint8Array(await zip.generateAsync({ type: 'uint8array' }));
 }
 
 describe('project agent source bundle helpers', () => {
@@ -189,6 +200,73 @@ describe('project agent source bundle helpers', () => {
     ]);
     expect(bundle.manifest[0]).not.toHaveProperty('text');
     expect(bundle.warnings).toEqual([]);
+  });
+
+  it('normalizes direct zip source files into multiple metadata-only manifest entries', async () => {
+    const bundle = await createProjectAgentSourceBundle({
+      sourceFiles: [
+        createFakeFile({
+          name: 'bundle.zip',
+          type: 'application/zip',
+          bytes: await createZipBytes([
+            { path: 'docs/notes.md', text: '# Bundle notes' },
+            { path: 'docs/report.pdf', bytes: createPdfBuffer('PDF evidence from zip') },
+            { path: 'z-assets/logo.png', bytes: new Uint8Array([1, 2, 3]) },
+          ]),
+        }),
+      ],
+    });
+
+    expect(bundle.hasSourceContext).toBe(true);
+    expect(bundle.sources).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        kind: 'file',
+        label: 'bundle.zip / docs/notes.md',
+        text: '# Bundle notes',
+      }),
+      expect.objectContaining({
+        id: 'source-2',
+        kind: 'pdf',
+        label: 'bundle.zip / docs/report.pdf',
+        text: '[PDF: bundle.zip / docs/report.pdf]\n[Page 1]\nPDF evidence from zip',
+      }),
+    ]);
+    expect(bundle.manifest).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        label: 'bundle.zip / docs/notes.md',
+        included: true,
+        archiveLabel: 'bundle.zip',
+        path: 'docs/notes.md',
+        warnings: [],
+      }),
+      expect.objectContaining({
+        id: 'source-2',
+        kind: 'pdf',
+        label: 'bundle.zip / docs/report.pdf',
+        included: true,
+        archiveLabel: 'bundle.zip',
+        path: 'docs/report.pdf',
+        pages: 1,
+        warnings: [],
+      }),
+      expect.objectContaining({
+        id: 'source-3',
+        kind: 'zip-entry',
+        label: 'bundle.zip / z-assets/logo.png',
+        included: false,
+        archiveLabel: 'bundle.zip',
+        path: 'z-assets/logo.png',
+        warnings: ['Skipped unsupported zip entry "bundle.zip / z-assets/logo.png".'],
+      }),
+    ]);
+    bundle.manifest.forEach((entry) => {
+      expect(entry).not.toHaveProperty('text');
+    });
+    expect(bundle.warnings).toEqual([
+      'Skipped unsupported zip entry "bundle.zip / z-assets/logo.png".',
+    ]);
   });
 
   it('extracts markdown and code cells from direct notebook files', async () => {
@@ -396,6 +474,42 @@ describe('project agent source bundle helpers', () => {
     ]);
     expect(bundle.warnings).toEqual([
       `Truncated source "long.md" to fit the ${PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH} character total source limit.`,
+    ]);
+  });
+
+  it('truncates zip entry source text at the total source text limit', async () => {
+    const bundle = await createProjectAgentSourceBundle({
+      sourceText: 'p'.repeat(PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
+      sourceFiles: [
+        createFakeFile({
+          name: 'bundle.zip',
+          type: 'application/zip',
+          bytes: await createZipBytes([
+            {
+              path: 'long.md',
+              text: 'z'.repeat(PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH),
+            },
+          ]),
+        }),
+      ],
+    });
+
+    expect(bundle.sources).toHaveLength(2);
+    expect(bundle.sources[1]).toEqual(expect.objectContaining({
+      id: 'source-2',
+      label: 'bundle.zip / long.md',
+      text: 'z'.repeat(PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH - PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
+    }));
+    expect(bundle.manifest[1]).toEqual(expect.objectContaining({
+      id: 'source-2',
+      label: 'bundle.zip / long.md',
+      included: true,
+      warnings: [
+        `Truncated source "bundle.zip / long.md" to fit the ${PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH} character total source limit.`,
+      ],
+    }));
+    expect(bundle.warnings).toEqual([
+      `Truncated source "bundle.zip / long.md" to fit the ${PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH} character total source limit.`,
     ]);
   });
 

@@ -45,6 +45,7 @@ describe('project agent source file dispatcher', () => {
       '.xml',
       '.ipynb',
       '.pdf',
+      '.zip',
     ]);
   });
 
@@ -107,22 +108,40 @@ describe('project agent source file dispatcher', () => {
     expect(result.manifest).not.toHaveProperty('text');
   });
 
-  it('keeps unsupported binary-oriented extensions skipped for later ingestion phases', async () => {
+  it('routes direct zip files through zip normalization', async () => {
+    const { default: JSZip } = await import('jszip');
+    const zip = new JSZip();
+    zip.file('docs/notes.md', '# Notes');
+    const bytes = await zip.generateAsync({ type: 'uint8array' });
+
     const result = await normalizeUploadedSourceFile(
-      createFakeFile({ name: 'bundle.zip', text: 'not zip parsing yet', type: 'application/zip' }),
-      { id: 'source-1', maxBytes: 512 * 1024 },
+      createFakeFile({ name: 'bundle.zip', bytes, type: 'application/zip' }),
+      {
+        id: 'source-1',
+        createId: () => 'source-1',
+        maxBytes: 512 * 1024,
+      },
     );
 
-    expect(result).toEqual({
-      item: null,
-      manifest: expect.objectContaining({
-        id: 'source-1',
-        kind: 'file',
-        label: 'bundle.zip',
-        included: false,
-        warnings: ['Unsupported source file type for "bundle.zip".'],
+    expect(result.entries).toEqual([
+      expect.objectContaining({
+        item: expect.objectContaining({
+          id: 'source-1',
+          kind: 'file',
+          label: 'bundle.zip / docs/notes.md',
+          text: '# Notes',
+        }),
+        manifest: expect.objectContaining({
+          id: 'source-1',
+          label: 'bundle.zip / docs/notes.md',
+          included: true,
+          archiveLabel: 'bundle.zip',
+          path: 'docs/notes.md',
+          warnings: [],
+        }),
       }),
-      warnings: ['Skipped unsupported source file "bundle.zip".'],
-    });
+    ]);
+    expect(result.entries[0].manifest).not.toHaveProperty('text');
+    expect(result.warnings).toEqual([]);
   });
 });

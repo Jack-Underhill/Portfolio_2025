@@ -4,6 +4,11 @@ import {
   PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
   PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
   PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
+  PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_ENTRIES,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
+  PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
 } from './sourceIngestion/fileSource.js';
 import { normalizePastedSourceText } from './sourceIngestion/textSource.js';
 
@@ -12,6 +17,11 @@ export {
   PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
   PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
   PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
+  PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_ENTRIES,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
+  PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
 };
 
 export const PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH = 30000;
@@ -120,6 +130,34 @@ function tryIncludeSource({
   return totalTextLength + limited.source.text.length;
 }
 
+function createSourceIdGenerator(start) {
+  let nextSourceNumber = start;
+
+  return {
+    nextId() {
+      const id = `source-${nextSourceNumber}`;
+      nextSourceNumber += 1;
+      return id;
+    },
+    getNextSourceNumber() {
+      return nextSourceNumber;
+    },
+  };
+}
+
+function normalizeSourceResults(result) {
+  if (Array.isArray(result?.entries)) {
+    return result.entries;
+  }
+
+  return [
+    {
+      item: result.item,
+      manifest: result.manifest,
+    },
+  ];
+}
+
 export async function createProjectAgentSourceBundle({
   sourceText,
   sourceFiles = [],
@@ -150,35 +188,42 @@ export async function createProjectAgentSourceBundle({
   }
 
   for (const file of files) {
-    const id = `source-${nextSourceNumber}`;
-    nextSourceNumber += 1;
+    const idGenerator = createSourceIdGenerator(nextSourceNumber);
 
     const result = await normalizeUploadedSourceFile(file, {
-      id,
+      id: `source-${nextSourceNumber}`,
+      createId: idGenerator.nextId,
       maxBytes: PROJECT_AGENT_SOURCE_FILE_MAX_BYTES,
       maxPdfBytes: PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
       maxPdfPages: PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
       maxPdfTextLength: PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
+      maxZipBytes: PROJECT_AGENT_SOURCE_ZIP_MAX_BYTES,
+      maxZipEntries: PROJECT_AGENT_SOURCE_ZIP_MAX_ENTRIES,
+      maxZipIncludedFiles: PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
+      maxZipEntryBytes: PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
+      maxZipTotalExtractedBytes: PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
     });
+    const sourceResults = normalizeSourceResults(result);
 
-    if (!result.item) {
-      manifest.push(result.manifest);
-      warnings.push(...result.warnings);
-      continue;
-    }
+    nextSourceNumber = Math.max(
+      nextSourceNumber + 1,
+      idGenerator.getNextSourceNumber(),
+    );
 
-    const beforeLength = totalTextLength;
-    totalTextLength = tryIncludeSource({
-      source: result.item,
-      sourceManifest: result.manifest,
-      sources,
-      manifest,
-      warnings,
-      totalTextLength,
-    });
+    for (const sourceResult of sourceResults) {
+      if (!sourceResult.item) {
+        manifest.push(sourceResult.manifest);
+        continue;
+      }
 
-    if (totalTextLength === beforeLength) {
-      continue;
+      totalTextLength = tryIncludeSource({
+        source: sourceResult.item,
+        sourceManifest: sourceResult.manifest,
+        sources,
+        manifest,
+        warnings,
+        totalTextLength,
+      });
     }
 
     warnings.push(...result.warnings);
