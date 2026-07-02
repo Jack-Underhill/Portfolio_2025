@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   loadProjectAgentRuntime,
+  previewProjectAgentSources,
   runProjectAgent,
 } from '../../src/admin/api/adminClient.js';
 
@@ -162,6 +163,69 @@ describe('admin API client', () => {
       intent: 'revise',
       instructions: 'Use the source files.',
       projectContext,
+      sourceText: 'Owner source note.',
+    });
+    expect(options.body.getAll('sourceFiles')).toEqual(sourceFiles);
+  });
+
+  it('previews pasted project agent sources as JSON without invoking a run route', async () => {
+    const responseBody = {
+      hasSourceContext: true,
+      manifest: [{ id: 'source-1', label: 'Pasted source material', included: true }],
+      warnings: [],
+      sourceCount: 1,
+      manifestCount: 1,
+      warningCount: 0,
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(previewProjectAgentSources({
+      sourceText: 'Launch notes and metrics.',
+    })).resolves.toEqual(responseBody);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8787/admin-api/projects/agent/sources/preview',
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          sourceText: 'Launch notes and metrics.',
+        }),
+      },
+    );
+  });
+
+  it('previews project agent source files as multipart under the sourceFiles field', async () => {
+    const responseBody = {
+      hasSourceContext: true,
+      manifest: [{ id: 'source-1', label: 'report.md', included: true }],
+      warnings: [],
+      sourceCount: 1,
+      manifestCount: 1,
+      warningCount: 0,
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const sourceFiles = [
+      new File(['# Report'], 'report.md', { type: 'text/markdown' }),
+    ];
+
+    await expect(previewProjectAgentSources({
+      sourceText: 'Owner source note.',
+      sourceFiles,
+    })).resolves.toEqual(responseBody);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [, options] = fetchMock.mock.calls[0];
+    expect(options.method).toBe('POST');
+    expect(options.headers).toBeUndefined();
+    expect(options.body).toBeInstanceOf(FormData);
+    expect(JSON.parse(options.body.get('payload'))).toEqual({
       sourceText: 'Owner source note.',
     });
     expect(options.body.getAll('sourceFiles')).toEqual(sourceFiles);

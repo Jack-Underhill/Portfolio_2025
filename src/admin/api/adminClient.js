@@ -71,6 +71,26 @@ export async function runProjectAgent({
     return postAdminPayload('/projects/agent/run', payload);
   }
 
+  return postProjectAgentSourceMultipart('/projects/agent/run', payload, uploadFiles);
+}
+
+export async function previewProjectAgentSources({
+  sourceText,
+  sourceFiles,
+} = {}) {
+  const payload = {
+    sourceText,
+  };
+  const uploadFiles = Array.isArray(sourceFiles) ? sourceFiles.filter(isUploadFile) : [];
+
+  if (uploadFiles.length === 0) {
+    return postAdminPayload('/projects/agent/sources/preview', payload);
+  }
+
+  return postProjectAgentSourceMultipart('/projects/agent/sources/preview', payload, uploadFiles);
+}
+
+function postProjectAgentSourceMultipart(path, payload, uploadFiles) {
   const form = new FormData();
   form.set('payload', JSON.stringify(payload));
 
@@ -78,7 +98,7 @@ export async function runProjectAgent({
     form.append('sourceFiles', file);
   }
 
-  return requestJson('/projects/agent/run', {
+  return requestJson(path, {
     method: 'POST',
     body: form,
   });

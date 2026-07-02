@@ -1,6 +1,19 @@
 import { getCodexRuntimeMetadata } from '../agent/codexRuntimeMetadata.js';
 import { ProjectAgentRunError, runProjectAgent } from '../agent/projectAgentRun.js';
-import { createProjectAgentSourceBundle } from '../agent/sourceBundle.js';
+import {
+  createProjectAgentSourceBundle,
+  PROJECT_AGENT_SOURCE_FILE_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_FILE_MAX_COUNT,
+  PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
+  PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH,
+  PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH,
+  PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_ENTRIES,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
+  PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
+} from '../agent/sourceBundle.js';
 import {
   BadRequestError,
   assertPlainObject,
@@ -8,6 +21,20 @@ import {
   parseAdminRequest,
 } from './requestBody.js';
 import { sendJson, sendRouteError } from './responses.js';
+
+const SOURCE_PREVIEW_LIMITS = {
+  fileMaxCount: PROJECT_AGENT_SOURCE_FILE_MAX_COUNT,
+  fileMaxBytes: PROJECT_AGENT_SOURCE_FILE_MAX_BYTES,
+  sourceTextMaxLength: PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH,
+  totalTextMaxLength: PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH,
+  pdfMaxBytes: PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
+  pdfMaxPages: PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
+  zipMaxBytes: PROJECT_AGENT_SOURCE_ZIP_MAX_BYTES,
+  zipMaxEntries: PROJECT_AGENT_SOURCE_ZIP_MAX_ENTRIES,
+  zipMaxIncludedFiles: PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
+  zipEntryMaxBytes: PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
+  zipTotalExtractedBytes: PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
+};
 
 function getContentType(req) {
   const value = req.headers?.['content-type'];
@@ -17,6 +44,16 @@ function getContentType(req) {
 function hasProjectAgentRunContentType(req) {
   const contentType = getContentType(req);
   return contentType.includes('application/json') || contentType.includes('multipart/form-data');
+}
+
+async function getProjectAgentSourceBundle(body, form) {
+  const sourceText = body.sourceText;
+  const sourceFiles = getMultipartFiles(form, ['sourceFiles']);
+
+  return createProjectAgentSourceBundle({
+    sourceText,
+    sourceFiles,
+  });
 }
 
 async function getProjectAgentRunPayload(body, form) {
@@ -31,13 +68,22 @@ async function getProjectAgentRunPayload(body, form) {
   const sourceFiles = getMultipartFiles(form, ['sourceFiles']);
 
   if ((typeof sourceText === 'string' && sourceText.trim()) || sourceFiles.length > 0) {
-    payload.sourceBundle = await createProjectAgentSourceBundle({
-      sourceText,
-      sourceFiles,
-    });
+    payload.sourceBundle = await getProjectAgentSourceBundle(body, form);
   }
 
   return payload;
+}
+
+function createProjectAgentSourcePreview(bundle) {
+  return {
+    hasSourceContext: bundle.hasSourceContext,
+    manifest: bundle.manifest,
+    warnings: bundle.warnings,
+    sourceCount: bundle.sources.length,
+    manifestCount: bundle.manifest.length,
+    warningCount: bundle.warnings.length,
+    limits: SOURCE_PREVIEW_LIMITS,
+  };
 }
 
 function normalizeRunError(error) {
@@ -121,6 +167,31 @@ export function createProjectsAgentRunHandler({ runAgent = runProjectAgent } = {
   };
 }
 
+export function createProjectsAgentSourcePreviewHandler({
+  createSourceBundle = createProjectAgentSourceBundle,
+} = {}) {
+  return async function handleProjectsAgentSourcePreview(req, res) {
+    try {
+      if (!hasProjectAgentRunContentType(req)) {
+        throw new BadRequestError(
+          'Project agent source preview requests must use application/json or multipart/form-data.',
+        );
+      }
+
+      const { body, form } = await parseAdminRequest(req);
+      assertPlainObject(body, 'Project agent source preview request body');
+
+      const sourceText = body.sourceText;
+      const sourceFiles = getMultipartFiles(form, ['sourceFiles']);
+      const bundle = await createSourceBundle({ sourceText, sourceFiles });
+
+      sendJson(res, 200, createProjectAgentSourcePreview(bundle));
+    } catch (error) {
+      sendRouteError(res, error);
+    }
+  };
+}
+
 export function createProjectsAgentRuntimeHandler({
   getRuntimeMetadata = getCodexRuntimeMetadata,
 } = {}) {
@@ -136,4 +207,5 @@ export function createProjectsAgentRuntimeHandler({
 }
 
 export const handleProjectsAgentRun = createProjectsAgentRunHandler();
+export const handleProjectsAgentSourcePreview = createProjectsAgentSourcePreviewHandler();
 export const handleProjectsAgentRuntime = createProjectsAgentRuntimeHandler();

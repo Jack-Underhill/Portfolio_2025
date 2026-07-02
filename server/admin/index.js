@@ -12,6 +12,7 @@ import {
 } from './routes/projects.js';
 import {
   handleProjectsAgentRun,
+  handleProjectsAgentSourcePreview,
   handleProjectsAgentRuntime,
 } from './routes/projectsAgent.js';
 import { handleSkillsRead, handleSkillsWrite } from './routes/skills.js';
@@ -89,6 +90,11 @@ function handleRequest(req, res) {
 
   if (req.method === 'POST' && requestUrl.pathname === '/admin-api/projects/agent/run') {
     handleProjectsAgentRun(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && requestUrl.pathname === '/admin-api/projects/agent/sources/preview') {
+    handleProjectsAgentSourcePreview(req, res);
     return;
   }
 

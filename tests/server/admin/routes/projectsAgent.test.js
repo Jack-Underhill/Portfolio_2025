@@ -1,13 +1,16 @@
 import { Buffer } from 'node:buffer';
 import { Readable } from 'node:stream';
 
+import JSZip from 'jszip';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ProjectAgentRunError } from '../../../../server/admin/agent/projectAgentRun.js';
 import {
   createProjectsAgentRunHandler,
+  createProjectsAgentSourcePreviewHandler,
   createProjectsAgentRuntimeHandler,
 } from '../../../../server/admin/routes/projectsAgent.js';
+import { createPdfBuffer } from '../agent/sourceIngestion/pdfTestFixture.js';
 
 const validPayload = {
   intent: 'revise',
@@ -539,6 +542,157 @@ describe('projects agent runtime route', () => {
   });
 });
 
+describe('projects agent source preview route', () => {
+  it('previews pasted source text without returning raw source text', async () => {
+    const handler = createProjectsAgentSourcePreviewHandler();
+    const req = jsonRequest({
+      sourceText: '  Launch notes and outcome metrics.  ',
+    });
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual(expect.objectContaining({
+      hasSourceContext: true,
+      manifest: [
+        expect.objectContaining({
+          id: 'source-1',
+          kind: 'pasted-text',
+          label: 'Pasted source material',
+          included: true,
+          warnings: [],
+        }),
+      ],
+      warnings: [],
+      sourceCount: 1,
+      manifestCount: 1,
+      warningCount: 0,
+      limits: expect.objectContaining({
+        fileMaxCount: expect.any(Number),
+        pdfMaxBytes: expect.any(Number),
+        zipMaxBytes: expect.any(Number),
+      }),
+    }));
+    expect(JSON.stringify(res.json())).not.toContain('Launch notes and outcome metrics');
+    expect(res.json()).not.toHaveProperty('sources');
+  });
+
+  it('previews multipart zip and unsupported source files with metadata-only manifests', async () => {
+    const handler = createProjectsAgentSourcePreviewHandler();
+    const zipBytes = await createZipBuffer([
+      { path: 'docs/notes.md', text: '# Notes' },
+      { path: 'assets/logo.png', bytes: new Uint8Array([1, 2, 3]) },
+    ]);
+    const req = multipartRequest({
+      sourceText: 'Owner source note.',
+    }, [
+      ['sourceFiles', new Blob([zipBytes], { type: 'application/zip' }), 'bundle.zip'],
+      ['sourceFiles', new Blob([createPdfBuffer('PDF preview evidence')], {
+        type: 'application/pdf',
+      }), 'report.pdf'],
+      ['sourceFiles', new Blob(['not an image'], { type: 'image/png' }), 'screenshot.png'],
+    ]);
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual(expect.objectContaining({
+      hasSourceContext: true,
+      sourceCount: 3,
+      manifestCount: 5,
+      warningCount: 2,
+      manifest: [
+        expect.objectContaining({
+          id: 'source-1',
+          kind: 'pasted-text',
+          label: 'Pasted source material',
+          included: true,
+        }),
+        expect.objectContaining({
+          id: 'source-2',
+          label: 'bundle.zip / assets/logo.png',
+          included: false,
+          warnings: ['Skipped unsupported zip entry "bundle.zip / assets/logo.png".'],
+        }),
+        expect.objectContaining({
+          id: 'source-3',
+          kind: 'file',
+          label: 'bundle.zip / docs/notes.md',
+          archiveLabel: 'bundle.zip',
+          path: 'docs/notes.md',
+          included: true,
+          warnings: [],
+        }),
+        expect.objectContaining({
+          id: 'source-4',
+          kind: 'pdf',
+          label: 'report.pdf',
+          included: true,
+          pages: 1,
+          warnings: [],
+        }),
+        expect.objectContaining({
+          id: 'source-5',
+          kind: 'file',
+          label: 'screenshot.png',
+          included: false,
+          warnings: ['Unsupported source file type for "screenshot.png".'],
+        }),
+      ],
+      warnings: [
+        'Skipped unsupported zip entry "bundle.zip / assets/logo.png".',
+        'Skipped unsupported source file "screenshot.png".',
+      ],
+    }));
+    expect(JSON.stringify(res.json())).not.toContain('# Notes');
+    expect(JSON.stringify(res.json())).not.toContain('PDF preview evidence');
+    expect(JSON.stringify(res.json())).not.toContain('Owner source note.');
+    expect(res.json()).not.toHaveProperty('sources');
+  });
+
+  it('requires JSON or multipart source preview requests before normalizing sources', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const createSourceBundle = vi.fn();
+    const handler = createProjectsAgentSourcePreviewHandler({ createSourceBundle });
+    const req = jsonRequest({ sourceText: 'notes' }, 'text/plain');
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(createSourceBundle).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(400);
+    expect(res.json()).toEqual({
+      error: 'Project agent source preview requests must use application/json or multipart/form-data.',
+    });
+
+    warn.mockRestore();
+  });
+
+  it('returns concise 400 responses for source preview multipart parse errors', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const createSourceBundle = vi.fn();
+    const handler = createProjectsAgentSourcePreviewHandler({ createSourceBundle });
+    const req = Readable.from([Buffer.from('not multipart data')]);
+    req.headers = {
+      'content-type': 'multipart/form-data; boundary=broken',
+      'content-length': Buffer.byteLength('not multipart data'),
+    };
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(createSourceBundle).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(400);
+    expect(res.json()).toEqual({
+      error: 'Admin multipart request could not be parsed',
+    });
+
+    warn.mockRestore();
+  });
+});
+
 function jsonRequest(payload, contentType = 'application/json') {
   const body = JSON.stringify(payload);
   const req = Readable.from([Buffer.from(body)]);
@@ -566,6 +720,16 @@ function multipartRequest(payload, files = []) {
   req.headers = Object.fromEntries(request.headers.entries());
 
   return req;
+}
+
+async function createZipBuffer(entries) {
+  const zip = new JSZip();
+
+  entries.forEach(({ path, text, bytes }) => {
+    zip.file(path, bytes || text || '');
+  });
+
+  return await zip.generateAsync({ type: 'uint8array' });
 }
 
 function mockResponse() {
