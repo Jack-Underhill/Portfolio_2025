@@ -70,7 +70,7 @@ describe('project agent source bundle helpers', () => {
     expect(bundle.manifest[0]).not.toHaveProperty('text');
   });
 
-  it('normalizes multiple valid text-like source files', async () => {
+  it('normalizes multiple valid curated text/code source files', async () => {
     const bundle = await createProjectAgentSourceBundle({
       sourceFiles: [
         createFakeFile({ name: 'report.md', text: '# Report', type: 'text/markdown' }),
