@@ -45,9 +45,15 @@ Current baseline test files:
 - `tests/server/admin/agent/projectAgentPrompt.test.js`
 - `tests/server/admin/agent/projectAgentRun.test.js`
 - `tests/server/admin/agent/sourceBundle.test.js`
+- `tests/server/admin/agent/sourceIngestion/textSource.test.js`
+- `tests/server/admin/agent/sourceIngestion/fileSource.test.js`
+- `tests/server/admin/agent/sourceIngestion/pdfSource.test.js`
+- `tests/server/admin/agent/sourceIngestion/zipSource.test.js`
 - `tests/server/admin/routes/projectsAgent.test.js`
 - `tests/admin/adminClient.test.js`
 - `tests/admin/projectAgentRunState.test.js`
+- `tests/admin/projectAgentSourcePreviewState.test.js`
+- `tests/admin/ProjectAgentSourceInputs.test.jsx`
 - `tests/server/admin/utils/storage.test.js`
 - `tests/server/admin/routes/validation.helpers.test.js`
 - `tests/server/admin/routes/validation.uploads.test.js`
@@ -70,7 +76,7 @@ Current checks:
 Local Codex agent focused checks:
 
 - `cmd /c npx vitest run tests/server/admin/agent/codexBridge.test.js tests/domain/projects/agentDraft.test.js` covers the deterministic bridge helper and the existing project draft import contract.
-- `cmd /c npx vitest run tests/server/admin/agent/codexRuntimeMetadata.test.js tests/server/admin/agent/sourceBundle.test.js tests/server/admin/agent/projectAgentPrompt.test.js tests/server/admin/agent/projectAgentRun.test.js tests/server/admin/routes/projectsAgent.test.js tests/admin/adminClient.test.js tests/admin/projectAgentRunState.test.js` covers browser-safe model metadata parsing/fallbacks, source bundle limits and manifests, prompt assembly, intent validation, source-aware derived run planning, review patch suppression, run orchestration, route/client JSON and multipart request shape, runtime metadata route/client behavior, and run-state retry/clear behavior with fake Codex responses only.
+- `cmd /c npx vitest run tests/server/admin/agent/codexRuntimeMetadata.test.js tests/server/admin/agent/sourceBundle.test.js tests/server/admin/agent/sourceIngestion/textSource.test.js tests/server/admin/agent/sourceIngestion/fileSource.test.js tests/server/admin/agent/sourceIngestion/pdfSource.test.js tests/server/admin/agent/sourceIngestion/zipSource.test.js tests/server/admin/agent/projectAgentPrompt.test.js tests/server/admin/agent/projectAgentRun.test.js tests/server/admin/routes/projectsAgent.test.js tests/admin/adminClient.test.js tests/admin/projectAgentRunState.test.js tests/admin/projectAgentSourcePreviewState.test.js tests/admin/ProjectAgentSourceInputs.test.jsx` covers browser-safe model metadata parsing/fallbacks, source bundle limits and manifests, expanded text/code policy, direct file dispatch, PDF extraction, zip filtering and limits, source preflight state/rendering, prompt assembly, intent validation, source-aware derived run planning, review patch suppression, run orchestration, route/client JSON and multipart request shape, runtime metadata route/client behavior, and run-state retry/clear behavior with fake Codex responses only.
 - `cmd /c npx vitest run tests/admin/projectAgentRunState.test.js` covers the Project Agent review-surface helper state used for idle/running shape and retry/clear availability.
 - `cmd /c npm run admin:codex-spike` runs a real Codex CLI bridge check through the logged-in local CLI. Run it when changing the low-level bridge command path or local CLI assumptions, but keep it out of the default gate because it depends on local Codex CLI/auth availability.
 
@@ -130,7 +136,7 @@ Current coverage:
 - Draft-to-public-modal preview mapping is covered for complete drafts, optional fields, classification normalization, malformed list fallbacks, and challenge preservation.
 - Agent draft import and current-context export helpers are covered for pasted and fenced JSON parsing, malformed payload errors, unknown-key warnings, protected identity/media preservation, challenge shape handling, classification normalization, partial tech stack merging, unsupported-only payloads, and safe current project review context serialization.
 - The Projects agent run and runtime metadata paths are covered at the helper and route layers: browser-safe Codex config metadata parsing/fallbacks, owner intent validation, source bundle normalization, source-aware derived run-plan prompt construction, wrapper validation, instruction/context/source limits, review-only patch suppression, bridge failure normalization, malformed wrapper handling, invalid patch handling, route content-type errors, concise browser-facing errors, and the `runProjectAgent` / `loadProjectAgentRuntime` admin client helpers.
-- Source attachment coverage includes pasted text, valid text-like files, unsupported file extensions, empty/oversized/unreadable/undecodable files, total source text limits, manifest entries without raw source text, no-source JSON requests, pasted-source JSON requests, multipart file requests, and retry state preserving source inputs while browser file objects remain usable.
+- Source attachment coverage includes pasted text, broad UTF-8 developer text/code/config files, safe extensionless project filenames, Jupyter notebook markdown/code-cell extraction, direct PDF extraction, zip archives with supported text/PDF entries, unsupported file extensions, secret-like names, binary/database dumps, generated/minified bundles, empty/oversized/unreadable/undecodable files, unsafe zip paths, nested archive skips, dependency/build/generated zip-folder skips, archive/entry/included-file/extracted-byte limits, total source text limits, manifest entries without raw source text, no-source JSON requests, pasted-source JSON requests, multipart file requests, source preview route/client behavior, stale preview state derivation, compact source input rendering, and retry state preserving source inputs while browser file objects remain usable.
 - The Phase 2 Projects agent review surface has focused pure coverage for serializable idle/running state and retry/clear availability across active-project, saved/running, in-flight save, source-backed last requests, unavailable source file objects, and missing-request cases. Rendered live-region semantics, focus handoff, source controls, and compact result layout remain a manual authenticated-admin boundary rather than a React component harness.
 - Project classification mapper defaults, rank/type/label normalization, and featured/standard grouping sort behavior are covered.
 - Public project-card classification pills consume the mapped `projectType` and `labels` fields. The card-local timer, opacity overlap, reduced-motion branch, and assistive-hidden transient layers remain manually verified until the repo gains a lightweight React component test path.
