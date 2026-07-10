@@ -2,6 +2,9 @@
 set "ROOT=%~dp0.."
 set "DEV_SCRIPTS=%~dp0dev"
 
+call "%DEV_SCRIPTS%\ensure-dependencies.bat"
+if errorlevel 1 exit /b 1
+
 wt ^
   new-tab   -d "%ROOT%" --title "Admin Server" --suppressApplicationTitle cmd /k call "%DEV_SCRIPTS%\admin-server.bat" ^
   ; new-tab -d "%ROOT%" --title "Vite Server"  --suppressApplicationTitle cmd /k call "%DEV_SCRIPTS%\vite-server.bat" ^
