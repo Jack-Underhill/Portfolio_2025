@@ -328,9 +328,9 @@ function getSafeFileLabel(file) {
   return name || 'Unnamed source file';
 }
 
-function getFileMediaType(file, extension) {
-  return typeof file?.type === 'string' && file.type.trim()
-    ? file.type.trim()
+function getTextSourceMediaType({ type, extension }) {
+  return typeof type === 'string' && type.trim()
+    ? type.trim()
     : MEDIA_TYPES_BY_EXTENSION.get(extension) || PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE;
 }
 
@@ -392,8 +392,37 @@ function extractNotebookText(text) {
 
 export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
   const label = getSafeFileLabel(file);
-  const extension = getSourceFileExtension(label);
   const size = Number.isFinite(file?.size) ? file.size : null;
+  const type = typeof file?.type === 'string' ? file.type : '';
+  const readBytes = typeof file?.arrayBuffer === 'function'
+    ? async () => file.arrayBuffer()
+    : null;
+
+  return normalizeNamedTextSourceBytes({
+    id,
+    label,
+    type,
+    bytes: size,
+    readBytes,
+    maxBytes,
+  });
+}
+
+export async function normalizeNamedTextSourceBytes({
+  id,
+  label: unsafeLabel,
+  type = '',
+  bytes: knownBytes,
+  readBytes,
+  maxBytes,
+  kind = 'file',
+}) {
+  const label = typeof unsafeLabel === 'string' && unsafeLabel.trim()
+    ? unsafeLabel.trim()
+    : 'Unnamed source file';
+  const extension = getSourceFileExtension(label);
+  const size = Number.isFinite(knownBytes) ? knownBytes : null;
+  const mediaType = getTextSourceMediaType({ type, extension });
   const disallowedReason = getDisallowedTextSourceReason(label);
 
   if (disallowedReason) {
@@ -401,9 +430,9 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
-        mediaType: getFileMediaType(file, extension),
+        mediaType,
         bytes: size ?? 0,
         included: false,
         warnings: [`Source file "${label}" is not allowed because it has a ${disallowedReason}.`],
@@ -417,7 +446,7 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
         bytes: size ?? 0,
         included: false,
@@ -432,9 +461,9 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
-        mediaType: getFileMediaType(file, extension),
+        mediaType,
         bytes: 0,
         included: false,
         warnings: [`Source file "${label}" is empty.`],
@@ -448,9 +477,9 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
-        mediaType: getFileMediaType(file, extension),
+        mediaType,
         bytes: size,
         included: false,
         warnings: [`Source file "${label}" exceeds the ${maxBytes} byte limit.`],
@@ -459,14 +488,14 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
     };
   }
 
-  if (typeof file?.arrayBuffer !== 'function') {
+  if (typeof readBytes !== 'function') {
     return {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
-        mediaType: getFileMediaType(file, extension),
+        mediaType,
         bytes: size ?? 0,
         included: false,
         warnings: [`Source file "${label}" could not be read.`],
@@ -478,15 +507,15 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
   let buffer;
 
   try {
-    buffer = await file.arrayBuffer();
+    buffer = await readBytes();
   } catch {
     return {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
-        mediaType: getFileMediaType(file, extension),
+        mediaType,
         bytes: size ?? 0,
         included: false,
         warnings: [`Source file "${label}" could not be read.`],
@@ -502,9 +531,9 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
-        mediaType: getFileMediaType(file, extension),
+        mediaType,
         bytes: 0,
         included: false,
         warnings: [`Source file "${label}" is empty.`],
@@ -518,9 +547,9 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
-        mediaType: getFileMediaType(file, extension),
+        mediaType,
         bytes: byteLength,
         included: false,
         warnings: [`Source file "${label}" exceeds the ${maxBytes} byte limit.`],
@@ -538,9 +567,9 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
-        mediaType: getFileMediaType(file, extension),
+        mediaType,
         bytes: byteLength,
         included: false,
         warnings: [`Source file "${label}" could not be decoded as UTF-8.`],
@@ -554,9 +583,9 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
       item: null,
       manifest: {
         id,
-        kind: 'file',
+        kind,
         label,
-        mediaType: getFileMediaType(file, extension),
+        mediaType,
         bytes: byteLength,
         included: false,
         warnings: [`Source file "${label}" is empty after trimming.`],
@@ -573,9 +602,9 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
         item: null,
         manifest: {
           id,
-          kind: 'file',
+          kind,
           label,
-          mediaType: getFileMediaType(file, extension),
+          mediaType,
           bytes: byteLength,
           included: false,
           warnings: [notebookResult.warning || `Source file "${label}" is empty after trimming.`],
@@ -590,17 +619,17 @@ export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
   return {
     item: {
       id,
-      kind: 'file',
+      kind,
       label,
-      mediaType: getFileMediaType(file, extension),
+      mediaType,
       bytes: byteLength,
       text,
     },
     manifest: {
       id,
-      kind: 'file',
+      kind,
       label,
-      mediaType: getFileMediaType(file, extension),
+      mediaType,
       bytes: byteLength,
       included: true,
       warnings: [],

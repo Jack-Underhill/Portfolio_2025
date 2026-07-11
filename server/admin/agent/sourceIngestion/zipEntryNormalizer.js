@@ -2,7 +2,7 @@ import {
   getDisallowedTextSourceReason,
   getSourceFileExtension,
   isSupportedTextSourceFileName,
-  normalizeUploadedTextSourceFile,
+  normalizeNamedTextSourceBytes,
 } from './textSource.js';
 import {
   normalizeUploadedPdfSourceFile,
@@ -188,7 +188,7 @@ function withArchiveMetadata(result, { archiveLabel, path, bytes }) {
 
 export async function normalizeZipEntry({ entry, archiveLabel, id, limits, counters }) {
   const { path, unsafe } = getSafePath(entry);
-  const { extension, kind } = getEntryKind(path);
+  const { kind } = getEntryKind(path);
   const policyWarning = getPolicyWarning({
     archiveLabel,
     path,
@@ -223,20 +223,22 @@ export async function normalizeZipEntry({ entry, archiveLabel, id, limits, count
   }
 
   const label = `${archiveLabel} / ${path}`;
-  const fileLike = createFileLike({
-    name: label,
-    type: extension === PROJECT_AGENT_SOURCE_PDF_EXTENSION ? PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE : '',
-    bytes: readResult.bytes,
-  });
   const result = kind === 'pdf'
-    ? await normalizeUploadedPdfSourceFile(fileLike, {
+    ? await normalizeUploadedPdfSourceFile(createFileLike({
+      name: label,
+      type: PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE,
+      bytes: readResult.bytes,
+    }), {
       id,
       maxBytes: limits.maxEntryBytes,
       maxPages: limits.maxPdfPages,
       maxTextLength: limits.maxPdfTextLength,
     })
-    : await normalizeUploadedTextSourceFile(fileLike, {
+    : await normalizeNamedTextSourceBytes({
       id,
+      label,
+      bytes: readResult.bytes.byteLength,
+      readBytes: async () => readResult.bytes,
       maxBytes: limits.maxEntryBytes,
     });
 

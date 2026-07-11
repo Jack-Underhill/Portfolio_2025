@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getSourceFileExtension,
   isSupportedTextSourceFileName,
+  normalizeNamedTextSourceBytes,
   normalizeUploadedTextSourceFile,
 } from '../../../../../server/admin/agent/sourceIngestion/textSource.js';
 
@@ -120,5 +121,40 @@ describe('project agent text source normalization', () => {
       }));
       expect(result.warnings).toEqual([`Skipped disallowed source file "${name}".`]);
     }
+  });
+
+  it('normalizes named byte sources without requiring browser file objects', async () => {
+    const bytes = encoder.encode('export const fromRepo = true;');
+
+    const result = await normalizeNamedTextSourceBytes({
+      id: 'source-1',
+      kind: 'github-file',
+      label: 'owner/repo:src/App.ts',
+      bytes: bytes.byteLength,
+      readBytes: async () => bytes,
+      maxBytes: 512 * 1024,
+    });
+
+    expect(result).toEqual({
+      item: expect.objectContaining({
+        id: 'source-1',
+        kind: 'github-file',
+        label: 'owner/repo:src/App.ts',
+        mediaType: 'text/typescript',
+        bytes: bytes.byteLength,
+        text: 'export const fromRepo = true;',
+      }),
+      manifest: {
+        id: 'source-1',
+        kind: 'github-file',
+        label: 'owner/repo:src/App.ts',
+        mediaType: 'text/typescript',
+        bytes: bytes.byteLength,
+        included: true,
+        warnings: [],
+      },
+      warnings: [],
+    });
+    expect(result.manifest).not.toHaveProperty('text');
   });
 });
