@@ -1,7 +1,5 @@
 import {
-  getDisallowedTextSourceReason,
   getSourceFileExtension,
-  isSupportedTextSourceFileName,
   normalizeNamedTextSourceBytes,
 } from './textSource.js';
 import {
@@ -18,6 +16,8 @@ import {
   PROJECT_AGENT_SOURCE_ZIP_EXTENSION,
   PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
 } from './zipConstants.js';
+import { validateTotalByteLength } from './validation/byteLimitValidation.js';
+import { validateTextSourceFileName } from './validation/textValidation.js';
 
 export function getZipEntryName(entry) {
   return typeof entry?.unsafeOriginalName === 'string' && entry.unsafeOriginalName.trim()
@@ -68,13 +68,15 @@ function getSafePath(entry) {
 
 function getEntryKind(path) {
   const extension = getSourceFileExtension(path);
-  const disallowedReason = getDisallowedTextSourceReason(path);
+  const textValidation = validateTextSourceFileName(path);
 
   if (extension === PROJECT_AGENT_SOURCE_PDF_EXTENSION) {
     return { extension, kind: PROJECT_AGENT_SOURCE_PDF_KIND };
   }
-  if (disallowedReason) return { extension, kind: 'disallowed-text', disallowedReason };
-  if (isSupportedTextSourceFileName(path)) return { extension, kind: 'text' };
+  if (!textValidation.ok && textValidation.reason === 'disallowed') {
+    return { extension, kind: 'disallowed-text', disallowedReason: textValidation.disallowedReason };
+  }
+  if (textValidation.ok) return { extension, kind: 'text' };
   if (extension === PROJECT_AGENT_SOURCE_ZIP_EXTENSION) return { extension, kind: 'nested-zip' };
   return { extension, kind: '' };
 }
@@ -109,7 +111,13 @@ function getSizeWarning({ archiveLabel, path, bytes, totalExtractedBytes, limits
     return `Skipped oversized zip entry "${label}" because it exceeds the ${limits.maxEntryBytes} byte limit.`;
   }
 
-  if (totalExtractedBytes + bytes > limits.maxTotalExtractedBytes) {
+  const totalValidation = validateTotalByteLength({
+    currentBytes: totalExtractedBytes,
+    additionalBytes: bytes,
+    maxTotalBytes: limits.maxTotalExtractedBytes,
+  });
+
+  if (!totalValidation.ok) {
     return `Skipped zip entry "${label}" because the ${limits.maxTotalExtractedBytes} byte total extracted limit was reached.`;
   }
 

@@ -5,83 +5,38 @@ import {
 import { PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE } from './sourceMediaTypes.js';
 import {
   PROJECT_AGENT_TEXT_SOURCE_MEDIA_TYPES_BY_EXTENSION,
-  TEXT_SOURCE_ALLOWED_EXTENSION_SET,
-  TEXT_SOURCE_ALLOWED_FILENAME_SET,
-  TEXT_SOURCE_DISALLOWED_BINARY_OR_DUMP_EXTENSIONS,
-  TEXT_SOURCE_DISALLOWED_SECRET_EXTENSIONS,
-  TEXT_SOURCE_DISALLOWED_SECRET_FILENAMES,
-  TEXT_SOURCE_GENERATED_BUNDLE_PATTERN,
-  TEXT_SOURCE_GENERATED_SOURCE_PATTERN,
 } from './textSourcePolicy.js';
+import {
+  validateByteLength,
+  validateKnownByteLength,
+} from './validation/byteLimitValidation.js';
+import {
+  getKnownFileSize,
+  getReadableFileBytes,
+  validateByteReader,
+} from './validation/fileValidation.js';
+import {
+  getSourceFileExtension,
+  validateTextSourceFileName,
+} from './validation/textValidation.js';
 
 export {
   PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
   PROJECT_AGENT_SOURCE_ALLOWED_FILENAMES,
 } from './textSourcePolicy.js';
 export { PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE } from './sourceMediaTypes.js';
+export {
+  getDisallowedTextSourceReason,
+  getSourceFileBaseName,
+  getSourceFileExtension,
+  isSupportedTextSourceFileName,
+} from './validation/textValidation.js';
 
 const TEXT_DECODER = new TextDecoder('utf-8', { fatal: true });
 const TEXT_ENCODER = new TextEncoder();
 
 export function getUtf8ByteLength(text) {
   return TEXT_ENCODER.encode(text).byteLength;
-}
-
-export function getSourceFileBaseName(name) {
-  if (typeof name !== 'string') return '';
-
-  const trimmedName = name.trim().replace(/\\/g, '/');
-  const parts = trimmedName
-    .split('/')
-    .map((part) => part.trim())
-    .filter(Boolean);
-  return parts.at(-1) || '';
-}
-
-export function getSourceFileExtension(name) {
-  const trimmedName = getSourceFileBaseName(name);
-  const lastDotIndex = trimmedName.lastIndexOf('.');
-
-  if (lastDotIndex <= 0 || lastDotIndex === trimmedName.length - 1) {
-    return '';
-  }
-
-  return trimmedName.slice(lastDotIndex).toLowerCase();
-}
-
-export function isSupportedTextSourceFileName(name) {
-  const baseName = getSourceFileBaseName(name).toLowerCase();
-  return TEXT_SOURCE_ALLOWED_EXTENSION_SET.has(getSourceFileExtension(baseName))
-    || TEXT_SOURCE_ALLOWED_FILENAME_SET.has(baseName);
-}
-
-export function getDisallowedTextSourceReason(name) {
-  const baseName = getSourceFileBaseName(name).toLowerCase();
-  const extension = getSourceFileExtension(baseName);
-
-  if (baseName.startsWith('.env.') && baseName !== '.env.example') {
-    return 'secret-like source file name';
-  }
-
-  if (
-    TEXT_SOURCE_DISALLOWED_SECRET_FILENAMES.has(baseName)
-    || TEXT_SOURCE_DISALLOWED_SECRET_EXTENSIONS.has(extension)
-  ) {
-    return 'secret-like source file name';
-  }
-
-  if (TEXT_SOURCE_DISALLOWED_BINARY_OR_DUMP_EXTENSIONS.has(extension)) {
-    return 'binary or database dump source file type';
-  }
-
-  if (
-    TEXT_SOURCE_GENERATED_SOURCE_PATTERN.test(baseName)
-    || TEXT_SOURCE_GENERATED_BUNDLE_PATTERN.test(baseName)
-  ) {
-    return 'generated or minified bundle source file name';
-  }
-
-  return '';
 }
 
 export function normalizePastedSourceText(sourceText, { id }) {
@@ -169,11 +124,9 @@ function extractNotebookText(text) {
 
 export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
   const label = getSafeFileLabel(file);
-  const size = Number.isFinite(file?.size) ? file.size : null;
+  const size = getKnownFileSize(file);
   const type = typeof file?.type === 'string' ? file.type : '';
-  const readBytes = typeof file?.arrayBuffer === 'function'
-    ? async () => file.arrayBuffer()
-    : null;
+  const readBytes = getReadableFileBytes(file);
 
   return normalizeNamedTextSourceBytes({
     id,
@@ -200,9 +153,9 @@ export async function normalizeNamedTextSourceBytes({
   const extension = getSourceFileExtension(label);
   const size = Number.isFinite(knownBytes) ? knownBytes : null;
   const mediaType = getTextSourceMediaType({ type, extension });
-  const disallowedReason = getDisallowedTextSourceReason(label);
+  const fileNameValidation = validateTextSourceFileName(label);
 
-  if (disallowedReason) {
+  if (!fileNameValidation.ok && fileNameValidation.reason === 'disallowed') {
     return {
       item: null,
       manifest: {
@@ -212,13 +165,13 @@ export async function normalizeNamedTextSourceBytes({
         mediaType,
         bytes: size ?? 0,
         included: false,
-        warnings: [`Source file "${label}" is not allowed because it has a ${disallowedReason}.`],
+        warnings: [`Source file "${label}" is not allowed because it has a ${fileNameValidation.disallowedReason}.`],
       },
       warnings: [`Skipped disallowed source file "${label}".`],
     };
   }
 
-  if (!isSupportedTextSourceFileName(label)) {
+  if (!fileNameValidation.ok) {
     return {
       item: null,
       manifest: {
@@ -233,7 +186,9 @@ export async function normalizeNamedTextSourceBytes({
     };
   }
 
-  if (size === 0) {
+  const knownByteValidation = validateKnownByteLength(size, { maxBytes });
+
+  if (!knownByteValidation.ok && knownByteValidation.reason === 'empty') {
     return {
       item: null,
       manifest: {
@@ -249,7 +204,7 @@ export async function normalizeNamedTextSourceBytes({
     };
   }
 
-  if (size != null && size > maxBytes) {
+  if (!knownByteValidation.ok && knownByteValidation.reason === 'oversized') {
     return {
       item: null,
       manifest: {
@@ -265,7 +220,9 @@ export async function normalizeNamedTextSourceBytes({
     };
   }
 
-  if (typeof readBytes !== 'function') {
+  const readableValidation = validateByteReader(readBytes);
+
+  if (!readableValidation.ok) {
     return {
       item: null,
       manifest: {
@@ -284,7 +241,7 @@ export async function normalizeNamedTextSourceBytes({
   let buffer;
 
   try {
-    buffer = await readBytes();
+    buffer = await readableValidation.readBytes();
   } catch {
     return {
       item: null,
@@ -302,8 +259,9 @@ export async function normalizeNamedTextSourceBytes({
   }
 
   const byteLength = buffer.byteLength ?? size ?? 0;
+  const actualByteValidation = validateByteLength(byteLength, { maxBytes });
 
-  if (byteLength === 0) {
+  if (!actualByteValidation.ok && actualByteValidation.reason === 'empty') {
     return {
       item: null,
       manifest: {
@@ -319,7 +277,7 @@ export async function normalizeNamedTextSourceBytes({
     };
   }
 
-  if (byteLength > maxBytes) {
+  if (!actualByteValidation.ok && actualByteValidation.reason === 'oversized') {
     return {
       item: null,
       manifest: {

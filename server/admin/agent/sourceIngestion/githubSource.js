@@ -1,6 +1,4 @@
 import {
-  getDisallowedTextSourceReason,
-  isSupportedTextSourceFileName,
   normalizeNamedTextSourceBytes,
 } from './textSource.js';
 import {
@@ -8,6 +6,8 @@ import {
   PROJECT_AGENT_SOURCE_GITHUB_REPO_KIND,
 } from './sourceKinds.js';
 import { PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE } from './sourceMediaTypes.js';
+import { validateTotalByteLength } from './validation/byteLimitValidation.js';
+import { validateTextSourceFileName } from './validation/textValidation.js';
 
 export const PROJECT_AGENT_SOURCE_GITHUB_MAX_TREE_ENTRIES = 500;
 export const PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES = 40;
@@ -442,17 +442,17 @@ async function normalizeTreeEntry({
 
   const repoLabel = getRepoLabel(repoInfo);
   const label = getFileLabel({ repoLabel, path });
-  const disallowedReason = getDisallowedTextSourceReason(label);
+  const textValidation = validateTextSourceFileName(label);
 
-  if (disallowedReason) {
-    const warning = `Skipped disallowed GitHub source file "${label}" because it has a ${disallowedReason}.`;
+  if (!textValidation.ok && textValidation.reason === 'disallowed') {
+    const warning = `Skipped disallowed GitHub source file "${label}" because it has a ${textValidation.disallowedReason}.`;
     return {
       entry: getSkippedFileEntry({ id, repoInfo, path, bytes, warning }),
       warnings: [warning],
     };
   }
 
-  if (!isSupportedTextSourceFileName(label)) {
+  if (!textValidation.ok) {
     const warning = `Skipped unsupported GitHub source file "${label}".`;
     return {
       entry: getSkippedFileEntry({ id, repoInfo, path, bytes, warning }),
@@ -468,7 +468,13 @@ async function normalizeTreeEntry({
     };
   }
 
-  if (bytes > 0 && counters.totalFetchedBytes + bytes > limits.maxTotalFetchedBytes) {
+  const knownTotalValidation = validateTotalByteLength({
+    currentBytes: counters.totalFetchedBytes,
+    additionalBytes: bytes,
+    maxTotalBytes: limits.maxTotalFetchedBytes,
+  });
+
+  if (bytes > 0 && !knownTotalValidation.ok) {
     const warning = `Skipped GitHub source file "${label}" because the ${limits.maxTotalFetchedBytes} byte total fetched limit was reached.`;
     return {
       entry: getSkippedFileEntry({ id, repoInfo, path, bytes, warning }),
@@ -527,7 +533,13 @@ async function normalizeTreeEntry({
     };
   }
 
-  if (counters.totalFetchedBytes + content.byteLength > limits.maxTotalFetchedBytes) {
+  const actualTotalValidation = validateTotalByteLength({
+    currentBytes: counters.totalFetchedBytes,
+    additionalBytes: content.byteLength,
+    maxTotalBytes: limits.maxTotalFetchedBytes,
+  });
+
+  if (!actualTotalValidation.ok) {
     const warning = `Skipped GitHub source file "${label}" because the ${limits.maxTotalFetchedBytes} byte total fetched limit was reached.`;
     return {
       entry: getSkippedFileEntry({

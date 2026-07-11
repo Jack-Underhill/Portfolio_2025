@@ -18,6 +18,14 @@ import {
   PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
   PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
 } from './zipConstants.js';
+import {
+  validateByteLength,
+  validateKnownByteLength,
+} from './validation/byteLimitValidation.js';
+import {
+  getKnownFileSize,
+  validateReadableFile,
+} from './validation/fileValidation.js';
 
 export {
   PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
@@ -81,12 +89,14 @@ function createIdGetter({ createId, id }) {
 }
 
 async function readZipBuffer(file, { archiveLabel, mediaType, maxBytes, nextId }) {
-  const size = Number.isFinite(file?.size) ? file.size : null;
+  const size = getKnownFileSize(file);
+  const knownByteValidation = validateKnownByteLength(size, { maxBytes });
+  const readableValidation = validateReadableFile(file);
 
-  if (size === 0 || (size != null && size > maxBytes) || typeof file?.arrayBuffer !== 'function') {
-    const warning = size === 0
+  if (!knownByteValidation.ok || !readableValidation.ok) {
+    const warning = knownByteValidation.reason === 'empty'
       ? `Zip source file "${archiveLabel}" is empty.`
-      : size != null && size > maxBytes
+      : knownByteValidation.reason === 'oversized'
         ? `Zip source file "${archiveLabel}" exceeds the ${maxBytes} byte limit.`
         : `Zip source file "${archiveLabel}" could not be read.`;
 
@@ -100,16 +110,17 @@ async function readZipBuffer(file, { archiveLabel, mediaType, maxBytes, nextId }
   }
 
   try {
-    const buffer = await file.arrayBuffer();
+    const buffer = await readableValidation.readBytes();
     const byteLength = buffer.byteLength ?? size ?? 0;
+    const actualByteValidation = validateByteLength(byteLength, { maxBytes });
 
-    if (byteLength === 0 || byteLength > maxBytes) {
+    if (!actualByteValidation.ok) {
       return skipArchive({
         id: nextId(),
         archiveLabel,
         mediaType,
         bytes: byteLength,
-        warning: byteLength === 0
+        warning: actualByteValidation.reason === 'empty'
           ? `Zip source file "${archiveLabel}" is empty.`
           : `Zip source file "${archiveLabel}" exceeds the ${maxBytes} byte limit.`,
       });

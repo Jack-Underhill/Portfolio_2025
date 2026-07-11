@@ -7,6 +7,14 @@ import {
   PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
 } from './sourceLimits.js';
 import { PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE } from './sourceMediaTypes.js';
+import {
+  validateByteLength,
+  validateKnownByteLength,
+} from './validation/byteLimitValidation.js';
+import {
+  getKnownFileSize,
+  validateReadableFile,
+} from './validation/fileValidation.js';
 
 export const PROJECT_AGENT_SOURCE_PDF_EXTENSION = '.pdf';
 export { PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE } from './sourceMediaTypes.js';
@@ -89,9 +97,10 @@ export async function normalizeUploadedPdfSourceFile(file, {
 } = {}) {
   const label = getSafePdfLabel(file);
   const mediaType = getFileMediaType(file);
-  const size = Number.isFinite(file?.size) ? file.size : null;
+  const size = getKnownFileSize(file);
+  const knownByteValidation = validateKnownByteLength(size, { maxBytes });
 
-  if (size === 0) {
+  if (!knownByteValidation.ok && knownByteValidation.reason === 'empty') {
     return createSkippedPdfResult({
       id,
       label,
@@ -102,7 +111,7 @@ export async function normalizeUploadedPdfSourceFile(file, {
     });
   }
 
-  if (size != null && size > maxBytes) {
+  if (!knownByteValidation.ok && knownByteValidation.reason === 'oversized') {
     return createSkippedPdfResult({
       id,
       label,
@@ -113,7 +122,9 @@ export async function normalizeUploadedPdfSourceFile(file, {
     });
   }
 
-  if (typeof file?.arrayBuffer !== 'function') {
+  const readableValidation = validateReadableFile(file);
+
+  if (!readableValidation.ok) {
     return createSkippedPdfResult({
       id,
       label,
@@ -127,7 +138,7 @@ export async function normalizeUploadedPdfSourceFile(file, {
   let buffer;
 
   try {
-    buffer = await file.arrayBuffer();
+    buffer = await readableValidation.readBytes();
   } catch {
     return createSkippedPdfResult({
       id,
@@ -140,8 +151,9 @@ export async function normalizeUploadedPdfSourceFile(file, {
   }
 
   const byteLength = buffer.byteLength ?? size ?? 0;
+  const actualByteValidation = validateByteLength(byteLength, { maxBytes });
 
-  if (byteLength === 0) {
+  if (!actualByteValidation.ok && actualByteValidation.reason === 'empty') {
     return createSkippedPdfResult({
       id,
       label,
@@ -152,7 +164,7 @@ export async function normalizeUploadedPdfSourceFile(file, {
     });
   }
 
-  if (byteLength > maxBytes) {
+  if (!actualByteValidation.ok && actualByteValidation.reason === 'oversized') {
     return createSkippedPdfResult({
       id,
       label,
