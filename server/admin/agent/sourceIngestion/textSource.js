@@ -8,6 +8,10 @@ import {
   createSkippedSourceResult,
 } from './sourceResult.js';
 import {
+  getSafeSourceLabel,
+  getSourceFileExtension,
+} from './sourcePathUtils.js';
+import {
   PROJECT_AGENT_TEXT_SOURCE_MEDIA_TYPES_BY_EXTENSION,
 } from './textSourcePolicy.js';
 import {
@@ -20,7 +24,6 @@ import {
   validateByteReader,
 } from './validation/fileValidation.js';
 import {
-  getSourceFileExtension,
   validateTextSourceFileName,
 } from './validation/textValidation.js';
 
@@ -31,8 +34,6 @@ export {
 export { PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE } from './sourceMediaTypes.js';
 export {
   getDisallowedTextSourceReason,
-  getSourceFileBaseName,
-  getSourceFileExtension,
   isSupportedTextSourceFileName,
 } from './validation/textValidation.js';
 
@@ -56,11 +57,6 @@ export function normalizePastedSourceText(sourceText, { id }) {
     bytes: getUtf8ByteLength(text),
     text,
   };
-}
-
-function getSafeFileLabel(file) {
-  const name = typeof file?.name === 'string' ? file.name.trim() : '';
-  return name || 'Unnamed source file';
 }
 
 function getTextSourceMediaType({ type, extension }) {
@@ -147,7 +143,7 @@ function extractNotebookText(text) {
 }
 
 export async function normalizeUploadedTextSourceFile(file, { id, maxBytes }) {
-  const label = getSafeFileLabel(file);
+  const label = getSafeSourceLabel(file?.name);
   const size = getKnownFileSize(file);
   const type = typeof file?.type === 'string' ? file.type : '';
   const readBytes = getReadableFileBytes(file);
@@ -171,9 +167,7 @@ export async function normalizeNamedTextSourceBytes({
   maxBytes,
   kind = PROJECT_AGENT_SOURCE_FILE_KIND,
 }) {
-  const label = typeof unsafeLabel === 'string' && unsafeLabel.trim()
-    ? unsafeLabel.trim()
-    : 'Unnamed source file';
+  const label = getSafeSourceLabel(unsafeLabel);
   const extension = getSourceFileExtension(label);
   const size = Number.isFinite(knownBytes) ? knownBytes : null;
   const mediaType = getTextSourceMediaType({ type, extension });

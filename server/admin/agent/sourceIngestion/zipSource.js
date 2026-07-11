@@ -8,6 +8,7 @@ import {
   PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
   PROJECT_AGENT_SOURCE_ZIP_KIND,
 } from './sourceKinds.js';
+import { getSafeSourceLabel } from './sourcePathUtils.js';
 import {
   createSkippedSourceEntriesResult,
   createSkippedSourceResult,
@@ -41,11 +42,6 @@ export {
   PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
   PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
 };
-
-function getSafeZipLabel(file) {
-  const name = typeof file?.name === 'string' ? file.name.trim() : '';
-  return name || 'Unnamed zip source file';
-}
 
 function getZipMediaType(file) {
   return typeof file?.type === 'string' && file.type.trim()
@@ -164,7 +160,7 @@ export async function normalizeUploadedZipSourceFile(file, {
   maxPdfPages = PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
   maxPdfTextLength = PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
 } = {}) {
-  const archiveLabel = getSafeZipLabel(file);
+  const archiveLabel = getSafeSourceLabel(file?.name, 'Unnamed zip source file');
   const mediaType = getZipMediaType(file);
   const nextId = createIdGetter({ createId, id });
   const readResult = await readZipBuffer(file, {

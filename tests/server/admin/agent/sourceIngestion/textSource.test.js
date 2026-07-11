@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  getSourceFileExtension,
   isSupportedTextSourceFileName,
   normalizeNamedTextSourceBytes,
   normalizeUploadedTextSourceFile,
 } from '../../../../../server/admin/agent/sourceIngestion/textSource.js';
+import { getSourceFileExtension } from '../../../../../server/admin/agent/sourceIngestion/sourcePathUtils.js';
 
 const encoder = new TextEncoder();
 

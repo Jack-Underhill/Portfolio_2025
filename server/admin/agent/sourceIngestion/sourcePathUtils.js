@@ -24,6 +24,11 @@ export function getSourceFileExtension(name) {
   return baseName.slice(lastDotIndex).toLowerCase();
 }
 
+export function getSafeSourceLabel(value, fallback = 'Unnamed source file') {
+  const label = typeof value === 'string' ? value.trim() : '';
+  return label || fallback;
+}
+
 export function hasWindowsDrivePathPrefix(path) {
   return /^[A-Za-z]:(?:\/|\\)/.test(String(path || ''));
 }

@@ -1,8 +1,8 @@
 import {
   normalizeUploadedTextSourceFile,
-  PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
-  getSourceFileExtension,
 } from './textSource.js';
+import { getSourceFileExtension } from './sourcePathUtils.js';
+import { PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS } from './textSourcePolicy.js';
 import {
   normalizeUploadedPdfSourceFile,
   PROJECT_AGENT_SOURCE_PDF_EXTENSION,

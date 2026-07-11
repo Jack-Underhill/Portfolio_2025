@@ -5,6 +5,7 @@ import {
   encodeSourcePathForUrl,
   getSourceFileBaseName,
   getSourceFileExtension,
+  getSafeSourceLabel,
   isSafeRelativeSourcePath,
   joinSourceDisplayPath,
   normalizeSourcePathSlashes,
@@ -16,6 +17,12 @@ describe('source path utilities', () => {
     expect(getSourceFileBaseName(' bundle.zip / src\\App.tsx ')).toBe('App.tsx');
     expect(getSourceFileExtension('bundle.zip / Dockerfile')).toBe('');
     expect(getSourceFileExtension('bundle.zip / src/App.TSX')).toBe('.tsx');
+  });
+
+  it('normalizes display labels with caller-owned fallbacks', () => {
+    expect(getSafeSourceLabel('  evidence.md  ')).toBe('evidence.md');
+    expect(getSafeSourceLabel('', 'Unnamed PDF source file')).toBe('Unnamed PDF source file');
+    expect(getSafeSourceLabel(null)).toBe('Unnamed source file');
   });
 
   it('validates relative source paths without accepting traversal or absolute paths', () => {

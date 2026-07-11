@@ -7,6 +7,7 @@ import {
   PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
 } from './sourceLimits.js';
 import { PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE } from './sourceMediaTypes.js';
+import { getSafeSourceLabel } from './sourcePathUtils.js';
 import {
   createIncludedSourceResult,
   createSkippedSourceResult,
@@ -27,11 +28,6 @@ export {
   PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
   PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
 } from './sourceLimits.js';
-
-function getSafePdfLabel(file) {
-  const name = typeof file?.name === 'string' ? file.name.trim() : '';
-  return name || 'Unnamed PDF source file';
-}
 
 function getFileMediaType(file) {
   return typeof file?.type === 'string' && file.type.trim()
@@ -97,7 +93,7 @@ export async function normalizeUploadedPdfSourceFile(file, {
   maxPages = PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
   maxTextLength = PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
 } = {}) {
-  const label = getSafePdfLabel(file);
+  const label = getSafeSourceLabel(file?.name, 'Unnamed PDF source file');
   const mediaType = getFileMediaType(file);
   const size = getKnownFileSize(file);
   const knownByteValidation = validateKnownByteLength(size, { maxBytes });

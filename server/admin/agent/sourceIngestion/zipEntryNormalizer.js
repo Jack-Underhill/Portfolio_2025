@@ -1,9 +1,9 @@
 import {
-  getSourceFileExtension,
   normalizeNamedTextSourceBytes,
 } from './textSource.js';
 import {
   cleanUnsafeRelativeSourcePath,
+  getSourceFileExtension,
   isSafeRelativeSourcePath,
   joinSourceDisplayPath,
 } from './sourcePathUtils.js';
