@@ -93,6 +93,42 @@ describe('admin API client', () => {
     );
   });
 
+  it('keeps GitHub repo source-only project agent runs on the JSON path', async () => {
+    const responseBody = {
+      patch: {},
+      notes: ['Reviewed against repository source.'],
+      warnings: [],
+      appliedFields: [],
+      elapsedMs: 25,
+      sourceManifest: [],
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(runProjectAgent({
+      intent: 'review',
+      instructions: 'Check the draft against the repository.',
+      projectContext,
+      githubRepoUrl: 'https://github.com/example/portfolio',
+    })).resolves.toEqual(responseBody);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8787/admin-api/projects/agent/run',
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          intent: 'review',
+          instructions: 'Check the draft against the repository.',
+          projectContext,
+          githubRepoUrl: 'https://github.com/example/portfolio',
+        }),
+      },
+    );
+  });
+
   it('keeps empty source file arrays on the JSON path', async () => {
     const responseBody = {
       patch: { title: 'Revised title' },
@@ -168,6 +204,43 @@ describe('admin API client', () => {
     expect(options.body.getAll('sourceFiles')).toEqual(sourceFiles);
   });
 
+  it('keeps GitHub repo source context in multipart project agent runs', async () => {
+    const responseBody = {
+      patch: { description: 'Revised card copy' },
+      notes: ['Used attached and repository source material.'],
+      warnings: [],
+      appliedFields: ['description'],
+      elapsedMs: 25,
+      sourceManifest: [],
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const sourceFiles = [
+      new File(['# Report'], 'report.md', { type: 'text/markdown' }),
+    ];
+
+    await expect(runProjectAgent({
+      intent: 'revise',
+      instructions: 'Use all source material.',
+      projectContext,
+      sourceText: 'Owner source note.',
+      sourceFiles,
+      githubRepoUrl: 'https://github.com/example/portfolio',
+    })).resolves.toEqual(responseBody);
+
+    const [, options] = fetchMock.mock.calls[0];
+    expect(JSON.parse(options.body.get('payload'))).toEqual({
+      intent: 'revise',
+      instructions: 'Use all source material.',
+      projectContext,
+      sourceText: 'Owner source note.',
+      githubRepoUrl: 'https://github.com/example/portfolio',
+    });
+    expect(options.body.getAll('sourceFiles')).toEqual(sourceFiles);
+  });
+
   it('previews pasted project agent sources as JSON without invoking a run route', async () => {
     const responseBody = {
       hasSourceContext: true,
@@ -193,6 +266,36 @@ describe('admin API client', () => {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           sourceText: 'Launch notes and metrics.',
+        }),
+      },
+    );
+  });
+
+  it('previews GitHub repo sources as JSON without invoking a run route', async () => {
+    const responseBody = {
+      hasSourceContext: true,
+      manifest: [{ id: 'source-1', label: 'example/portfolio:src/App.jsx', included: true }],
+      warnings: [],
+      sourceCount: 1,
+      manifestCount: 1,
+      warningCount: 0,
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(previewProjectAgentSources({
+      githubRepoUrl: 'https://github.com/example/portfolio',
+    })).resolves.toEqual(responseBody);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8787/admin-api/projects/agent/sources/preview',
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          githubRepoUrl: 'https://github.com/example/portfolio',
         }),
       },
     );
@@ -227,6 +330,35 @@ describe('admin API client', () => {
     expect(options.body).toBeInstanceOf(FormData);
     expect(JSON.parse(options.body.get('payload'))).toEqual({
       sourceText: 'Owner source note.',
+    });
+    expect(options.body.getAll('sourceFiles')).toEqual(sourceFiles);
+  });
+
+  it('keeps GitHub repo source context in multipart source previews', async () => {
+    const responseBody = {
+      hasSourceContext: true,
+      manifest: [{ id: 'source-1', label: 'report.md', included: true }],
+      warnings: [],
+      sourceCount: 1,
+      manifestCount: 1,
+      warningCount: 0,
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(responseBody), {
+      status: 200,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const sourceFiles = [
+      new File(['# Report'], 'report.md', { type: 'text/markdown' }),
+    ];
+
+    await expect(previewProjectAgentSources({
+      sourceFiles,
+      githubRepoUrl: 'https://github.com/example/portfolio',
+    })).resolves.toEqual(responseBody);
+
+    const [, options] = fetchMock.mock.calls[0];
+    expect(JSON.parse(options.body.get('payload'))).toEqual({
+      githubRepoUrl: 'https://github.com/example/portfolio',
     });
     expect(options.body.getAll('sourceFiles')).toEqual(sourceFiles);
   });

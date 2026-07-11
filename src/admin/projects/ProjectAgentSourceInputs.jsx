@@ -4,120 +4,18 @@ import {
   getSourceFilePreviewStatus,
   getSourcePreviewSummary,
 } from './projectAgentSourcePreviewState';
-import { adminUi } from '../../styles/recipes';
+import {
+  PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
+  PROJECT_AGENT_SOURCE_ALLOWED_FILENAMES,
+} from '../../../server/admin/agent/sourceIngestion/textSourcePolicy';
+import { adminForm, adminUi } from '../../styles/recipes';
 
 const PROJECT_AGENT_SOURCE_FILE_EXTENSIONS = Object.freeze([
-  '.txt',
-  '.text',
-  '.md',
-  '.markdown',
-  '.mdx',
-  '.rst',
-  '.adoc',
-  '.json',
-  '.jsonc',
-  '.json5',
-  '.csv',
-  '.tsv',
-  '.ndjson',
-  '.log',
-  '.html',
-  '.htm',
-  '.css',
-  '.scss',
-  '.sass',
-  '.less',
-  '.js',
-  '.mjs',
-  '.cjs',
-  '.jsx',
-  '.ts',
-  '.mts',
-  '.cts',
-  '.tsx',
-  '.py',
-  '.pyw',
-  '.java',
-  '.c',
-  '.cc',
-  '.cpp',
-  '.cxx',
-  '.h',
-  '.hh',
-  '.hpp',
-  '.hxx',
-  '.cs',
-  '.go',
-  '.rs',
-  '.rb',
-  '.php',
-  '.swift',
-  '.kt',
-  '.kts',
-  '.r',
-  '.dart',
-  '.scala',
-  '.sc',
-  '.lua',
-  '.ex',
-  '.exs',
-  '.erl',
-  '.hrl',
-  '.clj',
-  '.cljs',
-  '.cljc',
-  '.fs',
-  '.fsx',
-  '.fsi',
-  '.vb',
-  '.svelte',
-  '.vue',
-  '.astro',
-  '.graphql',
-  '.gql',
-  '.proto',
-  '.prisma',
-  '.sql',
-  '.yaml',
-  '.yml',
-  '.toml',
-  '.xml',
-  '.ini',
-  '.cfg',
-  '.conf',
-  '.properties',
-  '.editorconfig',
-  '.dockerfile',
-  '.sh',
-  '.bash',
-  '.zsh',
-  '.fish',
-  '.ps1',
-  '.bat',
-  '.cmd',
-  '.tf',
-  '.tfvars',
-  '.hcl',
-  '.gradle',
-  '.groovy',
-  '.sln',
-  '.csproj',
-  '.fsproj',
-  '.vbproj',
-  '.ipynb',
+  ...PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
   '.pdf',
   '.zip',
 ]);
-const PROJECT_AGENT_SOURCE_FILE_NAME_EXAMPLES = Object.freeze([
-  'Dockerfile',
-  'Makefile',
-  'Procfile',
-  'LICENSE',
-  'README',
-  '.gitignore',
-  '.dockerignore',
-  '.env.example',
-]);
+const PROJECT_AGENT_SOURCE_FILE_NAME_EXAMPLES = PROJECT_AGENT_SOURCE_ALLOWED_FILENAMES;
 
 const PROJECT_AGENT_SOURCE_FILE_ACCEPT = PROJECT_AGENT_SOURCE_FILE_EXTENSIONS.join(',');
 const PROJECT_AGENT_SOURCE_FILE_TYPE_LABEL = [
@@ -243,12 +141,15 @@ function SourcePreviewManifest({ sourcePreview }) {
 
 function ProjectAgentSourceInputs({
   id,
+  githubRepoUrlId,
   sourceFiles,
+  githubRepoUrl = '',
   disabled = false,
   sourcePreview,
   canPreviewSources = false,
   isPreviewingSources = false,
   onAddFiles,
+  onGithubRepoUrlChange,
   onRemoveFile,
   onPreviewSources,
 }) {
@@ -271,6 +172,20 @@ function ProjectAgentSourceInputs({
 
   return (
     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+      <label htmlFor={githubRepoUrlId} className="sr-only">GitHub repository URL</label>
+      <input
+        id={githubRepoUrlId}
+        type="text"
+        inputMode="url"
+        value={githubRepoUrl}
+        disabled={disabled}
+        onChange={(event) => onGithubRepoUrlChange?.(event.target.value)}
+        placeholder="GitHub repo URL"
+        aria-label="GitHub repository URL"
+        title="GitHub repository URL"
+        className={`${adminForm.input} min-h-9 min-w-0 flex-[1_1_16rem] py-1.5 text-sm`}
+      />
+
       <input
         ref={inputRef}
         id={id}

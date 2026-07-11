@@ -58,12 +58,14 @@ export async function runProjectAgent({
   projectContext,
   sourceText,
   sourceFiles,
+  githubRepoUrl,
 }) {
   const payload = {
     intent,
     instructions,
     projectContext,
     sourceText,
+    githubRepoUrl,
   };
   const uploadFiles = Array.isArray(sourceFiles) ? sourceFiles.filter(isUploadFile) : [];
 
@@ -77,9 +79,11 @@ export async function runProjectAgent({
 export async function previewProjectAgentSources({
   sourceText,
   sourceFiles,
+  githubRepoUrl,
 } = {}) {
   const payload = {
     sourceText,
+    githubRepoUrl,
   };
   const uploadFiles = Array.isArray(sourceFiles) ? sourceFiles.filter(isUploadFile) : [];
 

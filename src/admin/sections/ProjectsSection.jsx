@@ -356,6 +356,7 @@ function ProjectsSection({
         instructions,
         sourceText,
         sourceFiles,
+        githubRepoUrl,
     }) => {
         if (!activeProject || isSaveInFlight || agentRunState.status === 'running') return;
 
@@ -369,6 +370,7 @@ function ProjectsSection({
             instructions,
             sourceText,
             sourceFiles: normalizedSourceFiles,
+            githubRepoUrl,
         });
         setAgentRunState(createRunningProjectAgentRunState);
 
@@ -379,6 +381,7 @@ function ProjectsSection({
                 projectContext,
                 sourceText,
                 sourceFiles: normalizedSourceFiles,
+                githubRepoUrl,
             });
             if (!isMountedRef.current) return;
             if (agentRunRequestId.current !== requestId) return;

@@ -10,11 +10,15 @@ describe('ProjectAgentSourceInputs', () => {
     const html = renderToStaticMarkup(
       <ProjectAgentSourceInputs
         id="project-agent-source-files"
+        githubRepoUrlId="project-agent-github-repo-url"
         sourceFiles={[]}
         canPreviewSources={false}
       />,
     );
 
+    expect(html).toContain('id="project-agent-github-repo-url"');
+    expect(html).toContain('GitHub repository URL');
+    expect(html).toContain('placeholder="GitHub repo URL"');
     expect(html).toContain('accept="');
     expect(html).toContain('.java');
     expect(html).toContain('.go');
@@ -29,6 +33,21 @@ describe('ProjectAgentSourceInputs', () => {
     expect(html).toContain('.env.example');
     expect(html).toContain('.pdf');
     expect(html).toContain('.zip');
+  });
+
+  it('renders the GitHub repo URL input as disabled while source controls are disabled', () => {
+    const html = renderToStaticMarkup(
+      <ProjectAgentSourceInputs
+        id="project-agent-source-files"
+        githubRepoUrlId="project-agent-github-repo-url"
+        sourceFiles={[]}
+        githubRepoUrl="https://github.com/example/portfolio"
+        disabled
+      />,
+    );
+
+    expect(html).toContain('value="https://github.com/example/portfolio"');
+    expect(html).toContain('disabled=""');
   });
 
   it('renders source preview metadata without raw extracted text', () => {
@@ -74,6 +93,7 @@ describe('ProjectAgentSourceInputs', () => {
     const html = renderToStaticMarkup(
       <ProjectAgentSourceInputs
         id="project-agent-source-files"
+        githubRepoUrlId="project-agent-github-repo-url"
         sourceFiles={[
           {
             name: 'report.pdf',
@@ -103,5 +123,44 @@ describe('ProjectAgentSourceInputs', () => {
     expect(html).not.toContain('accepted raw zip entry text must not render');
     expect(html).not.toContain('raw extracted source text must not render');
     expect(html).not.toContain('ignored raw zip entry text must not render');
+  });
+
+  it('renders GitHub source preview metadata generically without raw fetched text', () => {
+    const sourcePreview = createSucceededProjectAgentSourcePreview({
+      manifest: [
+        {
+          id: 'source-1',
+          kind: 'github-file',
+          label: 'example/portfolio:src/App.jsx',
+          repo: 'example/portfolio',
+          ref: 'main',
+          path: 'src/App.jsx',
+          sourceUrl: 'https://github.com/example/portfolio/blob/main/src/App.jsx',
+          bytes: 2048,
+          included: true,
+          warnings: [],
+          text: 'raw fetched repository text must not render',
+        },
+      ],
+      warnings: [],
+      sourceCount: 1,
+      manifestCount: 1,
+      warningCount: 0,
+    }, 'signature');
+
+    const html = renderToStaticMarkup(
+      <ProjectAgentSourceInputs
+        id="project-agent-source-files"
+        githubRepoUrlId="project-agent-github-repo-url"
+        sourceFiles={[]}
+        githubRepoUrl="https://github.com/example/portfolio"
+        sourcePreview={sourcePreview}
+        canPreviewSources
+      />,
+    );
+
+    expect(html).toContain('example/portfolio:src/App.jsx');
+    expect(html).toContain('github-file');
+    expect(html).not.toContain('raw fetched repository text must not render');
   });
 });

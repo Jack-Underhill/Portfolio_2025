@@ -43,20 +43,33 @@ export function createFailedProjectAgentSourcePreview(error, signature) {
   };
 }
 
-export function hasProjectAgentSourceInput({ sourceText, sourceFiles } = {}) {
+export function hasProjectAgentSourceInput({ sourceText, sourceFiles, githubRepoUrl } = {}) {
   return String(sourceText || '').trim().length > 0
-    || (Array.isArray(sourceFiles) && sourceFiles.length > 0);
+    || (Array.isArray(sourceFiles) && sourceFiles.length > 0)
+    || String(githubRepoUrl || '').trim().length > 0;
+}
+
+export function hasProjectAgentRunnableInput({
+  instructions,
+  sourceText,
+  sourceFiles,
+  githubRepoUrl,
+} = {}) {
+  return String(instructions || '').trim().length > 0
+    || hasProjectAgentSourceInput({ sourceText, sourceFiles, githubRepoUrl });
 }
 
 export function createProjectAgentSourceInputSignature({
   sourceText,
   sourceFiles,
+  githubRepoUrl,
 } = {}) {
   const files = Array.isArray(sourceFiles) ? sourceFiles : [];
 
   return JSON.stringify({
     text: createTextSignature(sourceText),
     files: files.map(createSourceFileSignature),
+    githubRepoUrl: createTextSignature(githubRepoUrl),
   });
 }
 

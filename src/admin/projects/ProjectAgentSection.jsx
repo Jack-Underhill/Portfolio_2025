@@ -10,6 +10,7 @@ import {
   createLoadingProjectAgentSourcePreview,
   createProjectAgentSourceInputSignature,
   createSucceededProjectAgentSourcePreview,
+  hasProjectAgentRunnableInput,
   hasProjectAgentSourceInput,
 } from './projectAgentSourcePreviewState';
 import TextAreaInput from '../forms/TextAreaInput';
@@ -73,18 +74,29 @@ function ProjectAgentSection({
   const [instructions, setInstructions] = useState('');
   const [sourceText, setSourceText] = useState('');
   const [sourceFiles, setSourceFiles] = useState([]);
+  const [githubRepoUrl, setGithubRepoUrl] = useState('');
   const [sourcePreview, setSourcePreview] = useState(createIdleProjectAgentSourcePreview);
-  const sourceInputSignature = createProjectAgentSourceInputSignature({ sourceText, sourceFiles });
+  const sourceInputSignature = createProjectAgentSourceInputSignature({
+    sourceText,
+    sourceFiles,
+    githubRepoUrl,
+  });
   const sourceInputSignatureRef = useRef(sourceInputSignature);
   sourceInputSignatureRef.current = sourceInputSignature;
   const isRunning = agentRun?.status === 'running';
   const isPreviewingSources = sourcePreview.status === 'loading';
   const isAgentInputDisabled = isSaveInFlight || isRunning || isPreviewingSources;
-  const hasInstructions = instructions.trim().length > 0;
-  const hasSourceText = sourceText.trim().length > 0;
-  const hasSourceFiles = sourceFiles.length > 0;
-  const hasRunnableInput = hasInstructions || hasSourceText || hasSourceFiles;
-  const hasPreviewableSource = hasProjectAgentSourceInput({ sourceText, sourceFiles });
+  const hasRunnableInput = hasProjectAgentRunnableInput({
+    instructions,
+    sourceText,
+    sourceFiles,
+    githubRepoUrl,
+  });
+  const hasPreviewableSource = hasProjectAgentSourceInput({
+    sourceText,
+    sourceFiles,
+    githubRepoUrl,
+  });
   const canPreviewSources = hasActiveProject
     && hasPreviewableSource
     && !isSaveInFlight
@@ -99,6 +111,7 @@ function ProjectAgentSection({
   const instructionsId = `${headingId}-instructions`;
   const sourceTextId = `${headingId}-source-material`;
   const sourceFilesId = `${headingId}-source-files`;
+  const githubRepoUrlId = `${headingId}-github-repo-url`;
   const runtimeModelLabel = getRuntimeModelLabel(runtimeMetadata);
   const runtimeModelTitle = getRuntimeModelTitle(runtimeMetadata);
 
@@ -121,6 +134,11 @@ function ProjectAgentSection({
     clearSourcePreview();
   };
 
+  const handleGithubRepoUrlChange = (value) => {
+    setGithubRepoUrl(value);
+    clearSourcePreview();
+  };
+
   const handlePreviewSources = async () => {
     if (!canPreviewSources) return;
 
@@ -131,6 +149,7 @@ function ProjectAgentSection({
       const result = await previewProjectAgentSources({
         sourceText,
         sourceFiles,
+        githubRepoUrl,
       });
 
       if (sourceInputSignatureRef.current !== requestSignature) return;
@@ -151,6 +170,7 @@ function ProjectAgentSection({
       instructions,
       sourceText,
       sourceFiles,
+      githubRepoUrl,
     });
   };
 
@@ -181,12 +201,15 @@ function ProjectAgentSection({
           <div className="flex flex-wrap items-center gap-2">
             <ProjectAgentSourceInputs
               id={sourceFilesId}
+              githubRepoUrlId={githubRepoUrlId}
               sourceFiles={sourceFiles}
+              githubRepoUrl={githubRepoUrl}
               disabled={isAgentInputDisabled}
               sourcePreview={sourcePreview}
               canPreviewSources={canPreviewSources}
               isPreviewingSources={isPreviewingSources}
               onAddFiles={handleAddSourceFiles}
+              onGithubRepoUrlChange={handleGithubRepoUrlChange}
               onRemoveFile={handleRemoveSourceFile}
               onPreviewSources={handlePreviewSources}
             />

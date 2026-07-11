@@ -8,18 +8,35 @@ import {
   createSucceededProjectAgentSourcePreview,
   getSourceFilePreviewStatus,
   getSourcePreviewSummary,
+  hasProjectAgentRunnableInput,
   hasProjectAgentSourceInput,
 } from '../../src/admin/projects/projectAgentSourcePreviewState.js';
 
 describe('project agent source preview state', () => {
   it('detects whether source input is previewable', () => {
     expect(hasProjectAgentSourceInput()).toBe(false);
-    expect(hasProjectAgentSourceInput({ sourceText: '   ', sourceFiles: [] })).toBe(false);
+    expect(hasProjectAgentSourceInput({
+      sourceText: '   ',
+      sourceFiles: [],
+      githubRepoUrl: '   ',
+    })).toBe(false);
     expect(hasProjectAgentSourceInput({ sourceText: 'Launch notes' })).toBe(true);
     expect(hasProjectAgentSourceInput({ sourceFiles: [{ name: 'report.pdf' }] })).toBe(true);
+    expect(hasProjectAgentSourceInput({ githubRepoUrl: 'https://github.com/example/app' })).toBe(true);
   });
 
-  it('creates signatures that change when pasted source text or selected files change', () => {
+  it('detects whether the agent has runnable input', () => {
+    expect(hasProjectAgentRunnableInput()).toBe(false);
+    expect(hasProjectAgentRunnableInput({ instructions: '   ' })).toBe(false);
+    expect(hasProjectAgentRunnableInput({ instructions: 'Revise the summary.' })).toBe(true);
+    expect(hasProjectAgentRunnableInput({ sourceText: 'Launch notes' })).toBe(true);
+    expect(hasProjectAgentRunnableInput({ sourceFiles: [{ name: 'report.pdf' }] })).toBe(true);
+    expect(hasProjectAgentRunnableInput({
+      githubRepoUrl: 'https://github.com/example/app',
+    })).toBe(true);
+  });
+
+  it('creates signatures that change when pasted source text, selected files, or repo URL change', () => {
     const file = {
       name: 'report.pdf',
       size: 128,
@@ -30,16 +47,25 @@ describe('project agent source preview state', () => {
     const original = createProjectAgentSourceInputSignature({
       sourceText: 'Launch notes',
       sourceFiles: [file],
+      githubRepoUrl: 'https://github.com/example/app',
     });
 
     expect(createProjectAgentSourceInputSignature({
       sourceText: 'Launch notes updated',
       sourceFiles: [file],
+      githubRepoUrl: 'https://github.com/example/app',
     })).not.toBe(original);
 
     expect(createProjectAgentSourceInputSignature({
       sourceText: 'Launch notes',
       sourceFiles: [{ ...file, name: 'bundle.zip' }],
+      githubRepoUrl: 'https://github.com/example/app',
+    })).not.toBe(original);
+
+    expect(createProjectAgentSourceInputSignature({
+      sourceText: 'Launch notes',
+      sourceFiles: [file],
+      githubRepoUrl: 'https://github.com/example/api',
     })).not.toBe(original);
   });
 
