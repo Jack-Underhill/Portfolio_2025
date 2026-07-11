@@ -93,7 +93,11 @@ function formatSourceManifest(sourceBundle) {
       if (Number.isFinite(entry.extractedBytes)) details.push(`extractedBytes: ${entry.extractedBytes}`);
       if (entry.truncated === true) details.push('truncated');
       if (entry.archiveLabel) details.push(`archive: ${entry.archiveLabel}`);
+      if (entry.repo) details.push(`repo: ${entry.repo}`);
+      if (entry.ref) details.push(`ref: ${entry.ref}`);
       if (entry.path) details.push(`path: ${entry.path}`);
+      if (entry.sourceUrl) details.push(`sourceUrl: ${entry.sourceUrl}`);
+      if (entry.ignoredPathReason) details.push(`ignoredPathReason: ${entry.ignoredPathReason}`);
 
       const warnings = entry.warnings.length
         ? `; warnings: ${entry.warnings.join(' | ')}`

@@ -21,6 +21,22 @@ export function createRunningProjectAgentRunState() {
   };
 }
 
+export function createProjectAgentLastRunRequest({
+  intent,
+  instructions,
+  sourceText,
+  sourceFiles,
+  githubRepoUrl,
+} = {}) {
+  return {
+    intent,
+    instructions,
+    sourceText,
+    sourceFiles: Array.isArray(sourceFiles) ? sourceFiles : [],
+    githubRepoUrl,
+  };
+}
+
 function isRetryableSourceFile(file) {
   return Boolean(file)
     && typeof file.name === 'string'

@@ -100,6 +100,45 @@ const richFileSourceBundle = {
   warnings: ['Truncated source "project-bundle.zip / src/App.jsx" to fit the total source limit.'],
 };
 
+const githubSourceBundle = {
+  hasSourceContext: true,
+  sources: [
+    {
+      id: 'source-1',
+      kind: 'github-file',
+      label: 'owner/repo / README.md',
+      mediaType: 'text/markdown',
+      bytes: 96,
+      text: '# Repo evidence\nREADME says source preview and retry support shipped.',
+      repo: 'owner/repo',
+      owner: 'owner',
+      ref: 'main',
+      path: 'README.md',
+      sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
+    },
+  ],
+  manifest: [
+    {
+      id: 'source-1',
+      kind: 'github-file',
+      label: 'owner/repo / README.md',
+      mediaType: 'text/markdown',
+      bytes: 96,
+      included: true,
+      warnings: [],
+      repo: 'owner/repo',
+      owner: 'owner',
+      ref: 'main',
+      path: 'README.md',
+      sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
+      treeEntryCount: 12,
+      fetchedFileCount: 1,
+      text: 'raw GitHub text must not be returned',
+    },
+  ],
+  warnings: [],
+};
+
 const discoveredCodexCommand = 'C:\\Tools\\latest-codex.exe';
 
 function runProjectAgent(options) {
@@ -282,6 +321,63 @@ describe('project agent run helpers', () => {
     ]);
     expect(JSON.stringify(result.sourceManifest)).not.toContain('raw PDF text');
     expect(JSON.stringify(result.sourceManifest)).not.toContain('raw zip entry text');
+  });
+
+  it('preserves GitHub manifest metadata without returning raw source text', async () => {
+    const result = await runProjectAgent({
+      intent: 'revise',
+      instructions: 'Use repository evidence.',
+      projectContext,
+      sourceBundle: githubSourceBundle,
+      codexBridge: async ({ prompt }) => {
+        expect(prompt).toContain('Derived run plan: revise-with-source-context');
+        expect(prompt).toContain('repo: owner/repo; ref: main; path: README.md; sourceUrl: https://github.com/owner/repo/blob/main/README.md');
+        expect(prompt).toContain('README says source preview and retry support shipped.');
+
+        return {
+          json: {
+            patch: {
+              features: ['GitHub-backed source preview and retry support'],
+            },
+            notes: ['Used repository evidence.'],
+            warnings: [],
+          },
+          elapsedMs: 19,
+        };
+      },
+    });
+
+    expect(result).toMatchObject({
+      patch: {
+        features: ['GitHub-backed source preview and retry support'],
+      },
+      notes: ['Used repository evidence.'],
+      warnings: [],
+      appliedFields: ['features'],
+      intent: 'revise',
+      runPlan: 'revise-with-source-context',
+      elapsedMs: 19,
+    });
+    expect(result.sourceManifest).toEqual([
+      {
+        id: 'source-1',
+        kind: 'github-file',
+        label: 'owner/repo / README.md',
+        mediaType: 'text/markdown',
+        bytes: 96,
+        included: true,
+        warnings: [],
+        repo: 'owner/repo',
+        owner: 'owner',
+        ref: 'main',
+        path: 'README.md',
+        sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
+        treeEntryCount: 12,
+        fetchedFileCount: 1,
+      },
+    ]);
+    expect(JSON.stringify(result.sourceManifest)).not.toContain('raw GitHub text');
+    expect(JSON.stringify(result.sourceManifest)).not.toContain('README says source preview');
   });
 
   it('accepts zip-derived source bundles with more than the old direct-file source count', async () => {
@@ -506,6 +602,51 @@ describe('project agent run helpers', () => {
       runPlan: 'review-with-source-context',
       elapsedMs: 17,
     });
+  });
+
+  it('suppresses patch fields returned from GitHub source-backed review runs', async () => {
+    const result = await runProjectAgent({
+      intent: 'review',
+      instructions: 'Review the draft against repository evidence.',
+      projectContext,
+      sourceBundle: githubSourceBundle,
+      codexBridge: async ({ prompt }) => {
+        expect(prompt).toContain('Derived run plan: review-with-source-context');
+        expect(prompt).toContain('Return patch as exactly {}.');
+        expect(prompt).toContain('kind: github-file');
+
+        return {
+          json: {
+            patch: {
+              title: 'Should not apply from review',
+            },
+            notes: ['Repository evidence supports the source workflow claim.'],
+            warnings: [],
+          },
+          elapsedMs: 20,
+        };
+      },
+    });
+
+    expect(result).toMatchObject({
+      patch: {},
+      notes: ['Repository evidence supports the source workflow claim.'],
+      warnings: ['Ignored draft fields returned during review.'],
+      appliedFields: [],
+      intent: 'review',
+      runPlan: 'review-with-source-context',
+      sourceManifest: [
+        expect.objectContaining({
+          kind: 'github-file',
+          repo: 'owner/repo',
+          ref: 'main',
+          path: 'README.md',
+          sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
+        }),
+      ],
+      elapsedMs: 20,
+    });
+    expect(JSON.stringify(result.sourceManifest)).not.toContain('raw GitHub text');
   });
 
   it('normalizes missing notes and warnings to empty arrays', () => {

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   createIdleProjectAgentRunState,
+  createProjectAgentLastRunRequest,
   createRunningProjectAgentRunState,
   deriveProjectAgentRunControls,
 } from '../../src/admin/projects/projectAgentRunState.js';
@@ -44,6 +45,12 @@ const UNAVAILABLE_FILE_REQUEST = Object.freeze({
       size: 42,
     }),
   ],
+});
+const GITHUB_REPO_REQUEST = Object.freeze({
+  ...LAST_REQUEST,
+  sourceText: '',
+  sourceFiles: [],
+  githubRepoUrl: 'https://github.com/example/portfolio',
 });
 
 describe('project agent run state', () => {
@@ -153,6 +160,39 @@ describe('project agent run state', () => {
       activeProject: ACTIVE_PROJECT,
       agentRun: { ...createIdleProjectAgentRunState(), status: 'succeeded' },
       lastRequest: UNAVAILABLE_FILE_REQUEST,
+    }).canRetry).toBe(false);
+  });
+
+  it('creates retry requests that preserve GitHub repo URLs and normalize source files', () => {
+    expect(createProjectAgentLastRunRequest({
+      intent: 'review',
+      instructions: 'Review repo evidence.',
+      sourceText: ' ',
+      sourceFiles: null,
+      githubRepoUrl: 'https://github.com/example/portfolio',
+    })).toEqual({
+      intent: 'review',
+      instructions: 'Review repo evidence.',
+      sourceText: ' ',
+      sourceFiles: [],
+      githubRepoUrl: 'https://github.com/example/portfolio',
+    });
+  });
+
+  it('allows retry for repo-backed requests while preserving file-object safeguards', () => {
+    expect(deriveProjectAgentRunControls({
+      activeProject: ACTIVE_PROJECT,
+      agentRun: { ...createIdleProjectAgentRunState(), status: 'succeeded' },
+      lastRequest: GITHUB_REPO_REQUEST,
+    }).canRetry).toBe(true);
+
+    expect(deriveProjectAgentRunControls({
+      activeProject: ACTIVE_PROJECT,
+      agentRun: { ...createIdleProjectAgentRunState(), status: 'succeeded' },
+      lastRequest: {
+        ...UNAVAILABLE_FILE_REQUEST,
+        githubRepoUrl: 'https://github.com/example/portfolio',
+      },
     }).canRetry).toBe(false);
   });
 });

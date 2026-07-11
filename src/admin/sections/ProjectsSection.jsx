@@ -10,6 +10,7 @@ import {
     PROJECTS_WORKFLOW_LOCATION_ID,
 } from '../projects/projectEditorSections';
 import {
+    createProjectAgentLastRunRequest,
     createIdleProjectAgentRunState,
     createRunningProjectAgentRunState,
     deriveProjectAgentRunControls,
@@ -364,14 +365,15 @@ function ProjectsSection({
         const requestId = agentRunRequestId.current + 1;
         const projectContext = createAgentProjectDraftReviewContext(activeProject);
         const normalizedSourceFiles = Array.isArray(sourceFiles) ? sourceFiles : [];
-        agentRunRequestId.current = requestId;
-        setLastAgentRunRequest({
+        const lastRunRequest = createProjectAgentLastRunRequest({
             intent,
             instructions,
             sourceText,
             sourceFiles: normalizedSourceFiles,
             githubRepoUrl,
         });
+        agentRunRequestId.current = requestId;
+        setLastAgentRunRequest(lastRunRequest);
         setAgentRunState(createRunningProjectAgentRunState);
 
         try {

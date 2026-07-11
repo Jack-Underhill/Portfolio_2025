@@ -24,11 +24,18 @@ const SOURCE_MANIFEST_STRING_METADATA_FIELDS = Object.freeze([
   'ignoredPathReason',
   'owner',
   'path',
+  'rateLimit',
   'ref',
   'repo',
   'sourceUrl',
 ]);
-const SOURCE_MANIFEST_NUMBER_METADATA_FIELDS = Object.freeze(['pages', 'entryCount', 'extractedBytes']);
+const SOURCE_MANIFEST_NUMBER_METADATA_FIELDS = Object.freeze([
+  'pages',
+  'entryCount',
+  'extractedBytes',
+  'treeEntryCount',
+  'fetchedFileCount',
+]);
 const SOURCE_MANIFEST_BOOLEAN_METADATA_FIELDS = Object.freeze(['truncated']);
 
 export class ProjectAgentSchemaError extends Error {
