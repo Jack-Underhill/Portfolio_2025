@@ -4,6 +4,12 @@ import {
   createProjectAgentSourceBundle,
   PROJECT_AGENT_SOURCE_FILE_MAX_BYTES,
   PROJECT_AGENT_SOURCE_FILE_MAX_COUNT,
+  PROJECT_AGENT_SOURCE_GITHUB_FILE_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES,
+  PROJECT_AGENT_SOURCE_GITHUB_MAX_TREE_ENTRIES,
+  PROJECT_AGENT_SOURCE_GITHUB_TIMEOUT_MS,
+  PROJECT_AGENT_SOURCE_GITHUB_TOTAL_FETCHED_BYTES,
+  PROJECT_AGENT_SOURCE_GITHUB_TOTAL_TEXT_MAX_LENGTH,
   PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
   PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
   PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH,
@@ -34,6 +40,12 @@ const SOURCE_PREVIEW_LIMITS = {
   zipMaxIncludedFiles: PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
   zipEntryMaxBytes: PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
   zipTotalExtractedBytes: PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
+  githubMaxTreeEntries: PROJECT_AGENT_SOURCE_GITHUB_MAX_TREE_ENTRIES,
+  githubMaxIncludedFiles: PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES,
+  githubFileMaxBytes: PROJECT_AGENT_SOURCE_GITHUB_FILE_MAX_BYTES,
+  githubTotalFetchedBytes: PROJECT_AGENT_SOURCE_GITHUB_TOTAL_FETCHED_BYTES,
+  githubTotalTextMaxLength: PROJECT_AGENT_SOURCE_GITHUB_TOTAL_TEXT_MAX_LENGTH,
+  githubTimeoutMs: PROJECT_AGENT_SOURCE_GITHUB_TIMEOUT_MS,
 };
 
 function getContentType(req) {
@@ -46,17 +58,19 @@ function hasProjectAgentRunContentType(req) {
   return contentType.includes('application/json') || contentType.includes('multipart/form-data');
 }
 
-async function getProjectAgentSourceBundle(body, form) {
+async function getProjectAgentSourceBundle(body, form, createSourceBundle) {
   const sourceText = body.sourceText;
   const sourceFiles = getMultipartFiles(form, ['sourceFiles']);
+  const githubRepoUrl = body.githubRepoUrl;
 
-  return createProjectAgentSourceBundle({
+  return createSourceBundle({
     sourceText,
     sourceFiles,
+    githubRepoUrl,
   });
 }
 
-async function getProjectAgentRunPayload(body, form) {
+async function getProjectAgentRunPayload(body, form, createSourceBundle) {
   assertPlainObject(body, 'Project agent run request body');
 
   const payload = {
@@ -66,9 +80,10 @@ async function getProjectAgentRunPayload(body, form) {
   };
   const sourceText = body.sourceText;
   const sourceFiles = getMultipartFiles(form, ['sourceFiles']);
+  const githubRepoUrl = typeof body.githubRepoUrl === 'string' ? body.githubRepoUrl.trim() : '';
 
-  if ((typeof sourceText === 'string' && sourceText.trim()) || sourceFiles.length > 0) {
-    payload.sourceBundle = await getProjectAgentSourceBundle(body, form);
+  if ((typeof sourceText === 'string' && sourceText.trim()) || sourceFiles.length > 0 || githubRepoUrl) {
+    payload.sourceBundle = await getProjectAgentSourceBundle(body, form, createSourceBundle);
   }
 
   return payload;
@@ -147,7 +162,10 @@ function getBrowserFacingRunMessage(error) {
   return 'Project agent run failed.';
 }
 
-export function createProjectsAgentRunHandler({ runAgent = runProjectAgent } = {}) {
+export function createProjectsAgentRunHandler({
+  runAgent = runProjectAgent,
+  createSourceBundle = createProjectAgentSourceBundle,
+} = {}) {
   return async function handleProjectsAgentRun(req, res) {
     try {
       if (!hasProjectAgentRunContentType(req)) {
@@ -157,7 +175,7 @@ export function createProjectsAgentRunHandler({ runAgent = runProjectAgent } = {
       }
 
       const { body, form } = await parseAdminRequest(req);
-      const payload = await getProjectAgentRunPayload(body, form);
+      const payload = await getProjectAgentRunPayload(body, form, createSourceBundle);
       const result = await runAgent(payload);
 
       sendJson(res, 200, result);
@@ -183,7 +201,8 @@ export function createProjectsAgentSourcePreviewHandler({
 
       const sourceText = body.sourceText;
       const sourceFiles = getMultipartFiles(form, ['sourceFiles']);
-      const bundle = await createSourceBundle({ sourceText, sourceFiles });
+      const githubRepoUrl = body.githubRepoUrl;
+      const bundle = await createSourceBundle({ sourceText, sourceFiles, githubRepoUrl });
 
       sendJson(res, 200, createProjectAgentSourcePreview(bundle));
     } catch (error) {

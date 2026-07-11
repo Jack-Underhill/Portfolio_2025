@@ -10,6 +10,15 @@ import {
   PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
   PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
 } from './sourceIngestion/fileSource.js';
+import {
+  normalizeGitHubRepoSource,
+  PROJECT_AGENT_SOURCE_GITHUB_FILE_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES,
+  PROJECT_AGENT_SOURCE_GITHUB_MAX_TREE_ENTRIES,
+  PROJECT_AGENT_SOURCE_GITHUB_TIMEOUT_MS,
+  PROJECT_AGENT_SOURCE_GITHUB_TOTAL_FETCHED_BYTES,
+  PROJECT_AGENT_SOURCE_GITHUB_TOTAL_TEXT_MAX_LENGTH,
+} from './sourceIngestion/githubSource.js';
 import { normalizePastedSourceText } from './sourceIngestion/textSource.js';
 
 export {
@@ -22,6 +31,12 @@ export {
   PROJECT_AGENT_SOURCE_ZIP_MAX_ENTRIES,
   PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
   PROJECT_AGENT_SOURCE_ZIP_TOTAL_EXTRACTED_BYTES,
+  PROJECT_AGENT_SOURCE_GITHUB_FILE_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES,
+  PROJECT_AGENT_SOURCE_GITHUB_MAX_TREE_ENTRIES,
+  PROJECT_AGENT_SOURCE_GITHUB_TIMEOUT_MS,
+  PROJECT_AGENT_SOURCE_GITHUB_TOTAL_FETCHED_BYTES,
+  PROJECT_AGENT_SOURCE_GITHUB_TOTAL_TEXT_MAX_LENGTH,
 };
 
 export const PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH = 30000;
@@ -161,6 +176,8 @@ function normalizeSourceResults(result) {
 export async function createProjectAgentSourceBundle({
   sourceText,
   sourceFiles = [],
+  githubRepoUrl,
+  githubFetchImpl,
 } = {}) {
   const sources = [];
   const manifest = [];
@@ -211,6 +228,40 @@ export async function createProjectAgentSourceBundle({
     );
 
     for (const sourceResult of sourceResults) {
+      if (!sourceResult.item) {
+        manifest.push(sourceResult.manifest);
+        continue;
+      }
+
+      totalTextLength = tryIncludeSource({
+        source: sourceResult.item,
+        sourceManifest: sourceResult.manifest,
+        sources,
+        manifest,
+        warnings,
+        totalTextLength,
+      });
+    }
+
+    warnings.push(...result.warnings);
+  }
+
+  const githubSourceText = typeof githubRepoUrl === 'string' ? githubRepoUrl.trim() : '';
+
+  if (githubSourceText) {
+    const idGenerator = createSourceIdGenerator(nextSourceNumber);
+    const result = await normalizeGitHubRepoSource(githubSourceText, {
+      id: `source-${nextSourceNumber}`,
+      createId: idGenerator.nextId,
+      fetchImpl: githubFetchImpl,
+    });
+
+    nextSourceNumber = Math.max(
+      nextSourceNumber + 1,
+      idGenerator.getNextSourceNumber(),
+    );
+
+    for (const sourceResult of normalizeSourceResults(result)) {
       if (!sourceResult.item) {
         manifest.push(sourceResult.manifest);
         continue;

@@ -1,10 +1,13 @@
+import { Buffer } from 'node:buffer';
+
 import JSZip from 'jszip';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   createProjectAgentSourceBundle,
   PROJECT_AGENT_SOURCE_FILE_MAX_BYTES,
   PROJECT_AGENT_SOURCE_FILE_MAX_COUNT,
+  PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES,
   PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH,
   PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH,
 } from '../../../../server/admin/agent/sourceBundle.js';
@@ -34,6 +37,46 @@ async function createZipBytes(entries) {
   });
 
   return new Uint8Array(await zip.generateAsync({ type: 'uint8array' }));
+}
+
+function createHeaders(values = {}) {
+  const normalized = new Map(
+    Object.entries(values).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+
+  return {
+    get(name) {
+      return normalized.get(String(name).toLowerCase()) ?? null;
+    },
+  };
+}
+
+function createJsonResponse(data, { status = 200, headers } = {}) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    headers: createHeaders(headers),
+    json: async () => data,
+  };
+}
+
+function createGitHubBlob(text) {
+  const bytes = encoder.encode(text);
+
+  return {
+    encoding: 'base64',
+    content: Buffer.from(bytes).toString('base64'),
+    size: bytes.byteLength,
+  };
+}
+
+function createRouteFetch(routes) {
+  return vi.fn(async (url) => {
+    const route = routes[url];
+
+    if (!route) throw new Error(`Unexpected fetch: ${url}`);
+    return route;
+  });
 }
 
 describe('project agent source bundle helpers', () => {
@@ -266,6 +309,162 @@ describe('project agent source bundle helpers', () => {
     });
     expect(bundle.warnings).toEqual([
       'Skipped unsupported zip entry "bundle.zip / z-assets/logo.png".',
+    ]);
+  });
+
+  it('normalizes GitHub repository sources in the shared bundle flow', async () => {
+    const githubFetchImpl = createRouteFetch({
+      'https://api.github.com/repos/owner/repo': createJsonResponse({ default_branch: 'main' }),
+      'https://api.github.com/repos/owner/repo/git/trees/main?recursive=1': createJsonResponse({
+        tree: [
+          { path: 'README.md', type: 'blob', sha: 'aaaaaa', size: 13 },
+          { path: 'src/App.jsx', type: 'blob', sha: 'bbbbbb', size: 24 },
+        ],
+      }),
+      'https://api.github.com/repos/owner/repo/git/blobs/aaaaaa': createJsonResponse(createGitHubBlob('# Repo notes')),
+      'https://api.github.com/repos/owner/repo/git/blobs/bbbbbb': createJsonResponse(createGitHubBlob('export function App() {}')),
+    });
+
+    const bundle = await createProjectAgentSourceBundle({
+      sourceText: 'Owner source note.',
+      sourceFiles: [
+        createFakeFile({ name: 'local.md', text: '# Local note', type: 'text/markdown' }),
+      ],
+      githubRepoUrl: 'https://github.com/owner/repo',
+      githubFetchImpl,
+    });
+
+    expect(bundle.hasSourceContext).toBe(true);
+    expect(bundle.sources).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        kind: 'pasted-text',
+        label: 'Pasted source material',
+        text: 'Owner source note.',
+      }),
+      expect.objectContaining({
+        id: 'source-2',
+        kind: 'file',
+        label: 'local.md',
+        text: '# Local note',
+      }),
+      expect.objectContaining({
+        id: 'source-3',
+        kind: 'github-file',
+        label: 'owner/repo / README.md',
+        repo: 'owner/repo',
+        ref: 'main',
+        path: 'README.md',
+        text: '# Repo notes',
+      }),
+      expect.objectContaining({
+        id: 'source-4',
+        kind: 'github-file',
+        label: 'owner/repo / src/App.jsx',
+        repo: 'owner/repo',
+        ref: 'main',
+        path: 'src/App.jsx',
+        text: 'export function App() {}',
+      }),
+    ]);
+    expect(bundle.manifest).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        included: true,
+        label: 'Pasted source material',
+      }),
+      expect.objectContaining({
+        id: 'source-2',
+        included: true,
+        label: 'local.md',
+      }),
+      expect.objectContaining({
+        id: 'source-3',
+        kind: 'github-file',
+        label: 'owner/repo / README.md',
+        repo: 'owner/repo',
+        owner: 'owner',
+        ref: 'main',
+        path: 'README.md',
+        sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
+        included: true,
+        warnings: [],
+      }),
+      expect.objectContaining({
+        id: 'source-4',
+        kind: 'github-file',
+        label: 'owner/repo / src/App.jsx',
+        path: 'src/App.jsx',
+        included: true,
+      }),
+    ]);
+    bundle.manifest.forEach((entry) => {
+      expect(entry).not.toHaveProperty('text');
+    });
+    expect(JSON.stringify(bundle.manifest)).not.toContain('export function App');
+    expect(bundle.warnings).toEqual([]);
+  });
+
+  it('returns clear metadata-only GitHub warnings for unsupported repository URLs', async () => {
+    const githubFetchImpl = vi.fn();
+
+    const bundle = await createProjectAgentSourceBundle({
+      githubRepoUrl: 'https://github.com/owner/repo/issues/1',
+      githubFetchImpl,
+    });
+
+    expect(githubFetchImpl).not.toHaveBeenCalled();
+    expect(bundle).toEqual({
+      hasSourceContext: false,
+      sources: [],
+      manifest: [
+        expect.objectContaining({
+          id: 'source-1',
+          kind: 'github-repo',
+          label: 'https://github.com/owner/repo/issues/1',
+          included: false,
+          warnings: ['GitHub repository URL must point to a repository root or /tree/{branch-or-ref}.'],
+        }),
+      ],
+      warnings: ['GitHub repository URL must point to a repository root or /tree/{branch-or-ref}.'],
+    });
+    expect(bundle.manifest[0]).not.toHaveProperty('text');
+  });
+
+  it('applies the shared total source text limit to GitHub files after earlier sources', async () => {
+    const githubFetchImpl = createRouteFetch({
+      'https://api.github.com/repos/owner/repo': createJsonResponse({ default_branch: 'main' }),
+      'https://api.github.com/repos/owner/repo/git/trees/main?recursive=1': createJsonResponse({
+        tree: [
+          { path: 'long.md', type: 'blob', sha: 'aaaaaa', size: PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH },
+        ],
+      }),
+      'https://api.github.com/repos/owner/repo/git/blobs/aaaaaa': createJsonResponse(
+        createGitHubBlob('g'.repeat(PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH)),
+      ),
+    });
+
+    const bundle = await createProjectAgentSourceBundle({
+      sourceText: 'p'.repeat(PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
+      githubRepoUrl: 'https://github.com/owner/repo',
+      githubFetchImpl,
+    });
+
+    expect(bundle.sources).toHaveLength(2);
+    expect(bundle.sources[1]).toEqual(expect.objectContaining({
+      id: 'source-2',
+      label: 'owner/repo / long.md',
+      text: 'g'.repeat(PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH - PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
+    }));
+    expect(bundle.manifest[1]).toEqual(expect.objectContaining({
+      id: 'source-2',
+      included: true,
+      warnings: [
+        `Truncated source "owner/repo / long.md" to fit the ${PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH} character total source limit.`,
+      ],
+    }));
+    expect(bundle.warnings).toEqual([
+      `Truncated source "owner/repo / long.md" to fit the ${PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH} character total source limit.`,
     ]);
   });
 
@@ -579,5 +778,9 @@ describe('project agent source bundle helpers', () => {
     expect(bundle.warnings).toEqual([
       `Skipped 2 source file(s) beyond the ${PROJECT_AGENT_SOURCE_FILE_MAX_COUNT} file limit.`,
     ]);
+  });
+
+  it('exports the configured GitHub included file limit for downstream schema bounds', () => {
+    expect(PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES).toBe(40);
   });
 });

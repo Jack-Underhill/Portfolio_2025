@@ -262,6 +262,78 @@ describe('projects agent run route', () => {
     expect(res.statusCode).toBe(200);
   });
 
+  it('builds a source bundle for repo-only run requests', async () => {
+    const sourceBundle = {
+      hasSourceContext: true,
+      sources: [
+        {
+          id: 'source-1',
+          kind: 'github-file',
+          label: 'owner/repo / README.md',
+          mediaType: 'text/markdown',
+          bytes: 12,
+          text: '# Repo notes',
+        },
+      ],
+      manifest: [
+        {
+          id: 'source-1',
+          kind: 'github-file',
+          label: 'owner/repo / README.md',
+          mediaType: 'text/markdown',
+          bytes: 12,
+          included: true,
+          warnings: [],
+          repo: 'owner/repo',
+          owner: 'owner',
+          ref: 'main',
+          path: 'README.md',
+          sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
+        },
+      ],
+      warnings: [],
+    };
+    const createSourceBundle = vi.fn(async (input) => {
+      expect(input).toEqual({
+        sourceText: undefined,
+        sourceFiles: [],
+        githubRepoUrl: 'https://github.com/owner/repo',
+      });
+      return sourceBundle;
+    });
+    const runAgent = vi.fn(async (payload) => {
+      expect(payload).toEqual({
+        ...validPayload,
+        instructions: ' ',
+        sourceBundle,
+      });
+
+      return {
+        patch: { description: 'Revised with repo evidence' },
+        notes: ['Updated from repo evidence.'],
+        warnings: [],
+        appliedFields: ['description'],
+        intent: 'revise',
+        runPlan: 'revise-with-source-context',
+        sourceManifest: sourceBundle.manifest,
+        elapsedMs: 25,
+      };
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent, createSourceBundle });
+    const req = jsonRequest({
+      ...validPayload,
+      instructions: ' ',
+      githubRepoUrl: 'https://github.com/owner/repo',
+    });
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(createSourceBundle).toHaveBeenCalledTimes(1);
+    expect(runAgent).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toBe(200);
+  });
+
   it('passes unsupported source uploads as skipped source bundle warnings', async () => {
     const runAgent = vi.fn(async (payload) => {
       expect(payload).toEqual({
@@ -649,6 +721,85 @@ describe('projects agent source preview route', () => {
     expect(JSON.stringify(res.json())).not.toContain('# Notes');
     expect(JSON.stringify(res.json())).not.toContain('PDF preview evidence');
     expect(JSON.stringify(res.json())).not.toContain('Owner source note.');
+    expect(res.json()).not.toHaveProperty('sources');
+  });
+
+  it('previews GitHub repository URL context through the source bundle helper', async () => {
+    const createSourceBundle = vi.fn(async (input) => {
+      expect(input).toEqual({
+        sourceText: undefined,
+        sourceFiles: [],
+        githubRepoUrl: 'https://github.com/owner/repo',
+      });
+
+      return {
+        hasSourceContext: true,
+        sources: [
+          {
+            id: 'source-1',
+            kind: 'github-file',
+            label: 'owner/repo / README.md',
+            mediaType: 'text/markdown',
+            bytes: 12,
+            text: '# Repo notes',
+          },
+        ],
+        manifest: [
+          {
+            id: 'source-1',
+            kind: 'github-file',
+            label: 'owner/repo / README.md',
+            mediaType: 'text/markdown',
+            bytes: 12,
+            included: true,
+            warnings: [],
+            repo: 'owner/repo',
+            owner: 'owner',
+            ref: 'main',
+            path: 'README.md',
+            sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
+          },
+        ],
+        warnings: [],
+      };
+    });
+    const handler = createProjectsAgentSourcePreviewHandler({ createSourceBundle });
+    const req = jsonRequest({
+      githubRepoUrl: 'https://github.com/owner/repo',
+    });
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(createSourceBundle).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual(expect.objectContaining({
+      hasSourceContext: true,
+      sourceCount: 1,
+      manifestCount: 1,
+      warningCount: 0,
+      manifest: [
+        expect.objectContaining({
+          id: 'source-1',
+          kind: 'github-file',
+          label: 'owner/repo / README.md',
+          repo: 'owner/repo',
+          ref: 'main',
+          path: 'README.md',
+          sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
+          included: true,
+        }),
+      ],
+      limits: expect.objectContaining({
+        githubMaxTreeEntries: expect.any(Number),
+        githubMaxIncludedFiles: expect.any(Number),
+        githubFileMaxBytes: expect.any(Number),
+        githubTotalFetchedBytes: expect.any(Number),
+        githubTotalTextMaxLength: expect.any(Number),
+        githubTimeoutMs: expect.any(Number),
+      }),
+    }));
+    expect(JSON.stringify(res.json())).not.toContain('# Repo notes');
     expect(res.json()).not.toHaveProperty('sources');
   });
 
