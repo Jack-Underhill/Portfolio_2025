@@ -15,11 +15,6 @@ import {
   validSourceValidation,
 } from './sourceValidationResult.js';
 
-export {
-  getSourceFileBaseName,
-  getSourceFileExtension,
-} from '../sourcePathUtils.js';
-
 export function isSupportedTextSourceFileName(name) {
   const baseName = getSourceFileBaseName(name).toLowerCase();
   return TEXT_SOURCE_ALLOWED_EXTENSION_SET.has(getSourceFileExtension(baseName))

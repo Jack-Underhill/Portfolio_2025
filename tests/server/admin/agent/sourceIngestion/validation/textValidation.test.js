@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import {
   getDisallowedTextSourceReason,
-  getSourceFileExtension,
   isSupportedTextSourceFileName,
   validateTextSourceFileName,
 } from '../../../../../../server/admin/agent/sourceIngestion/validation/textValidation.js';
+import {
+  getSourceFileExtension,
+} from '../../../../../../server/admin/agent/sourceIngestion/sourcePathUtils.js';
 
 describe('source text filename validation', () => {
   it('uses the final path segment for extension and filename support checks', () => {
