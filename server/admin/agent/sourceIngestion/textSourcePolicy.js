@@ -245,5 +245,7 @@ export const TEXT_SOURCE_DISALLOWED_BINARY_OR_DUMP_EXTENSIONS = new Set([
   '.sqlite3',
   '.dump',
 ]);
-export const TEXT_SOURCE_GENERATED_SOURCE_PATTERN = /(?:^|[._-])generated\.[a-z0-9]+$/i;
-export const TEXT_SOURCE_GENERATED_BUNDLE_PATTERN = /(?:^|[._-])(?:bundle|min)\.(?:cjs|css|js|mjs)$/i;
+export {
+  SOURCE_GENERATED_BUNDLE_PATTERN as TEXT_SOURCE_GENERATED_BUNDLE_PATTERN,
+  SOURCE_GENERATED_SOURCE_PATTERN as TEXT_SOURCE_GENERATED_SOURCE_PATTERN,
+} from './sourcePathPolicy.js';

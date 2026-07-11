@@ -3,6 +3,11 @@ import {
   normalizeNamedTextSourceBytes,
 } from './textSource.js';
 import {
+  cleanUnsafeRelativeSourcePath,
+  isSafeRelativeSourcePath,
+  joinSourceDisplayPath,
+} from './sourcePathUtils.js';
+import {
   normalizeUploadedPdfSourceFile,
   PROJECT_AGENT_SOURCE_PDF_EXTENSION,
   PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE,
@@ -37,16 +42,6 @@ function createFileLike({ name, type, bytes }) {
   };
 }
 
-function cleanUnsafePath(path) {
-  const label = String(path || '')
-    .replace(/\\/g, '/')
-    .split('/')
-    .filter((part) => part && part !== '.' && part !== '..' && !/^[A-Za-z]:$/.test(part))
-    .join('/');
-
-  return label || 'unsafe entry';
-}
-
 function getSafePath(entry) {
   const original = getZipEntryName(entry);
 
@@ -54,16 +49,11 @@ function getSafePath(entry) {
 
   const hasUnsafeOriginal = typeof entry?.unsafeOriginalName === 'string'
     && entry.unsafeOriginalName !== entry.name;
-  const hasUnsafeSyntax = original.startsWith('/')
-    || original.startsWith('\\')
-    || /^[A-Za-z]:[\\/]/.test(original)
-    || original.includes('\\');
-  const parts = original.split('/');
-  const hasUnsafeSegment = parts.some((part) => !part || part === '.' || part === '..');
+  const isSafePath = isSafeRelativeSourcePath(original);
 
-  return hasUnsafeOriginal || hasUnsafeSyntax || hasUnsafeSegment
-    ? { path: cleanUnsafePath(original), unsafe: true }
-    : { path: parts.join('/'), unsafe: false };
+  return hasUnsafeOriginal || !isSafePath
+    ? { path: cleanUnsafeRelativeSourcePath(original), unsafe: true }
+    : { path: original.split('/').join('/'), unsafe: false };
 }
 
 function getEntryKind(path) {
@@ -82,7 +72,7 @@ function getEntryKind(path) {
 }
 
 function getPolicyWarning({ archiveLabel, path, pathIsUnsafe, kind, includedCount, maxIncludedFiles }) {
-  const label = `${archiveLabel} / ${path}`;
+  const label = joinSourceDisplayPath(archiveLabel, path);
   const isIgnored = path
     .split('/')
     .some((part) => IGNORED_ZIP_PATH_SEGMENTS.has(part.toLowerCase()));
@@ -105,7 +95,7 @@ function getUncompressedSize(entry) {
 }
 
 function getSizeWarning({ archiveLabel, path, bytes, totalExtractedBytes, limits }) {
-  const label = `${archiveLabel} / ${path}`;
+  const label = joinSourceDisplayPath(archiveLabel, path);
 
   if (bytes > limits.maxEntryBytes) {
     return `Skipped oversized zip entry "${label}" because it exceeds the ${limits.maxEntryBytes} byte limit.`;
@@ -148,7 +138,7 @@ async function readEntryBytes({ entry, archiveLabel, path, counters, limits }) {
 
     return warning ? { warning, bytesLength: bytes.byteLength } : { bytes };
   } catch {
-    return { warning: `Skipped unreadable zip entry "${archiveLabel} / ${path}".` };
+    return { warning: `Skipped unreadable zip entry "${joinSourceDisplayPath(archiveLabel, path)}".` };
   }
 }
 
@@ -166,13 +156,15 @@ function isBinaryLooking(bytes) {
 }
 
 function skipped({ id, archiveLabel, path, bytes = 0, warning }) {
+  const label = joinSourceDisplayPath(archiveLabel, path);
+
   return {
     entry: {
       item: null,
       manifest: {
         id,
         kind: PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
-        label: `${archiveLabel} / ${path}`,
+        label,
         mediaType: PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
         bytes,
         included: false,
@@ -232,11 +224,11 @@ export async function normalizeZipEntry({ entry, archiveLabel, id, limits, count
       archiveLabel,
       path,
       bytes: readResult.bytes.byteLength,
-      warning: `Skipped binary-looking zip entry "${archiveLabel} / ${path}".`,
+      warning: `Skipped binary-looking zip entry "${joinSourceDisplayPath(archiveLabel, path)}".`,
     });
   }
 
-  const label = `${archiveLabel} / ${path}`;
+  const label = joinSourceDisplayPath(archiveLabel, path);
   const result = kind === PROJECT_AGENT_SOURCE_PDF_KIND
     ? await normalizeUploadedPdfSourceFile(createFileLike({
       name: label,

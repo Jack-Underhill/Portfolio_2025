@@ -4,35 +4,21 @@ import {
   TEXT_SOURCE_DISALLOWED_BINARY_OR_DUMP_EXTENSIONS,
   TEXT_SOURCE_DISALLOWED_SECRET_EXTENSIONS,
   TEXT_SOURCE_DISALLOWED_SECRET_FILENAMES,
-  TEXT_SOURCE_GENERATED_BUNDLE_PATTERN,
-  TEXT_SOURCE_GENERATED_SOURCE_PATTERN,
 } from '../textSourcePolicy.js';
+import {
+  getSourceFileBaseName,
+  getSourceFileExtension,
+} from '../sourcePathUtils.js';
+import { isGeneratedOrMinifiedSourcePath } from '../sourcePathPolicy.js';
 import {
   invalidSourceValidation,
   validSourceValidation,
 } from './sourceValidationResult.js';
 
-export function getSourceFileBaseName(name) {
-  if (typeof name !== 'string') return '';
-
-  const trimmedName = name.trim().replace(/\\/g, '/');
-  const parts = trimmedName
-    .split('/')
-    .map((part) => part.trim())
-    .filter(Boolean);
-  return parts.at(-1) || '';
-}
-
-export function getSourceFileExtension(name) {
-  const trimmedName = getSourceFileBaseName(name);
-  const lastDotIndex = trimmedName.lastIndexOf('.');
-
-  if (lastDotIndex <= 0 || lastDotIndex === trimmedName.length - 1) {
-    return '';
-  }
-
-  return trimmedName.slice(lastDotIndex).toLowerCase();
-}
+export {
+  getSourceFileBaseName,
+  getSourceFileExtension,
+} from '../sourcePathUtils.js';
 
 export function isSupportedTextSourceFileName(name) {
   const baseName = getSourceFileBaseName(name).toLowerCase();
@@ -59,10 +45,7 @@ export function getDisallowedTextSourceReason(name) {
     return 'binary or database dump source file type';
   }
 
-  if (
-    TEXT_SOURCE_GENERATED_SOURCE_PATTERN.test(baseName)
-    || TEXT_SOURCE_GENERATED_BUNDLE_PATTERN.test(baseName)
-  ) {
+  if (isGeneratedOrMinifiedSourcePath(baseName)) {
     return 'generated or minified bundle source file name';
   }
 

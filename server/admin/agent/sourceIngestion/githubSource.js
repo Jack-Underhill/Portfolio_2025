@@ -6,6 +6,16 @@ import {
   PROJECT_AGENT_SOURCE_GITHUB_REPO_KIND,
 } from './sourceKinds.js';
 import { PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE } from './sourceMediaTypes.js';
+import {
+  encodeSourcePathForUrl,
+  getSourceFileBaseName,
+  isSafeRelativeSourcePath,
+  joinSourceDisplayPath,
+} from './sourcePathUtils.js';
+import {
+  isGeneratedOrMinifiedWebSourcePath,
+  isNoisyGeneratedSourcePath,
+} from './sourcePathPolicy.js';
 import { validateTotalByteLength } from './validation/byteLimitValidation.js';
 import { validateTextSourceFileName } from './validation/textValidation.js';
 
@@ -46,20 +56,6 @@ const IGNORED_PATH_SEGMENTS = new Set([
   'obj',
   '__pycache__',
 ]);
-const NOISY_FILENAMES = new Set([
-  'package-lock.json',
-  'pnpm-lock.yaml',
-  'yarn.lock',
-  'composer.lock',
-  'poetry.lock',
-  'cargo.lock',
-  'go.sum',
-]);
-const GENERATED_PATH_PATTERNS = [
-  /\.min\.(?:css|js)$/i,
-  /\.bundle\.(?:css|js)$/i,
-  /\.generated\./i,
-];
 const OWNER_PATTERN = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/;
 const REPO_PATTERN = /^[A-Za-z0-9._-]+$/;
 const SHA_PATTERN = /^[a-f0-9]{6,64}$/i;
@@ -80,28 +76,8 @@ function decodePathSegment(segment) {
   }
 }
 
-function encodePathPart(part) {
-  return encodeURIComponent(part);
-}
-
 function encodeRefForApi(ref) {
   return encodeURIComponent(ref);
-}
-
-function encodePathForUrl(path) {
-  return String(path)
-    .split('/')
-    .map(encodePathPart)
-    .join('/');
-}
-
-function isSafeGitHubPath(path) {
-  if (typeof path !== 'string' || !path.trim()) return false;
-  if (path.startsWith('/') || path.startsWith('\\') || path.includes('\\')) return false;
-
-  return path
-    .split('/')
-    .every((part) => part && part !== '.' && part !== '..');
 }
 
 function getRepoLabel({ owner, repo }) {
@@ -109,11 +85,11 @@ function getRepoLabel({ owner, repo }) {
 }
 
 function getFileLabel({ repoLabel, path }) {
-  return `${repoLabel} / ${path}`;
+  return joinSourceDisplayPath(repoLabel, path);
 }
 
 function getSourceUrl({ owner, repo, ref, path }) {
-  return `https://${GITHUB_HOST}/${owner}/${repo}/blob/${encodeURIComponent(ref)}/${encodePathForUrl(path)}`;
+  return `https://${GITHUB_HOST}/${owner}/${repo}/blob/${encodeURIComponent(ref)}/${encodeSourcePathForUrl(path)}`;
 }
 
 function getSkippedRepoEntry({ id, label, warning, metadata = {} }) {
@@ -284,7 +260,7 @@ export function parseGitHubRepoUrl(value) {
   if (parts.length >= 4 && route === 'tree') {
     const ref = parts.slice(3).join('/').trim();
 
-    if (!ref || !isSafeGitHubPath(ref)) {
+    if (!ref || !isSafeRelativeSourcePath(ref, { allowWindowsDrivePrefix: true })) {
       return {
         ok: false,
         warning: 'GitHub repository tree URL must include a valid branch or ref.',
@@ -297,7 +273,7 @@ export function parseGitHubRepoUrl(value) {
       repo,
       repoLabel: getRepoLabel({ owner, repo }),
       ref,
-      normalizedUrl: `https://${GITHUB_HOST}/${owner}/${repo}/tree/${encodePathForUrl(ref)}`,
+      normalizedUrl: `https://${GITHUB_HOST}/${owner}/${repo}/tree/${encodeSourcePathForUrl(ref)}`,
     };
   }
 
@@ -308,17 +284,17 @@ export function parseGitHubRepoUrl(value) {
 }
 
 function getPathIgnoreReason(path) {
-  if (!isSafeGitHubPath(path)) return 'unsafe path';
+  if (!isSafeRelativeSourcePath(path, { allowWindowsDrivePrefix: true })) return 'unsafe path';
 
   const parts = path.split('/');
   const ignoredSegment = parts.find((part) => IGNORED_PATH_SEGMENTS.has(part.toLowerCase()));
 
   if (ignoredSegment) return `ignored path segment "${ignoredSegment}"`;
 
-  const baseName = parts.at(-1).toLowerCase();
+  const baseName = getSourceFileBaseName(path).toLowerCase();
 
-  if (NOISY_FILENAMES.has(baseName)) return `noisy generated file "${baseName}"`;
-  if (GENERATED_PATH_PATTERNS.some((pattern) => pattern.test(baseName))) {
+  if (isNoisyGeneratedSourcePath(baseName)) return `noisy generated file "${baseName}"`;
+  if (isGeneratedOrMinifiedWebSourcePath(baseName)) {
     return `generated or minified file "${baseName}"`;
   }
 
