@@ -2,8 +2,12 @@ import {
   getDisallowedTextSourceReason,
   isSupportedTextSourceFileName,
   normalizeNamedTextSourceBytes,
-  PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE,
 } from './textSource.js';
+import {
+  PROJECT_AGENT_SOURCE_GITHUB_FILE_KIND,
+  PROJECT_AGENT_SOURCE_GITHUB_REPO_KIND,
+} from './sourceKinds.js';
+import { PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE } from './sourceMediaTypes.js';
 
 export const PROJECT_AGENT_SOURCE_GITHUB_MAX_TREE_ENTRIES = 500;
 export const PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES = 40;
@@ -15,8 +19,6 @@ export const PROJECT_AGENT_SOURCE_GITHUB_TIMEOUT_MS = 10000;
 const GITHUB_HOST = 'github.com';
 const GITHUB_API_HOST = 'api.github.com';
 const GITHUB_API_BASE_URL = `https://${GITHUB_API_HOST}`;
-const GITHUB_SOURCE_KIND = 'github-file';
-const GITHUB_REPO_KIND = 'github-repo';
 const API_HEADERS = {
   Accept: 'application/vnd.github+json',
   'User-Agent': 'local-codex-project-agent',
@@ -119,7 +121,7 @@ function getSkippedRepoEntry({ id, label, warning, metadata = {} }) {
     item: null,
     manifest: {
       id,
-      kind: GITHUB_REPO_KIND,
+      kind: PROJECT_AGENT_SOURCE_GITHUB_REPO_KIND,
       label,
       mediaType: PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE,
       bytes: 0,
@@ -155,7 +157,7 @@ function getSkippedFileEntry({
     item: null,
     manifest: {
       id,
-      kind: GITHUB_SOURCE_KIND,
+      kind: PROJECT_AGENT_SOURCE_GITHUB_FILE_KIND,
       label: getFileLabel({ repoLabel, path }),
       mediaType: PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE,
       bytes,
@@ -542,7 +544,7 @@ async function normalizeTreeEntry({
   counters.totalFetchedBytes += content.byteLength;
   const normalizeResult = await normalizeNamedTextSourceBytes({
     id,
-    kind: GITHUB_SOURCE_KIND,
+    kind: PROJECT_AGENT_SOURCE_GITHUB_FILE_KIND,
     label,
     bytes: content.byteLength,
     maxBytes: limits.maxFileBytes,

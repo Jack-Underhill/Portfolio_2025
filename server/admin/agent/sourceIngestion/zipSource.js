@@ -4,6 +4,10 @@ import {
   PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
   PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
 } from './pdfSource.js';
+import {
+  PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
+  PROJECT_AGENT_SOURCE_ZIP_KIND,
+} from './sourceKinds.js';
 import { getZipEntryName, normalizeZipEntry } from './zipEntryNormalizer.js';
 import {
   PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
@@ -43,7 +47,7 @@ function skipArchive({ id, archiveLabel, mediaType, bytes, warning }) {
         item: null,
         manifest: {
           id,
-          kind: 'zip',
+          kind: PROJECT_AGENT_SOURCE_ZIP_KIND,
           label: archiveLabel,
           mediaType,
           bytes,
@@ -61,7 +65,7 @@ function skipArchiveEntry({ id, archiveLabel, bytes, warning }) {
     item: null,
     manifest: {
       id,
-      kind: 'zip-entry',
+      kind: PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
       label: archiveLabel,
       mediaType: PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
       bytes,

@@ -10,6 +10,10 @@ import {
   PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE,
 } from './pdfSource.js';
 import {
+  PROJECT_AGENT_SOURCE_PDF_KIND,
+  PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
+} from './sourceKinds.js';
+import {
   IGNORED_ZIP_PATH_SEGMENTS,
   PROJECT_AGENT_SOURCE_ZIP_EXTENSION,
   PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
@@ -66,7 +70,9 @@ function getEntryKind(path) {
   const extension = getSourceFileExtension(path);
   const disallowedReason = getDisallowedTextSourceReason(path);
 
-  if (extension === PROJECT_AGENT_SOURCE_PDF_EXTENSION) return { extension, kind: 'pdf' };
+  if (extension === PROJECT_AGENT_SOURCE_PDF_EXTENSION) {
+    return { extension, kind: PROJECT_AGENT_SOURCE_PDF_KIND };
+  }
   if (disallowedReason) return { extension, kind: 'disallowed-text', disallowedReason };
   if (isSupportedTextSourceFileName(path)) return { extension, kind: 'text' };
   if (extension === PROJECT_AGENT_SOURCE_ZIP_EXTENSION) return { extension, kind: 'nested-zip' };
@@ -157,7 +163,7 @@ function skipped({ id, archiveLabel, path, bytes = 0, warning }) {
       item: null,
       manifest: {
         id,
-        kind: 'zip-entry',
+        kind: PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
         label: `${archiveLabel} / ${path}`,
         mediaType: PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
         bytes,
@@ -223,7 +229,7 @@ export async function normalizeZipEntry({ entry, archiveLabel, id, limits, count
   }
 
   const label = `${archiveLabel} / ${path}`;
-  const result = kind === 'pdf'
+  const result = kind === PROJECT_AGENT_SOURCE_PDF_KIND
     ? await normalizeUploadedPdfSourceFile(createFileLike({
       name: label,
       type: PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE,

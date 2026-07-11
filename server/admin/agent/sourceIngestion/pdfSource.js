@@ -1,10 +1,20 @@
 import { PDFParse } from 'pdf-parse';
 
+import { PROJECT_AGENT_SOURCE_PDF_KIND } from './sourceKinds.js';
+import {
+  PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
+  PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
+} from './sourceLimits.js';
+import { PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE } from './sourceMediaTypes.js';
+
 export const PROJECT_AGENT_SOURCE_PDF_EXTENSION = '.pdf';
-export const PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE = 'application/pdf';
-export const PROJECT_AGENT_SOURCE_PDF_MAX_BYTES = 10 * 1024 * 1024;
-export const PROJECT_AGENT_SOURCE_PDF_MAX_PAGES = 40;
-export const PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH = 80000;
+export { PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE } from './sourceMediaTypes.js';
+export {
+  PROJECT_AGENT_SOURCE_PDF_MAX_BYTES,
+  PROJECT_AGENT_SOURCE_PDF_MAX_PAGES,
+  PROJECT_AGENT_SOURCE_PDF_MAX_TEXT_LENGTH,
+} from './sourceLimits.js';
 
 function getSafePdfLabel(file) {
   const name = typeof file?.name === 'string' ? file.name.trim() : '';
@@ -30,7 +40,7 @@ function createSkippedPdfResult({
     item: null,
     manifest: {
       id,
-      kind: 'pdf',
+      kind: PROJECT_AGENT_SOURCE_PDF_KIND,
       label,
       mediaType,
       bytes,
@@ -208,7 +218,7 @@ export async function normalizeUploadedPdfSourceFile(file, {
   return {
     item: {
       id,
-      kind: 'pdf',
+      kind: PROJECT_AGENT_SOURCE_PDF_KIND,
       label,
       mediaType,
       bytes: byteLength,
@@ -216,7 +226,7 @@ export async function normalizeUploadedPdfSourceFile(file, {
     },
     manifest: {
       id,
-      kind: 'pdf',
+      kind: PROJECT_AGENT_SOURCE_PDF_KIND,
       label,
       mediaType,
       bytes: byteLength,
