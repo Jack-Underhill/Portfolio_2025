@@ -291,10 +291,19 @@ function ProjectsSection({
 
     // --- add / update / remove ---
     const handleAddProject = () => {
-        setProjects((prev) => [
-            ...prev,
-            createEmptyProjectDraft({ id: crypto.randomUUID(), sortOrder: prev.length }),
-        ], [PROJECTS_WORKFLOW_LOCATION_ID]);
+        const currentProjects = stateRef.current.projects ?? [];
+        const newProject = createEmptyProjectDraft({
+            id: crypto.randomUUID(),
+            sortOrder: currentProjects.length,
+        });
+
+        onProjectRecordChangeStart?.();
+        activeProjectRef.current = newProject;
+        agentRunRequestId.current += 1;
+        setAgentRunState(createIdleProjectAgentRunState);
+        setLastAgentRunRequest(null);
+        setProjects([...currentProjects, newProject], [PROJECTS_WORKFLOW_LOCATION_ID]);
+        setActiveId(newProject.id);
     };
 
     const handleReorderProjects = (fromIndex, toIndex) => {
