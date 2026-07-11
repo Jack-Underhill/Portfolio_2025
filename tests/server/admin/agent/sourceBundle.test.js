@@ -513,6 +513,59 @@ describe('project agent source bundle helpers', () => {
     ]);
   });
 
+  it('skips later source files when the total source text limit is already exhausted', async () => {
+    const bundle = await createProjectAgentSourceBundle({
+      sourceText: 'p'.repeat(PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
+      sourceFiles: [
+        createFakeFile({
+          name: 'fills-remaining.md',
+          text: 'f'.repeat(PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH - PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
+          type: 'text/markdown',
+        }),
+        createFakeFile({
+          name: 'later.md',
+          text: 'late source text must not be included',
+          type: 'text/markdown',
+        }),
+      ],
+    });
+
+    expect(bundle.hasSourceContext).toBe(true);
+    expect(bundle.sources).toHaveLength(2);
+    expect(bundle.sources.map((source) => source.label)).toEqual([
+      'Pasted source material',
+      'fills-remaining.md',
+    ]);
+    expect(bundle.manifest).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        label: 'Pasted source material',
+        included: true,
+      }),
+      expect.objectContaining({
+        id: 'source-2',
+        label: 'fills-remaining.md',
+        included: true,
+        warnings: [],
+      }),
+      expect.objectContaining({
+        id: 'source-3',
+        label: 'later.md',
+        included: false,
+        warnings: [
+          'Skipped source "later.md" because the total source text limit was reached.',
+        ],
+      }),
+    ]);
+    bundle.manifest.forEach((entry) => {
+      expect(entry).not.toHaveProperty('text');
+    });
+    expect(JSON.stringify(bundle.manifest)).not.toContain('late source text must not be included');
+    expect(bundle.warnings).toEqual([
+      'Skipped source "later.md" because the total source text limit was reached.',
+    ]);
+  });
+
   it('skips files beyond the configured source file count', async () => {
     const sourceFiles = Array.from({ length: PROJECT_AGENT_SOURCE_FILE_MAX_COUNT + 2 }, (_, index) => createFakeFile({
       name: `source-${index + 1}.txt`,
