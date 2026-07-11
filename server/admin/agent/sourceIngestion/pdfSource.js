@@ -8,6 +8,10 @@ import {
 } from './sourceLimits.js';
 import { PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE } from './sourceMediaTypes.js';
 import {
+  createIncludedSourceResult,
+  createSkippedSourceResult,
+} from './sourceResult.js';
+import {
   validateByteLength,
   validateKnownByteLength,
 } from './validation/byteLimitValidation.js';
@@ -44,20 +48,18 @@ function createSkippedPdfResult({
   warning,
   pages,
 }) {
-  return {
-    item: null,
-    manifest: {
-      id,
-      kind: PROJECT_AGENT_SOURCE_PDF_KIND,
-      label,
-      mediaType,
-      bytes,
-      included: false,
-      warnings: [manifestWarning],
+  return createSkippedSourceResult({
+    id,
+    kind: PROJECT_AGENT_SOURCE_PDF_KIND,
+    label,
+    mediaType,
+    bytes,
+    warning,
+    manifestWarnings: [manifestWarning],
+    manifestMetadata: {
       ...(Number.isFinite(pages) ? { pages } : {}),
     },
-    warnings: [warning],
-  };
+  });
 }
 
 function formatPdfText({ label, pages }) {
@@ -227,26 +229,18 @@ export async function normalizeUploadedPdfSourceFile(file, {
     manifestWarnings.push(textLimitWarning);
   }
 
-  return {
-    item: {
-      id,
-      kind: PROJECT_AGENT_SOURCE_PDF_KIND,
-      label,
-      mediaType,
-      bytes: byteLength,
-      text,
-    },
-    manifest: {
-      id,
-      kind: PROJECT_AGENT_SOURCE_PDF_KIND,
-      label,
-      mediaType,
-      bytes: byteLength,
-      included: true,
-      warnings: manifestWarnings,
+  return createIncludedSourceResult({
+    id,
+    kind: PROJECT_AGENT_SOURCE_PDF_KIND,
+    label,
+    mediaType,
+    bytes: byteLength,
+    text,
+    warnings,
+    manifestWarnings,
+    manifestMetadata: {
       ...(Number.isFinite(pages) ? { pages } : {}),
       ...(isTextTruncated ? { truncated: true } : {}),
     },
-    warnings,
-  };
+  });
 }

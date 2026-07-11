@@ -16,6 +16,10 @@ import {
   isGeneratedOrMinifiedWebSourcePath,
   isNoisyGeneratedSourcePath,
 } from './sourcePathPolicy.js';
+import {
+  createSkippedSourceResult,
+  createSourceResultEntry,
+} from './sourceResult.js';
 import { validateTotalByteLength } from './validation/byteLimitValidation.js';
 import { validateTextSourceFileName } from './validation/textValidation.js';
 
@@ -93,19 +97,15 @@ function getSourceUrl({ owner, repo, ref, path }) {
 }
 
 function getSkippedRepoEntry({ id, label, warning, metadata = {} }) {
-  return {
-    item: null,
-    manifest: {
-      id,
-      kind: PROJECT_AGENT_SOURCE_GITHUB_REPO_KIND,
-      label,
-      mediaType: PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE,
-      bytes: 0,
-      included: false,
-      warnings: [warning],
-      ...metadata,
-    },
-  };
+  return createSourceResultEntry(createSkippedSourceResult({
+    id,
+    kind: PROJECT_AGENT_SOURCE_GITHUB_REPO_KIND,
+    label,
+    mediaType: PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE,
+    bytes: 0,
+    warning,
+    manifestMetadata: metadata,
+  }));
 }
 
 function getSkippedFileEntry({
@@ -129,19 +129,15 @@ function getSkippedFileEntry({
     metadata.ignoredPathReason = ignoredPathReason;
   }
 
-  return {
-    item: null,
-    manifest: {
-      id,
-      kind: PROJECT_AGENT_SOURCE_GITHUB_FILE_KIND,
-      label: getFileLabel({ repoLabel, path }),
-      mediaType: PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE,
-      bytes,
-      included: false,
-      warnings: [warning],
-      ...metadata,
-    },
-  };
+  return createSourceResultEntry(createSkippedSourceResult({
+    id,
+    kind: PROJECT_AGENT_SOURCE_GITHUB_FILE_KIND,
+    label: getFileLabel({ repoLabel, path }),
+    mediaType: PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE,
+    bytes,
+    warning,
+    manifestMetadata: metadata,
+  }));
 }
 
 function getRateLimitWarning(response) {

@@ -8,6 +8,11 @@ import {
   PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
   PROJECT_AGENT_SOURCE_ZIP_KIND,
 } from './sourceKinds.js';
+import {
+  createSkippedSourceEntriesResult,
+  createSkippedSourceResult,
+  createSourceResultEntry,
+} from './sourceResult.js';
 import { getZipEntryName, normalizeZipEntry } from './zipEntryNormalizer.js';
 import {
   PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
@@ -49,39 +54,28 @@ function getZipMediaType(file) {
 }
 
 function skipArchive({ id, archiveLabel, mediaType, bytes, warning }) {
-  return {
-    entries: [
-      {
-        item: null,
-        manifest: {
-          id,
-          kind: PROJECT_AGENT_SOURCE_ZIP_KIND,
-          label: archiveLabel,
-          mediaType,
-          bytes,
-          included: false,
-          warnings: [warning],
-        },
-      },
-    ],
-    warnings: [warning],
-  };
+  return createSkippedSourceEntriesResult({
+    id,
+    kind: PROJECT_AGENT_SOURCE_ZIP_KIND,
+    label: archiveLabel,
+    mediaType,
+    bytes,
+    warning,
+  });
 }
 
 function skipArchiveEntry({ id, archiveLabel, bytes, warning }) {
-  return {
-    item: null,
-    manifest: {
-      id,
-      kind: PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
-      label: archiveLabel,
-      mediaType: PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
-      bytes,
-      included: false,
-      warnings: [warning],
+  return createSourceResultEntry(createSkippedSourceResult({
+    id,
+    kind: PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
+    label: archiveLabel,
+    mediaType: PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
+    bytes,
+    warning,
+    manifestMetadata: {
       archiveLabel,
     },
-  };
+  }));
 }
 
 function createIdGetter({ createId, id }) {

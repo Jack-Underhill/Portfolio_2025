@@ -4,6 +4,10 @@ import {
 } from './sourceKinds.js';
 import { PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE } from './sourceMediaTypes.js';
 import {
+  createIncludedSourceResult,
+  createSkippedSourceResult,
+} from './sourceResult.js';
+import {
   PROJECT_AGENT_TEXT_SOURCE_MEDIA_TYPES_BY_EXTENSION,
 } from './textSourcePolicy.js';
 import {
@@ -64,6 +68,26 @@ function getTextSourceMediaType({ type, extension }) {
     ? type.trim()
     : PROJECT_AGENT_TEXT_SOURCE_MEDIA_TYPES_BY_EXTENSION.get(extension)
       || PROJECT_AGENT_SOURCE_DEFAULT_MEDIA_TYPE;
+}
+
+function createSkippedTextSourceResult({
+  id,
+  kind,
+  label,
+  mediaType,
+  bytes,
+  manifestWarning,
+  warning,
+}) {
+  return createSkippedSourceResult({
+    id,
+    kind,
+    label,
+    mediaType,
+    bytes,
+    manifestWarnings: [manifestWarning],
+    warning,
+  });
 }
 
 function normalizeNotebookCellSource(source) {
@@ -156,86 +180,66 @@ export async function normalizeNamedTextSourceBytes({
   const fileNameValidation = validateTextSourceFileName(label);
 
   if (!fileNameValidation.ok && fileNameValidation.reason === 'disallowed') {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        mediaType,
-        bytes: size ?? 0,
-        included: false,
-        warnings: [`Source file "${label}" is not allowed because it has a ${fileNameValidation.disallowedReason}.`],
-      },
-      warnings: [`Skipped disallowed source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      mediaType,
+      bytes: size ?? 0,
+      manifestWarning: `Source file "${label}" is not allowed because it has a ${fileNameValidation.disallowedReason}.`,
+      warning: `Skipped disallowed source file "${label}".`,
+    });
   }
 
   if (!fileNameValidation.ok) {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        bytes: size ?? 0,
-        included: false,
-        warnings: [`Unsupported source file type for "${label}".`],
-      },
-      warnings: [`Skipped unsupported source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      bytes: size ?? 0,
+      manifestWarning: `Unsupported source file type for "${label}".`,
+      warning: `Skipped unsupported source file "${label}".`,
+    });
   }
 
   const knownByteValidation = validateKnownByteLength(size, { maxBytes });
 
   if (!knownByteValidation.ok && knownByteValidation.reason === 'empty') {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        mediaType,
-        bytes: 0,
-        included: false,
-        warnings: [`Source file "${label}" is empty.`],
-      },
-      warnings: [`Skipped empty source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      mediaType,
+      bytes: 0,
+      manifestWarning: `Source file "${label}" is empty.`,
+      warning: `Skipped empty source file "${label}".`,
+    });
   }
 
   if (!knownByteValidation.ok && knownByteValidation.reason === 'oversized') {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        mediaType,
-        bytes: size,
-        included: false,
-        warnings: [`Source file "${label}" exceeds the ${maxBytes} byte limit.`],
-      },
-      warnings: [`Skipped oversized source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      mediaType,
+      bytes: size,
+      manifestWarning: `Source file "${label}" exceeds the ${maxBytes} byte limit.`,
+      warning: `Skipped oversized source file "${label}".`,
+    });
   }
 
   const readableValidation = validateByteReader(readBytes);
 
   if (!readableValidation.ok) {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        mediaType,
-        bytes: size ?? 0,
-        included: false,
-        warnings: [`Source file "${label}" could not be read.`],
-      },
-      warnings: [`Skipped unreadable source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      mediaType,
+      bytes: size ?? 0,
+      manifestWarning: `Source file "${label}" could not be read.`,
+      warning: `Skipped unreadable source file "${label}".`,
+    });
   }
 
   let buffer;
@@ -243,54 +247,42 @@ export async function normalizeNamedTextSourceBytes({
   try {
     buffer = await readableValidation.readBytes();
   } catch {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        mediaType,
-        bytes: size ?? 0,
-        included: false,
-        warnings: [`Source file "${label}" could not be read.`],
-      },
-      warnings: [`Skipped unreadable source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      mediaType,
+      bytes: size ?? 0,
+      manifestWarning: `Source file "${label}" could not be read.`,
+      warning: `Skipped unreadable source file "${label}".`,
+    });
   }
 
   const byteLength = buffer.byteLength ?? size ?? 0;
   const actualByteValidation = validateByteLength(byteLength, { maxBytes });
 
   if (!actualByteValidation.ok && actualByteValidation.reason === 'empty') {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        mediaType,
-        bytes: 0,
-        included: false,
-        warnings: [`Source file "${label}" is empty.`],
-      },
-      warnings: [`Skipped empty source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      mediaType,
+      bytes: 0,
+      manifestWarning: `Source file "${label}" is empty.`,
+      warning: `Skipped empty source file "${label}".`,
+    });
   }
 
   if (!actualByteValidation.ok && actualByteValidation.reason === 'oversized') {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        mediaType,
-        bytes: byteLength,
-        included: false,
-        warnings: [`Source file "${label}" exceeds the ${maxBytes} byte limit.`],
-      },
-      warnings: [`Skipped oversized source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      mediaType,
+      bytes: byteLength,
+      manifestWarning: `Source file "${label}" exceeds the ${maxBytes} byte limit.`,
+      warning: `Skipped oversized source file "${label}".`,
+    });
   }
 
   let text;
@@ -298,77 +290,53 @@ export async function normalizeNamedTextSourceBytes({
   try {
     text = TEXT_DECODER.decode(buffer).trim();
   } catch {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        mediaType,
-        bytes: byteLength,
-        included: false,
-        warnings: [`Source file "${label}" could not be decoded as UTF-8.`],
-      },
-      warnings: [`Skipped undecodable source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      mediaType,
+      bytes: byteLength,
+      manifestWarning: `Source file "${label}" could not be decoded as UTF-8.`,
+      warning: `Skipped undecodable source file "${label}".`,
+    });
   }
 
   if (!text) {
-    return {
-      item: null,
-      manifest: {
-        id,
-        kind,
-        label,
-        mediaType,
-        bytes: byteLength,
-        included: false,
-        warnings: [`Source file "${label}" is empty after trimming.`],
-      },
-      warnings: [`Skipped empty source file "${label}".`],
-    };
+    return createSkippedTextSourceResult({
+      id,
+      kind,
+      label,
+      mediaType,
+      bytes: byteLength,
+      manifestWarning: `Source file "${label}" is empty after trimming.`,
+      warning: `Skipped empty source file "${label}".`,
+    });
   }
 
   if (extension === '.ipynb') {
     const notebookResult = extractNotebookText(text);
 
     if (!notebookResult.text) {
-      return {
-        item: null,
-        manifest: {
-          id,
-          kind,
-          label,
-          mediaType,
-          bytes: byteLength,
-          included: false,
-          warnings: [notebookResult.warning || `Source file "${label}" is empty after trimming.`],
-        },
-        warnings: [`Skipped unreadable source file "${label}".`],
-      };
+      return createSkippedTextSourceResult({
+        id,
+        kind,
+        label,
+        mediaType,
+        bytes: byteLength,
+        manifestWarning: notebookResult.warning || `Source file "${label}" is empty after trimming.`,
+        warning: `Skipped unreadable source file "${label}".`,
+      });
     }
 
     text = notebookResult.text;
   }
 
-  return {
-    item: {
-      id,
-      kind,
-      label,
-      mediaType,
-      bytes: byteLength,
-      text,
-    },
-    manifest: {
-      id,
-      kind,
-      label,
-      mediaType,
-      bytes: byteLength,
-      included: true,
-      warnings: [],
-    },
-    warnings: [],
-  };
+  return createIncludedSourceResult({
+    id,
+    kind,
+    label,
+    mediaType,
+    bytes: byteLength,
+    text,
+  });
 }

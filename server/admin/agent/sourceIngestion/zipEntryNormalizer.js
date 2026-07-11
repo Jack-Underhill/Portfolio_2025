@@ -8,6 +8,10 @@ import {
   joinSourceDisplayPath,
 } from './sourcePathUtils.js';
 import {
+  createSkippedSourceResult,
+  createSourceResultEntry,
+} from './sourceResult.js';
+import {
   normalizeUploadedPdfSourceFile,
   PROJECT_AGENT_SOURCE_PDF_EXTENSION,
   PROJECT_AGENT_SOURCE_PDF_MEDIA_TYPE,
@@ -157,23 +161,22 @@ function isBinaryLooking(bytes) {
 
 function skipped({ id, archiveLabel, path, bytes = 0, warning }) {
   const label = joinSourceDisplayPath(archiveLabel, path);
+  const result = createSkippedSourceResult({
+    id,
+    kind: PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
+    label,
+    mediaType: PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
+    bytes,
+    warning,
+    manifestMetadata: {
+      archiveLabel,
+      path,
+    },
+  });
 
   return {
-    entry: {
-      item: null,
-      manifest: {
-        id,
-        kind: PROJECT_AGENT_SOURCE_ZIP_ENTRY_KIND,
-        label,
-        mediaType: PROJECT_AGENT_SOURCE_ZIP_MEDIA_TYPE,
-        bytes,
-        included: false,
-        warnings: [warning],
-        archiveLabel,
-        path,
-      },
-    },
-    warnings: [warning],
+    entry: createSourceResultEntry(result),
+    warnings: result.warnings,
   };
 }
 
