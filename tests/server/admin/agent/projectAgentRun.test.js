@@ -139,7 +139,7 @@ const githubSourceBundle = {
   warnings: [],
 };
 
-const largeRepoWarningCardinalitySourceBundle = {
+const compactLargeRepoSourceBundle = {
   hasSourceContext: true,
   sources: [
     {
@@ -167,10 +167,10 @@ const largeRepoWarningCardinalitySourceBundle = {
       sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
     },
   ],
-  warnings: Array.from(
-    { length: 26 },
-    (_, index) => `Skipped unsupported GitHub source file "owner/repo / noisy-${index + 1}.png".`,
-  ),
+  warnings: [
+    'Skipped 13 GitHub source file(s) from "owner/repo" due to ignored/generated paths. Examples: owner/repo / dist/generated-01.min.js.',
+    'Skipped 13 GitHub source file(s) from "owner/repo" due to unsupported file types. Examples: owner/repo / screenshots/noisy-02.png.',
+  ],
 };
 
 const discoveredCodexCommand = 'C:\\Tools\\latest-codex.exe';
@@ -558,33 +558,30 @@ describe('project agent run helpers', () => {
     });
   });
 
-  it('characterizes current large repo denial as warning cardinality, not missing source context', async () => {
-    let bridgeCalled = false;
-
-    await expect(runProjectAgent({
+  it('accepts compacted large repo warnings when usable source context exists', async () => {
+    const result = await runProjectAgent({
       intent: 'revise',
       instructions: '   ',
       projectContext,
-      sourceBundle: largeRepoWarningCardinalitySourceBundle,
+      sourceBundle: compactLargeRepoSourceBundle,
       codexBridge: async () => {
-        bridgeCalled = true;
         return {
           json: {
-            patch: {},
-            notes: [],
+            patch: { description: 'Revised from repository evidence' },
+            notes: ['Used compacted repo evidence.'],
             warnings: [],
           },
         };
       },
-    })).rejects.toMatchObject({
-      type: 'invalid_input',
-      message: 'sourceBundle warnings must contain 25 or fewer items.',
     });
 
-    expect(largeRepoWarningCardinalitySourceBundle.hasSourceContext).toBe(true);
-    expect(largeRepoWarningCardinalitySourceBundle.sources).toHaveLength(1);
-    expect(largeRepoWarningCardinalitySourceBundle.warnings).toHaveLength(26);
-    expect(bridgeCalled).toBe(false);
+    expect(result).toMatchObject({
+      patch: { description: 'Revised from repository evidence' },
+      notes: ['Used compacted repo evidence.'],
+      runPlan: 'revise-with-source-context',
+      sourceManifest: compactLargeRepoSourceBundle.manifest,
+    });
+    expect(result.warnings).toEqual(compactLargeRepoSourceBundle.warnings);
   });
 
   it('suppresses patch fields returned from source-backed review runs', async () => {

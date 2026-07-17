@@ -79,7 +79,9 @@ function formatBullets(items) {
 }
 
 function formatSourceManifest(sourceBundle) {
-  return sourceBundle.manifest
+  const includedEntries = sourceBundle.manifest.filter((entry) => entry.included);
+  const skippedCount = sourceBundle.manifest.length - includedEntries.length;
+  const lines = includedEntries
     .map((entry) => {
       const status = entry.included ? 'included' : 'skipped';
       const details = [
@@ -104,7 +106,18 @@ function formatSourceManifest(sourceBundle) {
         : '';
 
       return `- ${entry.id}: ${entry.label} (${details.join('; ')}${warnings})`;
-    })
+    });
+
+  if (skippedCount > 0) {
+    lines.push(`- skipped-source-summary: ${skippedCount} skipped source manifest entr${skippedCount === 1 ? 'y was' : 'ies were'} omitted from drafting evidence; see source warnings for grouped reasons.`);
+  }
+
+  return lines.join('\n');
+}
+
+function formatSourceWarnings(sourceBundle) {
+  return sourceBundle.warnings
+    .map((warning) => `- ${warning.replace(/\s+Examples:.*$/u, '').trim()}`)
     .join('\n');
 }
 
@@ -133,11 +146,20 @@ function buildSourceContextSections(sourceBundle) {
       'Prefer source-backed claims over stale or unsupported draft claims.',
       'Report contradictions between source material, owner instructions, and current draft context in notes or warnings.',
       'Report important missing evidence and assumptions in notes or warnings.',
+      'Do not warn merely because skipped-source summaries exist; warn only when omitted source creates a specific accuracy risk.',
+      'Do not mention skipped source paths in draft fields or improvement ideas unless the owner explicitly asks for source-ingestion diagnostics.',
     ]),
     '',
     'Source manifest:',
     formatSourceManifest(sourceBundle),
     '',
+    ...(sourceBundle.warnings.length > 0
+      ? [
+        'Source warnings (owner reporting context, not drafting evidence):',
+        formatSourceWarnings(sourceBundle),
+        '',
+      ]
+      : []),
     'Source evidence excerpts:',
     formatSourceEvidence(sourceBundle),
     '',

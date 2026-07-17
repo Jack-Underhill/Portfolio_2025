@@ -68,7 +68,15 @@ function applyGitHubTextLimit(result, counters, maxTotalTextLength) {
   };
 }
 
-function createSkippedEntryResult({ id, repoInfo, path, bytes, warning, ignoredPathReason }) {
+function createSkippedEntryResult({
+  id,
+  repoInfo,
+  path,
+  bytes,
+  warning,
+  ignoredPathReason,
+  compactWarningReason,
+}) {
   return {
     entry: getSkippedGitHubFileEntry({
       id,
@@ -79,6 +87,7 @@ function createSkippedEntryResult({ id, repoInfo, path, bytes, warning, ignoredP
       ignoredPathReason,
     }),
     warnings: [warning],
+    compactWarningReason,
   };
 }
 
@@ -105,6 +114,7 @@ export async function normalizeGitHubTreeEntry({
       bytes,
       ignoredPathReason: ignoreReason,
       warning: `Skipped ignored GitHub path "${label}" because it has an ${ignoreReason}.`,
+      compactWarningReason: `ignored/generated paths (${ignoreReason})`,
     });
   }
 
@@ -115,6 +125,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes,
       warning: `Skipped oversized GitHub source file "${label}" because it exceeds the ${limits.maxFileBytes} byte limit.`,
+      compactWarningReason: 'oversized files',
     });
   }
 
@@ -127,6 +138,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes,
       warning: `Skipped disallowed GitHub source file "${label}" because it has a ${textValidation.disallowedReason}.`,
+      compactWarningReason: `disallowed files (${textValidation.disallowedReason})`,
     });
   }
 
@@ -137,6 +149,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes,
       warning: `Skipped unsupported GitHub source file "${label}".`,
+      compactWarningReason: 'unsupported file types',
     });
   }
 
@@ -147,6 +160,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes,
       warning: `Skipped GitHub source file "${label}" because the ${limits.maxIncludedFiles} included file limit was reached.`,
+      compactWarningReason: 'included file limit',
     });
   }
 
@@ -163,6 +177,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes,
       warning: `Skipped GitHub source file "${label}" because the ${limits.maxTotalFetchedBytes} byte total fetched limit was reached.`,
+      compactWarningReason: 'total fetched byte limit',
     });
   }
 
@@ -178,6 +193,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes,
       warning: `Skipped GitHub source file "${label}" because the file metadata is missing a valid blob SHA.`,
+      compactWarningReason: 'missing blob metadata',
     });
   }
 
@@ -193,6 +209,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes,
       warning: getWarningFromGitHubFetchResult(blobResult, `file "${path}"`),
+      compactWarningReason: 'file fetch failures',
     });
   }
 
@@ -205,6 +222,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes,
       warning: `Skipped GitHub source file "${label}" because the blob content is not base64 encoded.`,
+      compactWarningReason: 'invalid blob content',
     });
   }
 
@@ -215,6 +233,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes: content.byteLength,
       warning: `Skipped oversized GitHub source file "${label}" because it exceeds the ${limits.maxFileBytes} byte limit.`,
+      compactWarningReason: 'oversized files',
     });
   }
 
@@ -231,6 +250,7 @@ export async function normalizeGitHubTreeEntry({
       path,
       bytes: content.byteLength,
       warning: `Skipped GitHub source file "${label}" because the ${limits.maxTotalFetchedBytes} byte total fetched limit was reached.`,
+      compactWarningReason: 'total fetched byte limit',
     });
   }
 

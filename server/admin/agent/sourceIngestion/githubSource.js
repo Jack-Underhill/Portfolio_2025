@@ -39,6 +39,29 @@ function createIdGetter({ createId, id }) {
   return typeof createId === 'function' ? createId : () => id;
 }
 
+function addCompactWarning(compactWarnings, reason, entry) {
+  if (!reason) return;
+
+  const existing = compactWarnings.get(reason) || {
+    reason,
+    count: 0,
+    examples: [],
+  };
+  const label = typeof entry?.manifest?.label === 'string' ? entry.manifest.label : '';
+
+  existing.count += 1;
+  if (label && existing.examples.length < 3) existing.examples.push(label);
+  compactWarnings.set(reason, existing);
+}
+
+function formatCompactWarning({ repoLabel, summary }) {
+  const examples = summary.examples.length > 0
+    ? ` Examples: ${summary.examples.join('; ')}.`
+    : '';
+
+  return `Skipped ${summary.count} GitHub source file(s) from "${repoLabel}" due to ${summary.reason}.${examples}`;
+}
+
 export async function normalizeGitHubRepoSource(githubRepoUrl, {
   id,
   createId,
@@ -139,6 +162,7 @@ export async function normalizeGitHubRepoSource(githubRepoUrl, {
     totalFetchedBytes: 0,
     totalSourceTextLength: 0,
   };
+  const compactWarnings = new Map();
   const limits = {
     maxTreeEntries,
     maxIncludedFiles,
@@ -166,8 +190,19 @@ export async function normalizeGitHubRepoSource(githubRepoUrl, {
     });
 
     entries.push(result.entry);
-    warnings.push(...result.warnings);
+    if (result.compactWarningReason) {
+      addCompactWarning(compactWarnings, result.compactWarningReason, result.entry);
+    } else {
+      warnings.push(...result.warnings);
+    }
   }
+
+  warnings.push(
+    ...Array.from(compactWarnings.values()).map((summary) => formatCompactWarning({
+      repoLabel: parsed.repoLabel,
+      summary,
+    })),
+  );
 
   if (entries.length === 0) {
     const warning = `GitHub repository "${parsed.repoLabel}" did not contain supported source files.`;

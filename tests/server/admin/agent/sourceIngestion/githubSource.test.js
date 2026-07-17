@@ -127,19 +127,19 @@ describe('project agent GitHub source ingestion', () => {
       'https://api.github.com/repos/owner/repo/git/blobs/aaaaaa',
     ]);
     expect(result.entries.map((entry) => entry.manifest.label)).toEqual([
-      'owner/repo / .env.local',
-      'owner/repo / dist/app.min.js',
-      'owner/repo / image.png',
-      'owner/repo / node_modules/pkg/index.js',
       'owner/repo / README',
       'owner/repo / src/App.jsx',
+      'owner/repo / .env.local',
+      'owner/repo / image.png',
+      'owner/repo / dist/app.min.js',
+      'owner/repo / node_modules/pkg/index.js',
     ]);
     expect(result.entries.filter((entry) => entry.item).map((entry) => entry.item.label)).toEqual([
       'owner/repo / README',
       'owner/repo / src/App.jsx',
     ]);
     expect(result.entries.find((entry) => entry.manifest.path === 'README').manifest).toEqual(expect.objectContaining({
-      id: 'source-5',
+      id: 'source-1',
       kind: 'github-file',
       repo: 'owner/repo',
       owner: 'owner',
@@ -153,11 +153,11 @@ describe('project agent GitHub source ingestion', () => {
       expect(entry.manifest).not.toHaveProperty('text');
     });
     expect(result.warnings).toEqual(expect.arrayContaining([
-      expect.stringContaining('Skipped disallowed GitHub source file "owner/repo / .env.local"'),
-      expect.stringContaining('Skipped ignored GitHub path "owner/repo / dist/app.min.js"'),
-      'Skipped unsupported GitHub source file "owner/repo / image.png".',
-      expect.stringContaining('Skipped ignored GitHub path "owner/repo / node_modules/pkg/index.js"'),
+      expect.stringContaining('Skipped 1 GitHub source file(s) from "owner/repo" due to disallowed files'),
+      expect.stringContaining('Skipped 1 GitHub source file(s) from "owner/repo" due to ignored/generated paths'),
+      expect.stringContaining('Skipped 1 GitHub source file(s) from "owner/repo" due to unsupported file types'),
     ]));
+    expect(result.warnings).toHaveLength(4);
   });
 
   it('uses tree URL refs and reports unresolved refs without throwing', async () => {
@@ -240,8 +240,8 @@ describe('project agent GitHub source ingestion', () => {
     expect(result.warnings).toEqual(expect.arrayContaining([
       'GitHub repository "owner/repo" has 4 file entries; only the first 3 entries were inspected.',
       'Truncated GitHub source file "owner/repo / a.md" to fit the 5 character GitHub source text limit.',
-      'Skipped GitHub source file "owner/repo / b.md" because the 1 included file limit was reached.',
-      'Skipped oversized GitHub source file "owner/repo / c.md" because it exceeds the 10 byte limit.',
+      'Skipped 1 GitHub source file(s) from "owner/repo" due to included file limit. Examples: owner/repo / b.md.',
+      'Skipped 1 GitHub source file(s) from "owner/repo" due to oversized files. Examples: owner/repo / c.md.',
     ]));
   });
 
@@ -361,7 +361,7 @@ describe('project agent GitHub source ingestion', () => {
     });
   });
 
-  it('characterizes large repos as usable but over the current skipped-warning cardinality', async () => {
+  it('keeps large repo warnings concise while preserving usable high-signal files', async () => {
     const { fetchImpl } = createLargeRepoFetchFixture();
     let nextSourceNumber = 1;
 
@@ -379,12 +379,18 @@ describe('project agent GitHub source ingestion', () => {
       'src/App.jsx',
     ]));
     expect(result.entries.filter((entry) => !entry.item)).toHaveLength(LARGE_REPO_SKIPPED_PATH_COUNT);
-    expect(result.warnings).toHaveLength(LARGE_REPO_SKIPPED_PATH_COUNT);
-    expect(result.warnings.length).toBeGreaterThan(25);
+    expect(result.warnings).toHaveLength(2);
+    expect(result.warnings.length).toBeLessThanOrEqual(25);
     expect(result.warnings).toEqual(expect.arrayContaining([
-      expect.stringContaining('Skipped ignored GitHub path "owner/repo / dist/generated-01.min.js"'),
-      'Skipped unsupported GitHub source file "owner/repo / screenshots/noisy-02.png".',
+      expect.stringContaining('Skipped 13 GitHub source file(s) from "owner/repo" due to ignored/generated paths'),
+      expect.stringContaining('Skipped 13 GitHub source file(s) from "owner/repo" due to unsupported file types'),
     ]));
+    expect(result.entries.find((entry) => entry.manifest.path === 'dist/generated-01.min.js').manifest.warnings).toEqual([
+      'Skipped ignored GitHub path "owner/repo / dist/generated-01.min.js" because it has an ignored path segment "dist".',
+    ]);
+    expect(result.entries.find((entry) => entry.manifest.path === 'screenshots/noisy-02.png').manifest.warnings).toEqual([
+      'Skipped unsupported GitHub source file "owner/repo / screenshots/noisy-02.png".',
+    ]);
     const fetchedUrls = fetchImpl.mock.calls.map(([url]) => url);
 
     expect(fetchedUrls.slice(0, 2)).toEqual([

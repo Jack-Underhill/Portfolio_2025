@@ -30,6 +30,94 @@ function formatBytes(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function getSkippedSourceReason(entry) {
+  const warning = normalizeItems(entry?.warnings)[0] || '';
+
+  if (entry?.ignoredPathReason) return `ignored/generated paths (${entry.ignoredPathReason})`;
+  if (/rate limit|fetch failed|network request/i.test(warning)) return 'file fetch failures';
+  if (/oversized|byte limit/i.test(warning)) return 'oversized files';
+  if (/unsupported/i.test(warning)) return 'unsupported file types';
+  if (/included file limit/i.test(warning)) return 'included file limit';
+  if (/total .*limit/i.test(warning)) return 'source limits';
+  return 'other skipped files';
+}
+
+function createSourceSummaryEntry({ id, label, entries, included }) {
+  const examples = entries
+    .map((entry) => String(entry?.label || '').trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
+  return {
+    id,
+    label,
+    bytes: entries.reduce((total, entry) => (
+      total + (Number.isFinite(entry?.bytes) && entry.bytes > 0 ? entry.bytes : 0)
+    ), 0),
+    included,
+    warnings: examples.length ? [`Examples: ${examples.join('; ')}.`] : [],
+  };
+}
+
+function getSourceManifestDisplayEntries(entries) {
+  const includedEntries = entries.filter((entry) => entry?.included);
+  const skippedEntries = entries.filter((entry) => !entry?.included);
+  const includedDisplayEntries = includedEntries.length > 16
+    ? [
+      ...includedEntries.slice(0, 12),
+      createSourceSummaryEntry({
+        id: 'included-summary',
+        label: `${includedEntries.length - 12} more included source file${includedEntries.length - 12 === 1 ? '' : 's'}`,
+        entries: includedEntries.slice(12),
+        included: true,
+      }),
+    ]
+    : includedEntries;
+
+  if (skippedEntries.length <= 5) return [...includedDisplayEntries, ...skippedEntries];
+
+  const skippedGroups = new Map();
+
+  skippedEntries.forEach((entry) => {
+    const reason = getSkippedSourceReason(entry);
+    const group = skippedGroups.get(reason) || {
+      id: `skipped-${skippedGroups.size + 1}`,
+      label: '',
+      bytes: 0,
+      included: false,
+      warnings: [],
+      count: 0,
+      examples: [],
+    };
+    const label = String(entry?.label || '').trim();
+
+    group.count += 1;
+    group.bytes += Number.isFinite(entry?.bytes) && entry.bytes > 0 ? entry.bytes : 0;
+    if (label && group.examples.length < 3) group.examples.push(label);
+    skippedGroups.set(reason, group);
+  });
+
+  return [
+    ...includedDisplayEntries,
+    ...Array.from(skippedGroups, ([reason, group]) => ({
+      ...group,
+      label: `${group.count} skipped source file${group.count === 1 ? '' : 's'}: ${reason}`,
+      warnings: group.examples.length
+        ? [`Examples: ${group.examples.join('; ')}.`]
+        : [],
+    })),
+  ];
+}
+
+function getDisplayWarnings(agentRun) {
+  const warnings = normalizeItems(agentRun?.warnings);
+  const hasSourceManifest = Array.isArray(agentRun?.sourceManifest) && agentRun.sourceManifest.length > 0;
+
+  if (!hasSourceManifest) return warnings;
+
+  return warnings.filter((warning) => !/^Skipped \d+ GitHub source file\(s\) from /u.test(warning));
+}
+
 function getFailureMessage(error) {
   const message = String(error || '').trim();
   if (!message) return 'Codex could not complete the run.';
@@ -171,6 +259,7 @@ function MessageGroup({ label, items, tone = 'default' }) {
 
 function SourceManifestSummary({ sourceManifest }) {
   const entries = Array.isArray(sourceManifest) ? sourceManifest : [];
+  const displayEntries = getSourceManifestDisplayEntries(entries);
 
   if (!entries.length) return null;
 
@@ -180,7 +269,7 @@ function SourceManifestSummary({ sourceManifest }) {
         Source material
       </p>
       <ul className="space-y-1.5" aria-label="Source material used by Codex">
-        {entries.map((entry, index) => {
+        {displayEntries.map((entry, index) => {
           const id = String(entry?.id || `source-${index + 1}`);
           const label = String(entry?.label || id).trim();
           const warnings = normalizeItems(entry?.warnings);
@@ -326,7 +415,7 @@ function ProjectAgentRunPanel({
 
           <MessageGroup label="Notes" items={agentRun?.notes} />
           <SourceManifestSummary sourceManifest={agentRun?.sourceManifest} />
-          <MessageGroup label="Warnings" items={agentRun?.warnings} tone="warning" />
+          <MessageGroup label="Warnings" items={getDisplayWarnings(agentRun)} tone="warning" />
         </div>
       )}
     </div>

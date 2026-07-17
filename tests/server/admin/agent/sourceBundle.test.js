@@ -474,7 +474,7 @@ describe('project agent source bundle helpers', () => {
     ]);
   });
 
-  it('characterizes large repo bundles as usable source context with excessive skipped warnings', async () => {
+  it('keeps large repo bundle warnings bounded while preserving usable source context', async () => {
     const { fetchImpl } = createLargeRepoFetchFixture();
 
     const bundle = await createProjectAgentSourceBundle({
@@ -490,8 +490,12 @@ describe('project agent source bundle helpers', () => {
     expect(bundle.sources).toHaveLength(2);
     expect(bundle.manifest).toHaveLength(2 + LARGE_REPO_SKIPPED_PATH_COUNT);
     expect(bundle.manifest.filter((entry) => entry.included)).toHaveLength(2);
-    expect(bundle.warnings).toHaveLength(LARGE_REPO_SKIPPED_PATH_COUNT);
-    expect(bundle.warnings.length).toBeGreaterThan(25);
+    expect(bundle.warnings).toHaveLength(2);
+    expect(bundle.warnings.length).toBeLessThanOrEqual(25);
+    expect(bundle.warnings).toEqual(expect.arrayContaining([
+      expect.stringContaining('Skipped 13 GitHub source file(s) from "owner/repo" due to ignored/generated paths'),
+      expect.stringContaining('Skipped 13 GitHub source file(s) from "owner/repo" due to unsupported file types'),
+    ]));
     expect(JSON.stringify(bundle.manifest)).not.toContain(LARGE_REPO_INCLUDED_TEXT['README.md']);
     expect(JSON.stringify(bundle.manifest)).not.toContain(LARGE_REPO_INCLUDED_TEXT['src/App.jsx']);
   });

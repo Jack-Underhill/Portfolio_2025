@@ -6,20 +6,34 @@ import {
 } from '../../../../../server/admin/agent/sourceIngestion/github/githubTree.js';
 
 describe('GitHub tree helpers', () => {
-  it('selects only blob entries and sorts them without mutating the input tree', () => {
+  it('selects only blob entries with high-signal files first without mutating the input tree', () => {
     const tree = [
       { path: 'src/App.jsx', type: 'blob' },
+      { path: 'screenshots/demo.png', type: 'blob' },
       { path: 'docs', type: 'tree' },
       { path: 'README.md', type: 'blob' },
+      { path: 'package.json', type: 'blob' },
+      { path: 'dist/generated.min.js', type: 'blob' },
       { type: 'blob' },
     ];
 
     expect(getSortedGitHubBlobEntries(tree)).toEqual([
-      { type: 'blob' },
       { path: 'README.md', type: 'blob' },
+      { path: 'package.json', type: 'blob' },
       { path: 'src/App.jsx', type: 'blob' },
+      { path: 'screenshots/demo.png', type: 'blob' },
+      { type: 'blob' },
+      { path: 'dist/generated.min.js', type: 'blob' },
     ]);
-    expect(tree.map((entry) => entry.path)).toEqual(['src/App.jsx', 'docs', 'README.md', undefined]);
+    expect(tree.map((entry) => entry.path)).toEqual([
+      'src/App.jsx',
+      'screenshots/demo.png',
+      'docs',
+      'README.md',
+      'package.json',
+      'dist/generated.min.js',
+      undefined,
+    ]);
     expect(getSortedGitHubBlobEntries(null)).toEqual([]);
   });
 
