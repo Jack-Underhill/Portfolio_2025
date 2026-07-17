@@ -4,12 +4,19 @@ import { Readable } from 'node:stream';
 import JSZip from 'jszip';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ProjectAgentRunError } from '../../../../server/admin/agent/projectAgentRun.js';
+import { ProjectAgentRunError, runProjectAgent } from '../../../../server/admin/agent/projectAgentRun.js';
+import { createProjectAgentSourceBundle } from '../../../../server/admin/agent/sourceBundle.js';
 import {
   createProjectsAgentRunHandler,
   createProjectsAgentSourcePreviewHandler,
   createProjectsAgentRuntimeHandler,
 } from '../../../../server/admin/routes/projectsAgent.js';
+import {
+  createLargeRepoFetchFixture,
+  LARGE_REPO_INCLUDED_TEXT,
+  LARGE_REPO_SKIPPED_PATH_COUNT,
+  LARGE_REPO_URL,
+} from '../agent/sourceIngestion/githubLargeRepoFixture.js';
 import { createPdfBuffer } from '../agent/sourceIngestion/pdfTestFixture.js';
 
 const validPayload = {
@@ -332,6 +339,39 @@ describe('projects agent run route', () => {
     expect(createSourceBundle).toHaveBeenCalledTimes(1);
     expect(runAgent).toHaveBeenCalledTimes(1);
     expect(res.statusCode).toBe(200);
+  });
+
+  it('characterizes large repo run denial as source warning cardinality after usable bundle creation', async () => {
+    const { fetchImpl } = createLargeRepoFetchFixture();
+    const createSourceBundle = (input) => createProjectAgentSourceBundle({
+      ...input,
+      githubFetchImpl: fetchImpl,
+    });
+    const runAgent = (payload) => runProjectAgent({
+      ...payload,
+      commandResolver: () => 'codex',
+      codexBridge: async () => {
+        throw new Error('Codex bridge should not run when sourceBundle warnings exceed schema bounds.');
+      },
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent, createSourceBundle });
+    const req = jsonRequest({
+      ...validPayload,
+      instructions: ' ',
+      githubRepoUrl: LARGE_REPO_URL,
+    });
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json()).toEqual({
+      error: 'sourceBundle warnings must contain 25 or fewer items.',
+      details: {
+        type: 'invalid_input',
+        message: 'sourceBundle warnings must contain 25 or fewer items.',
+      },
+    });
   });
 
   it('passes unsupported source uploads as skipped source bundle warnings', async () => {
@@ -800,6 +840,36 @@ describe('projects agent source preview route', () => {
       }),
     }));
     expect(JSON.stringify(res.json())).not.toContain('# Repo notes');
+    expect(res.json()).not.toHaveProperty('sources');
+  });
+
+  it('previews large repo source manifests with usable files despite excessive skipped warnings', async () => {
+    const { fetchImpl } = createLargeRepoFetchFixture();
+    const handler = createProjectsAgentSourcePreviewHandler({
+      createSourceBundle: (input) => createProjectAgentSourceBundle({
+        ...input,
+        githubFetchImpl: fetchImpl,
+      }),
+    });
+    const req = jsonRequest({
+      githubRepoUrl: LARGE_REPO_URL,
+    });
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual(expect.objectContaining({
+      hasSourceContext: true,
+      sourceCount: 2,
+      manifestCount: 2 + LARGE_REPO_SKIPPED_PATH_COUNT,
+      warningCount: LARGE_REPO_SKIPPED_PATH_COUNT,
+    }));
+    expect(res.json().warningCount).toBeGreaterThan(25);
+    expect(res.json().manifest.filter((entry) => entry.included).map((entry) => entry.path)).toEqual(
+      expect.arrayContaining(['README.md', 'src/App.jsx']),
+    );
+    expect(JSON.stringify(res.json())).not.toContain(LARGE_REPO_INCLUDED_TEXT['README.md']);
     expect(res.json()).not.toHaveProperty('sources');
   });
 

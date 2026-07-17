@@ -139,6 +139,40 @@ const githubSourceBundle = {
   warnings: [],
 };
 
+const largeRepoWarningCardinalitySourceBundle = {
+  hasSourceContext: true,
+  sources: [
+    {
+      id: 'source-1',
+      kind: 'github-file',
+      label: 'owner/repo / README.md',
+      mediaType: 'text/markdown',
+      bytes: 96,
+      text: '# Repo evidence\nUsable source exists even when many repo paths are skipped.',
+    },
+  ],
+  manifest: [
+    {
+      id: 'source-1',
+      kind: 'github-file',
+      label: 'owner/repo / README.md',
+      mediaType: 'text/markdown',
+      bytes: 96,
+      included: true,
+      warnings: [],
+      repo: 'owner/repo',
+      owner: 'owner',
+      ref: 'main',
+      path: 'README.md',
+      sourceUrl: 'https://github.com/owner/repo/blob/main/README.md',
+    },
+  ],
+  warnings: Array.from(
+    { length: 26 },
+    (_, index) => `Skipped unsupported GitHub source file "owner/repo / noisy-${index + 1}.png".`,
+  ),
+};
+
 const discoveredCodexCommand = 'C:\\Tools\\latest-codex.exe';
 
 function runProjectAgent(options) {
@@ -522,6 +556,35 @@ describe('project agent run helpers', () => {
       runPlan: 'generate-new-case-study',
       sourceManifest: sourceBundle.manifest,
     });
+  });
+
+  it('characterizes current large repo denial as warning cardinality, not missing source context', async () => {
+    let bridgeCalled = false;
+
+    await expect(runProjectAgent({
+      intent: 'revise',
+      instructions: '   ',
+      projectContext,
+      sourceBundle: largeRepoWarningCardinalitySourceBundle,
+      codexBridge: async () => {
+        bridgeCalled = true;
+        return {
+          json: {
+            patch: {},
+            notes: [],
+            warnings: [],
+          },
+        };
+      },
+    })).rejects.toMatchObject({
+      type: 'invalid_input',
+      message: 'sourceBundle warnings must contain 25 or fewer items.',
+    });
+
+    expect(largeRepoWarningCardinalitySourceBundle.hasSourceContext).toBe(true);
+    expect(largeRepoWarningCardinalitySourceBundle.sources).toHaveLength(1);
+    expect(largeRepoWarningCardinalitySourceBundle.warnings).toHaveLength(26);
+    expect(bridgeCalled).toBe(false);
   });
 
   it('suppresses patch fields returned from source-backed review runs', async () => {

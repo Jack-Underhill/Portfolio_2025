@@ -12,6 +12,12 @@ import {
   PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH,
 } from '../../../../server/admin/agent/sourceBundle.js';
 import { createPdfBuffer } from './sourceIngestion/pdfTestFixture.js';
+import {
+  createLargeRepoFetchFixture,
+  LARGE_REPO_INCLUDED_TEXT,
+  LARGE_REPO_SKIPPED_PATH_COUNT,
+  LARGE_REPO_URL,
+} from './sourceIngestion/githubLargeRepoFixture.js';
 
 const encoder = new TextEncoder();
 
@@ -466,6 +472,28 @@ describe('project agent source bundle helpers', () => {
     expect(bundle.warnings).toEqual([
       `Truncated source "owner/repo / long.md" to fit the ${PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH} character total source limit.`,
     ]);
+  });
+
+  it('characterizes large repo bundles as usable source context with excessive skipped warnings', async () => {
+    const { fetchImpl } = createLargeRepoFetchFixture();
+
+    const bundle = await createProjectAgentSourceBundle({
+      githubRepoUrl: LARGE_REPO_URL,
+      githubFetchImpl: fetchImpl,
+    });
+
+    expect(bundle.hasSourceContext).toBe(true);
+    expect(bundle.sources.map((source) => source.path)).toEqual(expect.arrayContaining([
+      'README.md',
+      'src/App.jsx',
+    ]));
+    expect(bundle.sources).toHaveLength(2);
+    expect(bundle.manifest).toHaveLength(2 + LARGE_REPO_SKIPPED_PATH_COUNT);
+    expect(bundle.manifest.filter((entry) => entry.included)).toHaveLength(2);
+    expect(bundle.warnings).toHaveLength(LARGE_REPO_SKIPPED_PATH_COUNT);
+    expect(bundle.warnings.length).toBeGreaterThan(25);
+    expect(JSON.stringify(bundle.manifest)).not.toContain(LARGE_REPO_INCLUDED_TEXT['README.md']);
+    expect(JSON.stringify(bundle.manifest)).not.toContain(LARGE_REPO_INCLUDED_TEXT['src/App.jsx']);
   });
 
   it('extracts markdown and code cells from direct notebook files', async () => {

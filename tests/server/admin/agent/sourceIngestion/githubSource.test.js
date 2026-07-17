@@ -8,6 +8,12 @@ import {
   PROJECT_AGENT_SOURCE_GITHUB_FILE_MAX_BYTES,
   PROJECT_AGENT_SOURCE_GITHUB_TOTAL_TEXT_MAX_LENGTH,
 } from '../../../../../server/admin/agent/sourceIngestion/githubSource.js';
+import {
+  createLargeRepoFetchFixture,
+  LARGE_REPO_INCLUDED_TEXT,
+  LARGE_REPO_SKIPPED_PATH_COUNT,
+  LARGE_REPO_URL,
+} from './githubLargeRepoFixture.js';
 
 const encoder = new TextEncoder();
 
@@ -353,6 +359,45 @@ describe('project agent GitHub source ingestion', () => {
     result.entries.forEach((entry) => {
       expect(entry.manifest).not.toHaveProperty('text');
     });
+  });
+
+  it('characterizes large repos as usable but over the current skipped-warning cardinality', async () => {
+    const { fetchImpl } = createLargeRepoFetchFixture();
+    let nextSourceNumber = 1;
+
+    const result = await normalizeGitHubRepoSource(LARGE_REPO_URL, {
+      id: 'source-1',
+      createId: () => `source-${nextSourceNumber++}`,
+      fetchImpl,
+    });
+
+    const includedPaths = result.entries.filter((entry) => entry.item).map((entry) => entry.item.path);
+
+    expect(includedPaths).toHaveLength(2);
+    expect(includedPaths).toEqual(expect.arrayContaining([
+      'README.md',
+      'src/App.jsx',
+    ]));
+    expect(result.entries.filter((entry) => !entry.item)).toHaveLength(LARGE_REPO_SKIPPED_PATH_COUNT);
+    expect(result.warnings).toHaveLength(LARGE_REPO_SKIPPED_PATH_COUNT);
+    expect(result.warnings.length).toBeGreaterThan(25);
+    expect(result.warnings).toEqual(expect.arrayContaining([
+      expect.stringContaining('Skipped ignored GitHub path "owner/repo / dist/generated-01.min.js"'),
+      'Skipped unsupported GitHub source file "owner/repo / screenshots/noisy-02.png".',
+    ]));
+    const fetchedUrls = fetchImpl.mock.calls.map(([url]) => url);
+
+    expect(fetchedUrls.slice(0, 2)).toEqual([
+      'https://api.github.com/repos/owner/repo',
+      'https://api.github.com/repos/owner/repo/git/trees/main?recursive=1',
+    ]);
+    expect(fetchedUrls.slice(2)).toEqual(expect.arrayContaining([
+      'https://api.github.com/repos/owner/repo/git/blobs/aaaaaa',
+      'https://api.github.com/repos/owner/repo/git/blobs/bbbbbb',
+    ]));
+    expect(JSON.stringify(result.entries.map((entry) => entry.manifest))).not.toContain(
+      LARGE_REPO_INCLUDED_TEXT['README.md'],
+    );
   });
 
   it('uses conservative default GitHub limits', () => {
