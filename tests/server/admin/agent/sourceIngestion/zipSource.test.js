@@ -106,7 +106,7 @@ describe('project agent zip source normalization', () => {
       expect(manifest).not.toHaveProperty('text');
     });
     expect(result.warnings).toEqual([
-      'Skipped unsupported zip entry "evidence.zip / images/screenshot.png".',
+      'Skipped 1 zip source entry from "evidence.zip" due to unsupported file types. Examples: evidence.zip / images/screenshot.png.',
     ]);
   });
 
@@ -126,15 +126,99 @@ describe('project agent zip source normalization', () => {
     );
 
     [
-      ['source-1', 'mixed.zip / secret.txt', 'Skipped unsafe zip entry "mixed.zip / secret.txt".'],
+      ['source-1', 'mixed.zip / docs/binary.txt', 'Skipped binary-looking zip entry "mixed.zip / docs/binary.txt".'],
       ['source-2', 'mixed.zip / assets/logo.png', 'Skipped unsupported zip entry "mixed.zip / assets/logo.png".'],
-      ['source-3', 'mixed.zip / docs/binary.txt', 'Skipped binary-looking zip entry "mixed.zip / docs/binary.txt".'],
-      ['source-4', 'mixed.zip / nested/archive.zip', 'Skipped nested zip entry "mixed.zip / nested/archive.zip".'],
-      ['source-5', 'mixed.zip / node_modules/pkg/index.js', 'Skipped ignored zip entry "mixed.zip / node_modules/pkg/index.js".'],
+      ['source-3', 'mixed.zip / nested/archive.zip', 'Skipped nested zip entry "mixed.zip / nested/archive.zip".'],
+      ['source-4', 'mixed.zip / node_modules/pkg/index.js', 'Skipped ignored zip entry "mixed.zip / node_modules/pkg/index.js".'],
+      ['source-5', 'mixed.zip / secret.txt', 'Skipped unsafe zip entry "mixed.zip / secret.txt".'],
     ].forEach(([id, label, warning], index) => {
       expectSkippedEntry(result.entries[index], { id, label, warning });
     });
-    expect(result.warnings).toEqual(result.entries.map((entry) => entry.manifest.warnings[0]));
+    expect(result.warnings).toEqual([
+      'Skipped 1 zip source entry from "mixed.zip" due to binary-looking entries. Examples: mixed.zip / docs/binary.txt.',
+      'Skipped 1 zip source entry from "mixed.zip" due to unsupported file types. Examples: mixed.zip / assets/logo.png.',
+      'Skipped 1 zip source entry from "mixed.zip" due to nested zip entries. Examples: mixed.zip / nested/archive.zip.',
+      'Skipped 1 zip source entry from "mixed.zip" due to ignored paths. Examples: mixed.zip / node_modules/pkg/index.js.',
+      'Skipped 1 zip source entry from "mixed.zip" due to unsafe paths. Examples: mixed.zip / secret.txt.',
+    ]);
+  });
+
+  it('prioritizes high-signal zip entries and compacts repeated skipped warnings', async () => {
+    const result = await normalizeUploadedZipSourceFile(
+      createFakeFile({
+        name: 'large-source.zip',
+        bytes: await createZipBuffer([
+          ...Array.from({ length: 16 }, (_, index) => ({
+            path: `assets/noisy-${String(index + 1).padStart(2, '0')}.png`,
+            bytes: new Uint8Array([1, 2, 3]),
+          })),
+          ...Array.from({ length: 16 }, (_, index) => ({
+            path: `dist/generated-${String(index + 1).padStart(2, '0')}.js`,
+            text: 'ignored generated output',
+          })),
+          { path: 'README.md', text: '# Project evidence' },
+          { path: 'src/App.jsx', text: 'export function App() {}' },
+        ]),
+      }),
+      { createId: createIdFactory(), maxEntries: 40 },
+    );
+
+    expect(result.entries.filter((entry) => entry.item).map((entry) => entry.item.path)).toEqual([
+      'README.md',
+      'src/App.jsx',
+    ]);
+    expect(result.entries[0].item).toEqual(expect.objectContaining({
+      id: 'source-1',
+      label: 'large-source.zip / README.md',
+    }));
+    expect(result.entries[1].item).toEqual(expect.objectContaining({
+      id: 'source-2',
+      label: 'large-source.zip / src/App.jsx',
+    }));
+    expect(result.entries).toHaveLength(34);
+    expect(result.warnings).toHaveLength(2);
+    expect(result.warnings.length).toBeLessThanOrEqual(25);
+    expect(result.warnings).toEqual([
+      'Skipped 16 zip source entries from "large-source.zip" due to unsupported file types. Examples: large-source.zip / assets/noisy-01.png; large-source.zip / assets/noisy-02.png; large-source.zip / assets/noisy-03.png.',
+      'Skipped 16 zip source entries from "large-source.zip" due to ignored paths. Examples: large-source.zip / dist/generated-01.js; large-source.zip / dist/generated-02.js; large-source.zip / dist/generated-03.js.',
+    ]);
+    expect(result.entries.find((entry) => entry.manifest.label === 'large-source.zip / assets/noisy-01.png').manifest.warnings).toEqual([
+      'Skipped unsupported zip entry "large-source.zip / assets/noisy-01.png".',
+    ]);
+  });
+
+  it('inspects source files before build output artifacts when entry inspection is limited', async () => {
+    const result = await normalizeUploadedZipSourceFile(
+      createFakeFile({
+        name: 'coursework.zip',
+        bytes: await createZipBuffer([
+          { path: 'Project.Tests/bin/Debug/net10.0-windows/Project.Tests.deps.json', text: '{"runtimeTarget":{}}' },
+          { path: 'Project.Tests/obj/Debug/net10.0-windows/Project.Tests.xml', text: '<doc />' },
+          { path: 'Project.Tests/TestResults/coverage.xml', text: '<coverage />' },
+          { path: 'ZEngine/Spreadsheet.cs', text: 'public sealed class Spreadsheet {}' },
+        ]),
+      }),
+      { createId: createIdFactory(), maxEntries: 2 },
+    );
+
+    expect(result.entries[0].manifest.warnings).toEqual([
+      'Zip source file "coursework.zip" has 4 entries; only the first 2 entries were inspected.',
+    ]);
+    expect(result.entries[1].item).toEqual(expect.objectContaining({
+      id: 'source-2',
+      label: 'coursework.zip / ZEngine/Spreadsheet.cs',
+      path: 'ZEngine/Spreadsheet.cs',
+      text: 'public sealed class Spreadsheet {}',
+    }));
+    expectSkippedEntry(result.entries[2], {
+      id: 'source-3',
+      label: 'coursework.zip / Project.Tests/bin/Debug/net10.0-windows/Project.Tests.deps.json',
+      warning: 'Skipped ignored zip entry "coursework.zip / Project.Tests/bin/Debug/net10.0-windows/Project.Tests.deps.json".',
+    });
+    expect(result.warnings).toEqual([
+      'Zip source file "coursework.zip" has 4 entries; only the first 2 entries were inspected.',
+      'Skipped 1 zip source entry from "coursework.zip" due to ignored paths. Examples: coursework.zip / Project.Tests/bin/Debug/net10.0-windows/Project.Tests.deps.json.',
+    ]);
   });
 
   it('applies the broad developer text policy to zip entries', async () => {

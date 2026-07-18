@@ -14,7 +14,16 @@ import {
   createSkippedSourceResult,
   createSourceResultEntry,
 } from './sourceResult.js';
-import { getZipEntryName, normalizeZipEntry } from './zipEntryNormalizer.js';
+import { sortSourceEntriesByPathRank } from './sourceEntryRanking.js';
+import {
+  addCompactSourceWarning,
+  createSourceWarningCompaction,
+  getCompactSourceWarningSummaries,
+} from './sourceWarningCompaction.js';
+import {
+  getZipEntryRankingSignals,
+  normalizeZipEntry,
+} from './zipEntryNormalizer.js';
 import {
   PROJECT_AGENT_SOURCE_ZIP_ENTRY_MAX_BYTES,
   PROJECT_AGENT_SOURCE_ZIP_EXTENSION,
@@ -143,10 +152,28 @@ async function loadZip(buffer, { archiveLabel, mediaType, byteLength, nextId }) 
 }
 
 function getSortedFileEntries(zip) {
-  return Object
+  const entriesWithSignals = Object
     .values(zip.files)
     .filter((entry) => !entry.dir)
-    .sort((left, right) => getZipEntryName(left).localeCompare(getZipEntryName(right)));
+    .map((entry) => ({
+      entry,
+      signals: getZipEntryRankingSignals(entry),
+    }));
+
+  return sortSourceEntriesByPathRank(entriesWithSignals, {
+    getPath: (item) => item.signals.path,
+    getIgnoreReason: (item) => item.signals.ignoreReason,
+    isSupported: (item) => item.signals.supported,
+  })
+    .map(({ entry }) => entry);
+}
+
+function formatZipCompactWarning({ archiveLabel, summary }) {
+  const examples = summary.examples.length > 0
+    ? ` Examples: ${summary.examples.join('; ')}.`
+    : '';
+
+  return `Skipped ${summary.count} zip source entr${summary.count === 1 ? 'y' : 'ies'} from "${archiveLabel}" due to ${summary.reason}.${examples}`;
 }
 
 export async function normalizeUploadedZipSourceFile(file, {
@@ -184,6 +211,7 @@ export async function normalizeUploadedZipSourceFile(file, {
   const fileEntries = getSortedFileEntries(loadResult.zip);
   const entries = [];
   const warnings = [];
+  const compactWarnings = createSourceWarningCompaction();
   const counters = {
     includedCount: 0,
     totalExtractedBytes: 0,
@@ -217,8 +245,22 @@ export async function normalizeUploadedZipSourceFile(file, {
     });
 
     entries.push(result.entry);
-    warnings.push(...result.warnings);
+    if (result.compactWarningReason) {
+      addCompactSourceWarning(compactWarnings, {
+        reason: result.compactWarningReason,
+        label: result.entry?.manifest?.label,
+      });
+    } else {
+      warnings.push(...result.warnings);
+    }
   }
+
+  warnings.push(
+    ...getCompactSourceWarningSummaries(compactWarnings).map((summary) => formatZipCompactWarning({
+      archiveLabel,
+      summary,
+    })),
+  );
 
   return { entries, warnings };
 }

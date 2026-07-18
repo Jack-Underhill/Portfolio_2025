@@ -391,6 +391,56 @@ describe('projects agent run route', () => {
     }));
   });
 
+  it('runs with large zip source context after skipped warnings are compacted', async () => {
+    const runAgent = vi.fn(async (payload) => {
+      expect(payload.sourceBundle.hasSourceContext).toBe(true);
+      expect(payload.sourceBundle.sources.map((source) => source.path)).toEqual([
+        'README.md',
+        'src/App.jsx',
+      ]);
+      expect(payload.sourceBundle.warnings).toHaveLength(2);
+      expect(payload.sourceBundle.warnings.length).toBeLessThanOrEqual(25);
+
+      return {
+        patch: { description: 'Revised with large zip evidence' },
+        notes: ['Used compacted large zip evidence.'],
+        warnings: payload.sourceBundle.warnings,
+        appliedFields: ['description'],
+        intent: 'revise',
+        runPlan: 'revise-with-source-context',
+        sourceManifest: payload.sourceBundle.manifest,
+        elapsedMs: 25,
+      };
+    });
+    const handler = createProjectsAgentRunHandler({ runAgent });
+    const req = multipartRequest({
+      ...validPayload,
+      instructions: ' ',
+    }, [
+      ['sourceFiles', new Blob([await createZipBuffer(createLargeZipEntries())], {
+        type: 'application/zip',
+      }), 'large-source.zip'],
+    ]);
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(runAgent).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual(expect.objectContaining({
+      patch: { description: 'Revised with large zip evidence' },
+      notes: ['Used compacted large zip evidence.'],
+      warnings: [
+        expect.stringContaining('Skipped 16 zip source entries from "large-source.zip" due to unsupported file types'),
+        expect.stringContaining('Skipped 16 zip source entries from "large-source.zip" due to ignored paths'),
+      ],
+      sourceManifest: expect.arrayContaining([
+        expect.objectContaining({ path: 'README.md', included: true }),
+        expect.objectContaining({ path: 'src/App.jsx', included: true }),
+      ]),
+    }));
+  });
+
   it('passes unsupported source uploads as skipped source bundle warnings', async () => {
     const runAgent = vi.fn(async (payload) => {
       expect(payload).toEqual({
@@ -741,18 +791,18 @@ describe('projects agent source preview route', () => {
         }),
         expect.objectContaining({
           id: 'source-2',
-          label: 'bundle.zip / assets/logo.png',
-          included: false,
-          warnings: ['Skipped unsupported zip entry "bundle.zip / assets/logo.png".'],
-        }),
-        expect.objectContaining({
-          id: 'source-3',
           kind: 'file',
           label: 'bundle.zip / docs/notes.md',
           archiveLabel: 'bundle.zip',
           path: 'docs/notes.md',
           included: true,
           warnings: [],
+        }),
+        expect.objectContaining({
+          id: 'source-3',
+          label: 'bundle.zip / assets/logo.png',
+          included: false,
+          warnings: ['Skipped unsupported zip entry "bundle.zip / assets/logo.png".'],
         }),
         expect.objectContaining({
           id: 'source-4',
@@ -771,7 +821,7 @@ describe('projects agent source preview route', () => {
         }),
       ],
       warnings: [
-        'Skipped unsupported zip entry "bundle.zip / assets/logo.png".',
+        'Skipped 1 zip source entry from "bundle.zip" due to unsupported file types. Examples: bundle.zip / assets/logo.png.',
         'Skipped unsupported source file "screenshot.png".',
       ],
     }));
@@ -894,6 +944,37 @@ describe('projects agent source preview route', () => {
     expect(res.json()).not.toHaveProperty('sources');
   });
 
+  it('previews large zip source manifests with usable files and compacted skipped warnings', async () => {
+    const handler = createProjectsAgentSourcePreviewHandler();
+    const req = multipartRequest({}, [
+      ['sourceFiles', new Blob([await createZipBuffer(createLargeZipEntries())], {
+        type: 'application/zip',
+      }), 'large-source.zip'],
+    ]);
+    const res = mockResponse();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual(expect.objectContaining({
+      hasSourceContext: true,
+      sourceCount: 2,
+      manifestCount: 34,
+      warningCount: 2,
+    }));
+    expect(res.json().warningCount).toBeLessThanOrEqual(25);
+    expect(res.json().warnings).toEqual([
+      expect.stringContaining('Skipped 16 zip source entries from "large-source.zip" due to unsupported file types'),
+      expect.stringContaining('Skipped 16 zip source entries from "large-source.zip" due to ignored paths'),
+    ]);
+    expect(res.json().manifest.filter((entry) => entry.included).map((entry) => entry.path)).toEqual([
+      'README.md',
+      'src/App.jsx',
+    ]);
+    expect(JSON.stringify(res.json())).not.toContain('export function App');
+    expect(res.json()).not.toHaveProperty('sources');
+  });
+
   it('requires JSON or multipart source preview requests before normalizing sources', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const createSourceBundle = vi.fn();
@@ -972,6 +1053,21 @@ async function createZipBuffer(entries) {
   });
 
   return await zip.generateAsync({ type: 'uint8array' });
+}
+
+function createLargeZipEntries() {
+  return [
+    ...Array.from({ length: 16 }, (_, index) => ({
+      path: `assets/noisy-${String(index + 1).padStart(2, '0')}.png`,
+      bytes: new Uint8Array([1, 2, 3]),
+    })),
+    ...Array.from({ length: 16 }, (_, index) => ({
+      path: `dist/generated-${String(index + 1).padStart(2, '0')}.js`,
+      text: 'ignored generated output',
+    })),
+    { path: 'README.md', text: '# Project evidence' },
+    { path: 'src/App.jsx', text: 'export function App() {}' },
+  ];
 }
 
 function mockResponse() {

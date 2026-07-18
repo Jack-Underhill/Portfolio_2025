@@ -173,6 +173,62 @@ const compactLargeRepoSourceBundle = {
   ],
 };
 
+const compactLargeZipSourceBundle = {
+  hasSourceContext: true,
+  sources: [
+    {
+      id: 'source-1',
+      kind: 'file',
+      label: 'large-source.zip / README.md',
+      mediaType: 'text/markdown',
+      bytes: 18,
+      text: '# Project evidence',
+      archiveLabel: 'large-source.zip',
+      path: 'README.md',
+    },
+    {
+      id: 'source-2',
+      kind: 'file',
+      label: 'large-source.zip / src/App.jsx',
+      mediaType: 'text/javascript',
+      bytes: 24,
+      text: 'export function App() {}',
+      archiveLabel: 'large-source.zip',
+      path: 'src/App.jsx',
+    },
+  ],
+  manifest: [
+    {
+      id: 'source-1',
+      kind: 'file',
+      label: 'large-source.zip / README.md',
+      mediaType: 'text/markdown',
+      bytes: 18,
+      included: true,
+      warnings: [],
+      archiveLabel: 'large-source.zip',
+      path: 'README.md',
+      extractedBytes: 18,
+    },
+    {
+      id: 'source-2',
+      kind: 'file',
+      label: 'large-source.zip / src/App.jsx',
+      mediaType: 'text/javascript',
+      bytes: 24,
+      included: true,
+      warnings: [],
+      archiveLabel: 'large-source.zip',
+      path: 'src/App.jsx',
+      extractedBytes: 24,
+    },
+  ],
+  warnings: [
+    'Skipped 16 zip source entries from "large-source.zip" due to unsupported file types. Examples: large-source.zip / assets/noisy-01.png.',
+    'Skipped 16 zip source entries from "large-source.zip" due to ignored paths. Examples: large-source.zip / dist/generated-01.js.',
+  ],
+};
+
 const discoveredCodexCommand = 'C:\\Tools\\latest-codex.exe';
 
 function runProjectAgent(options) {
@@ -582,6 +638,35 @@ describe('project agent run helpers', () => {
       sourceManifest: compactLargeRepoSourceBundle.manifest,
     });
     expect(result.warnings).toEqual(compactLargeRepoSourceBundle.warnings);
+  });
+
+  it('accepts compacted large zip warnings when usable source context exists', async () => {
+    const result = await runProjectAgent({
+      intent: 'revise',
+      instructions: '   ',
+      projectContext,
+      sourceBundle: compactLargeZipSourceBundle,
+      codexBridge: async ({ prompt }) => {
+        expect(prompt).toContain('large-source.zip / README.md');
+        expect(prompt).toContain('large-source.zip / src/App.jsx');
+
+        return {
+          json: {
+            patch: { description: 'Revised with zip evidence' },
+            notes: ['Used compacted zip evidence.'],
+            warnings: [],
+          },
+        };
+      },
+    });
+
+    expect(result).toMatchObject({
+      patch: { description: 'Revised with zip evidence' },
+      notes: ['Used compacted zip evidence.'],
+      runPlan: 'revise-with-source-context',
+      sourceManifest: compactLargeZipSourceBundle.manifest,
+    });
+    expect(result.warnings).toEqual(compactLargeZipSourceBundle.warnings);
   });
 
   it('suppresses patch fields returned from source-backed review runs', async () => {

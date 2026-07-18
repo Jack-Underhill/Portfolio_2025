@@ -5,11 +5,13 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   createProjectAgentSourceBundle,
+  PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH,
   PROJECT_AGENT_SOURCE_FILE_MAX_BYTES,
   PROJECT_AGENT_SOURCE_FILE_MAX_COUNT,
   PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES,
   PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH,
   PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH,
+  PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES,
 } from '../../../../server/admin/agent/sourceBundle.js';
 import { createPdfBuffer } from './sourceIngestion/pdfTestFixture.js';
 import {
@@ -251,6 +253,31 @@ describe('project agent source bundle helpers', () => {
     expect(bundle.warnings).toEqual([]);
   });
 
+  it('does not apply the project-container text budget to direct report uploads', async () => {
+    const reportText = '# Project report\n\n'.concat('Curated implementation evidence.\n'.repeat(500));
+
+    const bundle = await createProjectAgentSourceBundle({
+      sourceFiles: [
+        createFakeFile({ name: 'project-report.md', text: reportText, type: 'text/markdown' }),
+      ],
+    });
+
+    expect(reportText.length).toBeGreaterThan(PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH);
+    expect(bundle.sources).toEqual([
+      expect.objectContaining({
+        id: 'source-1',
+        label: 'project-report.md',
+        text: reportText.trim(),
+      }),
+    ]);
+    expect(bundle.manifest[0]).toEqual(expect.objectContaining({
+      label: 'project-report.md',
+      included: true,
+      warnings: [],
+    }));
+    expect(bundle.warnings).toEqual([]);
+  });
+
   it('normalizes direct zip source files into multiple metadata-only manifest entries', async () => {
     const bundle = await createProjectAgentSourceBundle({
       sourceFiles: [
@@ -314,8 +341,88 @@ describe('project agent source bundle helpers', () => {
       expect(entry).not.toHaveProperty('text');
     });
     expect(bundle.warnings).toEqual([
-      'Skipped unsupported zip entry "bundle.zip / z-assets/logo.png".',
+      'Skipped 1 zip source entry from "bundle.zip" due to unsupported file types. Examples: bundle.zip / z-assets/logo.png.',
     ]);
+  });
+
+  it('applies per-file text budgeting to zip project files so large files do not crowd out the bundle', async () => {
+    const largeSourceText = 'public class LargeFeature {\n'.concat(
+      'return_value_'.repeat(PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH / 4),
+      '}',
+    );
+
+    const bundle = await createProjectAgentSourceBundle({
+      sourceFiles: [
+        createFakeFile({
+          name: 'project.zip',
+          type: 'application/zip',
+          bytes: await createZipBytes([
+            { path: 'README.md', text: '# Project overview' },
+            { path: 'src/LargeFeature.cs', text: largeSourceText },
+            { path: 'src/AnotherLargeFeature.cs', text: largeSourceText.replace('LargeFeature', 'AnotherLargeFeature') },
+            { path: 'src/DomainModel.cs', text: 'public class DomainModel { public string Name { get; set; } }' },
+          ]),
+        }),
+      ],
+    });
+
+    expect(bundle.sources.map((source) => source.path)).toEqual([
+      'README.md',
+      'src/AnotherLargeFeature.cs',
+      'src/DomainModel.cs',
+      'src/LargeFeature.cs',
+    ]);
+    expect(bundle.sources.find((source) => source.path === 'src/LargeFeature.cs').text)
+      .toHaveLength(PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH);
+    expect(bundle.sources.find((source) => source.path === 'src/AnotherLargeFeature.cs').text)
+      .toHaveLength(PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH);
+    expect(bundle.sources.find((source) => source.path === 'src/DomainModel.cs').text)
+      .toContain('DomainModel');
+    expect(bundle.manifest.find((entry) => entry.path === 'src/LargeFeature.cs').warnings).toEqual([
+      `Truncated source "project.zip / src/LargeFeature.cs" to ${PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH} characters to keep project-container evidence balanced.`,
+    ]);
+    expect(bundle.warnings).toEqual([
+      `Truncated 2 project-container source files to ${PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH} characters each to keep source coverage balanced. Examples: project.zip / src/AnotherLargeFeature.cs; project.zip / src/LargeFeature.cs.`,
+    ]);
+  });
+
+  it('keeps large zip bundle warnings bounded while preserving usable source context', async () => {
+    const bundle = await createProjectAgentSourceBundle({
+      sourceFiles: [
+        createFakeFile({
+          name: 'large-source.zip',
+          type: 'application/zip',
+          bytes: await createZipBytes([
+            ...Array.from({ length: 16 }, (_, index) => ({
+              path: `assets/noisy-${String(index + 1).padStart(2, '0')}.png`,
+              bytes: new Uint8Array([1, 2, 3]),
+            })),
+            ...Array.from({ length: 16 }, (_, index) => ({
+              path: `dist/generated-${String(index + 1).padStart(2, '0')}.js`,
+              text: 'ignored generated output',
+            })),
+            { path: 'README.md', text: '# Project evidence' },
+            { path: 'src/App.jsx', text: 'export function App() {}' },
+          ]),
+        }),
+      ],
+    });
+
+    expect(bundle.hasSourceContext).toBe(true);
+    expect(bundle.sources.map((source) => source.path)).toEqual([
+      'README.md',
+      'src/App.jsx',
+    ]);
+    expect(bundle.sources).toHaveLength(2);
+    expect(bundle.manifest).toHaveLength(34);
+    expect(bundle.manifest.filter((entry) => entry.included)).toHaveLength(2);
+    expect(bundle.warnings).toHaveLength(2);
+    expect(bundle.warnings.length).toBeLessThanOrEqual(25);
+    expect(bundle.warnings).toEqual([
+      'Skipped 16 zip source entries from "large-source.zip" due to unsupported file types. Examples: large-source.zip / assets/noisy-01.png; large-source.zip / assets/noisy-02.png; large-source.zip / assets/noisy-03.png.',
+      'Skipped 16 zip source entries from "large-source.zip" due to ignored paths. Examples: large-source.zip / dist/generated-01.js; large-source.zip / dist/generated-02.js; large-source.zip / dist/generated-03.js.',
+    ]);
+    expect(JSON.stringify(bundle.manifest)).not.toContain('export function App');
   });
 
   it('normalizes GitHub repository sources in the shared bundle flow', async () => {
@@ -438,20 +545,23 @@ describe('project agent source bundle helpers', () => {
   });
 
   it('applies the shared total source text limit to GitHub files after earlier sources', async () => {
+    const directSourceLength = PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH - 5000;
     const githubFetchImpl = createRouteFetch({
       'https://api.github.com/repos/owner/repo': createJsonResponse({ default_branch: 'main' }),
       'https://api.github.com/repos/owner/repo/git/trees/main?recursive=1': createJsonResponse({
         tree: [
-          { path: 'long.md', type: 'blob', sha: 'aaaaaa', size: PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH },
+          { path: 'long.md', type: 'blob', sha: 'aaaaaa', size: 20000 },
         ],
       }),
       'https://api.github.com/repos/owner/repo/git/blobs/aaaaaa': createJsonResponse(
-        createGitHubBlob('g'.repeat(PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH)),
+        createGitHubBlob('g'.repeat(20000)),
       ),
     });
 
     const bundle = await createProjectAgentSourceBundle({
-      sourceText: 'p'.repeat(PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
+      sourceFiles: [
+        createFakeFile({ name: 'direct-report.md', text: 'p'.repeat(directSourceLength), type: 'text/markdown' }),
+      ],
       githubRepoUrl: 'https://github.com/owner/repo',
       githubFetchImpl,
     });
@@ -460,7 +570,7 @@ describe('project agent source bundle helpers', () => {
     expect(bundle.sources[1]).toEqual(expect.objectContaining({
       id: 'source-2',
       label: 'owner/repo / long.md',
-      text: 'g'.repeat(PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH - PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
+      text: 'g'.repeat(5000),
     }));
     expect(bundle.manifest[1]).toEqual(expect.objectContaining({
       id: 'source-2',
@@ -471,6 +581,50 @@ describe('project agent source bundle helpers', () => {
     }));
     expect(bundle.warnings).toEqual([
       `Truncated source "owner/repo / long.md" to fit the ${PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH} character total source limit.`,
+    ]);
+  });
+
+  it('applies per-file text budgeting to GitHub project files', async () => {
+    const largeRepoText = 'export function feature() {\n'.concat(
+      'return_value_'.repeat(PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH / 4),
+      '}',
+    );
+    const githubFetchImpl = createRouteFetch({
+      'https://api.github.com/repos/owner/repo': createJsonResponse({ default_branch: 'main' }),
+      'https://api.github.com/repos/owner/repo/git/trees/main?recursive=1': createJsonResponse({
+        tree: [
+          { path: 'README.md', type: 'blob', sha: 'aaaaaa', size: 13 },
+          { path: 'src/FeatureA.js', type: 'blob', sha: 'bbbbbb', size: 20000 },
+          { path: 'src/FeatureB.js', type: 'blob', sha: 'cccccc', size: 20000 },
+          { path: 'src/SmallFeature.js', type: 'blob', sha: 'dddddd', size: 31 },
+        ],
+      }),
+      'https://api.github.com/repos/owner/repo/git/blobs/aaaaaa': createJsonResponse(createGitHubBlob('# Repo notes')),
+      'https://api.github.com/repos/owner/repo/git/blobs/bbbbbb': createJsonResponse(createGitHubBlob(largeRepoText)),
+      'https://api.github.com/repos/owner/repo/git/blobs/cccccc': createJsonResponse(createGitHubBlob(largeRepoText.replace('feature', 'otherFeature'))),
+      'https://api.github.com/repos/owner/repo/git/blobs/dddddd': createJsonResponse(createGitHubBlob('export const smallFeature = true;')),
+    });
+
+    const bundle = await createProjectAgentSourceBundle({
+      githubRepoUrl: 'https://github.com/owner/repo',
+      githubFetchImpl,
+    });
+
+    expect(bundle.sources.map((source) => source.path)).toEqual([
+      'README.md',
+      'src/FeatureA.js',
+      'src/FeatureB.js',
+      'src/SmallFeature.js',
+    ]);
+    expect(bundle.sources.find((source) => source.path === 'src/FeatureA.js').text)
+      .toHaveLength(PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH);
+    expect(bundle.sources.find((source) => source.path === 'src/SmallFeature.js').text)
+      .toBe('export const smallFeature = true;');
+    expect(bundle.manifest.find((entry) => entry.path === 'src/FeatureA.js').warnings).toEqual([
+      `Truncated source "owner/repo / src/FeatureA.js" to ${PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH} characters to keep project-container evidence balanced.`,
+    ]);
+    expect(bundle.warnings).toEqual([
+      `Truncated 2 project-container source files to ${PROJECT_AGENT_SOURCE_CONTAINER_TEXT_MAX_LENGTH} characters each to keep source coverage balanced. Examples: owner/repo / src/FeatureA.js; owner/repo / src/FeatureB.js.`,
     ]);
   });
 
@@ -709,16 +863,22 @@ describe('project agent source bundle helpers', () => {
   });
 
   it('truncates zip entry source text at the total source text limit', async () => {
+    const directSourceLength = PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH - 5000;
+
     const bundle = await createProjectAgentSourceBundle({
-      sourceText: 'p'.repeat(PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
       sourceFiles: [
+        createFakeFile({
+          name: 'direct-report.md',
+          text: 'p'.repeat(directSourceLength),
+          type: 'text/markdown',
+        }),
         createFakeFile({
           name: 'bundle.zip',
           type: 'application/zip',
           bytes: await createZipBytes([
             {
               path: 'long.md',
-              text: 'z'.repeat(PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH),
+              text: 'z'.repeat(20000),
             },
           ]),
         }),
@@ -729,7 +889,7 @@ describe('project agent source bundle helpers', () => {
     expect(bundle.sources[1]).toEqual(expect.objectContaining({
       id: 'source-2',
       label: 'bundle.zip / long.md',
-      text: 'z'.repeat(PROJECT_AGENT_SOURCE_TOTAL_TEXT_MAX_LENGTH - PROJECT_AGENT_SOURCE_TEXT_MAX_LENGTH),
+      text: 'z'.repeat(5000),
     }));
     expect(bundle.manifest[1]).toEqual(expect.objectContaining({
       id: 'source-2',
@@ -812,7 +972,8 @@ describe('project agent source bundle helpers', () => {
     ]);
   });
 
-  it('exports the configured GitHub included file limit for downstream schema bounds', () => {
+  it('keeps project-container included file limits aligned for downstream schema bounds', () => {
+    expect(PROJECT_AGENT_SOURCE_ZIP_MAX_INCLUDED_FILES).toBe(40);
     expect(PROJECT_AGENT_SOURCE_GITHUB_MAX_INCLUDED_FILES).toBe(40);
   });
 });

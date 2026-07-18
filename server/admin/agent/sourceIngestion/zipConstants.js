@@ -11,11 +11,15 @@ export const PROJECT_AGENT_SOURCE_ZIP_EXTENSION = '.zip';
 
 export const IGNORED_ZIP_PATH_SEGMENTS = new Set([
   '.git',
+  '.vs',
   'node_modules',
+  'bin',
+  'obj',
   'dist',
   'build',
   'generated',
   'coverage',
+  'testresults',
   '.next',
   '.cache',
   '.venv',
