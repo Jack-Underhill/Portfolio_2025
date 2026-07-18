@@ -24,6 +24,11 @@ import {
   cleanGitHubRepoUrlInput,
   parseGitHubRepoUrl,
 } from './github/githubUrl.js';
+import {
+  addCompactSourceWarning,
+  createSourceWarningCompaction,
+  getCompactSourceWarningSummaries,
+} from './sourceWarningCompaction.js';
 
 export {
   PROJECT_AGENT_SOURCE_GITHUB_FILE_MAX_BYTES,
@@ -39,22 +44,7 @@ function createIdGetter({ createId, id }) {
   return typeof createId === 'function' ? createId : () => id;
 }
 
-function addCompactWarning(compactWarnings, reason, entry) {
-  if (!reason) return;
-
-  const existing = compactWarnings.get(reason) || {
-    reason,
-    count: 0,
-    examples: [],
-  };
-  const label = typeof entry?.manifest?.label === 'string' ? entry.manifest.label : '';
-
-  existing.count += 1;
-  if (label && existing.examples.length < 3) existing.examples.push(label);
-  compactWarnings.set(reason, existing);
-}
-
-function formatCompactWarning({ repoLabel, summary }) {
+function formatGitHubCompactWarning({ repoLabel, summary }) {
   const examples = summary.examples.length > 0
     ? ` Examples: ${summary.examples.join('; ')}.`
     : '';
@@ -162,7 +152,7 @@ export async function normalizeGitHubRepoSource(githubRepoUrl, {
     totalFetchedBytes: 0,
     totalSourceTextLength: 0,
   };
-  const compactWarnings = new Map();
+  const compactWarnings = createSourceWarningCompaction();
   const limits = {
     maxTreeEntries,
     maxIncludedFiles,
@@ -191,14 +181,17 @@ export async function normalizeGitHubRepoSource(githubRepoUrl, {
 
     entries.push(result.entry);
     if (result.compactWarningReason) {
-      addCompactWarning(compactWarnings, result.compactWarningReason, result.entry);
+      addCompactSourceWarning(compactWarnings, {
+        reason: result.compactWarningReason,
+        label: result.entry?.manifest?.label,
+      });
     } else {
       warnings.push(...result.warnings);
     }
   }
 
   warnings.push(
-    ...Array.from(compactWarnings.values()).map((summary) => formatCompactWarning({
+    ...getCompactSourceWarningSummaries(compactWarnings).map((summary) => formatGitHubCompactWarning({
       repoLabel: parsed.repoLabel,
       summary,
     })),
