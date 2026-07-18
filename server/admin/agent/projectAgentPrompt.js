@@ -12,14 +12,28 @@ import {
 import { validateProjectAgentRunInput } from './projectAgentSchema.js';
 
 const QUALITY_GUIDANCE = Object.freeze([
-  'Optimize for HR, employer, developer, and non-technical family/friend readers.',
-  'Prefer concrete shipped behavior, measurable outcome, architectural responsibility, or real constraints.',
+  'Write for a portfolio reviewer, recruiter, engineering manager, peer engineer, or project owner skimming for credible impact and implementation skill.',
+  'Prefer concrete shipped behavior, measurable outcome, architectural responsibility, or real constraints over inflated marketing phrasing, vague claims, resume cliches, or unearned impact language.',
   'Keep description to one concise card sentence, usually 18-30 words.',
   'Keep overview and role plain-language, focused, and normally around 70-110 words.',
   'Prefer 4-5 strong features, 3-5 evidence metrics, 3 challenge cards, and 3-4 credible improvements.',
   'Use fewer strong bullets over a complete implementation inventory.',
   'Avoid repeating the same signal across features, metrics, challenges, and improvements.',
   'Keep tech stack values short, recognizable, and useful; avoid internal file or setup details.',
+]);
+
+const SECTION_EXPECTATIONS = Object.freeze([
+  'title: use the project, product, or repository name when evidenced; keep it specific and portfolio-ready.',
+  'description: summarize what the project is and why it matters in one compact public-card sentence.',
+  'overview: orient a non-specialist to the project purpose, user or domain, and core technical system without loading it with implementation detail.',
+  'role: state ownership honestly; distinguish direct evidence from inferred responsibility for coursework, templates, forks, demos, and team projects.',
+  'features: name shipped user-facing or developer-facing capabilities, with deeper technical detail here instead of in the overview.',
+  'metrics: use only evidence-backed counts, coverage signals, supported entities, file or test scope, runtime targets, or source-observed behavior; business outcomes, performance numbers, adoption, grades, and dates require explicit evidence.',
+  'challenges: frame engineering tradeoffs or problems solved; make challenge, what I did, and result portfolio-ready but technically honest.',
+  'improvements: suggest realistic next steps inferred from observed gaps, not accusations that the project is broken or generic wishlist filler.',
+  'labels: use 1-3 display classifications for context, domain, format, or setting, not duplicate tech stack tags.',
+  'projectType: choose the closest accepted category from evidence and owner context; do not overstate professional context.',
+  'techStack: list concise, recognizable technologies in the accepted categories and omit unsupported guesses.',
 ]);
 
 const REVIEW_OUTPUT_RULES = Object.freeze([
@@ -238,6 +252,9 @@ export function buildProjectAgentPrompt(input) {
     '',
     'Case-study quality guidance:',
     formatBullets(QUALITY_GUIDANCE),
+    '',
+    'Case-study section expectations:',
+    formatBullets(SECTION_EXPECTATIONS),
     '',
     'Output contract:',
     'Return only strict JSON. Do not include markdown fences, commentary, or trailing text.',

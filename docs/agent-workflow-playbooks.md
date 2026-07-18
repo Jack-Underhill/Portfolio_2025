@@ -184,6 +184,7 @@ Agent-assisted draft payloads:
 
 - Read the relevant project notes, source files, docs, screenshots, or rough writeups before drafting.
 - Follow [Case Study Draft Guidelines](./project-editor-agent/case-study-draft-guidelines.md) for audience fit, field limits, anti-bloat rules, outlier criteria, and review checklist.
+- Write for a skimming portfolio reviewer, recruiter, engineering manager, peer engineer, or project owner: keep the overview approachable, put deeper implementation detail in features, metrics, and challenges, and keep metrics or ownership claims tied to explicit evidence.
 - Choose the manual drafting workflow before writing JSON:
   - New draft workflow: use project source material only and produce a full import payload.
   - Existing project edit/review workflow: read current project draft JSON first, then read the new report or source material, compare both, and produce either a full refreshed payload or a minimal patch payload.
