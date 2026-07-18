@@ -184,7 +184,14 @@ Agent-assisted draft payloads:
 
 - Read the relevant project notes, source files, docs, screenshots, or rough writeups before drafting.
 - Follow [Case Study Draft Guidelines](./project-editor-agent/case-study-draft-guidelines.md) for audience fit, field limits, anti-bloat rules, outlier criteria, and review checklist.
-- Write for a skimming portfolio reviewer, recruiter, engineering manager, peer engineer, or project owner: keep the overview approachable, put deeper implementation detail in features, metrics, and challenges, and keep metrics or ownership claims tied to explicit evidence.
+- Write for a skimming portfolio reviewer, recruiter, engineering manager, peer engineer, or project owner: keep the overview approachable, use familiar product-category framing when it helps a reader understand the app, put deeper implementation detail in features, metrics, and challenges, and keep metrics or ownership claims tied to explicit evidence.
+- Keep role copy about ownership, project context, working format, and responsibility. Do not turn it into a second tech-stack or feature inventory, and avoid naming more than two or three broad responsibility areas unless the owner asks for more.
+- Make each section earn its place: overview explains the product, role explains ownership/context, features explain capabilities, metrics explain numeric or verification evidence, challenges explain tradeoffs, and improvements explain next steps.
+- Let the feature list scale when the project has many strong, distinct capabilities. Do not cut a meaningful feature just to hit a small count; combine or omit weak, overlapping, or implementation-inventory items instead.
+- Keep metrics distinct from features. Prefer verified outcomes first, then coverage or test counts, then solution/file/module scope counts that add new scale context. Use fewer metrics when evidence is sparse; do not pad the section with tech-stack facts, feature restatements, operator counts, repeated feature dimensions, or clean local builds unless the owner asks for them.
+- Avoid meta-evaluation phrases such as "portfolio value", "selling point", or "strongest story" inside draft fields. Write the case study itself rather than instructions about how to judge it.
+- Put tech stack entries only in categories where they naturally belong. Do not fill every category, and keep analyzers, linters, coverage tools, and test-only packages out of `techStack` unless they are central to delivery or operation.
+- Treat direct source bundles as useful first-draft evidence, but prefer report-backed source notes when final accuracy needs owner process context, role nuance, or human-readable product framing.
 - Choose the manual drafting workflow before writing JSON:
   - New draft workflow: use project source material only and produce a full import payload.
   - Existing project edit/review workflow: read current project draft JSON first, then read the new report or source material, compare both, and produce either a full refreshed payload or a minimal patch payload.
