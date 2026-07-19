@@ -10,6 +10,7 @@ export function createIdleProjectAgentRunState() {
     intent: null,
     runPlan: null,
     sourceManifest: [],
+    validationPreflight: null,
     elapsedMs: null,
   };
 }

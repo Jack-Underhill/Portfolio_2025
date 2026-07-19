@@ -405,6 +405,7 @@ function ProjectsSection({
                 runPlan: result.runPlan ?? null,
                 errorDetails: null,
                 sourceManifest: result.sourceManifest ?? [],
+                validationPreflight: result.validationPreflight ?? null,
                 elapsedMs: result.elapsedMs ?? null,
             });
         } catch (error) {
@@ -425,6 +426,7 @@ function ProjectsSection({
                 intent,
                 runPlan: null,
                 sourceManifest: [],
+                validationPreflight: null,
                 elapsedMs: null,
             });
         }

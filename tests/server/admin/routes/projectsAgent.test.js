@@ -49,6 +49,11 @@ describe('projects agent run route', () => {
         appliedFields: ['title'],
         intent: 'revise',
         runPlan: 'revise-current-case-study',
+        validationPreflight: {
+          status: 'passed',
+          message: 'Validation preflight passed for the revised draft.',
+          errors: [],
+        },
         elapsedMs: 25,
       };
     });
@@ -67,6 +72,11 @@ describe('projects agent run route', () => {
       appliedFields: ['title'],
       intent: 'revise',
       runPlan: 'revise-current-case-study',
+      validationPreflight: {
+        status: 'passed',
+        message: 'Validation preflight passed for the revised draft.',
+        errors: [],
+      },
       elapsedMs: 25,
     });
   });

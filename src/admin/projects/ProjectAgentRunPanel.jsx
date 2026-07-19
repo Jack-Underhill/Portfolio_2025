@@ -205,6 +205,31 @@ function getRunPlanSummary(agentRun) {
   };
 }
 
+function getValidationPreflightDisplay(validationPreflight) {
+  if (!validationPreflight || typeof validationPreflight !== 'object') return null;
+
+  const status = String(validationPreflight.status || '').trim();
+  const message = String(validationPreflight.message || '').trim();
+
+  if (status === 'passed') {
+    return {
+      status,
+      message: message || 'Validation preflight passed for the revised draft.',
+      errors: [],
+    };
+  }
+
+  if (status === 'failed') {
+    return {
+      status,
+      message: message || 'Validation preflight found an issue to fix before Save.',
+      errors: normalizeItems(validationPreflight.errors),
+    };
+  }
+
+  return null;
+}
+
 function FieldSummary({ label, fields }) {
   const normalizedFields = normalizeItems(fields);
 
@@ -225,6 +250,35 @@ function FieldSummary({ label, fields }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function ValidationPreflightSummary({ validationPreflight }) {
+  const display = getValidationPreflightDisplay(validationPreflight);
+
+  if (!display) return null;
+
+  const isFailed = display.status === 'failed';
+  const toneClasses = isFailed
+    ? 'border-amber-400/40 bg-amber-400/10 text-amber-100'
+    : 'border-admin-border-subtle bg-admin-row text-admin-accent-text';
+
+  return (
+    <div className={`space-y-1.5 rounded-md border px-3 py-2 ${toneClasses}`}>
+      <p className="text-xs font-medium uppercase tracking-wide text-admin-text-subtle">
+        Validation preflight
+      </p>
+      <p className="text-xs leading-5">
+        {display.message}
+      </p>
+      {isFailed && display.errors.length > 0 && (
+        <ul className="space-y-1 text-xs leading-5" aria-label="Validation preflight errors">
+          {display.errors.map((error, index) => (
+            <li key={`validation-preflight-error-${index}`}>{error}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -407,6 +461,8 @@ function ProjectAgentRunPanel({
               {runPlanSummary.detail}
             </p>
           </div>
+
+          <ValidationPreflightSummary validationPreflight={agentRun?.validationPreflight} />
 
           <div className="grid gap-3 md:grid-cols-2">
             <FieldSummary label="Changed fields" fields={agentRun?.changedFields} />

@@ -5,6 +5,85 @@ import { describe, expect, it } from 'vitest';
 import ProjectAgentRunPanel from '../../src/admin/projects/ProjectAgentRunPanel.jsx';
 
 describe('ProjectAgentRunPanel', () => {
+  it('renders passed validation preflight copy when present', () => {
+    const html = renderToStaticMarkup(
+      <ProjectAgentRunPanel
+        agentRun={{
+          status: 'succeeded',
+          intent: 'revise',
+          runPlan: 'revise-current-case-study',
+          notes: [],
+          warnings: [],
+          validationPreflight: {
+            status: 'passed',
+            message: 'Validation preflight passed for the revised draft.',
+            errors: [],
+          },
+        }}
+      />,
+    );
+
+    expect(html).toContain('Validation preflight');
+    expect(html).toContain('Validation preflight passed for the revised draft.');
+    expect(html).not.toContain('Validation preflight errors');
+  });
+
+  it('renders failed validation preflight errors as draft feedback', () => {
+    const html = renderToStaticMarkup(
+      <ProjectAgentRunPanel
+        agentRun={{
+          status: 'succeeded',
+          intent: 'revise',
+          runPlan: 'revise-current-case-study',
+          notes: [],
+          warnings: [],
+          validationPreflight: {
+            status: 'failed',
+            message: 'Validation preflight found an issue to fix before Save.',
+            errors: ['Project 1 URL must be a valid URL.'],
+          },
+        }}
+      />,
+    );
+
+    expect(html).toContain('Validation preflight found an issue to fix before Save.');
+    expect(html).toContain('Project 1 URL must be a valid URL.');
+    expect(html).not.toContain('Codex did not update the draft.');
+  });
+
+  it('does not render validation preflight for old or skipped run results', () => {
+    const oldResultHtml = renderToStaticMarkup(
+      <ProjectAgentRunPanel
+        agentRun={{
+          status: 'succeeded',
+          intent: 'review',
+          runPlan: 'review-current-case-study',
+          notes: [],
+          warnings: [],
+        }}
+      />,
+    );
+    const skippedResultHtml = renderToStaticMarkup(
+      <ProjectAgentRunPanel
+        agentRun={{
+          status: 'succeeded',
+          intent: 'revise',
+          runPlan: 'revise-current-case-study',
+          notes: [],
+          warnings: [],
+          validationPreflight: {
+            status: 'skipped',
+            message: 'Validation preflight skipped because no revised draft patch was returned.',
+            errors: [],
+          },
+        }}
+      />,
+    );
+
+    expect(oldResultHtml).not.toContain('Validation preflight');
+    expect(skippedResultHtml).not.toContain('Validation preflight');
+  });
+
   it('groups long source manifest sections and hides duplicate GitHub skip warnings', () => {
     const sourceManifest = [
       ...Array.from({ length: 18 }, (_, index) => ({

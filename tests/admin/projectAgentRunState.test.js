@@ -66,6 +66,7 @@ describe('project agent run state', () => {
       intent: null,
       runPlan: null,
       sourceManifest: [],
+      validationPreflight: null,
       elapsedMs: null,
     });
 
@@ -80,6 +81,7 @@ describe('project agent run state', () => {
       intent: null,
       runPlan: null,
       sourceManifest: [],
+      validationPreflight: null,
       elapsedMs: null,
     });
   });
