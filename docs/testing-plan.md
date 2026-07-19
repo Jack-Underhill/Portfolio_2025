@@ -1,6 +1,6 @@
 # Testing Plan
 
-Date: 2026-06-29
+Date: 2026-07-19
 
 ## Purpose
 
@@ -77,7 +77,7 @@ Current baseline test files:
 - `tests/server/admin/routes/validation.credentials.test.js`
 - `tests/server/admin/routes/validation.skills.test.js`
 
-Current checks:
+Current checks verified in the 2026-07-19 local Projects Agent closeout pass:
 
 - `cmd /c npm run test` passes in the current baseline.
 - `cmd /c npm run lint` passes.
