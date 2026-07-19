@@ -75,6 +75,16 @@ Decision:
 - It does not require or pass `OPENAI_API_KEY`; investigate SDK options only if `codex exec` becomes unreliable while preserving that no-API-key requirement.
 - Non-fatal stderr warnings from local Codex/plugin discovery or shell snapshot behavior can appear even when JSON schema checks pass. Treat timeout, nonzero exit, malformed JSON, non-object JSON, malformed wrapper output, or project patch validation failure as real agent failures.
 
+## Projects Agent GitHub Source Caveat
+
+The Projects agent can preview and run against bounded public GitHub repository URLs through the local admin backend. This path uses unauthenticated public GitHub API metadata, tree, and blob requests only.
+
+Decision:
+
+- GitHub network failures, unreachable refs, unsupported URL shapes, private repositories, forbidden repositories, and unauthenticated rate-limit exhaustion are expected source warnings, not default quality-gate failures.
+- The browser does not fetch GitHub directly, no GitHub credentials are stored, repositories are not cloned, and fetched file contents are not written to disk, persisted, returned as raw preview/run text, or exposed publicly.
+- Unit tests should use injected fetch fixtures; live GitHub access remains a manual/local runtime boundary.
+
 ## Architecture Viewer Local Warning
 
 Architecture previews rely on `/.netlify/functions/inline-svg` for trusted SVG proxying.
