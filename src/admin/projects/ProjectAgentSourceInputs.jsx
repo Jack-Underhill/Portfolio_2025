@@ -7,7 +7,7 @@ import {
 import {
   PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
   PROJECT_AGENT_SOURCE_ALLOWED_FILENAMES,
-} from '../../../server/admin/agent/sourceIngestion/textSourcePolicy';
+} from '../../domain/projectAgentSourcePolicy';
 import { adminForm, adminUi } from '../../styles/recipes';
 
 const PROJECT_AGENT_SOURCE_FILE_EXTENSIONS = Object.freeze([
