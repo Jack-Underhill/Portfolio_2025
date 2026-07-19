@@ -230,6 +230,11 @@ const compactLargeZipSourceBundle = {
 };
 
 const discoveredCodexCommand = 'C:\\Tools\\latest-codex.exe';
+const passedValidationPreflight = {
+  status: 'passed',
+  message: 'Validation preflight passed for the revised draft.',
+  errors: [],
+};
 
 function runProjectAgent(options) {
   return runProjectAgentBase({
@@ -275,6 +280,7 @@ describe('project agent run helpers', () => {
         'Ignored unsupported project draft field "id".',
       ],
       appliedFields: ['title'],
+      validationPreflight: passedValidationPreflight,
       intent: 'revise',
       runPlan: 'revise-current-case-study',
       sourceManifest: [],
@@ -317,6 +323,7 @@ describe('project agent run helpers', () => {
       sourceManifest: [],
       elapsedMs: 9,
     });
+    expect(result).not.toHaveProperty('validationPreflight');
   });
 
   it('passes source context into revise runs and returns metadata without source text', async () => {
@@ -361,12 +368,49 @@ describe('project agent run helpers', () => {
       notes: ['Used source-backed metric.'],
       warnings: ['Truncated pasted source material to 30000 characters.'],
       appliedFields: ['metrics'],
+      validationPreflight: passedValidationPreflight,
       intent: 'revise',
       runPlan: 'revise-with-source-context',
       sourceManifest: sourceBundle.manifest,
       elapsedMs: 15,
     });
     expect(JSON.stringify(result.sourceManifest)).not.toContain(sourceBundle.sources[0].text);
+  });
+
+  it('returns failed validation preflight details without rejecting revise runs', async () => {
+    const result = await runProjectAgent({
+      intent: 'revise',
+      instructions: 'Update the live URL.',
+      projectContext,
+      codexBridge: async () => ({
+        json: {
+          patch: {
+            url: 'not a url',
+          },
+          notes: ['Updated the URL from the draft.'],
+          warnings: [],
+        },
+        elapsedMs: 13,
+      }),
+    });
+
+    expect(result).toEqual({
+      patch: {
+        url: 'not a url',
+      },
+      notes: ['Updated the URL from the draft.'],
+      warnings: [],
+      appliedFields: ['url'],
+      validationPreflight: {
+        status: 'failed',
+        message: 'Validation preflight found an issue to fix before Save.',
+        errors: ['project 1 live URL must be a valid URL'],
+      },
+      intent: 'revise',
+      runPlan: 'revise-current-case-study',
+      sourceManifest: [],
+      elapsedMs: 13,
+    });
   });
 
   it('preserves safe PDF and zip manifest metadata without returning raw source text', async () => {

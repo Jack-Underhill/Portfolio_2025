@@ -15,6 +15,7 @@ import {
   validateProjectAgentOutput,
   validateProjectAgentRunInput,
 } from './projectAgentSchema.js';
+import { createProjectAgentValidationPreflight } from './projectAgentValidationPreflight.js';
 
 const DEFAULT_TIMEOUT_MS = 120000;
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -164,9 +165,17 @@ export async function runProjectAgent({
     const output = validateProjectAgentOutput(getBridgeJson(bridgeResult), {
       ignorePatch: ownerIntent.id === 'review',
     });
+    const validationPreflight = ownerIntent.id === 'revise'
+      ? createProjectAgentValidationPreflight({
+        intent: ownerIntent.id,
+        projectContext: input.projectContext,
+        patch: output.patch,
+      })
+      : undefined;
 
     return {
       ...output,
+      ...(validationPreflight ? { validationPreflight } : {}),
       warnings: [
         ...output.warnings,
         ...(input.sourceBundle?.warnings ?? []),
