@@ -6,19 +6,18 @@ import ProjectAgentSourceInputs from '../../src/admin/projects/ProjectAgentSourc
 import { createSucceededProjectAgentSourcePreview } from '../../src/admin/projects/projectAgentSourcePreviewState.js';
 
 describe('ProjectAgentSourceInputs', () => {
-  it('renders the expanded local source file accept list', () => {
+  it('renders the default context trigger and expanded local source file accept list', () => {
     const html = renderToStaticMarkup(
       <ProjectAgentSourceInputs
         id="project-agent-source-files"
+        sourceTextId="project-agent-source-material"
         githubRepoUrlId="project-agent-github-repo-url"
         sourceFiles={[]}
         canPreviewSources={false}
       />,
     );
 
-    expect(html).toContain('id="project-agent-github-repo-url"');
-    expect(html).toContain('GitHub repository URL');
-    expect(html).toContain('placeholder="GitHub repo URL"');
+    expect(html).toContain('Add source context');
     expect(html).toContain('accept="');
     expect(html).toContain('.java');
     expect(html).toContain('.go');
@@ -33,19 +32,30 @@ describe('ProjectAgentSourceInputs', () => {
     expect(html).toContain('.env.example');
     expect(html).toContain('.pdf');
     expect(html).toContain('.zip');
+    expect(html).not.toContain('id="project-agent-github-repo-url"');
+    expect(html).not.toContain('id="project-agent-source-material"');
   });
 
-  it('renders the GitHub repo URL input as disabled while source controls are disabled', () => {
+  it('renders optional context rows as disabled while source controls are disabled', () => {
     const html = renderToStaticMarkup(
       <ProjectAgentSourceInputs
         id="project-agent-source-files"
+        sourceTextId="project-agent-source-material"
         githubRepoUrlId="project-agent-github-repo-url"
+        sourceText="Evidence copied from the local notes."
         sourceFiles={[]}
         githubRepoUrl="https://github.com/example/portfolio"
+        isSourceTextInputVisible
+        isGithubRepoUrlInputVisible
         disabled
       />,
     );
 
+    expect(html).toContain('id="project-agent-source-material"');
+    expect(html).toContain('Source material');
+    expect(html).toContain('Evidence copied from the local notes.');
+    expect(html).toContain('id="project-agent-github-repo-url"');
+    expect(html).toContain('GitHub repository URL');
     expect(html).toContain('value="https://github.com/example/portfolio"');
     expect(html).toContain('disabled=""');
   });
@@ -93,6 +103,7 @@ describe('ProjectAgentSourceInputs', () => {
     const html = renderToStaticMarkup(
       <ProjectAgentSourceInputs
         id="project-agent-source-files"
+        sourceTextId="project-agent-source-material"
         githubRepoUrlId="project-agent-github-repo-url"
         sourceFiles={[
           {
@@ -151,9 +162,11 @@ describe('ProjectAgentSourceInputs', () => {
     const html = renderToStaticMarkup(
       <ProjectAgentSourceInputs
         id="project-agent-source-files"
+        sourceTextId="project-agent-source-material"
         githubRepoUrlId="project-agent-github-repo-url"
         sourceFiles={[]}
         githubRepoUrl="https://github.com/example/portfolio"
+        isGithubRepoUrlInputVisible
         sourcePreview={sourcePreview}
         canPreviewSources
       />,

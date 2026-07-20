@@ -75,7 +75,11 @@ function ProjectAgentSection({
   const [sourceText, setSourceText] = useState('');
   const [sourceFiles, setSourceFiles] = useState([]);
   const [githubRepoUrl, setGithubRepoUrl] = useState('');
+  const [isSourceTextInputActive, setIsSourceTextInputActive] = useState(false);
+  const [isGithubRepoUrlInputActive, setIsGithubRepoUrlInputActive] = useState(false);
   const [sourcePreview, setSourcePreview] = useState(createIdleProjectAgentSourcePreview);
+  const sourceTextAreaRef = useRef(null);
+  const githubRepoUrlInputRef = useRef(null);
   const sourceInputSignature = createProjectAgentSourceInputSignature({
     sourceText,
     sourceFiles,
@@ -114,9 +118,20 @@ function ProjectAgentSection({
   const githubRepoUrlId = `${headingId}-github-repo-url`;
   const runtimeModelLabel = getRuntimeModelLabel(runtimeMetadata);
   const runtimeModelTitle = getRuntimeModelTitle(runtimeMetadata);
+  const isSourceTextInputVisible = isSourceTextInputActive || sourceText.trim().length > 0;
+  const isGithubRepoUrlInputVisible = isGithubRepoUrlInputActive
+    || githubRepoUrl.trim().length > 0;
 
   const clearSourcePreview = () => {
     setSourcePreview(createIdleProjectAgentSourcePreview);
+  };
+
+  const focusAfterRender = (ref) => {
+    if (typeof window === 'undefined') return;
+
+    window.requestAnimationFrame(() => {
+      ref.current?.focus();
+    });
   };
 
   const handleSourceTextChange = (value) => {
@@ -136,6 +151,53 @@ function ProjectAgentSection({
 
   const handleGithubRepoUrlChange = (value) => {
     setGithubRepoUrl(value);
+    clearSourcePreview();
+  };
+
+  const handleRequestGithubRepoUrlInput = () => {
+    setIsGithubRepoUrlInputActive(true);
+    focusAfterRender(githubRepoUrlInputRef);
+  };
+
+  const handleHideGithubRepoUrlInput = () => {
+    if (githubRepoUrl.trim()) return;
+    setIsGithubRepoUrlInputActive(false);
+  };
+
+  const handleClearGithubRepoUrlInput = () => {
+    setGithubRepoUrl('');
+    setIsGithubRepoUrlInputActive(false);
+    clearSourcePreview();
+  };
+
+  const handleRequestSourceTextInput = async () => {
+    setIsSourceTextInputActive(true);
+    focusAfterRender(sourceTextAreaRef);
+
+    try {
+      const clipboardText = await navigator.clipboard?.readText?.();
+      const normalizedClipboardText = String(clipboardText || '').trim();
+
+      if (!normalizedClipboardText) return;
+
+      const nextSourceText = sourceText.trim().length > 0
+        ? `${sourceText.replace(/[ \t\r\n]+$/g, '')}\n\n${normalizedClipboardText}`
+        : normalizedClipboardText;
+
+      handleSourceTextChange(nextSourceText);
+    } catch {
+      // Clipboard permissions commonly fail; the now-visible textarea is the fallback.
+    }
+  };
+
+  const handleHideSourceTextInput = () => {
+    if (sourceText.trim()) return;
+    setIsSourceTextInputActive(false);
+  };
+
+  const handleClearSourceTextInput = () => {
+    setSourceText('');
+    setIsSourceTextInputActive(false);
     clearSourcePreview();
   };
 
@@ -188,27 +250,30 @@ function ProjectAgentSection({
             disabled={isAgentInputDisabled}
           />
 
-          <TextAreaInput
-            id={sourceTextId}
-            label="Source material"
-            value={sourceText}
-            onChange={handleSourceTextChange}
-            minRows={2}
-            disabled={isAgentInputDisabled}
-            placeholder="Paste notes, reports, metrics, or other evidence."
-          />
-
           <div className="flex flex-wrap items-center gap-2">
             <ProjectAgentSourceInputs
               id={sourceFilesId}
+              sourceTextId={sourceTextId}
               githubRepoUrlId={githubRepoUrlId}
+              sourceText={sourceText}
               sourceFiles={sourceFiles}
               githubRepoUrl={githubRepoUrl}
+              isSourceTextInputVisible={isSourceTextInputVisible}
+              isGithubRepoUrlInputVisible={isGithubRepoUrlInputVisible}
+              sourceTextAreaRef={sourceTextAreaRef}
+              githubRepoUrlInputRef={githubRepoUrlInputRef}
               disabled={isAgentInputDisabled}
               sourcePreview={sourcePreview}
               canPreviewSources={canPreviewSources}
               isPreviewingSources={isPreviewingSources}
               onAddFiles={handleAddSourceFiles}
+              onSourceTextChange={handleSourceTextChange}
+              onRequestSourceText={handleRequestSourceTextInput}
+              onHideSourceText={handleHideSourceTextInput}
+              onClearSourceText={handleClearSourceTextInput}
+              onRequestGithubRepoUrl={handleRequestGithubRepoUrlInput}
+              onHideGithubRepoUrl={handleHideGithubRepoUrlInput}
+              onClearGithubRepoUrl={handleClearGithubRepoUrlInput}
               onGithubRepoUrlChange={handleGithubRepoUrlChange}
               onRemoveFile={handleRemoveSourceFile}
               onPreviewSources={handlePreviewSources}

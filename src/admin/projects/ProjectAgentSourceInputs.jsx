@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   getSourceFilePreviewStatus,
@@ -141,25 +141,95 @@ function SourcePreviewManifest({ sourcePreview }) {
 
 function ProjectAgentSourceInputs({
   id,
+  sourceTextId,
   githubRepoUrlId,
+  sourceText = '',
   sourceFiles,
   githubRepoUrl = '',
+  isSourceTextInputVisible = false,
+  isGithubRepoUrlInputVisible = false,
+  sourceTextAreaRef,
+  githubRepoUrlInputRef,
   disabled = false,
   sourcePreview,
   canPreviewSources = false,
   isPreviewingSources = false,
   onAddFiles,
+  onSourceTextChange,
+  onRequestSourceText,
+  onHideSourceText,
+  onClearSourceText,
+  onRequestGithubRepoUrl,
+  onHideGithubRepoUrl,
+  onClearGithubRepoUrl,
   onGithubRepoUrlChange,
   onRemoveFile,
   onPreviewSources,
 }) {
   const inputRef = useRef(null);
+  const contextScopeRef = useRef(null);
+  const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const files = Array.isArray(sourceFiles) ? sourceFiles : [];
   const previewSummary = getSourcePreviewSummary(sourcePreview);
+  const contextMenuId = `${id}-context-menu`;
+  const trimmedSourceText = sourceText.trim();
+  const trimmedGithubRepoUrl = githubRepoUrl.trim();
+
+  useEffect(() => {
+    if (!isContextMenuOpen || typeof document === 'undefined') return undefined;
+
+    const handlePointerDown = (event) => {
+      if (contextScopeRef.current?.contains(event.target)) return;
+      setIsContextMenuOpen(false);
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, [isContextMenuOpen]);
 
   const handleOpenFilePicker = () => {
     if (disabled) return;
     inputRef.current?.click();
+  };
+
+  const handleToggleContextMenu = () => {
+    if (disabled) return;
+    setIsContextMenuOpen((isOpen) => !isOpen);
+  };
+
+  const handleContextMenuKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setIsContextMenuOpen(false);
+    }
+  };
+
+  const handleContextButtonKeyDown = (event) => {
+    if (event.key === 'Escape' && isContextMenuOpen) {
+      setIsContextMenuOpen(false);
+    }
+  };
+
+  const handleContextScopeBlur = (event) => {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    setIsContextMenuOpen(false);
+  };
+
+  const handleSelectFiles = () => {
+    setIsContextMenuOpen(false);
+    handleOpenFilePicker();
+  };
+
+  const handleSelectGithubRepoUrl = () => {
+    setIsContextMenuOpen(false);
+    onRequestGithubRepoUrl?.();
+  };
+
+  const handleSelectSourceText = () => {
+    setIsContextMenuOpen(false);
+    onRequestSourceText?.();
   };
 
   const handleFileChange = (event) => {
@@ -171,135 +241,233 @@ function ProjectAgentSourceInputs({
   };
 
   return (
-    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-      <label htmlFor={githubRepoUrlId} className="sr-only">GitHub repository URL</label>
-      <input
-        id={githubRepoUrlId}
-        type="text"
-        inputMode="url"
-        value={githubRepoUrl}
-        disabled={disabled}
-        onChange={(event) => onGithubRepoUrlChange?.(event.target.value)}
-        placeholder="GitHub repo URL"
-        aria-label="GitHub repository URL"
-        title="GitHub repository URL"
-        className={`${adminForm.input} min-h-9 min-w-0 flex-[1_1_16rem] py-1.5 text-sm`}
-      />
+    <>
+      {isGithubRepoUrlInputVisible && (
+        <div className="basis-full rounded-md border border-admin-border-subtle bg-admin-row/50 p-2">
+          <div className="flex flex-wrap items-end gap-2">
+            <div className="min-w-0 flex-1 space-y-1">
+              <label htmlFor={githubRepoUrlId} className="text-xs font-medium text-admin-text-muted">
+                GitHub repo URL
+              </label>
+              <input
+                ref={githubRepoUrlInputRef}
+                id={githubRepoUrlId}
+                type="text"
+                inputMode="url"
+                value={githubRepoUrl}
+                disabled={disabled}
+                onChange={(event) => onGithubRepoUrlChange?.(event.target.value)}
+                placeholder="https://github.com/owner/repo"
+                aria-label="GitHub repository URL"
+                title="GitHub repository URL"
+                className={`${adminForm.input} min-h-9 w-full py-1.5 text-sm`}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={trimmedGithubRepoUrl ? onClearGithubRepoUrl : onHideGithubRepoUrl}
+              disabled={disabled}
+              className={adminUi.secondaryButton}
+              aria-label={trimmedGithubRepoUrl ? 'Clear GitHub repository URL' : 'Hide GitHub repository URL input'}
+              title={trimmedGithubRepoUrl ? 'Clear GitHub repository URL' : 'Hide GitHub repository URL input'}
+            >
+              {trimmedGithubRepoUrl ? 'Clear' : 'Hide'}
+            </button>
+          </div>
+        </div>
+      )}
 
-      <input
-        ref={inputRef}
-        id={id}
-        type="file"
-        multiple
-        accept={PROJECT_AGENT_SOURCE_FILE_ACCEPT}
-        disabled={disabled}
-        onChange={handleFileChange}
-        className="hidden"
-        aria-hidden="true"
-        tabIndex={-1}
-      />
+      {isSourceTextInputVisible && (
+        <div className="basis-full rounded-md border border-admin-border-subtle bg-admin-row/50 p-2">
+          <div className="flex flex-wrap items-start gap-2">
+            <div className="min-w-0 flex-1 space-y-1">
+              <label htmlFor={sourceTextId} className="text-xs font-medium text-admin-text-muted">
+                Source material
+              </label>
+              <textarea
+                ref={sourceTextAreaRef}
+                id={sourceTextId}
+                value={sourceText}
+                onChange={(event) => onSourceTextChange?.(event.target.value)}
+                rows={2}
+                disabled={disabled}
+                placeholder="Paste notes, reports, metrics, or other evidence."
+                className={adminForm.textarea}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={trimmedSourceText ? onClearSourceText : onHideSourceText}
+              disabled={disabled}
+              className={adminUi.secondaryButton}
+              aria-label={trimmedSourceText ? 'Clear source material' : 'Hide source material input'}
+              title={trimmedSourceText ? 'Clear source material' : 'Hide source material input'}
+            >
+              {trimmedSourceText ? 'Clear source' : 'Hide'}
+            </button>
+          </div>
+        </div>
+      )}
 
-      <button
-        type="button"
-        onClick={handleOpenFilePicker}
-        disabled={disabled}
-        aria-label={`Add source files. Allowed file types: ${PROJECT_AGENT_SOURCE_FILE_TYPE_LABEL}`}
-        title={`Add source files (${PROJECT_AGENT_SOURCE_FILE_TYPE_LABEL})`}
-        className="flex size-9 shrink-0 items-center justify-center rounded-full border border-admin-border bg-admin-control text-admin-text-muted hover:border-admin-accent-hover hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-admin-border disabled:hover:bg-admin-control disabled:hover:text-admin-text-muted"
+      <div
+        ref={contextScopeRef}
+        className="relative flex min-w-0 flex-1 flex-wrap items-center gap-2"
+        onBlur={handleContextScopeBlur}
       >
-        <svg
+        <input
+          ref={inputRef}
+          id={id}
+          type="file"
+          multiple
+          accept={PROJECT_AGENT_SOURCE_FILE_ACCEPT}
+          title={`Allowed source file types: ${PROJECT_AGENT_SOURCE_FILE_TYPE_LABEL}`}
+          disabled={disabled}
+          onChange={handleFileChange}
+          className="hidden"
           aria-hidden="true"
-          viewBox="0 0 20 20"
-          className="size-4.5"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeWidth="1.75"
+          tabIndex={-1}
+        />
+
+        <button
+          type="button"
+          onClick={handleToggleContextMenu}
+          onKeyDown={handleContextButtonKeyDown}
+          disabled={disabled}
+          aria-label="Add source context"
+          aria-expanded={isContextMenuOpen}
+          aria-controls={contextMenuId}
+          title="Add source context"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-admin-border bg-admin-control text-admin-text-muted hover:border-admin-accent-hover hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-admin-border disabled:hover:bg-admin-control disabled:hover:text-admin-text-muted"
         >
-          <path d="M10 5v10" />
-          <path d="M5 10h10" />
-        </svg>
-      </button>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 20 20"
+            className="size-4.5"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeWidth="1.75"
+          >
+            <path d="M10 5v10" />
+            <path d="M5 10h10" />
+          </svg>
+        </button>
 
-      {files.length > 0 && (
-        <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-2" aria-label="Selected source files">
-          {files.map((file, index) => {
-            const filePreviewStatus = getSourceFilePreviewStatus(file, sourcePreview);
+        {isContextMenuOpen && (
+          <div
+            id={contextMenuId}
+            role="menu"
+            tabIndex={-1}
+            onKeyDown={handleContextMenuKeyDown}
+            className="absolute left-0 top-10 z-20 min-w-56 rounded-md border border-admin-border bg-admin-panel p-1 shadow-lg"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleSelectFiles}
+              className="block w-full rounded-sm px-3 py-2 text-left text-sm text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text"
+            >
+              Add files and folders
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleSelectGithubRepoUrl}
+              className="block w-full rounded-sm px-3 py-2 text-left text-sm text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text"
+            >
+              Add GitHub repo URL
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleSelectSourceText}
+              className="block w-full rounded-sm px-3 py-2 text-left text-sm text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text"
+            >
+              Paste source material
+            </button>
+          </div>
+        )}
 
-            return (
-              <li
-                key={`${file.name}-${file.size}-${file.lastModified ?? 0}-${index}`}
-                className="flex min-h-9 max-w-full min-w-0 items-center gap-2 rounded-md border border-admin-border bg-admin-control px-2 py-1 text-xs text-admin-text-muted"
-              >
-                <span className="min-w-0 truncate text-admin-text" title={file.name}>
-                  {file.name}
-                </span>
-                <span className="shrink-0 text-admin-text-subtle">
-                  {formatSourceFileSize(file.size)}
-                </span>
-                <SourcePreviewStatusPill status={filePreviewStatus} />
-                <button
-                  type="button"
-                  onClick={() => onRemoveFile?.(index)}
-                  disabled={disabled}
-                  aria-label={`Remove source file ${file.name}`}
-                  title={`Remove ${file.name}`}
-                  className={`${adminUi.iconButton} shrink-0 px-1.5 py-0.5`}
+        {files.length > 0 && (
+          <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-2" aria-label="Selected source files">
+            {files.map((file, index) => {
+              const filePreviewStatus = getSourceFilePreviewStatus(file, sourcePreview);
+
+              return (
+                <li
+                  key={`${file.name}-${file.size}-${file.lastModified ?? 0}-${index}`}
+                  className="flex min-h-9 max-w-full min-w-0 items-center gap-2 rounded-md border border-admin-border bg-admin-control px-2 py-1 text-xs text-admin-text-muted"
                 >
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 20 20"
-                    className="size-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeWidth="1.75"
+                  <span className="min-w-0 truncate text-admin-text" title={file.name}>
+                    {file.name}
+                  </span>
+                  <span className="shrink-0 text-admin-text-subtle">
+                    {formatSourceFileSize(file.size)}
+                  </span>
+                  <SourcePreviewStatusPill status={filePreviewStatus} />
+                  <button
+                    type="button"
+                    onClick={() => onRemoveFile?.(index)}
+                    disabled={disabled}
+                    aria-label={`Remove source file ${file.name}`}
+                    title={`Remove ${file.name}`}
+                    className={`${adminUi.iconButton} shrink-0 px-1.5 py-0.5`}
                   >
-                    <path d="M6 6l8 8" />
-                    <path d="M14 6l-8 8" />
-                  </svg>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 20 20"
+                      className="size-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeWidth="1.75"
+                    >
+                      <path d="M6 6l8 8" />
+                      <path d="M14 6l-8 8" />
+                    </svg>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
-      <button
-        type="button"
-        onClick={onPreviewSources}
-        disabled={!canPreviewSources}
-        aria-label="Preview source manifest"
-        className={adminUi.secondaryButton}
-      >
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 20 20"
-          className="size-4"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.75"
+        <button
+          type="button"
+          onClick={onPreviewSources}
+          disabled={!canPreviewSources}
+          aria-label="Preview source manifest"
+          className={adminUi.secondaryButton}
         >
-          <path d="M2.5 10s2.75-5 7.5-5 7.5 5 7.5 5-2.75 5-7.5 5-7.5-5-7.5-5Z" />
-          <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
-        </svg>
-        <span>{isPreviewingSources ? 'Previewing' : 'Preview'}</span>
-      </button>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 20 20"
+            className="size-4"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.75"
+          >
+            <path d="M2.5 10s2.75-5 7.5-5 7.5 5 7.5 5-2.75 5-7.5 5-7.5-5-7.5-5Z" />
+            <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+          </svg>
+          <span>{isPreviewingSources ? 'Previewing' : 'Preview'}</span>
+        </button>
 
-      {previewSummary && (
-        <p
-          className={`rounded-md border px-2.5 py-2 text-xs leading-5 ${getPreviewToneClasses(previewSummary.tone)}`}
-          role={previewSummary.tone === 'warning' ? 'alert' : 'status'}
-          aria-live="polite"
-        >
-          {previewSummary.message}
-        </p>
-      )}
+        {previewSummary && (
+          <p
+            className={`rounded-md border px-2.5 py-2 text-xs leading-5 ${getPreviewToneClasses(previewSummary.tone)}`}
+            role={previewSummary.tone === 'warning' ? 'alert' : 'status'}
+            aria-live="polite"
+          >
+            {previewSummary.message}
+          </p>
+        )}
 
-      <SourcePreviewManifest sourcePreview={sourcePreview} />
-    </div>
+        <SourcePreviewManifest sourcePreview={sourcePreview} />
+      </div>
+    </>
   );
 }
 
