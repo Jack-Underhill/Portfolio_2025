@@ -104,6 +104,62 @@ export function getSourcePreviewSummary(sourcePreview) {
   };
 }
 
+export function getProjectAgentSourceContextSummary({
+  sourceText,
+  sourceFiles,
+  githubRepoUrl,
+  sourcePreview,
+} = {}) {
+  if (sourcePreview?.status === 'loading') {
+    return 'Previewing context';
+  }
+
+  if (sourcePreview?.status === 'failed') {
+    return 'Preview failed';
+  }
+
+  if (sourcePreview?.status === 'succeeded') {
+    const entries = Array.isArray(sourcePreview.manifest) ? sourcePreview.manifest : [];
+    const reviewedCount = Number.isFinite(sourcePreview.manifestCount)
+      ? sourcePreview.manifestCount
+      : entries.length;
+    const includedCount = Number.isFinite(sourcePreview.sourceCount)
+      ? sourcePreview.sourceCount
+      : entries.filter((entry) => entry?.included).length;
+    const skippedCount = Math.max(reviewedCount - includedCount, 0);
+    const warningCount = Number.isFinite(sourcePreview.warningCount)
+      ? sourcePreview.warningCount
+      : sourcePreview.warnings?.length ?? 0;
+
+    if (skippedCount > 0) {
+      return `${includedCount} included, ${skippedCount} skipped`;
+    }
+
+    if (warningCount > 0) {
+      return `${includedCount} included, ${warningCount} warning${warningCount === 1 ? '' : 's'}`;
+    }
+
+    return `${includedCount} included, ${reviewedCount} reviewed`;
+  }
+
+  const files = Array.isArray(sourceFiles) ? sourceFiles : [];
+  const summaryParts = [];
+
+  if (files.length > 0) {
+    summaryParts.push(`${files.length} file${files.length === 1 ? '' : 's'}`);
+  }
+
+  if (String(githubRepoUrl || '').trim().length > 0) {
+    summaryParts.push('1 repo');
+  }
+
+  if (String(sourceText || '').trim().length > 0) {
+    summaryParts.push('pasted notes');
+  }
+
+  return summaryParts.length > 0 ? summaryParts.join(', ') : 'No context';
+}
+
 export function getSourceFilePreviewStatus(file, sourcePreview) {
   if (!file || sourcePreview?.status !== 'succeeded') return null;
 

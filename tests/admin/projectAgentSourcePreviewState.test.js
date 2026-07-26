@@ -6,6 +6,7 @@ import {
   createLoadingProjectAgentSourcePreview,
   createProjectAgentSourceInputSignature,
   createSucceededProjectAgentSourcePreview,
+  getProjectAgentSourceContextSummary,
   getSourceFilePreviewStatus,
   getSourcePreviewSummary,
   hasProjectAgentRunnableInput,
@@ -95,6 +96,38 @@ describe('project agent source preview state', () => {
       tone: 'warning',
       message: 'Preview route failed.',
     });
+  });
+
+  it('summarizes source context for the compact toolbar label', () => {
+    expect(getProjectAgentSourceContextSummary()).toBe('No context');
+    expect(getProjectAgentSourceContextSummary({
+      sourceFiles: [{ name: 'report.pdf' }, { name: 'notes.md' }],
+    })).toBe('2 files');
+    expect(getProjectAgentSourceContextSummary({
+      sourceText: 'Launch notes',
+    })).toBe('pasted notes');
+    expect(getProjectAgentSourceContextSummary({
+      githubRepoUrl: 'https://github.com/example/app',
+    })).toBe('1 repo');
+    expect(getProjectAgentSourceContextSummary({
+      sourceText: 'Launch notes',
+      sourceFiles: [{ name: 'report.pdf' }],
+      githubRepoUrl: 'https://github.com/example/app',
+    })).toBe('1 file, 1 repo, pasted notes');
+    expect(getProjectAgentSourceContextSummary({
+      sourcePreview: createLoadingProjectAgentSourcePreview('signature'),
+    })).toBe('Previewing context');
+    expect(getProjectAgentSourceContextSummary({
+      sourcePreview: createFailedProjectAgentSourcePreview(new Error('Nope.'), 'signature'),
+    })).toBe('Preview failed');
+    expect(getProjectAgentSourceContextSummary({
+      sourcePreview: createSucceededProjectAgentSourcePreview({
+        manifest: [{ id: 'source-1', included: true }, { id: 'source-2', included: false }],
+        sourceCount: 1,
+        manifestCount: 2,
+        warningCount: 1,
+      }, 'signature'),
+    })).toBe('1 included, 1 skipped');
   });
 
   it('derives per-file preview status from direct and archive manifest entries', () => {

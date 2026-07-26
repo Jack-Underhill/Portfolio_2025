@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import {
+  getProjectAgentSourceContextSummary,
   getSourceFilePreviewStatus,
   getSourcePreviewSummary,
 } from './projectAgentSourcePreviewState';
@@ -28,6 +29,16 @@ function formatSourceFileSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(bytes < 10 * 1024 ? 1 : 0)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function formatSourceTextSize(text) {
+  const value = String(text || '');
+
+  if (typeof TextEncoder !== 'undefined') {
+    return formatSourceFileSize(new TextEncoder().encode(value).byteLength);
+  }
+
+  return formatSourceFileSize(value.length);
 }
 
 function normalizeItems(items = []) {
@@ -139,6 +150,181 @@ function SourcePreviewManifest({ sourcePreview }) {
   );
 }
 
+export function ProjectAgentSourceContextTray({
+  sourceText = '',
+  sourceFiles,
+  githubRepoUrl = '',
+  disabled = false,
+  sourcePreview,
+  canPreviewSources = false,
+  isPreviewingSources = false,
+  onRemoveFile,
+  onPreviewSources,
+}) {
+  const [isPreviewDetailsOpen, setIsPreviewDetailsOpen] = useState(true);
+  const files = Array.isArray(sourceFiles) ? sourceFiles : [];
+  const previewSummary = getSourcePreviewSummary(sourcePreview);
+  const trimmedSourceText = sourceText.trim();
+  const trimmedGithubRepoUrl = githubRepoUrl.trim();
+  const previewDetailsId = 'project-agent-source-preview-details';
+  const hasPreviewResult = sourcePreview?.status === 'succeeded' || sourcePreview?.status === 'failed';
+  const canShowPreviewAction = Boolean(files.length > 0
+    || trimmedSourceText
+    || trimmedGithubRepoUrl
+    || previewSummary);
+  let previewButtonLabel = 'Preview context';
+
+  if (hasPreviewResult) {
+    previewButtonLabel = isPreviewDetailsOpen ? 'Hide preview' : 'Show preview';
+  } else if (isPreviewingSources) {
+    previewButtonLabel = 'Previewing';
+  }
+  const hasContext = files.length > 0
+    || trimmedSourceText.length > 0
+    || trimmedGithubRepoUrl.length > 0
+    || Boolean(previewSummary)
+    || sourcePreview?.status === 'succeeded';
+
+  useEffect(() => {
+    if (sourcePreview?.status && sourcePreview.status !== 'idle') {
+      setIsPreviewDetailsOpen(true);
+    }
+  }, [sourcePreview?.signature, sourcePreview?.status]);
+
+  if (!hasContext) return null;
+
+  const handlePreviewAction = () => {
+    if (hasPreviewResult) {
+      setIsPreviewDetailsOpen((isOpen) => !isOpen);
+      return;
+    }
+
+    onPreviewSources?.();
+  };
+
+  return (
+    <div className="space-y-3 rounded-md border border-admin-border-subtle bg-admin-row/40 p-2">
+      {(trimmedSourceText || trimmedGithubRepoUrl) && (
+        <div className="flex flex-wrap items-center gap-2">
+          {trimmedSourceText && (
+            <p className="rounded-md border border-admin-border-subtle bg-admin-control px-2.5 py-2 text-xs text-admin-text-muted">
+              <span className="font-medium text-admin-text">Pasted notes</span>
+              <span className="text-admin-text-subtle"> - {formatSourceTextSize(trimmedSourceText)}</span>
+            </p>
+          )}
+
+          {trimmedGithubRepoUrl && (
+            <p className="min-w-0 rounded-md border border-admin-border-subtle bg-admin-control px-2.5 py-2 text-xs text-admin-text-muted">
+              <span className="font-medium text-admin-text">GitHub repo</span>
+              <span className="break-words text-admin-text-subtle"> - {trimmedGithubRepoUrl}</span>
+            </p>
+          )}
+        </div>
+      )}
+
+      {files.length > 0 && (
+        <div className="space-y-2 rounded-md border border-admin-border-subtle bg-admin-panel/35 p-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-medium text-admin-text-muted">
+              Uploaded files
+            </p>
+            <p className="text-xs text-admin-text-subtle">
+              {files.length} selected
+            </p>
+          </div>
+
+          <ul className="flex min-w-0 flex-wrap items-center gap-2" aria-label="Selected source files">
+            {files.map((file, index) => {
+              const filePreviewStatus = getSourceFilePreviewStatus(file, sourcePreview);
+
+              return (
+                <li
+                  key={`${file.name}-${file.size}-${file.lastModified ?? 0}-${index}`}
+                  className="flex min-h-9 max-w-full min-w-0 items-center gap-2 rounded-md border border-admin-border bg-admin-control px-2 py-1 text-xs text-admin-text-muted"
+                >
+                  <span className="min-w-0 truncate text-admin-text" title={file.name}>
+                    {file.name}
+                  </span>
+                  <span className="shrink-0 text-admin-text-subtle">
+                    {formatSourceFileSize(file.size)}
+                  </span>
+                  <SourcePreviewStatusPill status={filePreviewStatus} />
+                  <button
+                    type="button"
+                    onClick={() => onRemoveFile?.(index)}
+                    disabled={disabled}
+                    aria-label={`Remove source file ${file.name}`}
+                    title={`Remove ${file.name}`}
+                    className={`${adminUi.iconButton} shrink-0 px-1.5 py-0.5`}
+                  >
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 20 20"
+                      className="size-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeWidth="1.75"
+                    >
+                      <path d="M6 6l8 8" />
+                      <path d="M14 6l-8 8" />
+                    </svg>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
+      {canShowPreviewAction && (
+        <div className="space-y-2 rounded-md border border-admin-border-subtle bg-admin-panel/35 p-2">
+          <button
+            type="button"
+            onClick={handlePreviewAction}
+            disabled={!hasPreviewResult && !canPreviewSources}
+            aria-label={previewButtonLabel}
+            aria-expanded={hasPreviewResult ? isPreviewDetailsOpen : undefined}
+            aria-controls={hasPreviewResult ? previewDetailsId : undefined}
+            className={adminUi.secondaryButton}
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 20 20"
+              className="size-4"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.75"
+            >
+              <path d="M2.5 10s2.75-5 7.5-5 7.5 5 7.5 5-2.75 5-7.5 5-7.5-5-7.5-5Z" />
+              <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+            </svg>
+            <span>{previewButtonLabel}</span>
+          </button>
+
+          {(!hasPreviewResult || isPreviewDetailsOpen) && (
+            <div id={previewDetailsId} className="space-y-2">
+              {previewSummary && (
+                <p
+                  className={`rounded-md border px-2.5 py-2 text-xs leading-5 ${getPreviewToneClasses(previewSummary.tone)}`}
+                  role={previewSummary.tone === 'warning' ? 'alert' : 'status'}
+                  aria-live="polite"
+                >
+                  {previewSummary.message}
+                </p>
+              )}
+
+              <SourcePreviewManifest sourcePreview={sourcePreview} />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProjectAgentSourceInputs({
   id,
   sourceTextId,
@@ -152,8 +338,6 @@ function ProjectAgentSourceInputs({
   githubRepoUrlInputRef,
   disabled = false,
   sourcePreview,
-  canPreviewSources = false,
-  isPreviewingSources = false,
   onAddFiles,
   onSourceTextChange,
   onRequestSourceText,
@@ -163,17 +347,21 @@ function ProjectAgentSourceInputs({
   onHideGithubRepoUrl,
   onClearGithubRepoUrl,
   onGithubRepoUrlChange,
-  onRemoveFile,
-  onPreviewSources,
+  onClearFiles,
 }) {
   const inputRef = useRef(null);
   const contextScopeRef = useRef(null);
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const files = Array.isArray(sourceFiles) ? sourceFiles : [];
-  const previewSummary = getSourcePreviewSummary(sourcePreview);
   const contextMenuId = `${id}-context-menu`;
   const trimmedSourceText = sourceText.trim();
   const trimmedGithubRepoUrl = githubRepoUrl.trim();
+  const contextSummary = getProjectAgentSourceContextSummary({
+    sourceText,
+    sourceFiles,
+    githubRepoUrl,
+    sourcePreview,
+  });
 
   useEffect(() => {
     if (!isContextMenuOpen || typeof document === 'undefined') return undefined;
@@ -388,84 +576,25 @@ function ProjectAgentSourceInputs({
           </div>
         )}
 
-        {files.length > 0 && (
-          <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-2" aria-label="Selected source files">
-            {files.map((file, index) => {
-              const filePreviewStatus = getSourceFilePreviewStatus(file, sourcePreview);
-
-              return (
-                <li
-                  key={`${file.name}-${file.size}-${file.lastModified ?? 0}-${index}`}
-                  className="flex min-h-9 max-w-full min-w-0 items-center gap-2 rounded-md border border-admin-border bg-admin-control px-2 py-1 text-xs text-admin-text-muted"
-                >
-                  <span className="min-w-0 truncate text-admin-text" title={file.name}>
-                    {file.name}
-                  </span>
-                  <span className="shrink-0 text-admin-text-subtle">
-                    {formatSourceFileSize(file.size)}
-                  </span>
-                  <SourcePreviewStatusPill status={filePreviewStatus} />
-                  <button
-                    type="button"
-                    onClick={() => onRemoveFile?.(index)}
-                    disabled={disabled}
-                    aria-label={`Remove source file ${file.name}`}
-                    title={`Remove ${file.name}`}
-                    className={`${adminUi.iconButton} shrink-0 px-1.5 py-0.5`}
-                  >
-                    <svg
-                      aria-hidden="true"
-                      viewBox="0 0 20 20"
-                      className="size-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeWidth="1.75"
-                    >
-                      <path d="M6 6l8 8" />
-                      <path d="M14 6l-8 8" />
-                    </svg>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-
-        <button
-          type="button"
-          onClick={onPreviewSources}
-          disabled={!canPreviewSources}
-          aria-label="Preview source manifest"
-          className={adminUi.secondaryButton}
+        <p
+          className="min-w-0 truncate text-xs text-admin-text-muted"
+          title={contextSummary}
         >
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 20 20"
-            className="size-4"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.75"
-          >
-            <path d="M2.5 10s2.75-5 7.5-5 7.5 5 7.5 5-2.75 5-7.5 5-7.5-5-7.5-5Z" />
-            <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
-          </svg>
-          <span>{isPreviewingSources ? 'Previewing' : 'Preview'}</span>
-        </button>
+          {contextSummary}
+        </p>
 
-        {previewSummary && (
-          <p
-            className={`rounded-md border px-2.5 py-2 text-xs leading-5 ${getPreviewToneClasses(previewSummary.tone)}`}
-            role={previewSummary.tone === 'warning' ? 'alert' : 'status'}
-            aria-live="polite"
+        {files.length > 0 && (
+          <button
+            type="button"
+            onClick={onClearFiles}
+            disabled={disabled}
+            className={adminUi.secondaryButton}
+            aria-label="Clear uploaded files"
+            title="Clear uploaded files"
           >
-            {previewSummary.message}
-          </p>
+            Clear files
+          </button>
         )}
-
-        <SourcePreviewManifest sourcePreview={sourcePreview} />
       </div>
     </>
   );

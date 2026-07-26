@@ -3,7 +3,9 @@ import { useRef, useState } from 'react';
 import ProjectDraftContextPanel from './ProjectDraftContextPanel';
 import ProjectDraftImportPanel from './ProjectDraftImportPanel';
 import ProjectAgentRunPanel from './ProjectAgentRunPanel';
-import ProjectAgentSourceInputs from './ProjectAgentSourceInputs';
+import ProjectAgentSourceInputs, {
+  ProjectAgentSourceContextTray,
+} from './ProjectAgentSourceInputs';
 import {
   createFailedProjectAgentSourcePreview,
   createIdleProjectAgentSourcePreview,
@@ -149,6 +151,11 @@ function ProjectAgentSection({
     clearSourcePreview();
   };
 
+  const handleClearSourceFiles = () => {
+    setSourceFiles([]);
+    clearSourcePreview();
+  };
+
   const handleGithubRepoUrlChange = (value) => {
     setGithubRepoUrl(value);
     clearSourcePreview();
@@ -264,8 +271,6 @@ function ProjectAgentSection({
               githubRepoUrlInputRef={githubRepoUrlInputRef}
               disabled={isAgentInputDisabled}
               sourcePreview={sourcePreview}
-              canPreviewSources={canPreviewSources}
-              isPreviewingSources={isPreviewingSources}
               onAddFiles={handleAddSourceFiles}
               onSourceTextChange={handleSourceTextChange}
               onRequestSourceText={handleRequestSourceTextInput}
@@ -275,8 +280,7 @@ function ProjectAgentSection({
               onHideGithubRepoUrl={handleHideGithubRepoUrlInput}
               onClearGithubRepoUrl={handleClearGithubRepoUrlInput}
               onGithubRepoUrlChange={handleGithubRepoUrlChange}
-              onRemoveFile={handleRemoveSourceFile}
-              onPreviewSources={handlePreviewSources}
+              onClearFiles={handleClearSourceFiles}
             />
 
             <div className="relative min-w-[1rem] flex-1 sm:w-33 sm:flex-none">
@@ -342,6 +346,18 @@ function ProjectAgentSection({
               </button>
             </div>
           </div>
+
+          <ProjectAgentSourceContextTray
+            sourceText={sourceText}
+            sourceFiles={sourceFiles}
+            githubRepoUrl={githubRepoUrl}
+            disabled={isAgentInputDisabled}
+            sourcePreview={sourcePreview}
+            canPreviewSources={canPreviewSources}
+            isPreviewingSources={isPreviewingSources}
+            onRemoveFile={handleRemoveSourceFile}
+            onPreviewSources={handlePreviewSources}
+          />
 
           <ProjectAgentRunPanel
             agentRun={agentRun}
