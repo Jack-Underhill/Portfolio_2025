@@ -150,6 +150,65 @@ function SourcePreviewManifest({ sourcePreview }) {
   );
 }
 
+function SourceContextMenuIcon({ icon }) {
+  const commonProps = {
+    'aria-hidden': 'true',
+    className: 'size-4.5 shrink-0 text-admin-accent-text',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    strokeWidth: 1.75,
+    viewBox: '0 0 20 20',
+  };
+
+  if (icon === 'url') {
+    return (
+      <svg {...commonProps}>
+        <circle cx="10" cy="10" r="7" />
+        <path d="M3.5 10h13" />
+        <path d="M10 3.5c2 1.8 3 4 3 6.5s-1 4.7-3 6.5" />
+        <path d="M10 3.5c-2 1.8-3 4-3 6.5s1 4.7 3 6.5" />
+      </svg>
+    );
+  }
+
+  if (icon === 'paste') {
+    return (
+      <svg {...commonProps}>
+        <path d="M7 4.5h6" />
+        <path d="M8 3h4a1.5 1.5 0 0 1 0 3H8a1.5 1.5 0 0 1 0-3Z" />
+        <path d="M6 5H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1" />
+        <path d="M7 10h6" />
+        <path d="M7 13h4" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...commonProps}>
+      <path d="M2.5 7h5l1.5 1.75h8.5v6.75a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5Z" />
+      <path d="M2.5 7V5.5A1.5 1.5 0 0 1 4 4h3l1.5 1.75H16A1.5 1.5 0 0 1 17.5 7v1.75" />
+      <path d="M10 11v4" />
+      <path d="M8 13h4" />
+    </svg>
+  );
+}
+
+function SourceContextMenuItem({ icon, children, onClick }) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 rounded-sm px-3 py-2 text-left text-sm text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text"
+    >
+      <SourceContextMenuIcon icon={icon} />
+      <span>{children}</span>
+    </button>
+  );
+}
+
 export function ProjectAgentSourceContextTray({
   sourceText = '',
   sourceFiles,
@@ -549,30 +608,15 @@ function ProjectAgentSourceInputs({
             onKeyDown={handleContextMenuKeyDown}
             className="absolute left-0 top-10 z-20 min-w-56 rounded-md border border-admin-border bg-admin-panel p-1 shadow-lg"
           >
-            <button
-              type="button"
-              role="menuitem"
-              onClick={handleSelectFiles}
-              className="block w-full rounded-sm px-3 py-2 text-left text-sm text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text"
-            >
+            <SourceContextMenuItem icon="files" onClick={handleSelectFiles}>
               Add files and folders
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={handleSelectGithubRepoUrl}
-              className="block w-full rounded-sm px-3 py-2 text-left text-sm text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text"
-            >
+            </SourceContextMenuItem>
+            <SourceContextMenuItem icon="url" onClick={handleSelectGithubRepoUrl}>
               Add GitHub repo URL
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={handleSelectSourceText}
-              className="block w-full rounded-sm px-3 py-2 text-left text-sm text-admin-text-muted hover:bg-admin-panel-hover hover:text-admin-text focus:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent-text"
-            >
+            </SourceContextMenuItem>
+            <SourceContextMenuItem icon="paste" onClick={handleSelectSourceText}>
               Paste source material
-            </button>
+            </SourceContextMenuItem>
           </div>
         )}
 
