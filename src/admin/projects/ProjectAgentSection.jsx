@@ -246,7 +246,7 @@ function ProjectAgentSection({
   return (
     <div className={adminUi.divider}>
       <div className="space-y-3">
-        <h2 id={headingId} className={adminUi.sectionLabel}>Agent</h2>
+        <h2 id={headingId} className={adminUi.sectionLabel}>Case Study Agent</h2>
         <div className={`${adminUi.panel} space-y-3 p-4`}>
           <TextAreaInput
             id={instructionsId}
@@ -283,38 +283,38 @@ function ProjectAgentSection({
               onClearFiles={handleClearSourceFiles}
             />
 
-            <div className="relative min-w-[1rem] flex-1 sm:w-33 sm:flex-none">
-              <select
-                id={runIntentId}
-                value={intent}
-                onChange={(event) => setIntent(event.target.value)}
-                disabled={isAgentInputDisabled}
-                aria-label="Project agent intent"
-                title="Project agent intent"
-                className={`${adminForm.input} appearance-none pr-10`}
-              >
-                {PROJECT_AGENT_INTENT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+            <div className="ml-auto flex min-w-0 basis-full flex-wrap items-center justify-end gap-2 sm:basis-auto">
+              <div className="relative min-w-[10rem] flex-1 sm:w-36 sm:flex-none">
+                <select
+                  id={runIntentId}
+                  value={intent}
+                  onChange={(event) => setIntent(event.target.value)}
+                  disabled={isAgentInputDisabled}
+                  aria-label="Project agent mode"
+                  title="Project agent mode"
+                  className={`${adminForm.input} min-h-9 appearance-none border-admin-accent/50 bg-admin-panel-hover py-1.5 pr-10 font-medium text-admin-text shadow-[inset_0_0_0_1px_var(--color-admin-border-subtle)]`}
+                >
+                  {PROJECT_AGENT_INTENT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
 
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 20 20"
-                className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-admin-text-muted"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.75"
-              >
-                <path d="m6 8 4 4 4-4" />
-              </svg>
-            </div>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 20 20"
+                  className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-admin-text-muted"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.75"
+                >
+                  <path d="m6 8 4 4 4-4" />
+                </svg>
+              </div>
 
-            <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
               <p
                 className="min-w-0 max-w-full break-words text-right text-xs text-admin-text-muted"
                 title={runtimeModelTitle}
