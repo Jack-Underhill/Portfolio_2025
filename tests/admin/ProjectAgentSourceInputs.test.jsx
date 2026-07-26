@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import ProjectAgentSourceInputs, {
   ProjectAgentSourceContextTray,
 } from '../../src/admin/projects/ProjectAgentSourceInputs.jsx';
+import { PROJECT_AGENT_SOURCE_CONTEXT_MENU_OPTIONS } from '../../src/admin/projects/projectAgentSourceContextMenuOptions.js';
 import { createSucceededProjectAgentSourcePreview } from '../../src/admin/projects/projectAgentSourcePreviewState.js';
 
 describe('ProjectAgentSourceInputs', () => {
@@ -37,6 +38,14 @@ describe('ProjectAgentSourceInputs', () => {
     expect(html).toContain('.zip');
     expect(html).not.toContain('id="project-agent-github-repo-url"');
     expect(html).not.toContain('id="project-agent-source-material"');
+  });
+
+  it('keeps the context menu contract flat and explicit', () => {
+    expect(PROJECT_AGENT_SOURCE_CONTEXT_MENU_OPTIONS.map((option) => option.label)).toEqual([
+      'Add files and folders',
+      'Add GitHub repo URL',
+      'Paste source material',
+    ]);
   });
 
   it('keeps selected source file details out of the toolbar source controls', () => {
@@ -170,6 +179,7 @@ describe('ProjectAgentSourceInputs', () => {
     expect(html).toContain('Skipped');
     expect(html).toContain('mixed');
     expect(html).toContain('Skipped ignored build output.');
+    expect(html).not.toContain('Notes copied from the owner workspace.');
     expect(html).not.toContain('accepted raw zip entry text must not render');
     expect(html).not.toContain('raw extracted source text must not render');
     expect(html).not.toContain('ignored raw zip entry text must not render');

@@ -128,6 +128,22 @@ describe('project agent source preview state', () => {
         warningCount: 1,
       }, 'signature'),
     })).toBe('1 included, 1 skipped');
+    expect(getProjectAgentSourceContextSummary({
+      sourcePreview: createSucceededProjectAgentSourcePreview({
+        manifest: [{ id: 'source-1', included: true }, { id: 'source-2', included: true }],
+        sourceCount: 2,
+        manifestCount: 2,
+        warningCount: 0,
+      }, 'signature'),
+    })).toBe('2 included, 2 reviewed');
+    expect(getProjectAgentSourceContextSummary({
+      sourcePreview: createSucceededProjectAgentSourcePreview({
+        manifest: [{ id: 'source-1', included: true }],
+        sourceCount: 1,
+        manifestCount: 1,
+        warningCount: 2,
+      }, 'signature'),
+    })).toBe('1 included, 2 warnings');
   });
 
   it('derives per-file preview status from direct and archive manifest entries', () => {

@@ -9,6 +9,7 @@ import {
   PROJECT_AGENT_SOURCE_ALLOWED_EXTENSIONS,
   PROJECT_AGENT_SOURCE_ALLOWED_FILENAMES,
 } from '../../domain/projectAgentSourcePolicy';
+import { PROJECT_AGENT_SOURCE_CONTEXT_MENU_OPTIONS } from './projectAgentSourceContextMenuOptions';
 import { adminForm, adminUi } from '../../styles/recipes';
 
 const PROJECT_AGENT_SOURCE_FILE_EXTENSIONS = Object.freeze([
@@ -478,6 +479,11 @@ function ProjectAgentSourceInputs({
     setIsContextMenuOpen(false);
     onRequestSourceText?.();
   };
+  const contextMenuHandlers = {
+    files: handleSelectFiles,
+    github: handleSelectGithubRepoUrl,
+    paste: handleSelectSourceText,
+  };
 
   const handleFileChange = (event) => {
     const nextFiles = Array.from(event.target.files ?? []);
@@ -608,15 +614,15 @@ function ProjectAgentSourceInputs({
             onKeyDown={handleContextMenuKeyDown}
             className="absolute left-0 top-10 z-20 min-w-56 rounded-md border border-admin-border bg-admin-panel p-1 shadow-lg"
           >
-            <SourceContextMenuItem icon="files" onClick={handleSelectFiles}>
-              Add files and folders
-            </SourceContextMenuItem>
-            <SourceContextMenuItem icon="url" onClick={handleSelectGithubRepoUrl}>
-              Add GitHub repo URL
-            </SourceContextMenuItem>
-            <SourceContextMenuItem icon="paste" onClick={handleSelectSourceText}>
-              Paste source material
-            </SourceContextMenuItem>
+            {PROJECT_AGENT_SOURCE_CONTEXT_MENU_OPTIONS.map((option) => (
+              <SourceContextMenuItem
+                key={option.key}
+                icon={option.icon}
+                onClick={contextMenuHandlers[option.key]}
+              >
+                {option.label}
+              </SourceContextMenuItem>
+            ))}
           </div>
         )}
 
